@@ -17,6 +17,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -29,6 +30,11 @@ import frc.robot.Constants;
 import frc.robot.Constants.SwerveConstants;
 import frc.robot.subsystems.swervedrive.GyroIO.GyroIOInputs;
 import java.util.function.DoubleSupplier;
+
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
+import com.pathplanner.lib.util.PIDConstants;
+import com.pathplanner.lib.util.ReplanningConfig;
 
 public class SwerveDriveSubsystem extends SubsystemBase {
     private final SwerveDrivePoseEstimator swervePoseEstimator;
@@ -88,6 +94,32 @@ public class SwerveDriveSubsystem extends SubsystemBase {
 
         // Allow us to toggle on second order kinematics
         isSecondOrder = Logger.tunable("/SwerveDriveSubsystem/isSecondOrder", false);
+
+        AutoBuilder.configureHolonomic(
+                this::getPose, // Robot pose supplier
+                this::setPose, // Method to reset odometry (will be called if your auto has a starting pose)
+                this::getVelocity, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
+                (velocity) -> setVelocity(velocity, false, false), // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
+                new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should likely live in your Constants class
+                        new PIDConstants(5.6, 0.0, 0.001), // Translation PID constants
+                        new PIDConstants(4.3, 0.0, 0.001), // Rotation PID constants
+                        Constants.SwerveConstants.maxSpeed, // Max module speed, in m/s
+                        Constants.SwerveConstants.moduleTranslations[0].getNorm(), // Drive base radius in meters. Distance from robot center to furthest module.
+                        new ReplanningConfig() // Default path replanning config. See the API for the options here
+                ),
+                () -> {
+                    // Boolean supplier that controls when the path will be mirrored for the red alliance
+                    // This will flip the path being followed to the red side of the field.
+                    // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+
+                    var alliance = DriverStation.getAlliance();
+                    if (alliance.isPresent()) {
+                        return alliance.get() == DriverStation.Alliance.Red;
+                    }
+                    return false;
+                },
+                this // Reference to this subsystem to set requirements
+        );
     }
 
     public Command driveCommand(
