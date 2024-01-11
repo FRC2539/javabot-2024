@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 public class AutonomousManager {
-    private static final AutonomousOption defaultAuto = AutonomousOption.OPEN_PLACE2HANDOFF;
+    private static final AutonomousOption defaultAuto = AutonomousOption.OPEN_PLACE3HANDOFF;
 
     // Add tunables for all autonomous configuration options
     LoggedReceiver waitDuration;
@@ -30,8 +30,6 @@ public class AutonomousManager {
     private int previousGamePieces = defaultAuto.gamePieces;
     private boolean previousDoesClimb = defaultAuto.doesClimb;
 
-    private SwerveAutoBuilder autoBuilder;
-
     private String chosenAuto = defaultAuto.pathName;
 
     SwerveDriveSubsystem swerveDriveSubsystem;
@@ -41,24 +39,11 @@ public class AutonomousManager {
 
     public AutonomousManager(RobotContainer container) {
         swerveDriveSubsystem = container.getSwerveDriveSubsystem();
-        ArmSubsystem armSubsystem = container.getArmSubsystem();
-        GripperSubsystem gripperSubsystem = container.getGripperSubsystem();
-        IntakeSubsystem intakeSubsystem = container.getIntakeSubsystem();
         lightsSubsystem = container.getLightsSubsystem();
 
         // Create an event map for use in all autos
         NamedCommands.registerCommand("stop", runOnce(swerveDriveSubsystem::stop, swerveDriveSubsystem));
         NamedCommands.registerCommand("levelChargeStation", swerveDriveSubsystem.levelChargeStationCommand());
-
-        autoBuilder = new SwerveAutoBuilder(
-                swerveDriveSubsystem::getPose,
-                swerveDriveSubsystem::setPose,
-                new PIDConstants(5.6, 0.0, 0.001),
-                new PIDConstants(4.3, 0.0, 0.001),
-                (ChassisSpeeds velocity) -> swerveDriveSubsystem.setVelocity(velocity, false, false),
-                eventMap,
-                true,
-                swerveDriveSubsystem);
     }
 
     public void update() {
@@ -132,47 +117,21 @@ public class AutonomousManager {
     }
 
     private enum AutonomousOption {
-        OPEN_PLACE2HANDOFF(StartingLocation.OPEN, 2, true, "open_place2handoff", new PathConstraints(4, 3.6)),
         OPEN_PLACE3HANDOFF(
                 StartingLocation.OPEN,
                 3,
-                false /*not yet ;)*/,
-                "open_place3handoff_copy",
-                new PathConstraints(3.3, 3.0)),
-        OPEN_PLACE25HANDOFF(StartingLocation.OPEN, 25, false, "open_place25", new PathConstraints(4, 3.6)),
-        // STATION_PLACE1ANDCLIMBSHORT(
-        //         StartingLocation.STATIONOPEN, 0, true, "station_place1andclimb_short", new PathConstraints(2, 1.5)),
+                false,
+                "open_place3handoff_copy"),
         STATION_PLACE1ANDCLIMB(
-                StartingLocation.STATIONOPEN, 1, true, "station_place1andclimb_pickup", new PathConstraints(2.5, 2.0)),
-        // STATION_PLACE1ANDCLIMBSHOOT(
-        //         StartingLocation.STATIONOPEN, 2, true, "station_place1andclimb_shoot", new PathConstraints(2, 1.5)),
+                StartingLocation.STATIONOPEN, 1, true, "station_place1andclimb_pickup"),
         STATIONCABLE_PLACE1ANDCLIMB(
                 StartingLocation.STATIONCABLE,
                 1,
                 true,
-                "stationcable_place1andclimb_pickup",
-                new PathConstraints(2.5, 2.0)),
-        STATIONCABLE_PLACE1ANDSHOOT(
-                StartingLocation.STATIONCABLE,
-                2,
-                true,
-                "stationcable_place1andclimb_shoot",
-                new PathConstraints(2.5, 2.0)),
-        // STATIONCABLE_PLACE1ANDCLIMBSHOOT(
-        //         StartingLocation.STATIONCABLE,
-        //         2,
-        //         true,
-        //         "stationcable_place1andclimb_shoot",
-        //         new PathConstraints(2, 1.5)),
-        CABLE_PLACE2(StartingLocation.CABLE, 2, false, "cable_place2", new PathConstraints(4, 3.3)),
-        CABLE_PLACE3(StartingLocation.CABLE, 3, false, "cable_place3speedy", new PathConstraints(4, 3)),
-        CABLE_PLACE35(StartingLocation.CABLE, 35, false, "cable_place3whiplash", new PathConstraints(4, 4)),
-        CABLE_PLACE15(StartingLocation.CABLE, 15, true, "cable_place15", new PathConstraints(4, 3.3));
+                "stationcable_place1andclimb_pickup"),
+        CABLE_PLACE2(StartingLocation.CABLE, 2, false, "cable_place2");
 
-        private List<PathPlannerTrajectory> path;
         private String pathName;
-        private PathConstraints constraint;
-        private PathConstraints[] constraints;
         public StartingLocation startPosition;
         public int gamePieces;
         public boolean doesClimb;
@@ -181,30 +140,12 @@ public class AutonomousManager {
                 StartingLocation startPosition,
                 int gamePieces,
                 boolean doesClimb,
-                String pathName,
-                PathConstraints constraint,
-                PathConstraints... constraints) {
+                String pathName) {
             this.startPosition = startPosition;
             this.gamePieces = gamePieces;
             this.doesClimb = doesClimb;
             this.pathName = pathName;
-            this.constraint = constraint;
-            this.constraints = constraints;
         }
-
-        public List<PathPlannerTrajectory> getPath() {
-            // Lazy load the path
-            if (path == null) path = PathPlanner.loadPathGroup(pathName, constraint, constraints);
-
-            return path;
-        }
-    }
-
-    private enum StartingLocation {
-        OPEN,
-        STATIONOPEN,
-        STATIONCABLE,
-        CABLE
     }
 
     public static String[] getStartingLocations() {
@@ -213,5 +154,12 @@ public class AutonomousManager {
 
     public static String[] getAutonomousOptionNames() {
         return Stream.of(AutonomousOption.values()).map(AutonomousOption::name).toArray(String[]::new);
+    }
+
+    private enum StartingLocation {
+        OPEN,
+        STATIONOPEN,
+        STATIONCABLE,
+        CABLE
     }
 }
