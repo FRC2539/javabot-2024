@@ -48,7 +48,7 @@ public class SwerveModule {
         double angle = (Math.abs(desiredState.speedMetersPerSecond) <= (Constants.SwerveConstants.maxSpeed * 0.01))
                 ? lastAngle
                 : desiredState.angle
-                        .getDegrees(); // Prevent rotating module if speed is less then 1%. Prevents Jittering.
+                        .getRadians(); // Prevent rotating module if speed is less then 1%. Prevents Jittering.
 
         lastAngle = angle;
 
@@ -71,9 +71,9 @@ public class SwerveModule {
             desiredAngle = CTREModuleState.optimize(new SwerveModuleState(1, desiredAngle), getState().angle).angle;
         }
 
-        swerveModuleIO.setDesiredAngularPosition(desiredAngle.getDegrees());
+        swerveModuleIO.setDesiredAngularPosition(desiredAngle.getRadians());
 
-        lastAngle = 0;
+        lastAngle = desiredAngle.getRadians();
 
         // Stop the motor to bypass the speed check
         swerveModuleIO.disableDriveMotor();

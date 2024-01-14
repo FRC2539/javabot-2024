@@ -2,7 +2,6 @@ package frc.robot.subsystems.swervedrive;
 
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -45,10 +44,6 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     private ChassisSpeeds previousVelocity = new ChassisSpeeds();
     private SwerveDriveSignal driveSignal = new SwerveDriveSignal();
 
-    private double levelingMaxSpeed;
-
-    private boolean isLevelingAuto = false;
-
     public boolean isRainbow = false;
 
     private SwerveModule[] modules;
@@ -59,10 +54,6 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     boolean isCharacterizing = false;
 
     private LoggedReceiver isSecondOrder;
-
-    // PID controller used for auto-leveling
-    // private PIDController tiltController = new PIDController(0.75 / 15, 0, 0.02);
-    private PIDController tiltController = new PIDController(0.75 / 12, 0, 0.02);
 
     // Cardinal command
     private ProfiledPIDController omegaController =
@@ -164,79 +155,6 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                     omegaController.reset(new TrapezoidProfile.State(
                             pose.getRotation().getRadians(), velocity.omegaRadiansPerSecond));
                 });
-    }
-
-    private class AnyContainer<T> {
-        public T thing;
-
-        public AnyContainer(T thing) {
-            this.thing = thing;
-        }
-    }
-
-    public Command levelChargeStationCommand() {
-        Timer myFavoriteTimer = new Timer();
-        AnyContainer<Double> sketchyBoi = new AnyContainer<Double>(0.5);
-        AnyContainer<Boolean> isGoingSlower = new AnyContainer<Boolean>(false);
-        return run(() -> {
-                    double tilt = getTiltAmountInDegrees();
-
-                    // Negative pitch -> drive forward, Positive pitch -> drive backward
-
-                    Translation2d direction = new Translation2d(
-                            1,
-                            new Rotation2d(
-                                    getNormalVector3d().getX(),
-                                    getNormalVector3d().getY()));
-
-                    double speed = tiltController.calculate(tilt, 0);
-                    if (speed >= levelingMaxSpeed) speed = levelingMaxSpeed;
-
-                    speed *= (isGoingSlower.thing ? 0.65 : 1);
-
-                    Translation2d finalDirection = direction.times(speed);
-
-                    ChassisSpeeds velocity = new ChassisSpeeds(finalDirection.getX(), finalDirection.getY(), 0);
-                    // if (tiltController.atSetpoint()) myFavoriteTimer.restart();
-
-                    sketchyBoi.thing -= 0.02;
-
-                    if (tiltController.atSetpoint()
-                            || Math.abs(getTiltRate())
-                                    >= Math.toDegrees(0.5)) { // angleRateThresholdReceiver.getDouble())) {
-                        sketchyBoi.thing = 0.5;
-                        isGoingSlower.thing = true;
-                    }
-
-                    if (sketchyBoi.thing > 0) {
-                        myFavoriteTimer.start();
-                        lock();
-                        isRainbow = true;
-                    } else {
-                        setVelocity(velocity, false);
-                        myFavoriteTimer.stop();
-                    }
-                })
-                .beforeStarting(() -> {
-                    isGoingSlower.thing = false;
-                    myFavoriteTimer.reset();
-                    isLevelingAuto = true;
-                    sketchyBoi.thing = 0.0;
-                    var values = new double[] {0.8 / 15, 0, .01, 8, 0.8};
-                    if (values.length < 5) return;
-                    tiltController.setPID(values[0], values[1], values[2]);
-                    tiltController.setTolerance(values[3]);
-                    levelingMaxSpeed = values[4];
-                })
-                .finallyDo((interrupted) -> {
-                    tiltController.reset();
-                    isLevelingAuto = false;
-                    isRainbow = false;
-                });
-    }
-
-    public boolean isAutoLeveled() {
-        return tiltController.atSetpoint() && isLevelingAuto;
     }
 
     public void setCustomMaxSpeedSupplier(DoubleSupplier maxSpeedSupplier) {

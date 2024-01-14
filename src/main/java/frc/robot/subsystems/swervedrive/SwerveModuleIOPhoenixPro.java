@@ -110,12 +110,12 @@ public class SwerveModuleIOPhoenixPro implements SwerveModuleIO {
 
     public void setDesiredAngularPosition(double angularPosition) {
         angleMotor.setControl(
-                positionVoltageRequestAngle.withPosition(angularPosition / 360).withFeedForward(0));
+                positionVoltageRequestAngle.withPosition(angularPosition / (2 * Math.PI)).withFeedForward(0));
     }
 
     public void setDesiredAngularPositionAndVelocity(double angularPosition, double angularVelocity) {
         angleMotor.setControl(positionVoltageRequestAngle
-                .withPosition(angularPosition / 360)
+                .withPosition(angularPosition / (2 * Math.PI))
                 .withFeedForward(angularVelocity * Constants.SwerveConstants.calculatedAngleKV));
     }
 

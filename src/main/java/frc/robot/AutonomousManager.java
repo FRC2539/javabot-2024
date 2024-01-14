@@ -5,15 +5,11 @@ import static edu.wpi.first.wpilibj2.command.Commands.*;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.ScheduleCommand;
 import frc.lib.logging.LoggedReceiver;
 import frc.lib.logging.Logger;
 import frc.robot.subsystems.lights.LightsSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveDriveSubsystem;
-import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -43,7 +39,7 @@ public class AutonomousManager {
 
         // Create an event map for use in all autos
         NamedCommands.registerCommand("stop", runOnce(swerveDriveSubsystem::stop, swerveDriveSubsystem));
-        NamedCommands.registerCommand("levelChargeStation", swerveDriveSubsystem.levelChargeStationCommand());
+        NamedCommands.registerCommand("flashLights", lightsSubsystem.patternCommand(LightsSubsystem.black));
     }
 
     public void update() {

@@ -1,6 +1,6 @@
 package frc.robot.subsystems.swervedrive;
 
-import com.ctre.phoenix.sensors.Pigeon2;
+import com.ctre.phoenix6.hardware.Pigeon2;  
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.util.Units;
@@ -17,16 +17,14 @@ public class GyroIOPigeon implements GyroIO {
     }
 
     public void updateInputs(GyroIOInputs inputs) {
-        inputs.rotation2d = Rotation2d.fromDegrees(pigeon.getYaw());
+        inputs.rotation2d = Rotation2d.fromDegrees(pigeon.getYaw().getValueAsDouble());
 
         // offsets the values by a bit because the Pigeon is not perfectly mounted
+        // TODO: ADD LATENCY COMPENSATION
         inputs.rotation3d = new Rotation3d(
-                Units.degreesToRadians(pigeon.getRoll()) + 0.019, Units.degreesToRadians(pigeon.getPitch()) - 0.082, 0);
+                Units.degreesToRadians(pigeon.getRoll().getValueAsDouble()) + 0.019, Units.degreesToRadians(pigeon.getPitch().getValueAsDouble()) - 0.082, 0);
 
-        double[] rawXYZ = new double[3];
-
-        pigeon.getRawGyro(rawXYZ);
-        inputs.rotationRates3d = new Rotation3d(rawXYZ[0], rawXYZ[1], rawXYZ[2]);
+        inputs.rotationRates3d = new Rotation3d(pigeon.getAngularVelocityXDevice().getValueAsDouble(), pigeon.getAngularVelocityYDevice().getValueAsDouble(), pigeon.getAngularVelocityZDevice().getValueAsDouble());
 
         inputs.isActive = true;
     }
