@@ -28,6 +28,8 @@ public class SwerveModuleIOPhoenixPro implements SwerveModuleIO {
 
     private final boolean enableFOC = true;
 
+    private double angleOffset;
+
     private VoltageOut voltageRequestDrive = new VoltageOut(0).withEnableFOC(enableFOC);
 
     private PositionVoltage positionVoltageRequestAngle =
@@ -67,6 +69,7 @@ public class SwerveModuleIOPhoenixPro implements SwerveModuleIO {
         angleEncoder = moduleConstants.canivoreName.isEmpty()
                 ? new CANcoder(moduleConstants.cancoderID)
                 : new CANcoder(moduleConstants.cancoderID, moduleConstants.canivoreName.get());
+        angleOffset = moduleConstants.angleOffset;
         configAngleEncoder(moduleConstants.angleOffset);
 
         /* Angle Motor Config */
@@ -144,6 +147,8 @@ public class SwerveModuleIOPhoenixPro implements SwerveModuleIO {
                 Constants.SwerveConstants.driveGearRatio);
         inputs.encoderAngle =
                 Rotation2d.fromRotations(encoderAbsoluteAngleSS.refresh().getValue());
+
+        inputs.rawEncoderAngle = inputs.encoderAngle.plus(Rotation2d.fromDegrees(angleOffset));
 
         inputs.driveTemperature = driveTemperatureSS.refresh().getValue();
         inputs.angleTemperature = angleTemperatureSS.refresh().getValue();

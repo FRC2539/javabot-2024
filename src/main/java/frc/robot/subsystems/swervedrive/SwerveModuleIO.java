@@ -11,6 +11,7 @@ public interface SwerveModuleIO {
         public Rotation2d angularPosition = new Rotation2d();
         public double position = 0;
         public Rotation2d encoderAngle = new Rotation2d();
+        public Rotation2d rawEncoderAngle = new Rotation2d();
 
         public double driveTemperature = 0;
         public double angleTemperature = 0;

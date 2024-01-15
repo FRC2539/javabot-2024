@@ -390,6 +390,14 @@ public class SwerveDriveSubsystem extends SubsystemBase {
             modules[3].getCanCoderAngle().getDegrees(),
         });
 
+        // Raw In This Case means the offset is not applied
+        Logger.log("/SwerveDriveSubsystem/Raw CANCoder Angles", new double[] {
+            modules[0].getRawCanCoderAngle().getDegrees(),
+            modules[1].getRawCanCoderAngle().getDegrees(),
+            modules[2].getRawCanCoderAngle().getDegrees(),
+            modules[3].getRawCanCoderAngle().getDegrees(),
+        });
+
         Logger.log("/SwerveDriveSubsystem/SwerveModuleStates/Measured", new double[] {
             modules[0].getState().angle.getRadians(), modules[0].getState().speedMetersPerSecond,
             modules[1].getState().angle.getRadians(), modules[1].getState().speedMetersPerSecond,

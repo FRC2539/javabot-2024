@@ -88,6 +88,10 @@ public class SwerveModule {
         return inputs.encoderAngle;
     }
 
+    public Rotation2d getRawCanCoderAngle() {
+        return inputs.rawEncoderAngle;
+    }
+
     public SwerveModuleState getState() {
         double velocity = inputs.velocity;
         Rotation2d angle = inputs.angularPosition;
