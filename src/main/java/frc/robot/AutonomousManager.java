@@ -117,15 +117,9 @@ public class AutonomousManager {
                 StartingLocation.OPEN,
                 3,
                 false,
-                "open_place3handoff_copy"),
+                "auto1"),
         STATION_PLACE1ANDCLIMB(
-                StartingLocation.STATIONOPEN, 1, true, "station_place1andclimb_pickup"),
-        STATIONCABLE_PLACE1ANDCLIMB(
-                StartingLocation.STATIONCABLE,
-                1,
-                true,
-                "stationcable_place1andclimb_pickup"),
-        CABLE_PLACE2(StartingLocation.CABLE, 2, false, "cable_place2");
+                StartingLocation.STATIONOPEN, 1, true, "auto1");
 
         private String pathName;
         public StartingLocation startPosition;

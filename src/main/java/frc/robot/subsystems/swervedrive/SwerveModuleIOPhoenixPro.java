@@ -26,12 +26,14 @@ public class SwerveModuleIOPhoenixPro implements SwerveModuleIO {
     private TalonFX driveMotor;
     private CANcoder angleEncoder;
 
-    private VoltageOut voltageRequestDrive = new VoltageOut(0).withEnableFOC(true);
+    private final boolean enableFOC = true;
+
+    private VoltageOut voltageRequestDrive = new VoltageOut(0).withEnableFOC(enableFOC);
 
     private PositionVoltage positionVoltageRequestAngle =
-            new PositionVoltage(0).withSlot(0).withEnableFOC(true);
+            new PositionVoltage(0).withSlot(0).withEnableFOC(enableFOC);
     private VelocityVoltage velocityVoltageRequestDrive =
-            new VelocityVoltage(0).withSlot(0).withEnableFOC(true);
+            new VelocityVoltage(0).withSlot(0).withEnableFOC(enableFOC);
 
     SimpleMotorFeedforward driveFeedforward = new SimpleMotorFeedforward(
             Constants.SwerveConstants.calculatedDriveKS,
@@ -65,7 +67,7 @@ public class SwerveModuleIOPhoenixPro implements SwerveModuleIO {
         angleEncoder = moduleConstants.canivoreName.isEmpty()
                 ? new CANcoder(moduleConstants.cancoderID)
                 : new CANcoder(moduleConstants.cancoderID, moduleConstants.canivoreName.get());
-        configAngleEncoder();
+        configAngleEncoder(moduleConstants.angleOffset);
 
         /* Angle Motor Config */
         angleMotor = moduleConstants.canivoreName.isEmpty()
@@ -151,10 +153,11 @@ public class SwerveModuleIOPhoenixPro implements SwerveModuleIO {
         inputs.angleCurrent = angleCurrentSS.refresh().getValue();
     }
 
-    private void configAngleEncoder() {
+    private void configAngleEncoder(double angleOffset) {
         angleEncoder.getConfigurator().apply(Robot.ctreConfigs.swerveCanCoderConfig);
         MagnetSensorConfigs myMagnetSensorConfigs = new MagnetSensorConfigs();
         angleEncoder.getConfigurator().refresh(myMagnetSensorConfigs);
+        myMagnetSensorConfigs.MagnetOffset = -angleOffset / 360;
         angleEncoder.getConfigurator().apply(myMagnetSensorConfigs);
     }
 

@@ -166,7 +166,7 @@ public final class Constants {
         public static final boolean canCoderInvert = false;
 
         /* Module Specific Constants */
-        // Note, bevel gears should face left (relative to back-to-front)
+        // Note, bevel gears should face left (if you're looking at the back)
 
         /* Front Left Module - Module 0 */
         public static final class Mod0 {
