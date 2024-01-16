@@ -28,7 +28,7 @@ public class SwerveModuleIOPhoenixPro implements SwerveModuleIO {
 
     private final boolean enableFOC = true;
 
-    private double angleOffset;
+    private Rotation2d angleOffset;
 
     private VoltageOut voltageRequestDrive = new VoltageOut(0).withEnableFOC(enableFOC);
 
@@ -69,8 +69,8 @@ public class SwerveModuleIOPhoenixPro implements SwerveModuleIO {
         angleEncoder = moduleConstants.canivoreName.isEmpty()
                 ? new CANcoder(moduleConstants.cancoderID)
                 : new CANcoder(moduleConstants.cancoderID, moduleConstants.canivoreName.get());
-        angleOffset = moduleConstants.angleOffset;
-        configAngleEncoder(moduleConstants.angleOffset);
+        angleOffset = Rotation2d.fromDegrees(moduleConstants.angleOffset);
+        configAngleEncoder(angleOffset);
 
         /* Angle Motor Config */
         angleMotor = moduleConstants.canivoreName.isEmpty()
@@ -148,7 +148,9 @@ public class SwerveModuleIOPhoenixPro implements SwerveModuleIO {
         inputs.encoderAngle =
                 Rotation2d.fromRotations(encoderAbsoluteAngleSS.refresh().getValue());
 
-        inputs.rawEncoderAngle = inputs.encoderAngle.plus(Rotation2d.fromDegrees(angleOffset));
+        // makes sure that the angle is on the range [0,360)
+        var temEncoderAngle = inputs.encoderAngle.plus(angleOffset);
+        inputs.rawEncoderAngle = (temEncoderAngle.getRotations() < 0) ? Rotation2d.fromRotations(temEncoderAngle.getRotations() + 1) : temEncoderAngle;
 
         inputs.driveTemperature = driveTemperatureSS.refresh().getValue();
         inputs.angleTemperature = angleTemperatureSS.refresh().getValue();
@@ -158,11 +160,11 @@ public class SwerveModuleIOPhoenixPro implements SwerveModuleIO {
         inputs.angleCurrent = angleCurrentSS.refresh().getValue();
     }
 
-    private void configAngleEncoder(double angleOffset) {
+    private void configAngleEncoder(Rotation2d angleOffset) {
         angleEncoder.getConfigurator().apply(Robot.ctreConfigs.swerveCanCoderConfig);
         MagnetSensorConfigs myMagnetSensorConfigs = new MagnetSensorConfigs();
         angleEncoder.getConfigurator().refresh(myMagnetSensorConfigs);
-        myMagnetSensorConfigs.MagnetOffset = -angleOffset / 360;
+        myMagnetSensorConfigs.MagnetOffset = angleOffset.unaryMinus().getRotations();
         angleEncoder.getConfigurator().apply(myMagnetSensorConfigs);
     }
 

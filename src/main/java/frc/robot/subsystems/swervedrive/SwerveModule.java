@@ -25,7 +25,7 @@ public class SwerveModule {
 
         swerveModuleIO.updateInputs(inputs);
 
-        lastAngle = getState().angle.getDegrees();
+        lastAngle = getState().angle.getRadians();
     }
 
     public void setDesiredState(SwerveModuleState desiredState, boolean isOpenLoop) {

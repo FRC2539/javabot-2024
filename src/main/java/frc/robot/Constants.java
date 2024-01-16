@@ -55,164 +55,6 @@ public final class Constants {
 
     public static final class SwerveConstants extends DevelopmentBotConstants {}
 
-    public static class CompBotConstants {
-
-        // See https://github.com/Team364/BaseFalconSwerve for getting these values.
-        // copy and pasted from comp bot swerve constants because i am illiterate and didn't know what to add/what not
-        // to add
-        public static final boolean hasPigeon = true;
-        public static final int PIGEON_PORT = 29;
-
-        public static final double lengthWithBumpers = Units.inchesToMeters(26 + 3.25 * 2);
-        public static final double widthWithBumpers = Units.inchesToMeters(26 + 3.25 * 2);
-
-        public static final double trackWidth = Units.inchesToMeters(19.5);
-        public static final double wheelBase = Units.inchesToMeters(19.5);
-        public static final double wheelDiameter = Units.inchesToMeters(4.0);
-        public static final double wheelCircumference = wheelDiameter * Math.PI;
-
-        public static final double robotMass = Units.lbsToKilograms(115);
-
-        public static final double openLoopRamp = 0.0; // 0.25
-        public static final double closedLoopRamp = 0.0;
-
-        public static final double driveGearRatio = (5.14 / 1.0); // 5.14:1
-        public static final double angleGearRatio = (12.8 / 1.0); // 12.8:1
-
-        public static final Translation2d[] moduleTranslations = new Translation2d[] {
-            new Translation2d(wheelBase / 2.0, trackWidth / 2.0),
-            new Translation2d(wheelBase / 2.0, -trackWidth / 2.0),
-            new Translation2d(-wheelBase / 2.0, trackWidth / 2.0),
-            new Translation2d(-wheelBase / 2.0, -trackWidth / 2.0)
-        };
-
-        public static final SecondOrderSwerveKinematics swerveKinematics =
-                new SecondOrderSwerveKinematics(moduleTranslations);
-
-        /* Swerve Current Limiting */
-        public static final int angleContinuousCurrentLimit = 25;
-        public static final int anglePeakCurrentLimit = 40;
-        public static final double anglePeakCurrentDuration = 0.1;
-        public static final boolean angleEnableCurrentLimit = true;
-
-        public static final int driveContinuousCurrentLimit = 35;
-        public static final int drivePeakCurrentLimit = 60;
-        public static final double drivePeakCurrentDuration = 0.1;
-        public static final boolean driveEnableCurrentLimit = true;
-
-        /* Angle Motor PID Values */
-        public static final double angleKP = 0.2;
-        public static final double angleKI = 0.0;
-        public static final double angleKD = 0.0;
-        public static final double angleKF = 0.0;
-
-        /* Drive Motor PID Values */
-        public static final double driveKP = 0.1;
-        public static final double driveKI = 0.0;
-        public static final double driveKD = 0.0;
-        public static final double driveKF = 0.0;
-
-        /* Motor Information */
-        public static final double driveMotorFreeSpeed = 6380; // RPM of Falcon 500
-        public static final double angleMotorFreeSpeed = 6380; // RPM of Falcon 500
-        public static final double stallTorque = 4.69;
-
-        /* Drive Motor Characterization Values */
-        public static final double driveKS =
-                (0.667 / 12); // divide by 12 to convert from volts to percent output for CTRE
-        public static final double driveKV = (2.44 / 12);
-        public static final double driveKA = (0.27 / 12);
-
-        /* Angle Motor Characterization Values */
-        public static final double angleKS = 0;
-        // (0.368 / 12); // divide by 12 to convert from volts to percent output for CTRE
-        public static final double angleKV = (0.234 / 12);
-        public static final double angleKA = (0.003 / 12);
-
-        /* Swerve Profiling Values */
-        public static final double maxSpeed = 6.52; // meters per second
-        public static final double maxAcceleration =
-                (stallTorque * driveGearRatio * 4) / (wheelDiameter * robotMass); // 16.52; // meters per second^2
-        public static final double maxAngularVelocity = maxSpeed // rad/s
-                / Arrays.stream(moduleTranslations)
-                        .map(translation -> translation.getNorm())
-                        .max(Double::compare)
-                        .get();
-
-        /* Calculated Characterization Values */
-        public static final double calculatedDriveKS = 0;
-        public static final double calculatedDriveKV = (12 / maxSpeed) / GlobalConstants.targetVoltage;
-        public static final double calculatedDriveKA = (12 / maxAcceleration) / GlobalConstants.targetVoltage;
-        public static final double calculatedAngleKV =
-                (12 * 60) / (angleMotorFreeSpeed * Math.toRadians(360 / angleGearRatio));
-
-        /* Precise Driving Mode Values */
-        public static final double preciseDrivingModeSpeedMultiplier = 0.2;
-
-        /* Neutral Modes */
-        public static final NeutralMode angleNeutralMode = NeutralMode.Brake;
-        public static final NeutralMode driveNeutralMode = NeutralMode.Brake;
-
-        /* Drive Motor Inverts */
-        public static final boolean driveMotorInvert = true;
-
-        /* Drive Encoder Inverts */
-        public static final boolean driveEncoderInvert = false;
-
-        /* Angle Motor Inverts */
-        public static final boolean angleMotorInvert = false;
-
-        /* Angle Encoder Invert */
-        public static final boolean canCoderInvert = false;
-
-        /* Module Specific Constants */
-        // Note, bevel gears should face left (if you're looking at the back)
-
-        /* Front Left Module - Module 0 */
-        public static final class Mod0 {
-            public static final int driveMotorID = 0;
-            public static final int angleMotorID = 4;
-            public static final int canCoderID = 24;
-            public static final double angleOffset = 256.553;
-            public static final String canivoreName = "CANivore";
-            public static final SwerveModuleConstants constants =
-                    new SwerveModuleConstants(driveMotorID, angleMotorID, canCoderID, angleOffset, canivoreName);
-        }
-
-        /* Front Right Module - Module 1 */
-        public static final class Mod1 {
-            public static final int driveMotorID = 2;
-            public static final int angleMotorID = 6;
-            public static final int canCoderID = 26;
-            public static final double angleOffset = 91.143;
-            public static final String canivoreName = "CANivore";
-            public static final SwerveModuleConstants constants =
-                    new SwerveModuleConstants(driveMotorID, angleMotorID, canCoderID, angleOffset, canivoreName);
-        }
-
-        /* Back Left Module - Module 2 */
-        public static final class Mod2 {
-            public static final int driveMotorID = 1;
-            public static final int angleMotorID = 5;
-            public static final int canCoderID = 25;
-            public static final double angleOffset = 38.760;
-            public static final String canivoreName = "CANivore";
-            public static final SwerveModuleConstants constants =
-                    new SwerveModuleConstants(driveMotorID, angleMotorID, canCoderID, angleOffset, canivoreName);
-        }
-
-        /* Back Right Module - Module 3 */
-        public static final class Mod3 {
-            public static final int driveMotorID = 3;
-            public static final int angleMotorID = 7;
-            public static final int canCoderID = 27;
-            public static final double angleOffset = 310.342;
-            public static final String canivoreName = "CANivore";
-            public static final SwerveModuleConstants constants =
-                    new SwerveModuleConstants(driveMotorID, angleMotorID, canCoderID, angleOffset, canivoreName);
-        }
-    }
-
     public static class DevelopmentBotConstants {
         // See https://github.com/Team364/BaseFalconSwerve for getting these values.
 
@@ -313,12 +155,16 @@ public final class Constants {
         public static final SensorDirectionValue canCoderInvert = SensorDirectionValue.CounterClockwise_Positive;
 
         /* Module Specific Constants */
+
+        // To tune the angle offset, simply align the wheels so that if they spun, the robot would drive directly forward. 
+        // Make sure that if you are looking at the front of the robot, the bevels are on the left.
+
         /* Front Left Module - Module 0 */
         public static final class Mod0 {
             public static final int driveMotorID = 0;
             public static final int angleMotorID = 4;
             public static final int canCoderID = 24;
-            public static final double angleOffset = 60.4 + 180; // 59.9; //241.179;
+            public static final double angleOffset = 241.0;
             //     public static final String canivoreName = "CANivore";
             public static final SwerveModuleConstants constants =
                     new SwerveModuleConstants(driveMotorID, angleMotorID, canCoderID, angleOffset);
@@ -329,7 +175,7 @@ public final class Constants {
             public static final int driveMotorID = 2;
             public static final int angleMotorID = 6;
             public static final int canCoderID = 26;
-            public static final double angleOffset = 349.5 - 180; // 348.5; //167.432; // 348.135;
+            public static final double angleOffset = 168.0;
             //     public static final String canivoreName = "CANivore";
             public static final SwerveModuleConstants constants =
                     new SwerveModuleConstants(driveMotorID, angleMotorID, canCoderID, angleOffset);
@@ -340,7 +186,7 @@ public final class Constants {
             public static final int driveMotorID = 1;
             public static final int angleMotorID = 5;
             public static final int canCoderID = 25;
-            public static final double angleOffset = 339.9 - 180; // 339.2; //159.609;
+            public static final double angleOffset = 159.9;
             //     public static final String canivoreName = "CANivore";
             public static final SwerveModuleConstants constants =
                     new SwerveModuleConstants(driveMotorID, angleMotorID, canCoderID, angleOffset);
@@ -351,7 +197,7 @@ public final class Constants {
             public static final int driveMotorID = 3;
             public static final int angleMotorID = 7;
             public static final int canCoderID = 27;
-            public static final double angleOffset = 85.4 + 180; // 85.4; //268.506; // 94.043;
+            public static final double angleOffset = 280.5;
             //     public static final String canivoreName = "CANivore";
             public static final SwerveModuleConstants constants =
                     new SwerveModuleConstants(driveMotorID, angleMotorID, canCoderID, angleOffset);
