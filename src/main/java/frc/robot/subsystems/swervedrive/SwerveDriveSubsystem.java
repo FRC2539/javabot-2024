@@ -304,7 +304,6 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         tiltRate = (tilt - previousTilt) / 0.02;
         previousTilt = tilt;
 
-        // Comment out to play music
         updateOdometry();
 
         if (isCharacterizing) return;

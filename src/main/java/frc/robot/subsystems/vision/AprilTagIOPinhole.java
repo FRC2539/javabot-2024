@@ -46,15 +46,14 @@ public class AprilTagIOPinhole implements AprilTagIO {
                 //calculate distance
                 double distance = (aprilTagHeight - cameraHeight) / Math.tan(angleToGoalRadians);
 
-                AprilTag aprilTag = Constants.FieldConstants.aprilTags.get(inputs.targetID);
+                Pose3d aprilTag = Constants.FieldConstants.aprilTagFieldLayout.getTagPose(inputs.targetID).get();
 
                 Translation2d translationRobotToApriltag = new Translation2d(distance, new Rotation2d(cameraAngleHorizontal).plus(swerveDrive.getGyroRotation()));
 
-                Translation2d nextPoseEstimate = aprilTag.pose.toPose2d().getTranslation().plus(translationRobotToApriltag.unaryMinus());
+                Translation2d nextPoseEstimate = aprilTag.toPose2d().getTranslation().plus(translationRobotToApriltag.unaryMinus());
 
                 var poseEstimate = new Pose2d(nextPoseEstimate, swerveDrive.getGyroRotation());
 
-                myInputs.poseEstimate = poseEstimate;
                 myInputs.poseEstimate3d = new Pose3d(poseEstimate);
                 myInputs.targetDistance = distance;
                 myInputs.timestamp = inputs.timestamp;

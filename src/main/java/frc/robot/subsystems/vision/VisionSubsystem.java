@@ -58,7 +58,7 @@ public class VisionSubsystem extends SubsystemBase {
                         .getDistance(pose.getTranslation().toTranslation2d())
                 < 1.4;
 
-        return isWithinField && isNearRobot;
+        return isWithinField;// && isNearRobot;
     }
 
     private Matrix<N3, N1> calculateVisionStdDevs(double distance) {

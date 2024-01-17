@@ -14,8 +14,6 @@ public class CameraInfoIOPhotonVision implements CameraInfoIO {
     public Optional<CameraInfoIOInputs> updateInputs() {
         var myInputs = new CameraInfoIOInputs();
 
-        var result = camera.getLatestResult();
-
         return Optional.empty();
     }
 
