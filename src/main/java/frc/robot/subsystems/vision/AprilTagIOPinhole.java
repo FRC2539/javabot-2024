@@ -62,4 +62,8 @@ public class AprilTagIOPinhole implements AprilTagIO {
             }
         );
     }
+
+    public String getName() {
+        return "test";
+    }
 }

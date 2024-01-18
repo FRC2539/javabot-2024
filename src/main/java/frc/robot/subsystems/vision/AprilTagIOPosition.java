@@ -21,4 +21,8 @@ public class AprilTagIOPosition implements AprilTagIO {
             }
         );
     }
+
+    public String getName() {
+        return "test";
+    }
 }

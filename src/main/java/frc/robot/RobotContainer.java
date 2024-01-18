@@ -2,9 +2,12 @@ package frc.robot;
 
 import static edu.wpi.first.wpilibj2.command.Commands.*;
 
+import org.photonvision.PhotonCamera;
+
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -20,6 +23,7 @@ import frc.robot.subsystems.swervedrive.SwerveDriveSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveModuleIO;
 import frc.robot.subsystems.swervedrive.SwerveModuleIOPhoenixPro;
 import frc.robot.subsystems.swervedrive.SwerveModuleIOSim;
+import frc.robot.subsystems.vision.AprilTagIOPhotonVision;
 import frc.robot.subsystems.vision.AprilTagIOSim;
 import frc.robot.subsystems.vision.VisionSubsystem;
 
@@ -49,7 +53,8 @@ public class RobotContainer {
                 new SwerveModuleIOPhoenixPro(3, Constants.SwerveConstants.Mod3.constants)
             });
             lightsSubsystem = new LightsSubsystem(new LightsIOBlinkin(0));
-            visionSubsystem = new VisionSubsystem(swerveDriveSubsystem, new AprilTagIOSim(), new AprilTagIOSim());
+            visionSubsystem = new VisionSubsystem(swerveDriveSubsystem, new AprilTagIOPhotonVision(new PhotonCamera("LeftCamera"), Constants.VisionConstants.robotToLeftCamera), new AprilTagIOPhotonVision(
+                new PhotonCamera("RightCamera"), Constants.VisionConstants.robotToRightCamera));
         } else {
             swerveDriveSubsystem = new SwerveDriveSubsystem(new GyroIOSim(), new SwerveModuleIO[] {
                 new SwerveModuleIOSim(),

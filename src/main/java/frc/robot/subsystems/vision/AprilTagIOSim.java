@@ -6,4 +6,8 @@ public class AprilTagIOSim implements AprilTagIO {
     public Optional<AprilTagIOInputs> updateInputs() {
         return Optional.empty();
     }
+
+    public String getName() {
+        return "Sim";
+    }
 }

@@ -232,6 +232,18 @@ public final class Constants {
         // public static final Transform3d limelightRobotToCamera = new Transform3d(
         //         new Translation3d(Units.inchesToMeters(0), Units.inchesToMeters(0), Units.inchesToMeters(34.25)),
         //         new Rotation3d(0, Math.toRadians(15), Math.PI));
+        public static final Transform3d robotToLeftCamera = new Transform3d(0,0,0, new Rotation3d(0,0,0)).plus(new Transform3d(Units.inchesToMeters(75),0, Units.inchesToMeters(51), new Rotation3d(0,0,Math.PI)).plus(new Transform3d(
+            1.732,
+            -0.514,
+            0.491,
+            new Rotation3d(0.079,-0.337,2.745)
+        ).inverse()));
+        public static final Transform3d robotToRightCamera = new Transform3d(0,0,0, new Rotation3d(0,0,0)).plus(new Transform3d(Units.inchesToMeters(75),0, Units.inchesToMeters(51), new Rotation3d(0,0,Math.PI)).plus(new Transform3d(
+            1.717,
+            0.500,
+            0.373,
+            new Rotation3d(-0.211,-0.372,-2.667)
+        ).inverse()));
 
         public static final Transform3d limelightRobotToCamera = new Transform3d(
                 new Translation3d(Units.inchesToMeters(-5), Units.inchesToMeters(0), Units.inchesToMeters(34.25)),

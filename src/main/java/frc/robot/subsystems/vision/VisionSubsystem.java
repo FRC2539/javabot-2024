@@ -2,6 +2,8 @@ package frc.robot.subsystems.vision;
 
 import java.util.Optional;
 
+import frc.lib.logging.Logger;
+
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -35,8 +37,9 @@ public class VisionSubsystem extends SubsystemBase {
     public void periodic() {
         for (int i = 0; i < cameras.length; i++) {
             inputs[i] = cameras[i].updateInputs();
-
-            inputs[i].ifPresent(t -> addVisionPoseEstimate(t.poseEstimate3d, t.targetDistance, t.timestamp));
+            
+            inputs[i].ifPresent(t -> {System.out.println("dum"); 
+            addVisionPoseEstimate(t.poseEstimate3d, t.targetDistance, t.timestamp);});
         }
     }
 
@@ -44,7 +47,7 @@ public class VisionSubsystem extends SubsystemBase {
         if (!isValidPose(estimate)) return;
 
         consumer.addVisionPoseEstimate(
-            estimate.toPose2d(), timestamp, calculateVisionStdDevs(distance));
+            estimate.toPose2d(), timestamp); //calculateVisionStdDevs(distance));
     }
 
     private boolean isValidPose(Pose3d pose) {
