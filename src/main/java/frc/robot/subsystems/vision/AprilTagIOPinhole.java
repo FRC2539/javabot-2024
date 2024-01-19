@@ -9,8 +9,9 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import frc.robot.Constants;
 import frc.robot.subsystems.swervedrive.SwerveDriveSubsystem;
+import frc.robot.subsystems.vision.AprilTagIO.AprilTagIOInputs;
 
-public class AprilTagIOPinhole implements AprilTagIO {
+public class AprilTagIOPinhole {
     private CameraInfoIO cameraInfoIO;
     private double cameraAngleVerticle;
     private double cameraHeight;

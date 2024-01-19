@@ -2,7 +2,9 @@ package frc.robot.subsystems.vision;
 
 import java.util.Optional;
 
-public class AprilTagIOPosition implements AprilTagIO {
+import frc.robot.subsystems.vision.AprilTagIO.AprilTagIOInputs;
+
+public class AprilTagIOPosition {
     private CameraInfoIO cameraInfoIO;
 
     public AprilTagIOPosition(CameraInfoIO cameraInfo) {

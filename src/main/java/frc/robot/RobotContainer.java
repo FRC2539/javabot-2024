@@ -25,6 +25,8 @@ import frc.robot.subsystems.swervedrive.SwerveModuleIOPhoenixPro;
 import frc.robot.subsystems.swervedrive.SwerveModuleIOSim;
 import frc.robot.subsystems.vision.AprilTagIOPhotonVision;
 import frc.robot.subsystems.vision.AprilTagIOSim;
+import frc.robot.subsystems.vision.PositionTargetIOLimelight;
+import frc.robot.subsystems.vision.PositionTargetIOSim;
 import frc.robot.subsystems.vision.VisionSubsystem;
 
 public class RobotContainer {
@@ -53,8 +55,13 @@ public class RobotContainer {
                 new SwerveModuleIOPhoenixPro(3, Constants.SwerveConstants.Mod3.constants)
             });
             lightsSubsystem = new LightsSubsystem(new LightsIOBlinkin(0));
-            visionSubsystem = new VisionSubsystem(swerveDriveSubsystem, new AprilTagIOPhotonVision(new PhotonCamera("LeftCamera"), Constants.VisionConstants.robotToLeftCamera), new AprilTagIOPhotonVision(
-                new PhotonCamera("RightCamera"), Constants.VisionConstants.robotToRightCamera));
+            visionSubsystem = new VisionSubsystem(
+                swerveDriveSubsystem, 
+                new AprilTagIOPhotonVision(
+                    new PhotonCamera("LeftCamera"), Constants.VisionConstants.robotToLeftCamera),
+                new AprilTagIOPhotonVision(
+                new PhotonCamera("RightCamera"), Constants.VisionConstants.robotToRightCamera),
+                new PositionTargetIOLimelight());
         } else {
             swerveDriveSubsystem = new SwerveDriveSubsystem(new GyroIOSim(), new SwerveModuleIO[] {
                 new SwerveModuleIOSim(),
@@ -63,7 +70,7 @@ public class RobotContainer {
                 new SwerveModuleIOSim()
             });
             lightsSubsystem = new LightsSubsystem(new LightsIOSim());
-            visionSubsystem = new VisionSubsystem(swerveDriveSubsystem, new AprilTagIOSim(), new AprilTagIOSim());
+            visionSubsystem = new VisionSubsystem(swerveDriveSubsystem, new AprilTagIOSim(), new AprilTagIOSim(), new PositionTargetIOSim() );
         }
 
         autonomousManager = new AutonomousManager(this);

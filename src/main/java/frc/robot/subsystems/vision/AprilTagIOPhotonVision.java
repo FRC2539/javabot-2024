@@ -1,11 +1,13 @@
 package frc.robot.subsystems.vision;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
+import org.photonvision.targeting.PhotonTrackedTarget;
 
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Transform3d;
@@ -25,6 +27,7 @@ public class AprilTagIOPhotonVision implements AprilTagIO {
     public Optional<AprilTagIOInputs> updateInputs() {
         Optional<EstimatedRobotPose> myPose = poseEstimator.update();
 
+
         return myPose.map((stuff) -> {
             var outputs = new AprilTagIOInputs();
             outputs.poseEstimate3d = stuff.estimatedPose;
@@ -39,8 +42,14 @@ public class AprilTagIOPhotonVision implements AprilTagIO {
             }
             Logger.log("/VisionSubsystem/" + getName(), outputs.poseEstimate3d, true);
             outputs.timestamp = stuff.timestampSeconds;
+            
             return outputs;
         });
+    }
+
+    public List<PhotonTrackedTarget> updateTagsInfo() {
+        var results = camera.getLatestResult();
+        return results.getTargets();
     }
 
     public String getName() {
