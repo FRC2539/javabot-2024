@@ -35,6 +35,8 @@ public class VisionSubsystem extends SubsystemBase {
     public VisionSubsystem(SwerveDriveSubsystem consumer, AprilTagIO left, AprilTagIO right, PositionTargetIO limelight) {
         this.left = left;
         this.right = right;
+
+        this.consumer = consumer;
     }
 
     public void periodic() {
