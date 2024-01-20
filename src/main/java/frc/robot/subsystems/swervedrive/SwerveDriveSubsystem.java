@@ -70,6 +70,8 @@ public class SwerveDriveSubsystem extends SubsystemBase {
             new ProfiledPIDController(5, 0, 0, new TrapezoidProfile.Constraints(8, 8));
     private final double maxCardinalVelocity = 4.5;
 
+    private final double angularVelocityCoefficient = 0.03;
+
     private double previousTilt = 0;
     private double tiltRate = 0;
     private DoubleSupplier maxSpeedSupplier = () -> Constants.SwerveConstants.maxSpeed;
@@ -378,6 +380,9 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         } else {
             chassisVelocity = (ChassisSpeeds) driveSignal;
         }
+
+        // 2910 twisting field correction
+        chassisVelocity = ChassisSpeeds.fromFieldRelativeSpeeds(chassisVelocity, new Rotation2d(chassisVelocity.omegaRadiansPerSecond * angularVelocityCoefficient));
 
         SwerveModuleState[] moduleStates =
                 Constants.SwerveConstants.swerveKinematics.toSwerveModuleStates(chassisVelocity);
