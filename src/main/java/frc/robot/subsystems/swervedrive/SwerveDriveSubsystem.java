@@ -134,7 +134,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
 
     public Command pathfindToPoseCommand(Pose2d targetPose) {
         PathConstraints constraints = new PathConstraints(
-        3.0, 3.0,
+        3, 3.0,
         Math.PI * 3, Math.PI * 4);
 
 

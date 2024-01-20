@@ -122,6 +122,10 @@ public class RobotContainer {
                 .getBottomThumb()
                 .whileTrue(swerveDriveSubsystem.pathfindToPoseCommand(new Pose2d(2.9, 5.5, new Rotation2d(Math.PI))));
 
+        leftDriveController
+                .getBottomThumb()
+                .whileTrue(swerveDriveSubsystem.pathfindToPoseCommand(new Pose2d(1.53, 2.557, new Rotation2d(Math.PI))));
+
         rightDriveController.sendButtonNamesToNT();
         leftDriveController.sendButtonNamesToNT();
         operatorController.sendButtonNamesToNT();
