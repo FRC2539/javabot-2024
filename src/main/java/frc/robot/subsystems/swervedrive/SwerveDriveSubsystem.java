@@ -9,16 +9,19 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.geometry.proto.Pose2dProto;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.proto.Geometry2D.ProtobufPose2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.interpolation.MovingAverageVelocity;
 import frc.lib.logging.LoggedReceiver;
@@ -27,10 +30,17 @@ import frc.lib.math.MathUtils;
 import frc.lib.swerve.SwerveDriveSignal;
 import frc.robot.Constants;
 import frc.robot.Constants.SwerveConstants;
+import frc.robot.commands.DriveToPositionCommand;
 import frc.robot.subsystems.swervedrive.GyroIO.GyroIOInputs;
+
+import java.util.List;
 import java.util.function.DoubleSupplier;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.path.GoalEndState;
+import com.pathplanner.lib.path.PathConstraints;
+import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.pathfinding.Pathfinding;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
@@ -81,7 +91,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                 getModulePositions(),
                 new Pose2d(),
                 VecBuilder.fill(0.01, 0.01, 0.01),
-                VecBuilder.fill(0.1, 0.1, 0.1)); // might need to bring these back up (was 0.5)
+                VecBuilder.fill(0.3, 0.3, 0.9)); // might need to bring these back up (was 0.5)
 
         // Allow us to toggle on second order kinematics
         isSecondOrder = Logger.tunable("/SwerveDriveSubsystem/isSecondOrder", false);
@@ -120,6 +130,29 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                     new ChassisSpeeds(forward.getAsDouble(), strafe.getAsDouble(), rotation.getAsDouble()),
                     isFieldOriented);
         });
+    }
+
+    public Command pathfindToPoseCommand(Pose2d targetPose) {
+        PathConstraints constraints = new PathConstraints(
+        3.0, 3.0,
+        Math.PI * 3, Math.PI * 4);
+
+
+        Command pathfindingCommand = AutoBuilder.pathfindToPose(
+            targetPose,
+            constraints,
+        0, // Goal end velocity in meters/sec
+        0.0 // Rotation delay distance in meters. This is how far the robot should travel before attempting to rotate.
+        );
+
+        return Commands.either(
+            new DriveToPositionCommand(this, targetPose), 
+            pathfindingCommand.andThen(new DriveToPositionCommand(this, targetPose)), 
+            () -> targetPose.getTranslation().getDistance(getPose().getTranslation()) < .5);
+    }
+
+    public Command driveToPoseCommand(Pose2d targetPose) {
+        return new DriveToPositionCommand(this, targetPose);
     }
 
     public Command preciseDriveCommand(

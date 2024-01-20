@@ -15,18 +15,24 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.math.MathUtils;
+import frc.lib.vision.LimelightRawAngles;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.subsystems.swervedrive.SwerveDriveSubsystem;
 import frc.robot.subsystems.vision.AprilTagIO.AprilTagIOInputs;
+import frc.robot.subsystems.vision.PositionTargetIO.PositionTargetIOInputs;
 
 public class VisionSubsystem extends SubsystemBase {
-    private final double translationStdDevCoefficient = 0.3;
-    private final double rotationStdDevCoefficient = 0.9;
+    private final double translationStdDevCoefficient = 0.35;
+    private final double rotationStdDevCoefficient = 1;
 
     private AprilTagIO left;
     private AprilTagIO right;
+    private PositionTargetIO limelight;
+
     private Optional<AprilTagIOInputs> leftInputs = Optional.empty();
     private Optional<AprilTagIOInputs> rightInputs = Optional.empty();
+    private Optional<PositionTargetIOInputs> limelightInputs = Optional.empty();
+
     public List<PhotonTrackedTarget> leftTargets = new ArrayList<>();
     public List<PhotonTrackedTarget> rightTargets = new ArrayList<>();
 
@@ -35,6 +41,7 @@ public class VisionSubsystem extends SubsystemBase {
     public VisionSubsystem(SwerveDriveSubsystem consumer, AprilTagIO left, AprilTagIO right, PositionTargetIO limelight) {
         this.left = left;
         this.right = right;
+        this.limelight = limelight;
 
         this.consumer = consumer;
     }
@@ -42,6 +49,7 @@ public class VisionSubsystem extends SubsystemBase {
     public void periodic() {
         leftInputs = left.updateInputs();
         rightInputs = right.updateInputs();
+        limelightInputs = limelight.updateInputs();
 
         leftTargets = left.updateTagsInfo();
         rightTargets = right.updateTagsInfo();
@@ -50,7 +58,7 @@ public class VisionSubsystem extends SubsystemBase {
         addVisionPoseEstimate(rightInputs);
     }
 
-    public Optional<PhotonTrackedTarget> getTagInfo(List<PhotonTrackedTarget> targets, int tagID) {
+    public static Optional<PhotonTrackedTarget> getTagInfo(List<PhotonTrackedTarget> targets, int tagID) {
         for (var target : targets) {
             if (target.getFiducialId() == tagID) {
                 return Optional.of(target);
@@ -59,8 +67,12 @@ public class VisionSubsystem extends SubsystemBase {
         return Optional.empty();
     }
 
+    public Optional<LimelightRawAngles> getDetectorInfo() {
+        return limelightInputs.map((inputs) -> new LimelightRawAngles(inputs.yaw, inputs.pitch, inputs.area));
+    }
+
     private void addVisionPoseEstimate(Optional<AprilTagIOInputs> inputs) {
-        inputs.ifPresent((t) -> addVisionPoseEstimate(t.poseEstimate3d, t.targetDistance, t.timestamp));
+        inputs.ifPresent((t) -> addVisionPoseEstimateWithBackup(t.poseEstimate3d, t.alternatePoseEstimate3d, t.targetDistance, t.timestamp));
     }
 
     private void addVisionPoseEstimate(Pose3d estimate, double distance, double timestamp) {
@@ -68,6 +80,14 @@ public class VisionSubsystem extends SubsystemBase {
 
         consumer.addVisionPoseEstimate(
             estimate.toPose2d(), timestamp); //calculateVisionStdDevs(distance));
+    }
+
+    private void addVisionPoseEstimateWithBackup(Pose3d estimate, Pose3d backup, double distance, double timestamp) {
+        if (!isWithinField(estimate)) {
+            addVisionPoseEstimate(backup, distance, timestamp);
+        } else {
+            addVisionPoseEstimate(estimate, distance, timestamp);
+        }
     }
 
     private static boolean isWithinField(Pose3d pose) {

@@ -6,8 +6,9 @@ public interface PositionTargetIO extends CameraIO<PositionTargetIO.PositionTarg
     public Optional<PositionTargetIOInputs> updateInputs();
     
     public static class PositionTargetIOInputs {
-        double yaw = 0;
-        double pitch = 0;
-        double timestamp = 0;
+        public double yaw = 0;
+        public double pitch = 0;
+        public double timestamp = 0;
+        public double area = 0;
     }
 }

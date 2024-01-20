@@ -3,6 +3,7 @@ package frc.robot;
 import static edu.wpi.first.wpilibj2.command.Commands.*;
 
 import org.photonvision.PhotonCamera;
+import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -14,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.controller.LogitechController;
 import frc.lib.controller.ThrustmasterJoystick;
 import frc.robot.Constants.ControllerConstants;
+import frc.robot.commands.DriveToPositionCommand;
 import frc.robot.subsystems.lights.LightsIOBlinkin;
 import frc.robot.subsystems.lights.LightsIOSim;
 import frc.robot.subsystems.lights.LightsSubsystem;
@@ -115,6 +117,10 @@ public class RobotContainer {
                 .getPOVLeft()
                 .whileTrue(swerveDriveSubsystem.cardinalCommand(
                         Rotation2d.fromDegrees(90), this::getDriveForwardAxis, this::getDriveStrafeAxis));
+
+        rightDriveController
+                .getBottomThumb()
+                .whileTrue(swerveDriveSubsystem.pathfindToPoseCommand(new Pose2d(2.9, 5.5, new Rotation2d(Math.PI))));
 
         rightDriveController.sendButtonNamesToNT();
         leftDriveController.sendButtonNamesToNT();

@@ -11,9 +11,10 @@ public interface AprilTagIO extends CameraIO<AprilTagIO.AprilTagIOInputs> {
     public Optional<AprilTagIOInputs> updateInputs();
     
     public static class AprilTagIOInputs {
-        Pose3d poseEstimate3d;
-        double targetDistance;
-        double timestamp;
+        Pose3d poseEstimate3d = new Pose3d();
+        Pose3d alternatePoseEstimate3d = new Pose3d();
+        double targetDistance = 0;
+        double timestamp = 0;
     }
 
     public List<PhotonTrackedTarget> updateTagsInfo();
