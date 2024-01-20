@@ -11,4 +11,5 @@ public interface PneumaticsIO {
 
     public void setPosition(boolean forward1, boolean forward2);
     
+    public int getPosition();
 }

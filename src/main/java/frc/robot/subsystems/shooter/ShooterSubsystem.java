@@ -8,15 +8,18 @@ public class ShooterSubsystem extends SubsystemBase {
     private RollerIO rollerIO;
     private RollerIO rollerIO2;
     private PneumaticsIO pneumaticsIO;
-    
-    private int shooterSpeed; // radians per second
 
     public ShooterSubsystem(RollerIO rollerIO, RollerIO rollerIO2, PneumaticsIO pneumaticsIO) {
-
         this.rollerIO = rollerIO;
         this.rollerIO2 = rollerIO2;
         this.pneumaticsIO = pneumaticsIO;
+    }
 
+    public Command shootCommand(double topRollerSpeed, double bottomRollerSpeed) {
+        return run(() -> {
+            rollerIO.setSpeed(topRollerSpeed);
+            rollerIO2.setSpeed(bottomRollerSpeed);
+        });
     }
 
 }
