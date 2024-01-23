@@ -70,7 +70,8 @@ public class SwerveDriveSubsystem extends SubsystemBase {
             new ProfiledPIDController(5, 0, 0, new TrapezoidProfile.Constraints(8, 8));
     private final double maxCardinalVelocity = 4.5;
 
-    private final double angularVelocityCoefficient = 0.03;
+    private final double angularVelocityCoefficient = 0.0;
+    private final double accelerationCoefficient = 0;
 
     private double previousTilt = 0;
     private double tiltRate = 0;
@@ -104,8 +105,8 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                 this::getVelocity, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
                 (velocity) -> setVelocity(velocity, false, false), // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
                 new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should likely live in your Constants class
-                        new PIDConstants(5.6, 0.0, 0.001), // Translation PID constants
-                        new PIDConstants(4.3, 0.0, 0.001), // Rotation PID constants
+                        new PIDConstants(0), //new PIDConstants(5.6, 0.0, 0.001), // Translation PID constants
+                        new PIDConstants(0), // new PIDConstants(4.3, 0.0, 0.001), // Rotation PID constants
                         Constants.SwerveConstants.maxSpeed, // Max module speed, in m/s
                         Constants.SwerveConstants.moduleTranslations[0].getNorm(), // Drive base radius in meters. Distance from robot center to furthest module.
                         new ReplanningConfig() // Default path replanning config. See the API for the options here
@@ -285,6 +286,10 @@ public class SwerveDriveSubsystem extends SubsystemBase {
 
     public void zeroRotation() {
         setRotation(new Rotation2d());
+    }
+
+    public void setVelocityAcceleration(ChassisSpeeds velocity, ChassisSpeeds acceleration, boolean isFieldOriented) {
+        driveSignal = new SwerveDriveSignal(velocity.plus(acceleration.times(accelerationCoefficient)), isFieldOriented, false);
     }
 
     public void setVelocity(ChassisSpeeds velocity, boolean isFieldOriented, boolean isOpenLoop) {

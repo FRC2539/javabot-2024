@@ -115,11 +115,12 @@ public final class Constants {
         public static final double angleKS = 0.0;
 
         /* Drive Motor PID Values */
-        public static final double driveKP = 0.1;
+        public static final double driveKP = 0.0;
         public static final double driveKI = 0.0;
         public static final double driveKD = 0.0;
-        public static final double driveKV = 0.0;
-        public static final double driveKS = 0.0;
+        public static final double driveKV = 0.11;
+        public static final double driveKS = 0.12;
+        public static final double driveKA = 0.0;
 
         /* Swerve Profiling Values */
         public static final double maxSpeed = 4.968230454756032; // meters per second
@@ -131,10 +132,6 @@ public final class Constants {
                         .max(Double::compare)
                         .get();
 
-        /* Calculated Characterization Values */
-        public static final double calculatedDriveKS = 0;
-        public static final double calculatedDriveKV = (12 / maxSpeed) / GlobalConstants.targetVoltage;
-        public static final double calculatedDriveKA = (12 / maxAcceleration) / GlobalConstants.targetVoltage;
         public static final double calculatedAngleKV =
                 (12 * 60) / (angleMotorFreeSpeed * Math.toRadians(360 / angleGearRatio));
 

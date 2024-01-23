@@ -1,5 +1,6 @@
 package frc.robot.subsystems.swervedrive;
 
+import frc.lib.logging.Logger;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
@@ -38,9 +39,9 @@ public class SwerveModuleIOPhoenixPro implements SwerveModuleIO {
             new VelocityVoltage(0).withSlot(0).withEnableFOC(enableFOC);
 
     SimpleMotorFeedforward driveFeedforward = new SimpleMotorFeedforward(
-            Constants.SwerveConstants.calculatedDriveKS,
-            Constants.SwerveConstants.calculatedDriveKV,
-            Constants.SwerveConstants.calculatedDriveKA);
+            Constants.SwerveConstants.driveKS,
+            Constants.SwerveConstants.driveKV,
+            Constants.SwerveConstants.driveKA);
 
     StatusSignal<Double> drivePositionSS;
     StatusSignal<Double> driveVelocitySS;
@@ -111,6 +112,7 @@ public class SwerveModuleIOPhoenixPro implements SwerveModuleIO {
         driveMotor.setControl(velocityVoltageRequestDrive
                 .withVelocity(velocityMotor)
                 .withFeedForward(driveFeedforward.calculate(velocity)));
+        Logger.log("/SwerveDriveSubsystem/feedforward",driveFeedforward.calculate(velocity));
     }
 
     public void setDesiredAngularPosition(double angularPosition) {
