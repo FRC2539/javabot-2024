@@ -5,6 +5,9 @@
     }
   },
   "NetworkTables": {
+    "Persistent Values": {
+      "open": false
+    },
     "transitory": {
       "SwerveDriveSubsystem": {
         "double[]##v_/SwerveDriveSubsystem/Pose": {
