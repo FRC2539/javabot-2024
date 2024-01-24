@@ -4,6 +4,7 @@ import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -50,9 +51,13 @@ public class SwerveDriveSubsystem extends SubsystemBase {
 
     private Pose2d pose = new Pose2d();
     private final MovingAverageVelocity velocityEstimator = new MovingAverageVelocity(3);
-    private ChassisSpeeds velocity = new ChassisSpeeds();
+    private ChassisSpeeds velocity = new ChassisSpeeds(0,0,0);
     private ChassisSpeeds previousVelocity = new ChassisSpeeds();
     private SwerveDriveSignal driveSignal = new SwerveDriveSignal();
+    private ChassisSpeeds acceleration = new ChassisSpeeds(0,0,0);
+    private LinearFilter accelerationX = LinearFilter.movingAverage(5);
+    private LinearFilter accelerationY = LinearFilter.movingAverage(5);
+    private LinearFilter accelerationOmega = LinearFilter.movingAverage(5);
 
     public boolean isRainbow = false;
 
@@ -71,7 +76,10 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     private final double maxCardinalVelocity = 4.5;
 
     private final double angularVelocityCoefficient = 0.0;
-    private final double accelerationCoefficient = 0;
+    private final double accelerationCoefficient = 0; //0.12;
+
+    private ChassisSpeeds lastDriveSignalClosedLoop = new ChassisSpeeds(0,0,0);
+    private double lastDriveSignalClosedLoopTimestamp = 0;
 
     private double previousTilt = 0;
     private double tiltRate = 0;
@@ -103,10 +111,10 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                 this::getPose, // Robot pose supplier
                 this::setPose, // Method to reset odometry (will be called if your auto has a starting pose)
                 this::getVelocity, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
-                (velocity) -> setVelocity(velocity, false, false), // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
+                (velocity) -> setVelocityAccelerationPredict(velocity, false), // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
                 new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should likely live in your Constants class
-                        new PIDConstants(0), //new PIDConstants(5.6, 0.0, 0.001), // Translation PID constants
-                        new PIDConstants(0), // new PIDConstants(4.3, 0.0, 0.001), // Rotation PID constants
+                        new PIDConstants(5, 0.0, 0.01), // Translation PID constants
+                        new PIDConstants(4, 0.0, 0.01), // Rotation PID constants
                         Constants.SwerveConstants.maxSpeed, // Max module speed, in m/s
                         Constants.SwerveConstants.moduleTranslations[0].getNorm(), // Drive base radius in meters. Distance from robot center to furthest module.
                         new ReplanningConfig() // Default path replanning config. See the API for the options here
@@ -288,11 +296,29 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         setRotation(new Rotation2d());
     }
 
-    public void setVelocityAcceleration(ChassisSpeeds velocity, ChassisSpeeds acceleration, boolean isFieldOriented) {
+    public void updateAcceleration(ChassisSpeeds velocity) {
+        double currentTime = Timer.getFPGATimestamp();
+        ChassisSpeeds temporalAcceleration = velocity.minus(lastDriveSignalClosedLoop).div(currentTime - lastDriveSignalClosedLoopTimestamp);
+        lastDriveSignalClosedLoop = velocity;
+        lastDriveSignalClosedLoopTimestamp = currentTime;
+        double x = accelerationX.calculate(temporalAcceleration.vxMetersPerSecond);
+        double y = accelerationY.calculate(temporalAcceleration.vyMetersPerSecond);
+        double omega = accelerationOmega.calculate(temporalAcceleration.omegaRadiansPerSecond);
+        acceleration = new ChassisSpeeds(x,y,omega);
+    }
+
+    public void setVelocityAcceleration(ChassisSpeeds velocity, ChassisSpeeds accelerationMeasured, boolean isFieldOriented) {
+        updateAcceleration(velocity);
+        driveSignal = new SwerveDriveSignal(velocity.plus(accelerationMeasured.times(accelerationCoefficient)), isFieldOriented, false);
+    }
+
+    public void setVelocityAccelerationPredict(ChassisSpeeds velocity, boolean isFieldOriented) {
+        updateAcceleration(velocity);
         driveSignal = new SwerveDriveSignal(velocity.plus(acceleration.times(accelerationCoefficient)), isFieldOriented, false);
     }
 
     public void setVelocity(ChassisSpeeds velocity, boolean isFieldOriented, boolean isOpenLoop) {
+        updateAcceleration(velocity);
         driveSignal = new SwerveDriveSignal(velocity, isFieldOriented, isOpenLoop);
     }
 
@@ -357,7 +383,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     private void updateOdometry() {
         SwerveModuleState[] moduleStates = getModuleStates();
         SwerveModulePosition[] modulePositions = getModulePositions();
-
+        
         previousVelocity = velocity;
         velocity = Constants.SwerveConstants.swerveKinematics.toChassisSpeeds(moduleStates);
 
@@ -418,6 +444,8 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         // Logger.log("/SwerveDriveSubsystem/Desired Velocity", (ChassisSpeeds) driveSignal);
 
         Logger.log("/SwerveDriveSubsystem/Velocity Magnitude", getVelocityMagnitude());
+
+        Logger.log("/SwerveDriveSubsystem/Acceleration Commanded", acceleration);
 
         Logger.log("/SwerveDriveSubsystem/Wheel Speed", modules[0].getState().speedMetersPerSecond);
 
