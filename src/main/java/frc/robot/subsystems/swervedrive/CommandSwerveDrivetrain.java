@@ -11,18 +11,26 @@ import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.SteerRequestType;
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import frc.lib.logging.Logger;
+import frc.lib.math.MathUtils;
 import frc.robot.Constants;
+import frc.robot.commands.DriveToPositionCommand;
 
 /**
  * Class that extends the Phoenix SwerveDrivetrain class and implements subsystem
@@ -33,20 +41,21 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     private Notifier m_simNotifier = null;
     private double m_lastSimTime;
 
-    private SwerveRequest.RobotCentric closedLoopAuto = new SwerveRequest.RobotCentric()
+    public final SwerveRequest.RobotCentric closedLoopAuto = new SwerveRequest.RobotCentric()
                     .withDriveRequestType(DriveRequestType.Velocity)
                     .withSteerRequestType(SteerRequestType.MotionMagicExpo);
 
-    private SwerveRequest.FieldCentric closedLoop = new SwerveRequest.FieldCentric()
+    public final SwerveRequest.FieldCentric closedLoop = new SwerveRequest.FieldCentric()
                     .withDriveRequestType(DriveRequestType.Velocity)
                     .withSteerRequestType(SteerRequestType.MotionMagicExpo);
 
-    private SwerveRequest.FieldCentric openLoop = new SwerveRequest.FieldCentric()
+    public final SwerveRequest.FieldCentric openLoop = new SwerveRequest.FieldCentric()
                     .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
                     .withSteerRequestType(SteerRequestType.MotionMagicExpo);
 
     public CommandSwerveDrivetrain(SwerveDrivetrainConstants driveTrainConstants, double OdometryUpdateFrequency, SwerveModuleConstants... modules) {
         super(driveTrainConstants, OdometryUpdateFrequency, modules);
+        applyConfigs();
         if (Utils.isSimulation()) {
             startSimThread();
         }
@@ -54,6 +63,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
     public CommandSwerveDrivetrain(SwerveDrivetrainConstants driveTrainConstants, SwerveModuleConstants... modules) {
         super(driveTrainConstants, modules);
+        applyConfigs();
         if (Utils.isSimulation()) {
             startSimThread();
         }
@@ -63,8 +73,17 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         return m_kinematics.toChassisSpeeds(getState().ModuleStates);
     }
 
+    public double getVelocityMagnitude() {
+        ChassisSpeeds currentSpeeds = getRobotRelativeChassisSpeeds();
+        return Math.hypot(currentSpeeds.vxMetersPerSecond, currentSpeeds.vyMetersPerSecond);
+    }
+
     public Pose2d getPose() {
         return getState().Pose;
+    }
+
+    public Rotation2d getTilt() {
+        return new Rotation2d(Math.acos(getRotation3d().getAxis().get(2,0)));
     }
 
     private void applyConfigs() {
@@ -97,6 +116,8 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
                 },
                 this // Reference to this subsystem to set requirements
         );
+
+        registerTelemetry(this::logTelemetry);
     }
 
     public Command applyRequest(Supplier<SwerveRequest> requestSupplier) {
@@ -113,6 +134,50 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         );
     }
 
+    public Command cardinalCommand(Rotation2d targetAngle, DoubleSupplier forward, DoubleSupplier strafe) {
+        omegaController.enableContinuousInput(-Math.PI, Math.PI);
+
+        return run(() -> {
+                    var rotationCorrection =
+                            omegaController.calculate(pose.getRotation().getRadians(), targetAngle.getRadians());
+
+                    setVelocity(
+                            new ChassisSpeeds(
+                                    forward.getAsDouble(),
+                                    strafe.getAsDouble(),
+                                    MathUtils.ensureRange(
+                                            rotationCorrection, -maxCardinalVelocity, maxCardinalVelocity)),
+                            true);
+                })
+                .beforeStarting(() -> {
+                    omegaController.reset(new TrapezoidProfile.State(
+                            pose.getRotation().getRadians(), velocity.omegaRadiansPerSecond));
+                });
+    }
+
+    public Command pathfindToPoseCommand(Pose2d targetPose) {
+        PathConstraints constraints = new PathConstraints(
+        3, 3.0,
+        Math.PI * 3, Math.PI * 4);
+
+
+        Command pathfindingCommand = AutoBuilder.pathfindToPose(
+            targetPose,
+            constraints,
+        0, // Goal end velocity in meters/sec
+        0.0 // Rotation delay distance in meters. This is how far the robot should travel before attempting to rotate.
+        );
+
+        return Commands.either(
+            new DriveToPositionCommand(this, targetPose), 
+            pathfindingCommand.andThen(new DriveToPositionCommand(this, targetPose)), 
+            () -> targetPose.getTranslation().getDistance(getPose().getTranslation()) < .5);
+    }
+
+    public Command driveToPoseCommand(Pose2d targetPose) {
+        return new DriveToPositionCommand(this, targetPose);
+    }
+
     private void startSimThread() {
         m_lastSimTime = Utils.getCurrentTimeSeconds();
 
@@ -126,5 +191,86 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
             updateSimState(deltaTime, RobotController.getBatteryVoltage());
         });
         m_simNotifier.startPeriodic(kSimLoopPeriod);
+    }
+
+    private void logTelemetry(SwerveDriveState state) {
+        Logger.log("/SwerveDriveSubsystem/Pose", state.Pose);
+        // Logger.log("/SwerveDriveSubsystem/Velocity", velocity);
+        // Logger.log("/SwerveDriveSubsystem/Desired Velocity", (ChassisSpeeds) driveSignal);
+
+        Logger.log("/SwerveDriveSubsystem/Velocity Magnitude", getVelocityMagnitude());
+
+        Logger.log("/SwerveDriveSubsystem/Acceleration Commanded", 0);
+
+        Logger.log("/SwerveDriveSubsystem/Wheel Zero Speed", state.ModuleStates[0].speedMetersPerSecond);
+
+        Rotation3d currentRotation = getRotation3d();
+
+        Logger.log("/SwerveDriveSubsystem/Pitch", currentRotation.getY());
+        Logger.log("/SwerveDriveSubsystem/Roll", currentRotation.getX());
+        Logger.log("/SwerveDriveSubsystem/Tilt", getTilt().getRadians());
+
+        Logger.log("/SwerveDriveSubsystem/CANCoder Angles", new double[] {
+            state.ModuleStates[0].angle.getDegrees(),
+            state.ModuleStates[1].angle.getDegrees(),
+            state.ModuleStates[2].angle.getDegrees(),
+            state.ModuleStates[3].angle.getDegrees(),
+        });
+
+        // // Raw In This Case means the offset is not applied
+        // Logger.log("/SwerveDriveSubsystem/Raw CANCoder Angles", new double[] {
+        //     state.ModuleStates[0].,
+        //     state.ModuleStates[0].angle.getDegrees(),
+        //     modules[2].getRawCanCoderAngle().getDegrees(),
+        //     modules[3].getRawCanCoderAngle().getDegrees(),
+        // });
+
+        Logger.log("/SwerveDriveSubsystem/SwerveModuleStates/Measured", new double[] {
+            state.ModuleStates[0].angle.getRadians(), state.ModuleStates[0].speedMetersPerSecond,
+            state.ModuleStates[1].angle.getRadians(), state.ModuleStates[1].speedMetersPerSecond,
+            state.ModuleStates[2].angle.getRadians(), state.ModuleStates[2].speedMetersPerSecond,
+            state.ModuleStates[3].angle.getRadians(), state.ModuleStates[3].speedMetersPerSecond
+        });
+
+        Logger.log("/SwerveDriveSubsystem/SwerveModuleStates/Setpoints", new double[] {
+            state.ModuleTargets[0].angle.getRadians(), state.ModuleTargets[0].speedMetersPerSecond,
+            state.ModuleTargets[1].angle.getRadians(), state.ModuleTargets[1].speedMetersPerSecond,
+            state.ModuleTargets[2].angle.getRadians(), state.ModuleTargets[2].speedMetersPerSecond,
+            state.ModuleTargets[3].angle.getRadians(), state.ModuleTargets[3].speedMetersPerSecond
+        });
+
+        // Logger.log("/SwerveDriveSubsystem/Wheel Angles", new double[] {
+        //     modules[0].getPosition().angle.getDegrees(),
+        //     modules[1].getPosition().angle.getDegrees(),
+        //     modules[2].getPosition().angle.getDegrees(),
+        //     modules[3].getPosition().angle.getDegrees()
+        // });
+
+        // Logger.log("/SwerveDriveSubsystem/Angle Wheel Amps", new double[] {
+        //     modules[0].getAngleCurrent(),
+        //     modules[1].getAngleCurrent(),
+        //     modules[2].getAngleCurrent(),
+        //     modules[3].getAngleCurrent()
+        // });
+
+        // Logger.log("/SwerveDriveSubsystem/Angle Wheel Volts", new double[] {
+        //     modules[0].getAngleVoltage(),
+        //     modules[1].getAngleVoltage(),
+        //     modules[2].getAngleVoltage(),
+        //     modules[3].getAngleVoltage()
+        // });
+
+        Logger.log("/SwerveDriveSubsystem/Drive Temperatures", new double[] {          
+            getModule(0).getDriveMotor().getDeviceTemp().getValue(),
+            getModule(1).getDriveMotor().getDeviceTemp().getValue(),
+            getModule(2).getDriveMotor().getDeviceTemp().getValue(),
+            getModule(3).getDriveMotor().getDeviceTemp().getValue()
+        });
+        Logger.log("/SwerveDriveSubsystem/Angle Temperatures", new double[] {          
+            getModule(0).getSteerMotor().getDeviceTemp().getValue(),
+            getModule(1).getSteerMotor().getDeviceTemp().getValue(),
+            getModule(2).getSteerMotor().getDeviceTemp().getValue(),
+            getModule(3).getSteerMotor().getDeviceTemp().getValue()
+        });
     }
 }

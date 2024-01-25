@@ -23,7 +23,7 @@ import frc.robot.subsystems.lights.LightsIOSim;
 import frc.robot.subsystems.lights.LightsSubsystem;
 import frc.robot.subsystems.swervedrive.CommandSwerveDrivetrain;
 import frc.robot.subsystems.swervedrive.SwerveDriveSubsystem;
-import frc.robot.subsystems.swervedrive.TunerConstants;
+import frc.robot.TunerConstants;
 import frc.robot.subsystems.vision.AprilTagIOPhotonVision;
 import frc.robot.subsystems.vision.AprilTagIOSim;
 import frc.robot.subsystems.vision.PositionTargetIOLimelight;
@@ -49,7 +49,7 @@ public class RobotContainer {
 
     public RobotContainer(TimedRobot robot) {
         if (Robot.isReal()) {
-            swerveDriveSubsystem = new SwerveDriveSubsystem(TunerConstants.DriveTrain);
+            swerveDriveSubsystem = TunerConstants.DriveTrain;
             lightsSubsystem = new LightsSubsystem(new LightsIOBlinkin(0));
             visionSubsystem = new VisionSubsystem(
                 swerveDriveSubsystem, 
@@ -59,7 +59,7 @@ public class RobotContainer {
                 new PhotonCamera("RightCamera"), Constants.VisionConstants.robotToRightCamera),
                 new PositionTargetIOLimelight());
         } else {
-            swerveDriveSubsystem = new SwerveDriveSubsystem(TunerConstants.DriveTrain);;
+            swerveDriveSubsystem = TunerConstants.DriveTrain;
             lightsSubsystem = new LightsSubsystem(new LightsIOSim());
             visionSubsystem = new VisionSubsystem(swerveDriveSubsystem, new AprilTagIOSim(), new AprilTagIOSim(), new PositionTargetIOSim() );
         }
