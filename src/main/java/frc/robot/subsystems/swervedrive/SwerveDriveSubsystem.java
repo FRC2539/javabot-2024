@@ -1,5 +1,3 @@
-package frc.robot.subsystems.swervedrive;
-
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -46,7 +44,7 @@ import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
 
-public class SwerveDriveSubsystem extends SubsystemBase {
+public class SwerveDriveSubsystem extends CommandSwerveDrivetrain {
     private final SwerveDrivePoseEstimator swervePoseEstimator;
 
     private Pose2d pose = new Pose2d();
@@ -62,6 +60,8 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     public boolean isRainbow = false;
 
     private SwerveModule[] modules;
+
+    private CommandSwerveDrivetrain drivetrain;
 
     private GyroIO gyroIO;
     private GyroIOInputs gyroInputs = new GyroIOInputs();
@@ -85,16 +85,8 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     private double tiltRate = 0;
     private DoubleSupplier maxSpeedSupplier = () -> Constants.SwerveConstants.maxSpeed;
 
-    public SwerveDriveSubsystem(GyroIO gyroIO, SwerveModuleIO[] swerveModuleIOs) {
-        this.gyroIO = gyroIO;
-
-        modules = new SwerveModule[] {
-            new SwerveModule(swerveModuleIOs[0], 0),
-            new SwerveModule(swerveModuleIOs[1], 1),
-            new SwerveModule(swerveModuleIOs[2], 2),
-            new SwerveModule(swerveModuleIOs[3], 3)
-        };
-
+    public SwerveDriveSubsystem(CommandSwerveDrivetrain drivetrain) {
+        
         // Initialize the swerve drive pose estimator with access to the module positions.
         swervePoseEstimator = new SwerveDrivePoseEstimator(
                 SwerveConstants.swerveKinematics,
@@ -215,7 +207,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     }
 
     public void addVisionPoseEstimate(Pose2d pose, double timestamp) {
-        swervePoseEstimator.addVisionMeasurement(pose, timestamp);
+        CommandSwerveDrivetrain
     }
 
     public void addVisionPoseEstimate(Pose2d pose, double timestamp, Matrix<N3, N1> stdDevs) {

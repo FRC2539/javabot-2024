@@ -13,10 +13,12 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.math.MathUtils;
 import frc.lib.vision.LimelightRawAngles;
 import frc.robot.Constants.FieldConstants;
+import frc.robot.subsystems.swervedrive.CommandSwerveDrivetrain;
 import frc.robot.subsystems.swervedrive.SwerveDriveSubsystem;
 import frc.robot.subsystems.vision.AprilTagIO.AprilTagIOInputs;
 import frc.robot.subsystems.vision.PositionTargetIO.PositionTargetIOInputs;
@@ -36,9 +38,9 @@ public class VisionSubsystem extends SubsystemBase {
     public List<PhotonTrackedTarget> leftTargets = new ArrayList<>();
     public List<PhotonTrackedTarget> rightTargets = new ArrayList<>();
 
-    private SwerveDriveSubsystem consumer;
+    private CommandSwerveDrivetrain consumer;
 
-    public VisionSubsystem(SwerveDriveSubsystem consumer, AprilTagIO left, AprilTagIO right, PositionTargetIO limelight) {
+    public VisionSubsystem(CommandSwerveDrivetrain consumer, AprilTagIO left, AprilTagIO right, PositionTargetIO limelight) {
         this.left = left;
         this.right = right;
         this.limelight = limelight;
@@ -78,7 +80,9 @@ public class VisionSubsystem extends SubsystemBase {
     private void addVisionPoseEstimate(Pose3d estimate, double distance, double timestamp) {
         if (!isWithinField(estimate)) return;
 
-        consumer.addVisionPoseEstimate(
+        // TODO: acutlally calculate
+
+        consumer.addVisionMeasurement(
             estimate.toPose2d(), timestamp); //calculateVisionStdDevs(distance));
     }
 

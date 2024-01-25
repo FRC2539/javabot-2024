@@ -2,6 +2,7 @@ package frc.robot;
 
 import static edu.wpi.first.wpilibj2.command.Commands.*;
 
+import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.util.PathPlannerLogging;
@@ -10,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib.logging.LoggedReceiver;
 import frc.lib.logging.Logger;
 import frc.robot.subsystems.lights.LightsSubsystem;
+import frc.robot.subsystems.swervedrive.CommandSwerveDrivetrain;
 import frc.robot.subsystems.swervedrive.SwerveDriveSubsystem;
 import java.util.List;
 import java.util.stream.Stream;
@@ -29,7 +31,7 @@ public class AutonomousManager {
 
     private String chosenAuto = defaultAuto.pathName;
 
-    SwerveDriveSubsystem swerveDriveSubsystem;
+    CommandSwerveDrivetrain swerveDriveSubsystem;
     LightsSubsystem lightsSubsystem;
 
     private boolean hasInitialized = false;
@@ -39,7 +41,7 @@ public class AutonomousManager {
         lightsSubsystem = container.getLightsSubsystem();
 
         // Create an event map for use in all autos
-        NamedCommands.registerCommand("stop", runOnce(swerveDriveSubsystem::stop, swerveDriveSubsystem));
+        NamedCommands.registerCommand("stop", runOnce(() -> swerveDriveSubsystem.setControl(new SwerveRequest.Idle()), swerveDriveSubsystem));
         NamedCommands.registerCommand("flashLights", lightsSubsystem.patternCommand(LightsSubsystem.black));
 
         PathPlannerLogging.setLogTargetPoseCallback((pose) -> {
