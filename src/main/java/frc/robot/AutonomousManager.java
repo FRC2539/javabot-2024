@@ -102,7 +102,7 @@ public class AutonomousManager {
 
         if (chosenWaitDuration > 0) chosenPathCommand.beforeStarting(waitSeconds(chosenWaitDuration));
 
-        return chosenPathCommand.repeatedly();
+        return chosenPathCommand;
     }
 
     private void initializeNetworkTables() {

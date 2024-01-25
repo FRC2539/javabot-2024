@@ -20,6 +20,7 @@ import frc.robot.subsystems.lights.LightsIOBlinkin;
 import frc.robot.subsystems.lights.LightsIOSim;
 import frc.robot.subsystems.lights.LightsSubsystem;
 import frc.robot.subsystems.swervedrive.GyroIONavX;
+import frc.robot.subsystems.swervedrive.GyroIOPigeon;
 import frc.robot.subsystems.swervedrive.GyroIOSim;
 import frc.robot.subsystems.swervedrive.SwerveDriveSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveModuleIO;
@@ -50,7 +51,7 @@ public class RobotContainer {
 
     public RobotContainer(TimedRobot robot) {
         if (Robot.isReal()) {
-            swerveDriveSubsystem = new SwerveDriveSubsystem(new GyroIONavX(), new SwerveModuleIO[] {
+            swerveDriveSubsystem = new SwerveDriveSubsystem(new GyroIOPigeon(29), new SwerveModuleIO[] {
                 new SwerveModuleIOPhoenixPro(0, Constants.SwerveConstants.Mod0.constants),
                 new SwerveModuleIOPhoenixPro(1, Constants.SwerveConstants.Mod1.constants),
                 new SwerveModuleIOPhoenixPro(2, Constants.SwerveConstants.Mod2.constants),
