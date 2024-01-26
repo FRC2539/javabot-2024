@@ -3,27 +3,21 @@ package frc.robot;
 import static edu.wpi.first.wpilibj2.command.Commands.*;
 
 import org.photonvision.PhotonCamera;
-import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.controller.LogitechController;
 import frc.lib.controller.ThrustmasterJoystick;
 import frc.robot.Constants.ControllerConstants;
-import frc.robot.commands.DriveToPositionCommand;
 import frc.robot.subsystems.lights.LightsIOBlinkin;
 import frc.robot.subsystems.lights.LightsIOSim;
 import frc.robot.subsystems.lights.LightsSubsystem;
-import frc.robot.subsystems.swervedrive.CommandSwerveDrivetrain;
 import frc.robot.subsystems.swervedrive.SwerveDriveSubsystem;
-import frc.robot.TunerConstants;
 import frc.robot.subsystems.vision.AprilTagIOPhotonVision;
 import frc.robot.subsystems.vision.AprilTagIOSim;
 import frc.robot.subsystems.vision.PositionTargetIOLimelight;
@@ -41,7 +35,7 @@ public class RobotContainer {
     public static SlewRateLimiter forwardRateLimiter = new SlewRateLimiter(35, -35, 0);
     public static SlewRateLimiter strafeRateLimiter = new SlewRateLimiter(35, -35, 0);
 
-    private CommandSwerveDrivetrain swerveDriveSubsystem;
+    private SwerveDriveSubsystem swerveDriveSubsystem;
     private LightsSubsystem lightsSubsystem;
     private VisionSubsystem visionSubsystem;
 
@@ -56,7 +50,7 @@ public class RobotContainer {
                 new AprilTagIOPhotonVision(
                     new PhotonCamera("LeftCamera"), Constants.VisionConstants.robotToLeftCamera),
                 new AprilTagIOPhotonVision(
-                new PhotonCamera("RightCamera"), Constants.VisionConstants.robotToRightCamera),
+                    new PhotonCamera("RightCamera"), Constants.VisionConstants.robotToRightCamera),
                 new PositionTargetIOLimelight());
         } else {
             swerveDriveSubsystem = TunerConstants.DriveTrain;
@@ -151,7 +145,7 @@ public class RobotContainer {
         return Math.copySign(value * value * value, value);
     }
 
-    public CommandSwerveDrivetrain getSwerveDriveSubsystem() {
+    public SwerveDriveSubsystem getSwerveDriveSubsystem() {
         return swerveDriveSubsystem;
     }
 

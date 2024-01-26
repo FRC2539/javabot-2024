@@ -11,7 +11,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib.logging.LoggedReceiver;
 import frc.lib.logging.Logger;
 import frc.robot.subsystems.lights.LightsSubsystem;
-import frc.robot.subsystems.swervedrive.CommandSwerveDrivetrain;
 import frc.robot.subsystems.swervedrive.SwerveDriveSubsystem;
 import java.util.List;
 import java.util.stream.Stream;
@@ -31,7 +30,7 @@ public class AutonomousManager {
 
     private String chosenAuto = defaultAuto.pathName;
 
-    CommandSwerveDrivetrain swerveDriveSubsystem;
+    SwerveDriveSubsystem swerveDriveSubsystem;
     LightsSubsystem lightsSubsystem;
 
     private boolean hasInitialized = false;

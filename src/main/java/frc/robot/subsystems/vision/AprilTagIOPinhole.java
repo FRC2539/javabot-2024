@@ -48,11 +48,11 @@ public class AprilTagIOPinhole {
 
                 Pose3d aprilTag = Constants.FieldConstants.aprilTagFieldLayout.getTagPose(inputs.targetID).get();
 
-                Translation2d translationRobotToApriltag = new Translation2d(distance, new Rotation2d(cameraAngleHorizontal).plus(swerveDrive.getGyroRotation()));
+                Translation2d translationRobotToApriltag = new Translation2d(distance, new Rotation2d(cameraAngleHorizontal).plus(swerveDrive.getRotation()));
 
                 Translation2d nextPoseEstimate = aprilTag.toPose2d().getTranslation().plus(translationRobotToApriltag.unaryMinus());
 
-                var poseEstimate = new Pose2d(nextPoseEstimate, swerveDrive.getGyroRotation());
+                var poseEstimate = new Pose2d(nextPoseEstimate, swerveDrive.getRotation());
 
                 myInputs.poseEstimate3d = new Pose3d(poseEstimate);
                 myInputs.targetDistance = distance;
