@@ -31,8 +31,6 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.lib.logging.Logger;
 import frc.lib.math.MathUtils;
 import frc.robot.Constants;
-import frc.robot.Telemetry;
-import frc.robot.TunerConstants;
 import frc.robot.commands.DriveToPositionCommand;
 
 /**
@@ -43,6 +41,8 @@ public class SwerveDriveSubsystem extends SwerveDrivetrain implements Subsystem 
     private static final double kSimLoopPeriod = 0.005; // 5 ms
     private Notifier m_simNotifier = null;
     private double m_lastSimTime;
+
+    private SwerveDriveState currentState = new SwerveDriveState();
 
     public final SwerveRequest.RobotCentric closedLoopRobotCentric = new SwerveRequest.RobotCentric()
                     .withDriveRequestType(DriveRequestType.Velocity)
@@ -132,9 +132,7 @@ public class SwerveDriveSubsystem extends SwerveDrivetrain implements Subsystem 
                 this // Reference to this subsystem to set requirements
         );
 
-        Telemetry myTelem = new Telemetry(TunerConstants.kSpeedAt12VoltsMps);
-
-        registerTelemetry((state) -> myTelem.telemeterize(state));
+        registerTelemetry((state) -> currentState = state);
     }
 
     public Command applyRequest(Supplier<SwerveRequest> requestSupplier) {
@@ -214,6 +212,11 @@ public class SwerveDriveSubsystem extends SwerveDrivetrain implements Subsystem 
             updateSimState(deltaTime, RobotController.getBatteryVoltage());
         });
         m_simNotifier.startPeriodic(kSimLoopPeriod);
+    }
+
+    @Override
+    public void periodic() {
+        logTelemetry(currentState);
     }
 
     private void logTelemetry(SwerveDriveState state) {

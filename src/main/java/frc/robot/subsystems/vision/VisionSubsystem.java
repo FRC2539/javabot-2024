@@ -104,7 +104,8 @@ public class VisionSubsystem extends SubsystemBase {
         return isWithinField;// && isNearRobot;
     }
 
-    private Matrix<N3, N1> calculateVisionStdDevs(double distance) {
+
+    public Matrix<N3, N1> calculateVisionStdDevs(double distance) {
         var translationStdDev = translationStdDevCoefficient * Math.pow(distance, 2);
         var rotationStdDev = rotationStdDevCoefficient * Math.pow(distance, 2);
 
