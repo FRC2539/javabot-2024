@@ -4,7 +4,6 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -64,8 +63,7 @@ public class DriveToPositionCommand extends Command {
     @Override
     public void initialize() {
         var robotPose = swerveDriveSubsystem.getPose();
-        var robotVelocity = ChassisSpeeds.fromFieldRelativeSpeeds(
-                swerveDriveSubsystem.getDesiredVelocity(), swerveDriveSubsystem.getRotation());
+        var robotVelocity = swerveDriveSubsystem.getFieldRelativeChassisSpeeds();
 
         var targetPose = targetPoseSupplier.get();
 
@@ -103,13 +101,11 @@ public class DriveToPositionCommand extends Command {
         if (driveController.atGoal()) driveSpeed = 0;
         if (omegaController.atGoal()) omegaSpeed = 0;
 
-        swerveDriveSubsystem.setVelocity(
-                new ChassisSpeeds(
-                        -driveSpeed * goalTranslation.getX() / goalTranslation.getNorm(),
-                        -driveSpeed * goalTranslation.getY() / goalTranslation.getNorm(),
-                        omegaSpeed),
-                true,
-                true);
+        swerveDriveSubsystem.setControl(
+                swerveDriveSubsystem.closedLoop
+                .withVelocityX(-driveSpeed * goalTranslation.getX() / goalTranslation.getNorm())
+                .withVelocityY(-driveSpeed * goalTranslation.getY() / goalTranslation.getNorm())
+                .withRotationalRate(omegaSpeed));
     }
 
     @Override
@@ -119,7 +115,7 @@ public class DriveToPositionCommand extends Command {
 
     @Override
     public void end(boolean interrupted) {
-        swerveDriveSubsystem.stop();
+        swerveDriveSubsystem.setControl(swerveDriveSubsystem.stopped);
     }
 
     public Translation2d getGoalTranslation(Pose2d robotPose, Pose2d targetPose) {
