@@ -15,6 +15,8 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import frc.lib.interpolation.InterpolatableDouble;
+import frc.lib.interpolation.InterpolatingMap;
 import frc.lib.swerve.SecondOrderSwerveKinematics;
 import frc.lib.swerve.SwerveModuleConstants;
 
@@ -46,14 +48,32 @@ public final class Constants {
     }
 
     public static final class ShooterConstants {
-        public static final int rightShooterPort = 8;
-        public static final int leftShooterPort = 9;
-        public static final int rightPivotPort = 10;
-        public static final int leftPivotPort = 11;
+        public static final int pnematics1Forward = 8;
+        public static final int pnematics1Reverse = 9;
+        public static final int pnematics2Forward = 10;
+        public static final int pnematics2Reverse = 11;
 
-        public static final int encoderPort = 1;
+        public static final int talonFXPort = 1;
 
-        public static final int shooterSensorPort = 1;
+        public static final InterpolatingMap<InterpolatableDouble> topRollerMap() {
+            var map = new InterpolatingMap<InterpolatableDouble>();
+            map.put(0, new InterpolatableDouble(0.0));
+            map.put(5, new InterpolatableDouble(1.0));
+            map.put(15, new InterpolatableDouble(10.0));
+            map.put(100, new InterpolatableDouble(10.0));
+
+            return map;
+        }
+
+        public static final InterpolatingMap<InterpolatableDouble> bottomRollerMap() {
+            var map = new InterpolatingMap<InterpolatableDouble>();
+            map.put(0, new InterpolatableDouble(0.0));
+            map.put(5, new InterpolatableDouble(1.0));
+            map.put(15, new InterpolatableDouble(10.0));
+            map.put(100, new InterpolatableDouble(10.0));
+
+            return map;
+        }
     }
 
     public static final class SwerveConstants extends DevelopmentBotConstants {}

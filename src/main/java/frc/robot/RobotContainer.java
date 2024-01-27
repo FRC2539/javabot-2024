@@ -17,6 +17,9 @@ import frc.robot.Constants.ControllerConstants;
 import frc.robot.subsystems.lights.LightsIOBlinkin;
 import frc.robot.subsystems.lights.LightsIOSim;
 import frc.robot.subsystems.lights.LightsSubsystem;
+import frc.robot.subsystems.shooter.PneumaticsIOSim;
+import frc.robot.subsystems.shooter.RollerIOSim;
+import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.swervedrive.GyroIONavX;
 import frc.robot.subsystems.swervedrive.GyroIOSim;
 import frc.robot.subsystems.swervedrive.SwerveDriveSubsystem;
@@ -41,6 +44,7 @@ public class RobotContainer {
     private SwerveDriveSubsystem swerveDriveSubsystem;
     private LightsSubsystem lightsSubsystem;
     private VisionSubsystem visionSubsystem;
+    private ShooterSubsystem shooterSubsystem;
 
     public AutonomousManager autonomousManager;
 
@@ -55,6 +59,7 @@ public class RobotContainer {
             lightsSubsystem = new LightsSubsystem(new LightsIOBlinkin(0));
             visionSubsystem = new VisionSubsystem(swerveDriveSubsystem, new AprilTagIOPhotonVision(new PhotonCamera("LeftCamera"), Constants.VisionConstants.robotToLeftCamera), new AprilTagIOPhotonVision(
                 new PhotonCamera("RightCamera"), Constants.VisionConstants.robotToRightCamera));
+            shooterSubsystem = new ShooterSubsystem(new RollerIOSim(), new RollerIOSim(), new PneumaticsIOSim(), Constants.ShooterConstants.topRollerMap(), Constants.ShooterConstants.bottomRollerMap());
         } else {
             swerveDriveSubsystem = new SwerveDriveSubsystem(new GyroIOSim(), new SwerveModuleIO[] {
                 new SwerveModuleIOSim(),
@@ -64,6 +69,7 @@ public class RobotContainer {
             });
             lightsSubsystem = new LightsSubsystem(new LightsIOSim());
             visionSubsystem = new VisionSubsystem(swerveDriveSubsystem, new AprilTagIOSim(), new AprilTagIOSim());
+            shooterSubsystem = new ShooterSubsystem(new RollerIOSim(), new RollerIOSim(), new PneumaticsIOSim(), Constants.ShooterConstants.topRollerMap(), Constants.ShooterConstants.bottomRollerMap());
         }
 
         autonomousManager = new AutonomousManager(this);
@@ -108,6 +114,12 @@ public class RobotContainer {
                 .getPOVLeft()
                 .whileTrue(swerveDriveSubsystem.cardinalCommand(
                         Rotation2d.fromDegrees(90), this::getDriveForwardAxis, this::getDriveStrafeAxis));
+
+        rightDriveController
+                .getTrigger()
+                .whileTrue(shooterSubsystem.shootCommand(1,1));
+        rightDriveController
+                .nameTrigger("Shoot");
 
         rightDriveController.sendButtonNamesToNT();
         leftDriveController.sendButtonNamesToNT();

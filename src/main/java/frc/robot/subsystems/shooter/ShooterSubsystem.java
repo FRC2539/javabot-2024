@@ -6,6 +6,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib.interpolation.InterpolatableDouble;
 import frc.lib.interpolation.InterpolatingMap;
 import frc.lib.logging.Logger;
+import frc.robot.subsystems.shooter.PneumaticsIO.PneumaticsIOInputs;
+import frc.robot.subsystems.shooter.RollerIO.RollerIOInputs;
 
 public class ShooterSubsystem extends SubsystemBase {
     private RollerIO rollerIO;
@@ -17,6 +19,10 @@ public class ShooterSubsystem extends SubsystemBase {
     private final InterpolatingMap<InterpolatableDouble> topRollerMap;
     private final InterpolatingMap<InterpolatableDouble> bottomRollerMap;
     private ShooterState currentShoooterState;
+    
+    private RollerIOInputs roller1Inputs = new RollerIOInputs();
+    private RollerIOInputs roller2Inputs = new RollerIOInputs();
+    private PneumaticsIOInputs pneumaticsInputs = new PneumaticsIOInputs();
 
     private ShooterPosition shooterPositionMap(double distance) {
         if (distance < 1) {
@@ -54,6 +60,12 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public void periodic() {
         updateShooterStateForDistance(currentDistance);
+        rollerIO.updateInputs(roller1Inputs);
+        rollerIO2.updateInputs(roller2Inputs);
+        pneumaticsIO.updateInputs(pneumaticsInputs);
+        logShooterInformation();
+
+
     }
 
     public Command shootCommand(double topRollerRPM, double bottomRollerRPM) {
@@ -63,9 +75,9 @@ public class ShooterSubsystem extends SubsystemBase {
         });
     }
 
-    public void logShooterInformation(ShooterState shooterState) {
-        Logger.log("/ShooterSubsystem/topRollerSpeed", shooterState.topRollerRPM);
-        Logger.log("/ShooterSubsystem/bottomRollerSpeed", shooterState.bottomRollerRPM);
-        Logger.log("/ShooterSubsystem/shooterPosition", shooterState.shooterPosition.toString());
+    public void logShooterInformation() {
+        Logger.log("/ShooterSubsystem/topRollerSpeed", roller1Inputs.speed);
+        Logger.log("/ShooterSubsystem/bottomRollerSpeed", roller2Inputs.speed);
+        Logger.log("/ShooterSubsystem/shooterPosition", new boolean[]{pneumaticsInputs.forward1, pneumaticsInputs.forward2});
     }
 }
