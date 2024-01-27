@@ -20,6 +20,7 @@ import frc.robot.subsystems.lights.LightsSubsystem;
 import frc.robot.subsystems.shooter.PneumaticsIOSim;
 import frc.robot.subsystems.shooter.RollerIOSim;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
+import frc.robot.subsystems.shooter.ShooterSubsystem.ShooterPosition;
 import frc.robot.subsystems.swervedrive.GyroIONavX;
 import frc.robot.subsystems.swervedrive.GyroIOSim;
 import frc.robot.subsystems.swervedrive.SwerveDriveSubsystem;
@@ -117,7 +118,7 @@ public class RobotContainer {
 
         rightDriveController
                 .getTrigger()
-                .whileTrue(shooterSubsystem.shootCommand(1,1));
+                .whileTrue(shooterSubsystem.shootCommand(() -> swerveDriveSubsystem.getPose().getTranslation().getNorm()));
         rightDriveController
                 .nameTrigger("Shoot");
 

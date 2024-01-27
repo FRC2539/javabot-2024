@@ -2,6 +2,8 @@ package frc.robot.subsystems.shooter;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
+import java.util.function.DoubleSupplier;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib.interpolation.InterpolatableDouble;
 import frc.lib.interpolation.InterpolatingMap;
@@ -43,19 +45,25 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public ShooterState updateShooterStateForDistance(double distance) {
-        currentDistance = distance;
-        currentShoooterState = new ShooterState(
+        return new ShooterState(
             topRollerMap.getInterpolated(distance).get().value,
             bottomRollerMap.getInterpolated(distance).get().value,
             shooterPositionMap(distance)
         );
-        return currentShoooterState;
     }
 
     public enum ShooterPosition {
-        DISABLED,
-        FIRST_POSITION,
-        SECOND_POSITION
+        DISABLED(false, false),
+        FIRST_POSITION(false, true),
+        SECOND_POSITION(true,true);
+
+        public boolean forward1;
+        public boolean forwrard2;
+
+        ShooterPosition(boolean forward1, boolean forward2) {
+            this.forward1 = forward1;
+            this.forwrard2 = forward2;
+        }
     }
 
     public void periodic() {
@@ -65,17 +73,41 @@ public class ShooterSubsystem extends SubsystemBase {
         pneumaticsIO.updateInputs(pneumaticsInputs);
         logShooterInformation();
 
-
+        rollerIO.setSpeed(currentShoooterState.topRollerRPM);
+        rollerIO2.setSpeed(currentShoooterState.bottomRollerRPM);
+        pneumaticsIO.setPosition(currentShoooterState.shooterPosition.forward1, currentShoooterState.shooterPosition.forwrard2);
     }
 
-    public Command shootCommand(double topRollerRPM, double bottomRollerRPM) {
+    public Command shootCommand(double topRollerRPM, double bottomRollerRPM, ShooterPosition shooterPosition) {
+        return runOnce(() -> {
+            currentShoooterState = new ShooterState(topRollerRPM, bottomRollerRPM, shooterPosition);
+        });
+    }
+
+    public Command shootCommand(double distance) {
+        return runOnce(() -> {
+            currentShoooterState = updateShooterStateForDistance(distance);
+        });
+    }
+
+    public Command shootCommand(ShooterState shooterState) {
+        return runOnce(() -> {
+            currentShoooterState = shooterState;
+        });
+    }
+
+    public Command shootCommand(DoubleSupplier distance) {
         return run(() -> {
-            rollerIO.setSpeed(topRollerRPM);
-            rollerIO2.setSpeed(bottomRollerRPM);
+            currentShoooterState = updateShooterStateForDistance(distance.getAsDouble());
         });
     }
 
     public void logShooterInformation() {
+        Logger.log("/ShooterSubsystem/topRollerSpeedSetpoint", currentShoooterState.topRollerRPM);
+        Logger.log("/ShooterSubsystem/bottomRollerSpeedSetpoint", currentShoooterState.bottomRollerRPM);
+        Logger.log("/ShooterSubsystem/shooterPositionSetpoint", currentShoooterState.shooterPosition.toString());
+        Logger.log("/ShooterSubsystem/shooterPositionSetpoint", currentDistance);
+
         Logger.log("/ShooterSubsystem/topRollerSpeed", roller1Inputs.speed);
         Logger.log("/ShooterSubsystem/bottomRollerSpeed", roller2Inputs.speed);
         Logger.log("/ShooterSubsystem/shooterPosition", new boolean[]{pneumaticsInputs.forward1, pneumaticsInputs.forward2});
