@@ -2,8 +2,10 @@ package frc.robot;
 
 import static edu.wpi.first.wpilibj2.command.Commands.*;
 
+import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
+import com.pathplanner.lib.util.PathPlannerLogging;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib.logging.LoggedReceiver;
@@ -38,8 +40,19 @@ public class AutonomousManager {
         lightsSubsystem = container.getLightsSubsystem();
 
         // Create an event map for use in all autos
-        NamedCommands.registerCommand("stop", runOnce(swerveDriveSubsystem::stop, swerveDriveSubsystem));
+        NamedCommands.registerCommand("stop", runOnce(() -> swerveDriveSubsystem.setControl(new SwerveRequest.Idle()), swerveDriveSubsystem));
         NamedCommands.registerCommand("flashLights", lightsSubsystem.patternCommand(LightsSubsystem.black));
+
+        PathPlannerLogging.setLogTargetPoseCallback((pose) -> {
+            // Do whatever you want with the pose here
+            Logger.log("/SwerveDriveSubsystem/targetPose", pose);
+        });
+
+        // // Logging callback for the active path, this is sent as a list of poses
+        // PathPlannerLogging.setLogActivePathCallback((poses) -> {
+        //     // Do whatever you want with the poses here
+        //     Logger.log("/SwerveDriveSubsystem/path", poses);
+        // });
     }
 
     public void update() {

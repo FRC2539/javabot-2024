@@ -7,11 +7,8 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.lib.logging.Logger;
-import frc.lib.swerve.CTREConfigs;
 
 public class Robot extends TimedRobot {
-    public static CTREConfigs ctreConfigs = new CTREConfigs();
-
     private RobotContainer robotContainer;
 
     private Command autonomousCommand;

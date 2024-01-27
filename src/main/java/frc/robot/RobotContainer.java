@@ -4,13 +4,13 @@ import static edu.wpi.first.wpilibj2.command.Commands.*;
 
 import org.photonvision.PhotonCamera;
 
+import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
+
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.controller.LogitechController;
 import frc.lib.controller.ThrustmasterJoystick;
 import frc.robot.Constants.ControllerConstants;
@@ -20,15 +20,11 @@ import frc.robot.subsystems.lights.LightsSubsystem;
 import frc.robot.subsystems.shooter.PneumaticsIOSim;
 import frc.robot.subsystems.shooter.RollerIOSim;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
-import frc.robot.subsystems.shooter.ShooterSubsystem.ShooterPosition;
-import frc.robot.subsystems.swervedrive.GyroIONavX;
-import frc.robot.subsystems.swervedrive.GyroIOSim;
 import frc.robot.subsystems.swervedrive.SwerveDriveSubsystem;
-import frc.robot.subsystems.swervedrive.SwerveModuleIO;
-import frc.robot.subsystems.swervedrive.SwerveModuleIOPhoenixPro;
-import frc.robot.subsystems.swervedrive.SwerveModuleIOSim;
 import frc.robot.subsystems.vision.AprilTagIOPhotonVision;
 import frc.robot.subsystems.vision.AprilTagIOSim;
+import frc.robot.subsystems.vision.PositionTargetIOLimelight;
+import frc.robot.subsystems.vision.PositionTargetIOSim;
 import frc.robot.subsystems.vision.VisionSubsystem;
 
 public class RobotContainer {
@@ -51,26 +47,21 @@ public class RobotContainer {
 
     public RobotContainer(TimedRobot robot) {
         if (Robot.isReal()) {
-            swerveDriveSubsystem = new SwerveDriveSubsystem(new GyroIONavX(), new SwerveModuleIO[] {
-                new SwerveModuleIOPhoenixPro(0, Constants.SwerveConstants.Mod0.constants),
-                new SwerveModuleIOPhoenixPro(1, Constants.SwerveConstants.Mod1.constants),
-                new SwerveModuleIOPhoenixPro(2, Constants.SwerveConstants.Mod2.constants),
-                new SwerveModuleIOPhoenixPro(3, Constants.SwerveConstants.Mod3.constants)
-            });
+            swerveDriveSubsystem = TunerConstants.DriveTrain;
             lightsSubsystem = new LightsSubsystem(new LightsIOBlinkin(0));
-            visionSubsystem = new VisionSubsystem(swerveDriveSubsystem, new AprilTagIOPhotonVision(new PhotonCamera("LeftCamera"), Constants.VisionConstants.robotToLeftCamera), new AprilTagIOPhotonVision(
-                new PhotonCamera("RightCamera"), Constants.VisionConstants.robotToRightCamera));
             shooterSubsystem = new ShooterSubsystem(new RollerIOSim(), new RollerIOSim(), new PneumaticsIOSim(), Constants.ShooterConstants.topRollerMap(), Constants.ShooterConstants.bottomRollerMap());
+            visionSubsystem = new VisionSubsystem(
+                swerveDriveSubsystem, 
+                new AprilTagIOPhotonVision(
+                    new PhotonCamera("LeftCamera"), Constants.VisionConstants.robotToLeftCamera),
+                new AprilTagIOPhotonVision(
+                    new PhotonCamera("RightCamera"), Constants.VisionConstants.robotToRightCamera),
+                new PositionTargetIOLimelight());
         } else {
-            swerveDriveSubsystem = new SwerveDriveSubsystem(new GyroIOSim(), new SwerveModuleIO[] {
-                new SwerveModuleIOSim(),
-                new SwerveModuleIOSim(),
-                new SwerveModuleIOSim(),
-                new SwerveModuleIOSim()
-            });
+            swerveDriveSubsystem = TunerConstants.DriveTrain;
             lightsSubsystem = new LightsSubsystem(new LightsIOSim());
-            visionSubsystem = new VisionSubsystem(swerveDriveSubsystem, new AprilTagIOSim(), new AprilTagIOSim());
             shooterSubsystem = new ShooterSubsystem(new RollerIOSim(), new RollerIOSim(), new PneumaticsIOSim(), Constants.ShooterConstants.topRollerMap(), Constants.ShooterConstants.bottomRollerMap());
+            visionSubsystem = new VisionSubsystem(swerveDriveSubsystem, new AprilTagIOSim(), new AprilTagIOSim(), new PositionTargetIOSim() );
         }
 
         autonomousManager = new AutonomousManager(this);
@@ -82,21 +73,18 @@ public class RobotContainer {
 
         /* Set default commands */
         swerveDriveSubsystem.setDefaultCommand(swerveDriveSubsystem.driveCommand(
-                this::getDriveForwardAxis, this::getDriveStrafeAxis, this::getDriveRotationAxis, true));
+                this::getDriveForwardAxis, this::getDriveStrafeAxis, this::getDriveRotationAxis));
 
         /* Set left joystick bindings */
-        leftDriveController.getLeftTopLeft().onTrue(runOnce(swerveDriveSubsystem::zeroRotation, swerveDriveSubsystem));
+        leftDriveController.getLeftTopLeft().onTrue(runOnce(swerveDriveSubsystem::tareEverything, swerveDriveSubsystem));
         leftDriveController
                 .getLeftTopRight()
-                .onTrue(runOnce(() -> swerveDriveSubsystem.setPose(new Pose2d()), swerveDriveSubsystem));
+                .onTrue(runOnce(swerveDriveSubsystem::tareEverything, swerveDriveSubsystem));
         leftDriveController.nameLeftTopLeft("Reset Gyro Angle");
 
 
-        leftDriveController.getLeftBottomMiddle().whileTrue(run(swerveDriveSubsystem::lock, swerveDriveSubsystem));
+        leftDriveController.getLeftBottomMiddle().whileTrue(runOnce(() -> swerveDriveSubsystem.setControl(new SwerveRequest.SwerveDriveBrake()), swerveDriveSubsystem));
         leftDriveController.nameLeftBottomMiddle("Lock Wheels");
-
-        new Trigger(() -> swerveDriveSubsystem.isRainbow)
-                .whileTrue(lightsSubsystem.patternCommand(LightsSubsystem.rainbow));
 
         // Cardinal drive commands (inverted since the arm is on the back of the robot)
         rightDriveController
@@ -121,6 +109,14 @@ public class RobotContainer {
                 .whileTrue(shooterSubsystem.shootCommand(() -> swerveDriveSubsystem.getPose().getTranslation().getNorm()));
         rightDriveController
                 .nameTrigger("Shoot");
+
+        rightDriveController
+                .getBottomThumb()
+                .whileTrue(swerveDriveSubsystem.pathfindToPoseCommand(new Pose2d(2.9, 5.5, new Rotation2d(Math.PI))));
+
+        leftDriveController
+                .getBottomThumb()
+                .whileTrue(swerveDriveSubsystem.pathfindToPoseCommand(new Pose2d(1.53, 2.557, new Rotation2d(Math.PI))));
 
         rightDriveController.sendButtonNamesToNT();
         leftDriveController.sendButtonNamesToNT();

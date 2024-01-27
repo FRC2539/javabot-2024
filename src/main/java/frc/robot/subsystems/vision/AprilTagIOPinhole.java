@@ -2,15 +2,15 @@ package frc.robot.subsystems.vision;
 
 import java.util.Optional;
 
-import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import frc.robot.Constants;
 import frc.robot.subsystems.swervedrive.SwerveDriveSubsystem;
+import frc.robot.subsystems.vision.AprilTagIO.AprilTagIOInputs;
 
-public class AprilTagIOPinhole implements AprilTagIO {
+public class AprilTagIOPinhole {
     private CameraInfoIO cameraInfoIO;
     private double cameraAngleVerticle;
     private double cameraHeight;
@@ -48,11 +48,11 @@ public class AprilTagIOPinhole implements AprilTagIO {
 
                 Pose3d aprilTag = Constants.FieldConstants.aprilTagFieldLayout.getTagPose(inputs.targetID).get();
 
-                Translation2d translationRobotToApriltag = new Translation2d(distance, new Rotation2d(cameraAngleHorizontal).plus(swerveDrive.getGyroRotation()));
+                Translation2d translationRobotToApriltag = new Translation2d(distance, new Rotation2d(cameraAngleHorizontal).plus(swerveDrive.getRotation()));
 
                 Translation2d nextPoseEstimate = aprilTag.toPose2d().getTranslation().plus(translationRobotToApriltag.unaryMinus());
 
-                var poseEstimate = new Pose2d(nextPoseEstimate, swerveDrive.getGyroRotation());
+                var poseEstimate = new Pose2d(nextPoseEstimate, swerveDrive.getRotation());
 
                 myInputs.poseEstimate3d = new Pose3d(poseEstimate);
                 myInputs.targetDistance = distance;
