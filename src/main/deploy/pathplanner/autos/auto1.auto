@@ -5,12 +5,42 @@
       "x": 1.9112722961537205,
       "y": 5.995948311440133
     },
-    "rotation": 179.11859600341785
+    "rotation": 180.0
   },
   "command": {
     "type": "sequential",
     "data": {
       "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "path1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "path1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "path1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "path1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "path1"
+          }
+        },
         {
           "type": "path",
           "data": {

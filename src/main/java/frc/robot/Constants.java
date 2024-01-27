@@ -1,27 +1,16 @@
 package frc.robot;
 
-import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
-import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.apriltag.AprilTagFieldLayout.OriginPosition;
 import edu.wpi.first.apriltag.AprilTagFields;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import frc.lib.swerve.SecondOrderSwerveKinematics;
-import frc.lib.swerve.SwerveModuleConstants;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
 
 public final class Constants {
     public static final boolean competitionMode = false;
@@ -87,9 +76,6 @@ public final class Constants {
             new Translation2d(-wheelBase / 2.0, trackWidth / 2.0),
             new Translation2d(-wheelBase / 2.0, -trackWidth / 2.0)
         };
-
-        public static final SecondOrderSwerveKinematics swerveKinematics =
-                new SecondOrderSwerveKinematics(moduleTranslations);
 
         /* Swerve Current Limiting */
         public static final int angleContinuousCurrentLimit = 25;
@@ -160,48 +146,6 @@ public final class Constants {
         // Make sure that if you are looking at the front of the robot, the bevels are on the left.
 
         /* Front Left Module - Module 0 */
-        public static final class Mod0 {
-            public static final int driveMotorID = 0;
-            public static final int angleMotorID = 4;
-            public static final int canCoderID = 24;
-            public static final double angleOffset = 241.0;
-            //     public static final String canivoreName = "CANivore";
-            public static final SwerveModuleConstants constants =
-                    new SwerveModuleConstants(driveMotorID, angleMotorID, canCoderID, angleOffset);
-        }
-
-        /* Front Right Module - Module 1 */
-        public static final class Mod1 {
-            public static final int driveMotorID = 2;
-            public static final int angleMotorID = 6;
-            public static final int canCoderID = 26;
-            public static final double angleOffset = 168.0;
-            //     public static final String canivoreName = "CANivore";
-            public static final SwerveModuleConstants constants =
-                    new SwerveModuleConstants(driveMotorID, angleMotorID, canCoderID, angleOffset);
-        }
-
-        /* Back Left Module - Module 2 */
-        public static final class Mod2 {
-            public static final int driveMotorID = 1;
-            public static final int angleMotorID = 5;
-            public static final int canCoderID = 25;
-            public static final double angleOffset = 159.9;
-            //     public static final String canivoreName = "CANivore";
-            public static final SwerveModuleConstants constants =
-                    new SwerveModuleConstants(driveMotorID, angleMotorID, canCoderID, angleOffset);
-        }
-
-        /* Back Right Module - Module 3 */
-        public static final class Mod3 {
-            public static final int driveMotorID = 3;
-            public static final int angleMotorID = 7;
-            public static final int canCoderID = 27;
-            public static final double angleOffset = 280.5;
-            //     public static final String canivoreName = "CANivore";
-            public static final SwerveModuleConstants constants =
-                    new SwerveModuleConstants(driveMotorID, angleMotorID, canCoderID, angleOffset);
-        }
     }
 
     public static final class FieldConstants {

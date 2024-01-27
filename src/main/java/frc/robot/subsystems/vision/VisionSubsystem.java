@@ -6,8 +6,6 @@ import java.util.Optional;
 
 import org.photonvision.targeting.PhotonTrackedTarget;
 
-import frc.lib.logging.Logger;
-
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -78,7 +76,9 @@ public class VisionSubsystem extends SubsystemBase {
     private void addVisionPoseEstimate(Pose3d estimate, double distance, double timestamp) {
         if (!isWithinField(estimate)) return;
 
-        consumer.addVisionPoseEstimate(
+        // TODO: acutlally calculate
+
+        consumer.addVisionMeasurement(
             estimate.toPose2d(), timestamp); //calculateVisionStdDevs(distance));
     }
 
@@ -104,7 +104,8 @@ public class VisionSubsystem extends SubsystemBase {
         return isWithinField;// && isNearRobot;
     }
 
-    private Matrix<N3, N1> calculateVisionStdDevs(double distance) {
+
+    public Matrix<N3, N1> calculateVisionStdDevs(double distance) {
         var translationStdDev = translationStdDevCoefficient * Math.pow(distance, 2);
         var rotationStdDev = rotationStdDevCoefficient * Math.pow(distance, 2);
 
