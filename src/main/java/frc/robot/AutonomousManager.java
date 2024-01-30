@@ -7,7 +7,6 @@ import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.util.PathPlannerLogging;
 
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -75,7 +74,7 @@ public class AutonomousManager {
         AUTO1(
                 "Speaker",
                 0,
-                "auto1",
+                "testAuto",
                 "Test Auto",
                 true
                 ),
@@ -83,7 +82,7 @@ public class AutonomousManager {
         AUTO2(
                 "Amp",
                 1,
-                "auto1",
+                "testAuto",
                 "Second Auto",
                 true
                 ),
@@ -91,7 +90,7 @@ public class AutonomousManager {
                 AUTO3(
                 "Amp",
                 7,
-                "auto1",
+                "testAuto",
                 "Seven Piece",
                 true
                 ),
@@ -99,7 +98,7 @@ public class AutonomousManager {
         AUTO4(
                 "Speaker",
                 9,
-                "auto1",
+                "testAuto",
                 "Loop De Loop",
                 true
                 );
