@@ -149,17 +149,26 @@ public class SwerveDriveSubsystem extends SwerveDrivetrain implements Subsystem 
         );
     }
 
-    public Command cardinalCommand(Rotation2d targetAngle, DoubleSupplier forward, DoubleSupplier strafe) {
-        final ProfiledPIDController omegaController =
-            new ProfiledPIDController(5, 0, 0, new TrapezoidProfile.Constraints(8, 8));
+    public Command aimAtPoseCommand(Supplier<Pose2d> targetPose, DoubleSupplier forward, DoubleSupplier strafes) {
+        return directionCommand(() -> targetPose.get().getTranslation().minus(getPose().getTranslation()).getAngle(), forward, strafes,
+        new ProfiledPIDController(5, 0, 1, new TrapezoidProfile.Constraints(3.0, 8)));
+    }
 
-        final double maxCardinalVelocity = 3.0;
+    public Command cardinalCommand(Rotation2d targetAngle, DoubleSupplier forward, DoubleSupplier strafe) {
+        final ProfiledPIDController omegaController = 
+            new ProfiledPIDController(5, 0, 0, new TrapezoidProfile.Constraints(3.0, 8));
+        
+        return directionCommand(() -> targetAngle, forward, strafe, omegaController);
+    }
+
+    public Command directionCommand(Supplier<Rotation2d> targetAngle, DoubleSupplier forward, DoubleSupplier strafe, final ProfiledPIDController omegaController) {
+        final double maxCardinalVelocity = omegaController.getConstraints().maxVelocity;
 
         omegaController.enableContinuousInput(-Math.PI, Math.PI);   
 
         return run(() -> {
                     var rotationCorrection =
-                            omegaController.calculate(getPose().getRotation().getRadians(), targetAngle.getRadians());
+                            omegaController.calculate(getPose().getRotation().getRadians(), targetAngle.get().getRadians());
 
                     setControl(
                             openLoop
