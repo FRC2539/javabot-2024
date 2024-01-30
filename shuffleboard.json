@@ -11,67 +11,105 @@
         "vgap": 16.0,
         "titleType": 0,
         "tiles": {
+          "0,5": {
+            "size": [
+              2,
+              1
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/limelight_PipelineName",
+              "_title": "limelight_PipelineName",
+              "_glyph": 148,
+              "_showGlyph": false
+            }
+          },
+          "2,5": {
+            "size": [
+              2,
+              1
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/limelight_Interface",
+              "_title": "limelight_Interface",
+              "_glyph": 148,
+              "_showGlyph": false
+            }
+          },
+          "4,5": {
+            "size": [
+              3,
+              1
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/limelight_Stream",
+              "_title": "limelight_Stream",
+              "_glyph": 148,
+              "_showGlyph": false
+            }
+          },
           "1,0": {
             "size": [
-              7,
+              19,
               5
             ],
             "content": {
-              "_type": "Camera Stream",
-              "_source0": "camera_server://photonvision_Port_1184_Output_MJPEG_Server",
-              "_title": "Left View Output",
-              "_glyph": 148,
+              "_type": "Grid Layout",
+              "_title": "Vision",
+              "_glyph": 149,
               "_showGlyph": false,
-              "Crosshair/Show crosshair": true,
-              "Crosshair/Crosshair color": "#FFFFFFFF",
-              "Controls/Show controls": false,
-              "Controls/Rotation": "NONE",
-              "compression": -1.0,
-              "fps": -1,
-              "imageWidth": -1,
-              "imageHeight": -1
-            }
-          },
-          "15,0": {
-            "size": [
-              7,
-              5
-            ],
-            "content": {
-              "_type": "Camera Stream",
-              "_source0": "camera_server://photonvision_Port_1182_Output_MJPEG_Server",
-              "_title": "Right View Output",
-              "_glyph": 148,
-              "_showGlyph": false,
-              "Crosshair/Show crosshair": true,
-              "Crosshair/Crosshair color": "#FFFFFFFF",
-              "Controls/Show controls": false,
-              "Controls/Rotation": "NONE",
-              "compression": -1.0,
-              "fps": -1,
-              "imageWidth": 0,
-              "imageHeight": 0
-            }
-          },
-          "8,0": {
-            "size": [
-              7,
-              5
-            ],
-            "content": {
-              "_type": "Camera Stream",
-              "_source0": "camera_server://limelight",
-              "_title": "limelight",
-              "_glyph": 148,
-              "_showGlyph": false,
-              "Crosshair/Show crosshair": true,
-              "Crosshair/Crosshair color": "#FFFFFFFF",
-              "Controls/Show controls": false,
-              "Controls/Rotation": "NONE",
-              "compression": -1.0,
-              "fps": -1,
-              "imageWidth": -1,
-              "imageHeight": -1
+              "Layout/Number of columns": 3,
+              "Layout/Number of rows": 3,
+              "Layout/Label position": "BOTTOM",
+              "_children": {
+                "0,0": {
+                  "_type": "Camera Stream",
+                  "_source0": "camera_server://photonvision_Port_1184_Output_MJPEG_Server",
+                  "_title": "Left View Output",
+                  "_glyph": 148,
+                  "_showGlyph": false,
+                  "Crosshair/Show crosshair": true,
+                  "Crosshair/Crosshair color": "#FFFFFFFF",
+                  "Controls/Show controls": false,
+                  "Controls/Rotation": "NONE",
+                  "compression": -1.0,
+                  "fps": -1,
+                  "imageWidth": 0,
+                  "imageHeight": 0
+                },
+                "1,0": {
+                  "_type": "Camera Stream",
+                  "_source0": "camera_server://limelight",
+                  "_title": "limelight",
+                  "_glyph": 148,
+                  "_showGlyph": false,
+                  "Crosshair/Show crosshair": true,
+                  "Crosshair/Crosshair color": "#FFFFFFFF",
+                  "Controls/Show controls": false,
+                  "Controls/Rotation": "NONE",
+                  "compression": -1.0,
+                  "fps": -1,
+                  "imageWidth": 0,
+                  "imageHeight": 0
+                },
+                "2,0": {
+                  "_type": "Camera Stream",
+                  "_source0": "camera_server://photonvision_Port_1182_Output_MJPEG_Server",
+                  "_title": "Right View Output",
+                  "_glyph": 148,
+                  "_showGlyph": false,
+                  "Crosshair/Show crosshair": true,
+                  "Crosshair/Crosshair color": "#FFFFFFFF",
+                  "Controls/Show controls": false,
+                  "Controls/Rotation": "NONE",
+                  "compression": -1.0,
+                  "fps": -1,
+                  "imageWidth": 0,
+                  "imageHeight": 0
+                }
+              }
             }
           }
         }
@@ -92,9 +130,9 @@
     }
   ],
   "windowGeometry": {
-    "x": 0.0,
+    "x": 0.800000011920929,
     "y": 0.0,
-    "width": 1536.0,
+    "width": 1535.199951171875,
     "height": 699.2000122070312
   }
 }
