@@ -220,7 +220,9 @@ public class SwerveDriveSubsystem extends SwerveDrivetrain implements Subsystem 
     }
 
     private void logTelemetry(SwerveDriveState state) {
-        Logger.log("/SwerveDriveSubsystem/Pose", state.Pose);
+        if (state.Pose == null) return;
+
+        Logger.log("/SwerveDriveSubsystem/Pose", state.Pose, Pose2d.struct);
         // Logger.log("/SwerveDriveSubsystem/Velocity", velocity);
         // Logger.log("/SwerveDriveSubsystem/Desired Velocity", (ChassisSpeeds) driveSignal);
 

@@ -3,6 +3,8 @@ package frc.lib.logging;
 import edu.wpi.first.networktables.GenericPublisher;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.PubSubOption;
+import edu.wpi.first.util.protobuf.Protobuf;
+import edu.wpi.first.util.struct.Struct;
 import frc.lib.logging.Logger.LogTable;
 import frc.lib.logging.LoggingThread.Writer;
 import java.util.HashMap;
@@ -65,5 +67,13 @@ public class NTWriter implements Writer {
                 }
             }
         }
+    }
+
+    public void addStructSchema(Struct<?> schema) {
+        nt.addSchema(schema);
+    }
+        
+    public void addProtobufSchema(Protobuf<?,?> schema) {
+        nt.addSchema(schema);
     }
 }

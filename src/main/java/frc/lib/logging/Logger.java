@@ -6,10 +6,15 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.networktables.*;
+import edu.wpi.first.util.protobuf.Protobuf;
+import edu.wpi.first.util.struct.Struct;
 import edu.wpi.first.wpilibj.DriverStation;
 import frc.lib.logging.LogValue.LoggableType;
 import frc.lib.logging.LoggingThread.Writer;
 import frc.robot.Constants;
+import us.hebi.quickbuf.ProtoMessage;
+
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -75,6 +80,26 @@ public class Logger {
 
     public static void logOnly(String key, LogValue value) {
         updatesMap.put(key, value.withoutNT());
+    }
+
+    public static <T, MessageType extends ProtoMessage<?>> AlwaysNT log(String key, T value, Protobuf<T, MessageType> proto) {
+        for (Writer writer : writers) writer.addProtobufSchema(proto);
+        
+        MessageType message = proto.createMessage();
+        proto.pack(message, value);
+        return writeUpdate(key, new LogValue(message.toByteArray()));
+    }
+
+    public static <T> AlwaysNT log(String key, T value, Struct<T> struct) {
+        for (Writer writer : writers) writer.addStructSchema(struct);
+
+        ByteBuffer bb = ByteBuffer.wrap(new byte[struct.getSize()]);
+        struct.pack(bb, value);
+        return writeUpdate(key, new LogValue(bb.array()));
+    }
+
+    public static AlwaysNT log(String key, byte[] value) {
+        return writeUpdate(key, new LogValue(value));
     }
 
     public static AlwaysNT log(String key, boolean value) {

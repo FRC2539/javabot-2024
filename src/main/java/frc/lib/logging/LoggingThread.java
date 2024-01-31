@@ -4,6 +4,9 @@ import frc.lib.logging.Logger.LogTable;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 
+import edu.wpi.first.util.protobuf.Protobuf;
+import edu.wpi.first.util.struct.Struct;
+
 public class LoggingThread extends Thread {
     private final BlockingQueue<LogTable> queue;
 
@@ -32,5 +35,9 @@ public class LoggingThread extends Thread {
 
     public interface Writer {
         public void sendUpdates(LogTable logTable);
+
+        public void addStructSchema(Struct<?> schema);
+        
+        public void addProtobufSchema(Protobuf<?,?> schema);
     }
 }

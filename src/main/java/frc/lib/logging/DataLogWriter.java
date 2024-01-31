@@ -1,6 +1,8 @@
 package frc.lib.logging;
 
 import edu.wpi.first.util.datalog.DataLog;
+import edu.wpi.first.util.protobuf.Protobuf;
+import edu.wpi.first.util.struct.Struct;
 import edu.wpi.first.wpilibj.DataLogManager;
 import frc.lib.logging.LogValue.LoggableType;
 import frc.lib.logging.Logger.LogTable;
@@ -61,5 +63,13 @@ public class DataLogWriter implements Writer {
                     break;
             }
         }
+    }
+
+    public void addStructSchema(Struct<?> schema) {
+        log.addSchema(schema);
+    }
+
+    public void addProtobufSchema(Protobuf<?,?> schema) {
+        log.addSchema(schema);
     }
 }
