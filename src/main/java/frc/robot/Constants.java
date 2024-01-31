@@ -34,6 +34,13 @@ public final class Constants {
         public static final double DRIVETRAIN_PERIOD = 0.0025;
     }
 
+    public static final class IntakeConstants {
+        public static final int chamberMotorPort = 0; //random IDs
+        public static final int rollerMotorPort = 1;
+        public static final int chamberSensorPort = 2;
+        public static final int rollerSensorPort = 3;
+    }
+
     public static final class ShooterConstants {
         public static final int rightShooterPort = 8;
         public static final int leftShooterPort = 9;

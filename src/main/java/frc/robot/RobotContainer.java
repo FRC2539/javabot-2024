@@ -14,6 +14,9 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib.controller.LogitechController;
 import frc.lib.controller.ThrustmasterJoystick;
 import frc.robot.Constants.ControllerConstants;
+import frc.robot.subsystems.intake.IntakeIOFalconRedline;
+import frc.robot.subsystems.intake.IntakeIOSim;
+import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.lights.LightsIOBlinkin;
 import frc.robot.subsystems.lights.LightsIOSim;
 import frc.robot.subsystems.lights.LightsSubsystem;
@@ -38,6 +41,10 @@ public class RobotContainer {
     private SwerveDriveSubsystem swerveDriveSubsystem;
     private LightsSubsystem lightsSubsystem;
     private VisionSubsystem visionSubsystem;
+    private IntakeSubsystem intakeSubsystem;
+
+    private IntakeIOFalconRedline intakeIOFalconRedline;
+    private IntakeIOSim intakeIOSim;
 
     public AutonomousManager autonomousManager;
 
@@ -52,10 +59,13 @@ public class RobotContainer {
                 new AprilTagIOPhotonVision(
                     new PhotonCamera("RightCamera"), Constants.VisionConstants.robotToRightCamera),
                 new PositionTargetIOLimelight());
+            intakeSubsystem = new IntakeSubsystem(intakeIOFalconRedline);
+        
         } else {
             swerveDriveSubsystem = TunerConstants.DriveTrain;
             lightsSubsystem = new LightsSubsystem(new LightsIOSim());
             visionSubsystem = new VisionSubsystem(swerveDriveSubsystem, new AprilTagIOSim(), new AprilTagIOSim(), new PositionTargetIOSim() );
+            intakeSubsystem = new IntakeSubsystem(intakeIOSim);
         }
 
         autonomousManager = new AutonomousManager(this);
