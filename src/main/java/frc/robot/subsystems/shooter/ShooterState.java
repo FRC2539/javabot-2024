@@ -1,21 +1,20 @@
 package frc.robot.subsystems.shooter;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.interpolation.Interpolatable;
-import frc.robot.subsystems.shooter.ShooterSubsystem.ShooterPosition;
 
 public class ShooterState implements Interpolatable<ShooterState> {
     public double topRollerRPM;
     public double bottomRollerRPM;
-    public ShooterPosition shooterPosition;
+    public double pivotAngle;
 
-    public ShooterState(double topRollerRPM, double bottomRollerRPM, ShooterPosition shooterPosition) {
+    public ShooterState(double topRollerRPM, double bottomRollerRPM, double shooterAngle) {
         this.topRollerRPM = topRollerRPM;
         this.bottomRollerRPM = bottomRollerRPM;
-        this.shooterPosition = shooterPosition;       
+        this.pivotAngle = shooterAngle;       
     }
 
     public ShooterState() {
-        this(0, 0, ShooterPosition.FIRST_POSITION);
+        this(0, 0, 0);
     }
 
     @Override
@@ -23,6 +22,6 @@ public class ShooterState implements Interpolatable<ShooterState> {
         return new ShooterState(
                 MathUtil.interpolate(this.topRollerRPM, otherState.topRollerRPM, t),
                 MathUtil.interpolate(this.bottomRollerRPM, otherState.bottomRollerRPM, t),
-                shooterPosition);
+                MathUtil.interpolate(this.pivotAngle, otherState.pivotAngle, t));
     }
 }

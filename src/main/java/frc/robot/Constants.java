@@ -63,6 +63,16 @@ public final class Constants {
 
             return map;
         }
+
+        public static final InterpolatingMap<InterpolatableDouble> shooterAngleMap() {
+            var map = new InterpolatingMap<InterpolatableDouble>();
+            map.put(0, new InterpolatableDouble(0.0));
+            map.put(5, new InterpolatableDouble(.5));
+            map.put(15, new InterpolatableDouble(.75));
+            map.put(100, new InterpolatableDouble(1));
+
+            return map;
+        }
     }
 
     public static final class SwerveConstants extends DevelopmentBotConstants {}
