@@ -1,0 +1,78 @@
+{
+  "version": 1.0,
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 1.8237371701007818,
+        "y": 6.04588822309854
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 1.801884562065486,
+        "y": 6.053172425776973
+      },
+      "isLocked": false,
+      "linkedName": "CloseShot"
+    },
+    {
+      "anchor": {
+        "x": 2.8945149638302823,
+        "y": 7.014687179329994
+      },
+      "prevControl": {
+        "x": 2.5740100459792754,
+        "y": 6.70875066683585
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "Auto2End2"
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.0,
+      "rotationDegrees": -138.8,
+      "rotateFast": true
+    },
+    {
+      "waypointRelativePos": 0.05,
+      "rotationDegrees": -138.8,
+      "rotateFast": true
+    }
+  ],
+  "constraintZones": [],
+  "eventMarkers": [
+    {
+      "name": "intake",
+      "waypointRelativePos": 0.35,
+      "command": {
+        "type": "parallel",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "intake"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": -141.3401917459099,
+    "rotateFast": false
+  },
+  "reversed": false,
+  "folder": null,
+  "previewStartingState": null,
+  "useDefaultConstraints": false
+}
