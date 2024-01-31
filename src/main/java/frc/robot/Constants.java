@@ -2,13 +2,17 @@ package frc.robot;
 
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
+import com.pathplanner.lib.util.GeometryUtil;
+
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
 import frc.lib.interpolation.InterpolatableDouble;
 import frc.lib.interpolation.InterpolatingMap;
 
@@ -193,9 +197,30 @@ public final class Constants {
                         return null;
                 }
         }
-        
 
+        public static Pose2d speakerPose = new Pose2d();
+
+        public static Pose2d getSpeakerPose() {
+            return conditionallyFlipPose(speakerPose);
+        }
+
+        public static int getSpeakerTag() {
+            return isBlue() ? 7 : 4;
+        }
+
+        public static int getAmpAprilTag() {
+            return isBlue() ? 6 : 5;
+        }
+
+        public static boolean isBlue() {
+            return DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Blue;
+        }
+
+        public static Pose2d conditionallyFlipPose(Pose2d pose) {
+            return isBlue() ? pose : GeometryUtil.flipFieldPose(pose);
+        }
     }
+
 
     public static final class VisionConstants {
 

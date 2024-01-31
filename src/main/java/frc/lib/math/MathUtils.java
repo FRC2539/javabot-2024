@@ -25,7 +25,7 @@ public class MathUtils {
         }
     }
 
-    public class AnyContainer<T> {
+    public static class AnyContainer<T> {
         public T thing;
 
         public AnyContainer(T thing) {
