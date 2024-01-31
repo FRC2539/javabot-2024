@@ -10,13 +10,13 @@ public interface IntakeIO {
         public double rollerCurrent = 0;
         public double rollerTemperature = 0;
 
-        public double beltSpeed = 0;
-        public double beltVoltage = 0;
-        public double beltCurrent = 0;
-        public double beltTemperature = 0;
+        public double chamberSpeed = 0;
+        public double chamberVoltage = 0;
+        public double chamberCurrent = 0;
+        public double chamberTemperature = 0;
 
         public boolean rollerSensor = false;
-        public boolean beltSensor = false;
+        public boolean chamberSensor = false;
     }
 
     /**
@@ -29,5 +29,5 @@ public interface IntakeIO {
      * This sets the speed of the interior belt transportation system as a duty cycle from -1 to 1.
      * @param speed
      */
-    public void setBeltSpeed(double speed);
+    public void setChamberSpeed(double speed);
 }

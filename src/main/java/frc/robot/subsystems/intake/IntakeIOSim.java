@@ -5,16 +5,16 @@ import frc.lib.logging.Logger;
 
 public class IntakeIOSim implements IntakeIO{
     private double rollerSpeed = 0;
-    private double beltSpeed = 0;
+    private double chamberSpeed = 0;
 
-    private LoggedReceiver hasRollerPieceSim = Logger.tunable("/IntakeSybsystem/hasRollerPieceSim", false);
-    private LoggedReceiver hasBeltPieceSim = Logger.tunable("/IntakeSybsystem/hasBeltPieceSim", false);
+    private LoggedReceiver hasRollerPieceSim = Logger.tunable("/IntakeSybsystem/hasIntakePieceSim", false);
+    private LoggedReceiver hasChamberPieceSim = Logger.tunable("/IntakeSybsystem/hasChamberPieceSim", false);
 
     public void updateInputs(IntakeIOInputs inputs) {
         inputs.rollerSpeed = rollerSpeed;
-        inputs.beltSpeed = beltSpeed;
+        inputs.chamberSpeed = chamberSpeed;
 
-        inputs.beltSensor = hasBeltPieceSim.getBoolean();
+        inputs.chamberSensor = hasChamberPieceSim.getBoolean();
         inputs.rollerSensor = hasRollerPieceSim.getBoolean();
     }
 
@@ -22,7 +22,7 @@ public class IntakeIOSim implements IntakeIO{
         this.rollerSpeed = speed;
     } 
 
-    public void setBeltSpeed(double speed) {
-        this.beltSpeed = speed;
+    public void setChamberSpeed(double speed) {
+        this.chamberSpeed = speed;
     }
 }

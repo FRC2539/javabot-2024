@@ -36,27 +36,27 @@ public class IntakeSubsystem extends SubsystemBase {
 
         switch (state) {
             case DISABLED:
-                setBelt(0);
+                setChamber(0);
                 setRoller(0);
                 break;
             case EJECTING:
-                setBelt(-1);
+                setChamber(-1);
                 setRoller(-1);
                 break;
             case MANUAL_DRIVE:
-                setBelt(.25);
+                setChamber(.25);
                 setRoller(.25);
                 break;
             case SHOOTING:
-                setBelt(1);
+                setChamber(1);
                 setRoller(0);
                 break;
             case MOVING:
-                setBelt(.25);
+                setChamber(.25);
                 setRoller(.25);
                 break;
             case INTAKING:
-                setBelt(1);
+                setChamber(1);
                 setRoller(1);
                 break;
         }
@@ -89,7 +89,7 @@ public class IntakeSubsystem extends SubsystemBase {
     public Command intakeCommand() {
         Command intakeCommand = runOnce(() -> {
             setIntakeState(IntakeState.INTAKING);
-        }).until(() -> getBeltSensor())
+        }).until(() -> getChamberSensor())
         .andThen(waitSeconds(.2))
         .until(() -> getRollerSensor());
 
@@ -107,8 +107,8 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
 
-    private void setBelt(double speed) {
-        intakeIO.setBeltSpeed(speed);
+    private void setChamber(double speed) {
+        intakeIO.setChamberSpeed(speed);
     }
 
     private void setRoller(double speed) {
@@ -119,12 +119,12 @@ public class IntakeSubsystem extends SubsystemBase {
         return inputs.rollerSensor;
     }
 
-    public boolean getBeltSensor() {
-        return inputs.beltSensor;
+    public boolean getChamberSensor() {
+        return inputs.chamberSensor;
     }
 
     private boolean hasPiece() {
-        return getRollerSensor() || getBeltSensor();
+        return getRollerSensor() || getChamberSensor();
     }
 
     public void setIntakeState(IntakeState state) {
@@ -134,19 +134,19 @@ public class IntakeSubsystem extends SubsystemBase {
     public void logIntakeInformation() {
         Logger.log("/IntakeSubsystem/State", state.name());
         Logger.log("/IntakeSubsystem/RollerSpeed", inputs.rollerSpeed);
-        Logger.log("/IntakeSubsystem/BelSpeed", inputs.beltSpeed);
+        Logger.log("/IntakeSubsystem/BelSpeed", inputs.chamberSpeed);
         Logger.log("/IntakeSubsystem/RollerHasPiece", inputs.rollerSensor);
-        Logger.log("/IntakeSubsystem/BeltHasPiece", inputs.beltSensor);
+        Logger.log("/IntakeSubsystem/BeltHasPiece", inputs.chamberSensor);
 
         Logger.log("/IntakeSubsystem/HasPiece", hasPiece());
 
         Logger.log("/IntakeSubsystem/RollerVoltage", inputs.rollerVoltage);
         Logger.log("/IntakeSubsystem/RollerCurrent", inputs.rollerCurrent);
 
-        Logger.log("/IntakeSubsystem/BeltVoltage", inputs.beltVoltage);
-        Logger.log("/IntakeSubsystem/BeltCurrent", inputs.beltCurrent);
+        Logger.log("/IntakeSubsystem/BeltVoltage", inputs.chamberVoltage);
+        Logger.log("/IntakeSubsystem/BeltCurrent", inputs.chamberCurrent);
 
         Logger.log("/IntakeSubsystem/RollerTemperature", inputs.rollerTemperature);
-        Logger.log("/IntakeSubsystem/BeltTemperature", inputs.beltTemperature);
+        Logger.log("/IntakeSubsystem/BeltTemperature", inputs.chamberTemperature);
     }
 }
