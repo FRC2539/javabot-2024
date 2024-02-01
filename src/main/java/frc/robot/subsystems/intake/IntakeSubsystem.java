@@ -60,36 +60,38 @@ public class IntakeSubsystem extends SubsystemBase {
                 setRoller(1);
                 break;
         }
+
+        logIntakeInformation();
     }
 
     public Command disabledCommand() {
-        return runOnce(() -> {
+        return runEnd(() -> {
             setIntakeState(IntakeState.DISABLED);
-        });
+        }, () -> {});
     }
 
     public Command ejectCommand() {
-        return runOnce(() -> {
+        return runEnd(() -> {
             setIntakeState(IntakeState.EJECTING);
-        });
+        }, () -> {});
     }
 
     public Command manualDriveCommand() {
-        return runOnce(() -> {
+        return runEnd(() -> {
             setIntakeState(IntakeState.MANUAL_DRIVE);
-        });
+        }, () -> {});
     }
 
     public Command shootCommand() {
-        return runOnce(() -> {
+        return runEnd(() -> {
             setIntakeState(IntakeState.SHOOTING);
-        });
+        }, () -> {});
     }
 
     public Command intakeCommand() {
-        Command intakeCommand = runOnce(() -> {
+        Command intakeCommand = runEnd(() -> {
             setIntakeState(IntakeState.INTAKING);
-        }).until(() -> getChamberSensor())
+        }, () -> {}).until(() -> getChamberSensor())
         .andThen(waitSeconds(.2))
         .until(() -> getRollerSensor());
 
@@ -101,9 +103,9 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     public Command moveCommand() {
-        return runOnce(() -> {
+        return runEnd(() -> {
             setIntakeState(IntakeState.MOVING);
-        }).until(() -> getRollerSensor()).withTimeout(5);
+        }, () -> {}).until(() -> getRollerSensor()).withTimeout(5);
     }
 
 

@@ -14,7 +14,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib.controller.LogitechController;
 import frc.lib.controller.ThrustmasterJoystick;
 import frc.robot.Constants.ControllerConstants;
-import frc.robot.subsystems.intake.IntakeIOFalconRedline;
+import frc.robot.subsystems.intake.IntakeIOFalconRedlineDupe;
 import frc.robot.subsystems.intake.IntakeIOSim;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.lights.LightsIOBlinkin;
@@ -43,7 +43,6 @@ public class RobotContainer {
     private VisionSubsystem visionSubsystem;
     private IntakeSubsystem intakeSubsystem;
 
-    private IntakeIOFalconRedline intakeIOFalconRedline;
     private IntakeIOSim intakeIOSim;
 
     public AutonomousManager autonomousManager;
@@ -59,7 +58,7 @@ public class RobotContainer {
                 new AprilTagIOPhotonVision(
                     new PhotonCamera("RightCamera"), Constants.VisionConstants.robotToRightCamera),
                 new PositionTargetIOLimelight());
-            intakeSubsystem = new IntakeSubsystem(intakeIOFalconRedline);
+            intakeSubsystem = new IntakeSubsystem(new IntakeIOFalconRedlineDupe());
         
         } else {
             swerveDriveSubsystem = TunerConstants.DriveTrain;
@@ -110,11 +109,11 @@ public class RobotContainer {
 
         rightDriveController
                 .getBottomThumb()
-                .whileTrue(swerveDriveSubsystem.pathfindToPoseCommand(new Pose2d(2.9, 5.5, new Rotation2d(Math.PI))));
+                .whileTrue(intakeSubsystem.intakeCommand());
 
         leftDriveController
                 .getBottomThumb()
-                .whileTrue(swerveDriveSubsystem.pathfindToPoseCommand(new Pose2d(1.53, 2.557, new Rotation2d(Math.PI))));
+                .whileTrue(intakeSubsystem.ejectCommand());
 
         rightDriveController.sendButtonNamesToNT();
         leftDriveController.sendButtonNamesToNT();
