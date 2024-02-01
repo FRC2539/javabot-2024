@@ -7,7 +7,6 @@ import org.photonvision.PhotonCamera;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -43,8 +42,6 @@ public class RobotContainer {
     private VisionSubsystem visionSubsystem;
     private IntakeSubsystem intakeSubsystem;
 
-    private IntakeIOSim intakeIOSim;
-
     public AutonomousManager autonomousManager;
 
     public RobotContainer(TimedRobot robot) {
@@ -64,7 +61,7 @@ public class RobotContainer {
             swerveDriveSubsystem = TunerConstants.DriveTrain;
             lightsSubsystem = new LightsSubsystem(new LightsIOSim());
             visionSubsystem = new VisionSubsystem(swerveDriveSubsystem, new AprilTagIOSim(), new AprilTagIOSim(), new PositionTargetIOSim() );
-            intakeSubsystem = new IntakeSubsystem(intakeIOSim);
+            intakeSubsystem = new IntakeSubsystem(new IntakeIOSim());
         }
 
         autonomousManager = new AutonomousManager(this);
