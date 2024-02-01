@@ -1,6 +1,5 @@
 package frc.robot.subsystems.intake;
 
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.wpilibj.AnalogInput;
@@ -11,7 +10,7 @@ public class IntakeIOFalconRedline implements IntakeIO{
     private double rollerSpeed;
 
     private TalonFX chamberMotor = new TalonFX(IntakeConstants.chamberMotorPort);
-    private WPI_TalonSRX rollerMotor = new WPI_TalonSRX(IntakeConstants.rollerMotorPort);
+    private TalonFX rollerMotor = new TalonFX(IntakeConstants.rollerMotorPort);
 
     private AnalogInput rollerSensor = new AnalogInput(IntakeConstants.rollerSensorPort);
     private AnalogInput chamberSensor = new AnalogInput(IntakeConstants.chamberSensorPort);
