@@ -36,15 +36,15 @@ public final class Constants {
     }
 
     public static final class IntakeConstants {
-        public static final int chamberMotorPort = 0; //random IDs
-        public static final int rollerMotorPort = 1;
-        public static final int chamberSensorPort = 2;
-        public static final int rollerSensorPort = 3;
+        public static final int chamberMotorPort = 8; //random IDs
+        public static final int rollerMotorPort = 9;
+        public static final int chamberSensorPort = 0;
+        public static final int rollerSensorPort = 1;
     }
 
     public static final class ShooterConstants {
-        public static final int rightShooterPort = 8;
-        public static final int leftShooterPort = 9;
+        public static final int rightShooterPort = 2;
+        public static final int leftShooterPort = 3;
         public static final int rightPivotPort = 10;
         public static final int leftPivotPort = 11;
 
