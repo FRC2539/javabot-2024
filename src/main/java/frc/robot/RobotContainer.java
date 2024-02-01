@@ -2,11 +2,9 @@ package frc.robot;
 
 import static edu.wpi.first.wpilibj2.command.Commands.*;
 
-import java.util.Optional;
-import java.util.function.Supplier;
+import java.util.function.BooleanSupplier;
 
 import org.photonvision.PhotonCamera;
-import org.photonvision.targeting.PhotonTrackedTarget;
 
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 
@@ -19,9 +17,7 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib.controller.LogitechController;
 import frc.lib.controller.ThrustmasterJoystick;
-import frc.lib.math.MathUtils.AnyContainer;
 import frc.robot.Constants.ControllerConstants;
-import frc.robot.Constants.FieldConstants;
 import frc.robot.subsystems.lights.LightsIOBlinkin;
 import frc.robot.subsystems.lights.LightsIOSim;
 import frc.robot.subsystems.lights.LightsSubsystem;
@@ -114,7 +110,7 @@ public class RobotContainer {
 
         rightDriveController
                 .getTrigger()
-                .whileTrue(shooterSubsystem.shootCommand(() -> swerveDriveSubsystem.getPose().getTranslation().getNorm()));
+                .whileTrue(stoppedShootAndAimCommand());
         rightDriveController
                 .nameTrigger("Shoot");
 
@@ -131,25 +127,20 @@ public class RobotContainer {
         operatorController.sendButtonNamesToNT();
     }
 
-    public Command getGetShootAndAimCommand() {
-        Command aimAtGoalMotion = swerveDriveSubsystem.aimAtPoseCommand(() -> Constants.FieldConstants.getSpeakerPose(), this::getDriveForwardAxis, this::getDriveStrafeAxis);
-        
-        AnyContainer<Boolean> proceed = new AnyContainer<Boolean>(false);
+    public Command stoppedShootAndAimCommand() {
+        final double angularTolerance = .01;
+        final double velocityTolerance = 0.01;
 
-        Supplier<Rotation2d> rotationSupplier = () -> {
-            Optional<PhotonTrackedTarget> speakerTag  = VisionSubsystem.getTagInfo(visionSubsystem.leftTargets, FieldConstants.getSpeakerTag());
-            if (speakerTag.isPresent()) {
-                if (speakerTag.get().getYaw() < .05) proceed.thing = true;
-                return swerveDriveSubsystem.getRotation().plus(new Rotation2d(-speakerTag.get().getYaw()));
-            } else {
-                return FieldConstants.getSpeakerPose().getTranslation().minus(swerveDriveSubsystem.getPose().getTranslation()).getAngle();
-            }
-        };
+        BooleanSupplier readyToFire = () -> (swerveDriveSubsystem.isAtDirectionCommand(angularTolerance, velocityTolerance));
 
-        Command aimAtTag = swerveDriveSubsystem.directionCommand(rotationSupplier, 
+        Command aimAtTag = swerveDriveSubsystem.directionCommand(() -> visionSubsystem.getSpeakerAngle(swerveDriveSubsystem.getPose()), 
             () -> 0, () -> 0, new ProfiledPIDController(5, 0, 1, new TrapezoidProfile.Constraints(3.0, 8)));
 
-        return aimAtGoalMotion.until(() -> swerveDriveSubsystem.getVelocityMagnitude() < 0.1).andThen(aimAtTag);
+        Command spinUpCommand = shooterSubsystem.shootCommand(() -> visionSubsystem.getSpeakerDistance(swerveDriveSubsystem.getPose()));
+
+        Command runBeltCommand = new Command() {};
+
+        return parallel(aimAtTag, spinUpCommand, waitUntil(readyToFire).andThen(runBeltCommand));
     }
 
     public Command getAutonomousCommand() {

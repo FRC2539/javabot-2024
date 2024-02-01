@@ -8,10 +8,14 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib.interpolation.InterpolatableDouble;
 import frc.lib.interpolation.InterpolatingMap;
 import frc.lib.logging.Logger;
+import frc.lib.math.MathUtils;
 import frc.robot.subsystems.shooter.PivotIO.PivotIOInputs;
 import frc.robot.subsystems.shooter.RollerIO.RollerIOInputs;
 
 public class ShooterSubsystem extends SubsystemBase {
+    private final double shooterSpeedTolerance = 0.1;
+    private final double shooterAngleTolerance = 0.01;
+    
     private RollerIO rollerIO;
     private RollerIO rollerIO2;
     private PivotIO pivotIO;
@@ -48,20 +52,6 @@ public class ShooterSubsystem extends SubsystemBase {
         );
     }
 
-    public enum ShooterPosition {
-        DISABLED(false, false),
-        FIRST_POSITION(false, true),
-        SECOND_POSITION(true,true);
-
-        public boolean forward1;
-        public boolean forwrard2;
-
-        ShooterPosition(boolean forward1, boolean forward2) {
-            this.forward1 = forward1;
-            this.forwrard2 = forward2;
-        }
-    }
-
     public void periodic() {
         updateShooterStateForDistance(currentDistance);
         rollerIO.updateInputs(roller1Inputs);
@@ -72,6 +62,15 @@ public class ShooterSubsystem extends SubsystemBase {
         rollerIO.setSpeed(currentShooterState.topRollerRPM);
         rollerIO2.setSpeed(currentShooterState.bottomRollerRPM);
         pivotIO.setAngle(currentShooterState.pivotAngle);
+    }
+
+    public boolean isShooterAtPosition() {
+        return MathUtils.equalsWithinError(
+                currentShooterState.topRollerRPM, roller1Inputs.speed, shooterSpeedTolerance) && 
+            MathUtils.equalsWithinError(
+                currentShooterState.bottomRollerRPM, roller2Inputs.speed, shooterSpeedTolerance) && 
+            MathUtils.equalsWithinError(
+                currentShooterState.pivotAngle, pivotInputs.currentAngle, shooterAngleTolerance);
     }
 
     public Command disabledCommand() {

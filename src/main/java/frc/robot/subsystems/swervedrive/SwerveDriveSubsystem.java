@@ -161,14 +161,22 @@ public class SwerveDriveSubsystem extends SwerveDrivetrain implements Subsystem 
         return directionCommand(() -> targetAngle, forward, strafe, omegaController);
     }
 
+    private double directionCommandErrorRadiansRotation = 0;
+    private double directionCommandErrorRaidansVelocity = 0;
+    private boolean directionCommandIsRunning = false; 
+
     public Command directionCommand(Supplier<Rotation2d> targetAngle, DoubleSupplier forward, DoubleSupplier strafe, final ProfiledPIDController omegaController) {
         final double maxCardinalVelocity = omegaController.getConstraints().maxVelocity;
 
         omegaController.enableContinuousInput(-Math.PI, Math.PI);   
 
         return run(() -> {
+                    var currentRotation = getPose().getRotation().getRadians();
+                    var currentTarget = targetAngle.get().getRadians();
+                    var currentVelocity = getRobotRelativeChassisSpeeds().omegaRadiansPerSecond;
+
                     var rotationCorrection =
-                            omegaController.calculate(getPose().getRotation().getRadians(), targetAngle.get().getRadians());
+                            omegaController.calculate(currentRotation, currentTarget);
 
                     setControl(
                             openLoop
@@ -178,11 +186,23 @@ public class SwerveDriveSubsystem extends SwerveDrivetrain implements Subsystem 
                                     MathUtils.ensureRange(
                                             rotationCorrection, -maxCardinalVelocity, maxCardinalVelocity)
                             ));
+
+                    directionCommandErrorRadiansRotation = currentRotation - currentTarget;
+                    directionCommandErrorRaidansVelocity = currentVelocity - 0;
+                    directionCommandIsRunning = true;
                 })
                 .beforeStarting(() -> {
                     omegaController.reset(new TrapezoidProfile.State(
                             getRotation().getRadians(), getFieldRelativeChassisSpeeds().omegaRadiansPerSecond));
+                }).finallyDo(() -> {
+                    directionCommandIsRunning = false;
                 });
+    }
+
+    public boolean isAtDirectionCommand(double angularTolerance, double velocityTolerance) {
+        return Math.abs(directionCommandErrorRadiansRotation) <= angularTolerance
+            && Math.abs(directionCommandErrorRaidansVelocity) <= velocityTolerance
+            && directionCommandIsRunning;
     }
 
     public Command pathfindToPoseCommand(Pose2d targetPose) {
