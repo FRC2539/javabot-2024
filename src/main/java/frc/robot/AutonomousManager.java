@@ -52,11 +52,21 @@ public class AutonomousManager {
         for (AutonomousOption option : AutonomousOption.values()) {
             if (option.ordinal() == 0) {
                 autoChooser.setDefaultOption(option.displayName, option);
+
+                Logger.log("/Auto/startPosition", option.startPosition);
+                Logger.log("/Auto/gamePieces", option.gamePieces);
+                Logger.log("/Auto/description", option.description);
             }
             if (option.display) {
                 autoChooser.addOption(option.displayName, option);
             }
         }
+
+        autoChooser.onChange((option) -> {
+            Logger.log("/Auto/startPosition", option.startPosition);
+            Logger.log("/Auto/gamePieces", option.gamePieces);
+            Logger.log("/Auto/description", option.description);
+        });
 
         Shuffleboard.getTab("Auto").add("Auto Selector", autoChooser);
 
@@ -82,27 +92,30 @@ public class AutonomousManager {
 
     private enum AutonomousOption {
         AUTO1(
-                "Speaker",
-                3,
+                "Amp",
+                0,
                 "testAuto",
                 "Test Auto",
-                true
+                true,
+                "Goes in circles in front of the amp 6 times."
                 ),
 
         AUTO2(
                 "Amp",
-                3,
+                4,
                 "testAuto1",
-                "Second Auto",
-                true
+                "Near Line",
+                true,
+                "Picks up all three near pieces and shoots."
                 ),
         
         AUTO3(
                 "Amp",
                 3,
                 "testAuto2",
-                "Third Auto",
-                true
+                "Midline",
+                true,
+                "Picks up the piece nearest to the amp and then one on the midline."
                 );
 
         private String pathName;
@@ -110,6 +123,22 @@ public class AutonomousManager {
         public int gamePieces;
         public String displayName;
         public boolean display;
+        public String description;
+
+        private AutonomousOption(
+                String startPosition,
+                int gamePieces,
+                String pathName,
+                String displayName,
+                boolean display, 
+                String description) {
+            this.startPosition = startPosition;
+            this.gamePieces = gamePieces;
+            this.pathName = pathName;
+            this.displayName = displayName;
+            this.display = display;
+            this.description = description;
+        }
 
         private AutonomousOption(
                 String startPosition,
@@ -117,11 +146,7 @@ public class AutonomousManager {
                 String pathName,
                 String displayName,
                 boolean display) {
-            this.startPosition = startPosition;
-            this.gamePieces = gamePieces;
-            this.pathName = pathName;
-            this.displayName = displayName;
-            this.display = display;
+            this(startPosition, gamePieces, pathName, displayName, display, "");
         }
     }
 

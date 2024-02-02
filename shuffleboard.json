@@ -1,7 +1,7 @@
 {
   "tabPane": [
     {
-      "title": "SmartDashboard",
+      "title": "Teleop",
       "autoPopulate": false,
       "autoPopulatePrefix": "SmartDashboard/",
       "widgetPane": {
@@ -25,13 +25,13 @@
               "Layout/Number of rows": 3,
               "Layout/Label position": "BOTTOM",
               "_children": {
-                "0,0": {
+                "1,0": {
                   "_type": "Camera Stream",
-                  "_source0": "camera_server://photonvision_Port_1184_Output_MJPEG_Server",
-                  "_title": "Left View Output",
+                  "_source0": "camera_server://limelight",
+                  "_title": "Limelight",
                   "_glyph": 148,
                   "_showGlyph": false,
-                  "Crosshair/Show crosshair": true,
+                  "Crosshair/Show crosshair": false,
                   "Crosshair/Crosshair color": "#FFFFFFFF",
                   "Controls/Show controls": false,
                   "Controls/Rotation": "NONE",
@@ -40,13 +40,13 @@
                   "imageWidth": 0,
                   "imageHeight": 0
                 },
-                "1,0": {
+                "0,0": {
                   "_type": "Camera Stream",
-                  "_source0": "camera_server://limelight",
-                  "_title": "Limelight",
+                  "_source0": "camera_server://photonvision_Port_1182_Output_MJPEG_Server",
+                  "_title": "Left",
                   "_glyph": 148,
                   "_showGlyph": false,
-                  "Crosshair/Show crosshair": true,
+                  "Crosshair/Show crosshair": false,
                   "Crosshair/Crosshair color": "#FFFFFFFF",
                   "Controls/Show controls": false,
                   "Controls/Rotation": "NONE",
@@ -57,11 +57,11 @@
                 },
                 "2,0": {
                   "_type": "Camera Stream",
-                  "_source0": "camera_server://photonvision_Port_1182_Output_MJPEG_Server",
-                  "_title": "Right View Output",
+                  "_source0": "camera_server://photonvision_Port_1184_Output_MJPEG_Server",
+                  "_title": "Right",
                   "_glyph": 148,
                   "_showGlyph": false,
-                  "Crosshair/Show crosshair": true,
+                  "Crosshair/Show crosshair": false,
                   "Crosshair/Crosshair color": "#FFFFFFFF",
                   "Controls/Show controls": false,
                   "Controls/Rotation": "NONE",
@@ -76,7 +76,7 @@
           "20,0": {
             "size": [
               2,
-              2
+              5
             ],
             "content": {
               "_type": "Boolean Box",
@@ -93,8 +93,8 @@
     }
   ],
   "windowGeometry": {
-    "x": 0.800000011920929,
-    "y": 0.0,
+    "x": 13.600000381469727,
+    "y": 11.199999809265137,
     "width": 1535.199951171875,
     "height": 699.2000122070312
   }
