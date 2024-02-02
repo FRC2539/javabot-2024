@@ -35,14 +35,14 @@ public class AutonomousManager {
 
         // Create an event map for use in all autos
         NamedCommands.registerCommand("stop", runOnce(() -> swerveDriveSubsystem.setControl(new SwerveRequest.Idle()), swerveDriveSubsystem));
-        NamedCommands.registerCommand("shoot", new Command() {});
-        NamedCommands.registerCommand("intake", new Command() {});
-        NamedCommands.registerCommand("mlintake", new Command() {});
-        NamedCommands.registerCommand("amp", new Command() {});
-        NamedCommands.registerCommand("aim", new Command() {});
-        NamedCommands.registerCommand("coast", new Command() {});
-        NamedCommands.registerCommand("eject", new Command() {});
-        NamedCommands.registerCommand("rainbow", new Command() {});
+        NamedCommands.registerCommand("shoot", parallel());
+        NamedCommands.registerCommand("intake", parallel());
+        NamedCommands.registerCommand("mlintake", parallel());
+        NamedCommands.registerCommand("amp", parallel());
+        NamedCommands.registerCommand("aim", parallel());
+        NamedCommands.registerCommand("coast", parallel());
+        NamedCommands.registerCommand("eject", parallel());
+        NamedCommands.registerCommand("rainbow", parallel());
 
         PathPlannerLogging.setLogTargetPoseCallback((pose) -> {
             // Do whatever you want with the pose here
@@ -70,7 +70,10 @@ public class AutonomousManager {
     public Command getAutonomousCommand() {
         Command chosenPathCommand = new PathPlannerAuto(autoChooser.getSelected().pathName);
 
-        var chosenWaitDuration = waitDuration.getInteger();
+        long chosenWaitDuration = 0;
+        try {
+            chosenWaitDuration = waitDuration.getInteger();
+        } catch (Exception e) {}
 
         if (chosenWaitDuration > 0) chosenPathCommand.beforeStarting(waitSeconds(chosenWaitDuration));
 
@@ -80,7 +83,7 @@ public class AutonomousManager {
     private enum AutonomousOption {
         AUTO1(
                 "Speaker",
-                0,
+                3,
                 "testAuto",
                 "Test Auto",
                 true
@@ -88,25 +91,17 @@ public class AutonomousManager {
 
         AUTO2(
                 "Amp",
-                1,
-                "testAuto",
+                3,
+                "testAuto1",
                 "Second Auto",
                 true
                 ),
         
-                AUTO3(
+        AUTO3(
                 "Amp",
-                7,
-                "testAuto",
-                "Seven Piece",
-                true
-                ),
-        
-        AUTO4(
-                "Speaker",
-                9,
-                "testAuto",
-                "Loop De Loop",
+                3,
+                "testAuto2",
+                "Third Auto",
                 true
                 );
 

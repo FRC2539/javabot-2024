@@ -2,7 +2,7 @@
   "tabPane": [
     {
       "title": "SmartDashboard",
-      "autoPopulate": true,
+      "autoPopulate": false,
       "autoPopulatePrefix": "SmartDashboard/",
       "widgetPane": {
         "gridSize": 50.0,
@@ -11,46 +11,7 @@
         "vgap": 16.0,
         "titleType": 0,
         "tiles": {
-          "0,5": {
-            "size": [
-              2,
-              1
-            ],
-            "content": {
-              "_type": "Text View",
-              "_source0": "network_table:///SmartDashboard/limelight_PipelineName",
-              "_title": "limelight_PipelineName",
-              "_glyph": 148,
-              "_showGlyph": false
-            }
-          },
-          "2,5": {
-            "size": [
-              2,
-              1
-            ],
-            "content": {
-              "_type": "Text View",
-              "_source0": "network_table:///SmartDashboard/limelight_Interface",
-              "_title": "limelight_Interface",
-              "_glyph": 148,
-              "_showGlyph": false
-            }
-          },
-          "4,5": {
-            "size": [
-              3,
-              1
-            ],
-            "content": {
-              "_type": "Text View",
-              "_source0": "network_table:///SmartDashboard/limelight_Stream",
-              "_title": "limelight_Stream",
-              "_glyph": 148,
-              "_showGlyph": false
-            }
-          },
-          "1,0": {
+          "0,0": {
             "size": [
               19,
               5
@@ -82,7 +43,7 @@
                 "1,0": {
                   "_type": "Camera Stream",
                   "_source0": "camera_server://limelight",
-                  "_title": "limelight",
+                  "_title": "Limelight",
                   "_glyph": 148,
                   "_showGlyph": false,
                   "Crosshair/Show crosshair": true,
@@ -111,21 +72,23 @@
                 }
               }
             }
+          },
+          "20,0": {
+            "size": [
+              2,
+              2
+            ],
+            "content": {
+              "_type": "Boolean Box",
+              "_source0": "network_table:///IntakeSubsystem/HasPiece",
+              "_title": "Has Piece",
+              "_glyph": 148,
+              "_showGlyph": false,
+              "Colors/Color when true": "#7CFC00FF",
+              "Colors/Color when false": "#FF0000FF"
+            }
           }
         }
-      }
-    },
-    {
-      "title": "LiveWindow",
-      "autoPopulate": true,
-      "autoPopulatePrefix": "LiveWindow/",
-      "widgetPane": {
-        "gridSize": 128.0,
-        "showGrid": true,
-        "hgap": 16.0,
-        "vgap": 16.0,
-        "titleType": 0,
-        "tiles": {}
       }
     }
   ],
