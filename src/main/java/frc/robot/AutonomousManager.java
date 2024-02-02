@@ -35,7 +35,14 @@ public class AutonomousManager {
 
         // Create an event map for use in all autos
         NamedCommands.registerCommand("stop", runOnce(() -> swerveDriveSubsystem.setControl(new SwerveRequest.Idle()), swerveDriveSubsystem));
-        NamedCommands.registerCommand("flashLights", lightsSubsystem.patternCommand(LightsSubsystem.black));
+        NamedCommands.registerCommand("shoot", new Command() {});
+        NamedCommands.registerCommand("intake", new Command() {});
+        NamedCommands.registerCommand("mlintake", new Command() {});
+        NamedCommands.registerCommand("amp", new Command() {});
+        NamedCommands.registerCommand("aim", new Command() {});
+        NamedCommands.registerCommand("coast", new Command() {});
+        NamedCommands.registerCommand("eject", new Command() {});
+        NamedCommands.registerCommand("rainbow", new Command() {});
 
         PathPlannerLogging.setLogTargetPoseCallback((pose) -> {
             // Do whatever you want with the pose here

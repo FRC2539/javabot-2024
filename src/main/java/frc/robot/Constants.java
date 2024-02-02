@@ -4,6 +4,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.geometry.Quaternion;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -34,9 +35,16 @@ public final class Constants {
         public static final double DRIVETRAIN_PERIOD = 0.0025;
     }
 
+    public static final class IntakeConstants {
+        public static final int chamberMotorPort = 8; //random IDs
+        public static final int rollerMotorPort = 9;
+        public static final int chamberSensorPort = 0;
+        public static final int rollerSensorPort = 1;
+    }
+
     public static final class ShooterConstants {
-        public static final int rightShooterPort = 8;
-        public static final int leftShooterPort = 9;
+        public static final int rightShooterPort = 2;
+        public static final int leftShooterPort = 3;
         public static final int rightPivotPort = 10;
         public static final int leftPivotPort = 11;
 
@@ -173,17 +181,17 @@ public final class Constants {
         // public static final Transform3d limelightRobotToCamera = new Transform3d(
         //         new Translation3d(Units.inchesToMeters(0), Units.inchesToMeters(0), Units.inchesToMeters(34.25)),
         //         new Rotation3d(0, Math.toRadians(15), Math.PI));
-        public static final Transform3d robotToLeftCamera = new Transform3d(0,0,0, new Rotation3d(0,0,0)).plus(new Transform3d(Units.inchesToMeters(75),0, Units.inchesToMeters(51), new Rotation3d(0,0,Math.PI)).plus(new Transform3d(
-            1.732,
-            -0.514,
-            0.491,
-            new Rotation3d(0.079,-0.337,2.745)
+        public static final Transform3d robotToLeftCamera = new Transform3d(0,0,0, new Rotation3d(0,0,0)).plus(new Transform3d(Units.inchesToMeters(54),0, Units.inchesToMeters(54), new Rotation3d(0,0,Math.PI)).plus(new Transform3d(
+            1.762,
+            0.448,
+            0.141,
+            new Rotation3d(new Quaternion(0.196,-0.220,0.078,-0.952))
         ).inverse()));
-        public static final Transform3d robotToRightCamera = new Transform3d(0,0,0, new Rotation3d(0,0,0)).plus(new Transform3d(Units.inchesToMeters(75),0, Units.inchesToMeters(51), new Rotation3d(0,0,Math.PI)).plus(new Transform3d(
-            1.717,
-            0.500,
-            0.373,
-            new Rotation3d(-0.211,-0.372,-2.667)
+        public static final Transform3d robotToRightCamera = new Transform3d(0,0,0, new Rotation3d(0,0,0)).plus(new Transform3d(Units.inchesToMeters(54),0, Units.inchesToMeters(54), new Rotation3d(0,0,Math.PI)).plus(new Transform3d(
+            1.630,
+            -0.492,
+            0.315,
+            new Rotation3d(new Quaternion(-0.190,-0.174,-0.037,-0.966))
         ).inverse()));
 
         public static final Transform3d limelightRobotToCamera = new Transform3d(
