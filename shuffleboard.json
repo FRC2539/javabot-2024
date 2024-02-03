@@ -14,7 +14,7 @@
           "0,0": {
             "size": [
               19,
-              5
+              6
             ],
             "content": {
               "_type": "Grid Layout",
@@ -22,13 +22,13 @@
               "_glyph": 149,
               "_showGlyph": false,
               "Layout/Number of columns": 3,
-              "Layout/Number of rows": 3,
+              "Layout/Number of rows": 2,
               "Layout/Label position": "BOTTOM",
               "_children": {
-                "1,0": {
+                "0,0": {
                   "_type": "Camera Stream",
-                  "_source0": "camera_server://limelight",
-                  "_title": "Limelight",
+                  "_source0": "camera_server://photonvision_Port_1182_Output_MJPEG_Server",
+                  "_title": "Left",
                   "_glyph": 148,
                   "_showGlyph": false,
                   "Crosshair/Show crosshair": false,
@@ -40,10 +40,10 @@
                   "imageWidth": 0,
                   "imageHeight": 0
                 },
-                "0,0": {
+                "1,0": {
                   "_type": "Camera Stream",
-                  "_source0": "camera_server://photonvision_Port_1182_Output_MJPEG_Server",
-                  "_title": "Left",
+                  "_source0": "camera_server://limelight",
+                  "_title": "Limelight",
                   "_glyph": 148,
                   "_showGlyph": false,
                   "Crosshair/Show crosshair": false,
@@ -76,7 +76,7 @@
           "20,0": {
             "size": [
               2,
-              5
+              3
             ],
             "content": {
               "_type": "Boolean Box",
@@ -90,12 +90,94 @@
           }
         }
       }
+    },
+    {
+      "title": "Auto",
+      "autoPopulate": false,
+      "autoPopulatePrefix": "",
+      "widgetPane": {
+        "gridSize": 200.0,
+        "showGrid": true,
+        "hgap": 16.0,
+        "vgap": 16.0,
+        "titleType": 0,
+        "tiles": {
+          "2,0": {
+            "size": [
+              1,
+              1
+            ],
+            "content": {
+              "_type": "Simple Dial",
+              "_source0": "network_table:///Auto/gamePieces",
+              "_title": "Game Pieces",
+              "_glyph": 118,
+              "_showGlyph": true,
+              "Range/Min": 0.0,
+              "Range/Max": 11.0,
+              "Visuals/Show value": true
+            }
+          },
+          "0,1": {
+            "size": [
+              4,
+              1
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///Auto/description",
+              "_title": "Description",
+              "_glyph": 64,
+              "_showGlyph": true
+            }
+          },
+          "3,0": {
+            "size": [
+              1,
+              1
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///Auto/startPosition",
+              "_title": "Start Position",
+              "_glyph": 330,
+              "_showGlyph": true
+            }
+          },
+          "0,0": {
+            "size": [
+              1,
+              1
+            ],
+            "content": {
+              "_type": "ComboBox Chooser",
+              "_source0": "network_table:///SmartDashboard/AutoChooser",
+              "_title": "Auto Chooser",
+              "_glyph": 148,
+              "_showGlyph": false
+            }
+          },
+          "1,0": {
+            "size": [
+              1,
+              1
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///Auto/waitDuration",
+              "_title": "Wait At Start Time",
+              "_glyph": 122,
+              "_showGlyph": true
+            }
+          }
+        }
+      }
     }
   ],
   "windowGeometry": {
-    "x": 13.600000381469727,
-    "y": 11.199999809265137,
-    "width": 1535.199951171875,
-    "height": 699.2000122070312
+    "x": -0.800000011920929,
+    "y": 2.4000000953674316,
+    "width": 1541.5999755859375,
+    "height": 571.2000122070312
   }
 }

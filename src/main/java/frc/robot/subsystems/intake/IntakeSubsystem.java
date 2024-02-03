@@ -95,9 +95,9 @@ public class IntakeSubsystem extends SubsystemBase {
         .andThen(waitSeconds(.2))
         .until(() -> getRollerSensor());
 
-        Trigger isIntakeFinished = new Trigger(() -> intakeCommand.isFinished());
+        Trigger isIntakeFinished = new Trigger(() -> intakeCommand.isScheduled());
 
-        isIntakeFinished.onTrue(moveCommand());
+        isIntakeFinished.onFalse(moveCommand());
 
         return intakeCommand;
     }

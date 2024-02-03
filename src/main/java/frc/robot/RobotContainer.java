@@ -7,6 +7,7 @@ import org.photonvision.PhotonCamera;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -20,8 +21,10 @@ import frc.robot.subsystems.lights.LightsIOBlinkin;
 import frc.robot.subsystems.lights.LightsIOSim;
 import frc.robot.subsystems.lights.LightsSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveDriveSubsystem;
+import frc.robot.subsystems.vision.AprilTagIO;
 import frc.robot.subsystems.vision.AprilTagIOPhotonVision;
 import frc.robot.subsystems.vision.AprilTagIOSim;
+import frc.robot.subsystems.vision.PositionTargetIO;
 import frc.robot.subsystems.vision.PositionTargetIOLimelight;
 import frc.robot.subsystems.vision.PositionTargetIOSim;
 import frc.robot.subsystems.vision.VisionSubsystem;
@@ -49,13 +52,32 @@ public class RobotContainer {
         if (Robot.isReal()) {
             swerveDriveSubsystem = TunerConstants.DriveTrain;
             lightsSubsystem = new LightsSubsystem(new LightsIOBlinkin(0));
-            visionSubsystem = new VisionSubsystem(
-                swerveDriveSubsystem, 
-                new AprilTagIOPhotonVision(
-                    new PhotonCamera("LeftCamera"), Constants.VisionConstants.robotToLeftCamera),
-                new AprilTagIOPhotonVision(
-                    new PhotonCamera("RightCamera"), Constants.VisionConstants.robotToRightCamera),
-                new PositionTargetIOLimelight());
+            AprilTagIO leftCamera;
+            AprilTagIO rightCamera;
+            PositionTargetIO limelight;
+
+            //This silly thing is so that if a camera doesn't connect, the robot still runs.
+            try {
+                leftCamera = new AprilTagIOPhotonVision(
+                    new PhotonCamera("LeftCamera"), Constants.VisionConstants.robotToLeftCamera);
+            } catch (Exception e) {
+                System.err.print(e);
+                leftCamera = new AprilTagIOSim();
+            }
+            try {
+                rightCamera = new AprilTagIOPhotonVision(
+                    new PhotonCamera("RightCamera"), Constants.VisionConstants.robotToRightCamera);
+            } catch (Exception e) {
+                System.err.print(e);
+                rightCamera = new AprilTagIOSim();
+            }
+            try {
+                limelight = new PositionTargetIOLimelight();
+            } catch (Exception e) {
+                System.err.print(e);
+                limelight = new PositionTargetIOSim();
+            }
+            visionSubsystem = new VisionSubsystem(swerveDriveSubsystem, leftCamera, rightCamera, limelight);
             intakeSubsystem = new IntakeSubsystem(new IntakeIOFalconRedlineDupe());
         
         } else {
@@ -77,10 +99,10 @@ public class RobotContainer {
                 this::getDriveForwardAxis, this::getDriveStrafeAxis, this::getDriveRotationAxis));
 
         /* Set left joystick bindings */
-        leftDriveController.getLeftTopLeft().onTrue(runOnce(swerveDriveSubsystem::tareEverything, swerveDriveSubsystem));
+        leftDriveController.getLeftTopLeft().onTrue(runOnce(() -> swerveDriveSubsystem.seedFieldRelative(new Pose2d()), swerveDriveSubsystem));
         leftDriveController
                 .getLeftTopRight()
-                .onTrue(runOnce(swerveDriveSubsystem::tareEverything, swerveDriveSubsystem));
+                .onTrue(runOnce(swerveDriveSubsystem::seedFieldRelative, swerveDriveSubsystem));
         leftDriveController.nameLeftTopLeft("Reset Gyro Angle");
 
 
@@ -162,6 +184,10 @@ public class RobotContainer {
 
     public VisionSubsystem getVisionSubsystem() {
         return visionSubsystem;
+    }
+
+    public IntakeSubsystem getIntakeSubsystem() {
+        return intakeSubsystem;
     }
 }
 

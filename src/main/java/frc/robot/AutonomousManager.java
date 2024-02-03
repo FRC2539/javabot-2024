@@ -7,11 +7,12 @@ import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.util.PathPlannerLogging;
 
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib.logging.LoggedReceiver;
 import frc.lib.logging.Logger;
+import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.lights.LightsSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveDriveSubsystem;
 import java.util.stream.Stream;
@@ -19,29 +20,28 @@ import java.util.stream.Stream;
 public class AutonomousManager {
 
     // Add tunables for all autonomous configuration options
-    LoggedReceiver waitDuration;
-    LoggedReceiver startPosition;
-    LoggedReceiver gamePieces;
-    LoggedReceiver shouldClimb;
+    LoggedReceiver waitDuration = Logger.tunable("/Auto/waitDuration", 0d);
 
     private SendableChooser<AutonomousOption> autoChooser = new SendableChooser<AutonomousOption>();
 
     SwerveDriveSubsystem swerveDriveSubsystem;
     LightsSubsystem lightsSubsystem;
+    IntakeSubsystem intakeSubsystem;
 
     public AutonomousManager(RobotContainer container) {
         swerveDriveSubsystem = container.getSwerveDriveSubsystem();
         lightsSubsystem = container.getLightsSubsystem();
+        intakeSubsystem = container.getIntakeSubsystem();
 
         // Create an event map for use in all autos
         NamedCommands.registerCommand("stop", runOnce(() -> swerveDriveSubsystem.setControl(new SwerveRequest.Idle()), swerveDriveSubsystem));
         NamedCommands.registerCommand("shoot", parallel());
-        NamedCommands.registerCommand("intake", parallel());
+        NamedCommands.registerCommand("intake", intakeSubsystem.intakeCommand().withTimeout(.5));
         NamedCommands.registerCommand("mlintake", parallel());
         NamedCommands.registerCommand("amp", parallel());
         NamedCommands.registerCommand("aim", parallel());
         NamedCommands.registerCommand("coast", parallel());
-        NamedCommands.registerCommand("eject", parallel());
+        NamedCommands.registerCommand("eject", intakeSubsystem.ejectCommand().withTimeout(2));
         NamedCommands.registerCommand("rainbow", parallel());
 
         PathPlannerLogging.setLogTargetPoseCallback((pose) -> {
@@ -68,7 +68,8 @@ public class AutonomousManager {
             Logger.log("/Auto/description", option.description);
         });
 
-        Shuffleboard.getTab("Auto").add("Auto Selector", autoChooser);
+        SmartDashboard.putData("AutoChooser", autoChooser);
+        
 
         // Logging callback for the active path, this is sent as a list of poses
         PathPlannerLogging.setLogActivePathCallback((poses) -> {
@@ -80,14 +81,12 @@ public class AutonomousManager {
     public Command getAutonomousCommand() {
         Command chosenPathCommand = new PathPlannerAuto(autoChooser.getSelected().pathName);
 
-        long chosenWaitDuration = 0;
+        double chosenWaitDuration = 0;
         try {
-            chosenWaitDuration = waitDuration.getInteger();
+            chosenWaitDuration = waitDuration.getDouble();
         } catch (Exception e) {}
 
-        if (chosenWaitDuration > 0) chosenPathCommand.beforeStarting(waitSeconds(chosenWaitDuration));
-
-        return chosenPathCommand;
+        return chosenPathCommand.beforeStarting(waitSeconds(chosenWaitDuration));
     }
 
     private enum AutonomousOption {
