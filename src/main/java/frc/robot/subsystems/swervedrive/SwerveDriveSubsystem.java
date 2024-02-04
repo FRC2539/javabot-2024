@@ -229,83 +229,87 @@ public class SwerveDriveSubsystem extends SwerveDrivetrain implements Subsystem 
     }
 
     private void logTelemetry(SwerveDriveState state) {
-        Logger.log("/SwerveDriveSubsystem/Pose", state.Pose);
-        // Logger.log("/SwerveDriveSubsystem/Velocity", velocity);
-        // Logger.log("/SwerveDriveSubsystem/Desired Velocity", (ChassisSpeeds) driveSignal);
+        try {
+            Logger.log("/SwerveDriveSubsystem/Pose", state.Pose);
+            // Logger.log("/SwerveDriveSubsystem/Velocity", velocity);
+            // Logger.log("/SwerveDriveSubsystem/Desired Velocity", (ChassisSpeeds) driveSignal);
 
-        Logger.log("/SwerveDriveSubsystem/Velocity Magnitude", getVelocityMagnitude());
+            Logger.log("/SwerveDriveSubsystem/Velocity Magnitude", getVelocityMagnitude());
 
-        Logger.log("/SwerveDriveSubsystem/Acceleration Commanded", 0);
+            Logger.log("/SwerveDriveSubsystem/Acceleration Commanded", 0);
 
-        Logger.log("/SwerveDriveSubsystem/Wheel Zero Speed", state.ModuleStates[0].speedMetersPerSecond);
+            Logger.log("/SwerveDriveSubsystem/Wheel Zero Speed", state.ModuleStates[0].speedMetersPerSecond);
 
-        Rotation3d currentRotation = getRotation3d();
+            Rotation3d currentRotation = getRotation3d();
 
-        Logger.log("/SwerveDriveSubsystem/Pitch", currentRotation.getY());
-        Logger.log("/SwerveDriveSubsystem/Roll", currentRotation.getX());
-        Logger.log("/SwerveDriveSubsystem/Tilt", getTilt().getRadians());
+            Logger.log("/SwerveDriveSubsystem/Pitch", currentRotation.getY());
+            Logger.log("/SwerveDriveSubsystem/Roll", currentRotation.getX());
+            Logger.log("/SwerveDriveSubsystem/Tilt", getTilt().getRadians());
 
-        Logger.log("/SwerveDriveSubsystem/CANCoder Angles", new double[] {
-            state.ModuleStates[0].angle.getDegrees(),
-            state.ModuleStates[1].angle.getDegrees(),
-            state.ModuleStates[2].angle.getDegrees(),
-            state.ModuleStates[3].angle.getDegrees(),
-        });
+            Logger.log("/SwerveDriveSubsystem/CANCoder Angles", new double[] {
+                state.ModuleStates[0].angle.getDegrees(),
+                state.ModuleStates[1].angle.getDegrees(),
+                state.ModuleStates[2].angle.getDegrees(),
+                state.ModuleStates[3].angle.getDegrees(),
+            });
 
-        // // Raw In This Case means the offset is not applied
-        // Logger.log("/SwerveDriveSubsystem/Raw CANCoder Angles", new double[] {
-        //     state.ModuleStates[0].,
-        //     state.ModuleStates[0].angle.getDegrees(),
-        //     modules[2].getRawCanCoderAngle().getDegrees(),
-        //     modules[3].getRawCanCoderAngle().getDegrees(),
-        // });
+            // // Raw In This Case means the offset is not applied
+            // Logger.log("/SwerveDriveSubsystem/Raw CANCoder Angles", new double[] {
+            //     state.ModuleStates[0].,
+            //     state.ModuleStates[0].angle.getDegrees(),
+            //     modules[2].getRawCanCoderAngle().getDegrees(),
+            //     modules[3].getRawCanCoderAngle().getDegrees(),
+            // });
 
-        Logger.log("/SwerveDriveSubsystem/SwerveModuleStates/Measured", new double[] {
-            state.ModuleStates[0].angle.getRadians(), state.ModuleStates[0].speedMetersPerSecond,
-            state.ModuleStates[1].angle.getRadians(), state.ModuleStates[1].speedMetersPerSecond,
-            state.ModuleStates[2].angle.getRadians(), state.ModuleStates[2].speedMetersPerSecond,
-            state.ModuleStates[3].angle.getRadians(), state.ModuleStates[3].speedMetersPerSecond
-        });
+            Logger.log("/SwerveDriveSubsystem/SwerveModuleStates/Measured", new double[] {
+                state.ModuleStates[0].angle.getRadians(), state.ModuleStates[0].speedMetersPerSecond,
+                state.ModuleStates[1].angle.getRadians(), state.ModuleStates[1].speedMetersPerSecond,
+                state.ModuleStates[2].angle.getRadians(), state.ModuleStates[2].speedMetersPerSecond,
+                state.ModuleStates[3].angle.getRadians(), state.ModuleStates[3].speedMetersPerSecond
+            });
 
-        Logger.log("/SwerveDriveSubsystem/SwerveModuleStates/Setpoints", new double[] {
-            state.ModuleTargets[0].angle.getRadians(), state.ModuleTargets[0].speedMetersPerSecond,
-            state.ModuleTargets[1].angle.getRadians(), state.ModuleTargets[1].speedMetersPerSecond,
-            state.ModuleTargets[2].angle.getRadians(), state.ModuleTargets[2].speedMetersPerSecond,
-            state.ModuleTargets[3].angle.getRadians(), state.ModuleTargets[3].speedMetersPerSecond
-        });
+            Logger.log("/SwerveDriveSubsystem/SwerveModuleStates/Setpoints", new double[] {
+                state.ModuleTargets[0].angle.getRadians(), state.ModuleTargets[0].speedMetersPerSecond,
+                state.ModuleTargets[1].angle.getRadians(), state.ModuleTargets[1].speedMetersPerSecond,
+                state.ModuleTargets[2].angle.getRadians(), state.ModuleTargets[2].speedMetersPerSecond,
+                state.ModuleTargets[3].angle.getRadians(), state.ModuleTargets[3].speedMetersPerSecond
+            });
 
-        // Logger.log("/SwerveDriveSubsystem/Wheel Angles", new double[] {
-        //     modules[0].getPosition().angle.getDegrees(),
-        //     modules[1].getPosition().angle.getDegrees(),
-        //     modules[2].getPosition().angle.getDegrees(),
-        //     modules[3].getPosition().angle.getDegrees()
-        // });
+            // Logger.log("/SwerveDriveSubsystem/Wheel Angles", new double[] {
+            //     modules[0].getPosition().angle.getDegrees(),
+            //     modules[1].getPosition().angle.getDegrees(),
+            //     modules[2].getPosition().angle.getDegrees(),
+            //     modules[3].getPosition().angle.getDegrees()
+            // });
 
-        // Logger.log("/SwerveDriveSubsystem/Angle Wheel Amps", new double[] {
-        //     modules[0].getAngleCurrent(),
-        //     modules[1].getAngleCurrent(),
-        //     modules[2].getAngleCurrent(),
-        //     modules[3].getAngleCurrent()
-        // });
+            // Logger.log("/SwerveDriveSubsystem/Angle Wheel Amps", new double[] {
+            //     modules[0].getAngleCurrent(),
+            //     modules[1].getAngleCurrent(),
+            //     modules[2].getAngleCurrent(),
+            //     modules[3].getAngleCurrent()
+            // });
 
-        // Logger.log("/SwerveDriveSubsystem/Angle Wheel Volts", new double[] {
-        //     modules[0].getAngleVoltage(),
-        //     modules[1].getAngleVoltage(),
-        //     modules[2].getAngleVoltage(),
-        //     modules[3].getAngleVoltage()
-        // });
+            // Logger.log("/SwerveDriveSubsystem/Angle Wheel Volts", new double[] {
+            //     modules[0].getAngleVoltage(),
+            //     modules[1].getAngleVoltage(),
+            //     modules[2].getAngleVoltage(),
+            //     modules[3].getAngleVoltage()
+            // });
 
-        Logger.log("/SwerveDriveSubsystem/Drive Temperatures", new double[] {          
-            getModule(0).getDriveMotor().getDeviceTemp().getValue(),
-            getModule(1).getDriveMotor().getDeviceTemp().getValue(),
-            getModule(2).getDriveMotor().getDeviceTemp().getValue(),
-            getModule(3).getDriveMotor().getDeviceTemp().getValue()
-        });
-        Logger.log("/SwerveDriveSubsystem/Angle Temperatures", new double[] {          
-            getModule(0).getSteerMotor().getDeviceTemp().getValue(),
-            getModule(1).getSteerMotor().getDeviceTemp().getValue(),
-            getModule(2).getSteerMotor().getDeviceTemp().getValue(),
-            getModule(3).getSteerMotor().getDeviceTemp().getValue()
-        });
+            Logger.log("/SwerveDriveSubsystem/Drive Temperatures", new double[] {          
+                getModule(0).getDriveMotor().getDeviceTemp().getValue(),
+                getModule(1).getDriveMotor().getDeviceTemp().getValue(),
+                getModule(2).getDriveMotor().getDeviceTemp().getValue(),
+                getModule(3).getDriveMotor().getDeviceTemp().getValue()
+            });
+            Logger.log("/SwerveDriveSubsystem/Angle Temperatures", new double[] {          
+                getModule(0).getSteerMotor().getDeviceTemp().getValue(),
+                getModule(1).getSteerMotor().getDeviceTemp().getValue(),
+                getModule(2).getSteerMotor().getDeviceTemp().getValue(),
+                getModule(3).getSteerMotor().getDeviceTemp().getValue()
+            });
+        } catch (Exception e) {
+            System.err.print(e);
+        }
     }
 }
