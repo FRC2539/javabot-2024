@@ -41,11 +41,25 @@ public final class Constants {
         public static final double DRIVETRAIN_PERIOD = 0.0025;
     }
 
+    public static final class IntakeConstants {
+        public static final int chamberMotorPort = 8; //random IDs
+        public static final int rollerMotorPort = 9;
+        public static final int chamberSensorPort = 0;
+        public static final int rollerSensorPort = 1;
+    }
+
     public static final class ShooterConstants {
-        public static final int pnematics1Forward = 8;
-        public static final int pnematics1Reverse = 9;
-        public static final int pnematics2Forward = 10;
-        public static final int pnematics2Reverse = 11;
+        public static final int bottomShooterPort = 11;
+        public static final int topShooterPort = 12;
+        public static final int pivotPort = 10;
+
+        public static final double gearRatioRoller = 1;
+        public static final double momentOfInertiaRoller = 1;
+
+        public static final double gearRatioPivot = 1;
+        public static final double momentOfInertiaPivot = 1;
+        public static final double comPivot = 1;
+        public static final double massPivot = 1;
 
         public static final int talonFXPort = 1;
 
@@ -199,10 +213,8 @@ public final class Constants {
                 }
         }
 
-        public static Pose2d speakerPose = new Pose2d();
-
         public static Pose2d getSpeakerPose() {
-            return conditionallyFlipPose(speakerPose);
+            return aprilTagFieldLayout.getTagPose(getSpeakerTag()).get().toPose2d();
         }
 
         public static int getSpeakerTag() {

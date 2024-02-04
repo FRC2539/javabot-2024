@@ -13,7 +13,7 @@ public class PivotIOFalcon implements PivotIO {
     private final double errorThreshold = 0.1;
 
     public PivotIOFalcon() {
-        pivotMotor = new TalonFX(Constants.ShooterConstants.pnematics1Forward, "canivore");
+        pivotMotor = new TalonFX(Constants.ShooterConstants.pivotPort, "canivore");
     }
 
     public void updateInputs(PivotIOInputs inputs) {

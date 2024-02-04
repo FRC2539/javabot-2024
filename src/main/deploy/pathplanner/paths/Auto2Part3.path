@@ -74,6 +74,16 @@
           ]
         }
       }
+    },
+    {
+      "name": "aim",
+      "waypointRelativePos": 1.15,
+      "command": {
+        "type": "parallel",
+        "data": {
+          "commands": []
+        }
+      }
     }
   ],
   "globalConstraints": {

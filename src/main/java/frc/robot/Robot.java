@@ -67,8 +67,8 @@ public class Robot extends TimedRobot {
 
     @Override
     public void disabledPeriodic() {
-        // Update the autonomous command with driver station configuration
-        robotContainer.autonomousManager.update();
+        // // Update the autonomous command with driver station configuration
+        // robotContainer.autonomousManager.update();
     }
 
     @Override

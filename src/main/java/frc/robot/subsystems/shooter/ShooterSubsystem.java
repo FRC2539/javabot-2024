@@ -16,30 +16,32 @@ public class ShooterSubsystem extends SubsystemBase {
     private final double shooterSpeedTolerance = 0.1;
     private final double shooterAngleTolerance = 0.01;
     
-    private RollerIO rollerIO;
-    private RollerIO rollerIO2;
+    private RollerIO topRollerIO;
+    private RollerIO bottomRollerIO;
     private PivotIO pivotIO;
 
     private double currentDistance;
 
     private final InterpolatingMap<InterpolatableDouble> topRollerMap;
     private final InterpolatingMap<InterpolatableDouble> bottomRollerMap;
-    private final InterpolatingMap<InterpolatableDouble> shooterAngleMap;
+    private final InterpolatingMap<InterpolatableDouble> pivotAngleMap;
     
-    private RollerIOInputs roller1Inputs = new RollerIOInputs();
-    private RollerIOInputs roller2Inputs = new RollerIOInputs();
+    private RollerIOInputs topRollerInputs = new RollerIOInputs();
+    private RollerIOInputs bottomRollerInputs = new RollerIOInputs();
     private PivotIOInputs pivotInputs = new PivotIOInputs();
 
-    private ShooterState currentShooterState;
+    private final ShooterState defaultState = new ShooterState(0,0,0);
 
-    public ShooterSubsystem(RollerIO rollerIO, RollerIO rollerIO2, PivotIO pneumaticsIO, InterpolatingMap<InterpolatableDouble> topRollerMap, InterpolatingMap<InterpolatableDouble> bottomRollerMap, InterpolatingMap<InterpolatableDouble> shooterAngleMap) {
-        this.rollerIO = rollerIO;
-        this.rollerIO2 = rollerIO2;
-        this.pivotIO = pneumaticsIO;
+    private ShooterState currentShooterState = defaultState;
+
+    public ShooterSubsystem(RollerIO topRollerIO, RollerIO bottomRollerIO, PivotIO pivotIO, InterpolatingMap<InterpolatableDouble> topRollerMap, InterpolatingMap<InterpolatableDouble> bottomRollerMap, InterpolatingMap<InterpolatableDouble> pivotAngleMap) {
+        this.topRollerIO = topRollerIO;
+        this.bottomRollerIO = bottomRollerIO;
+        this.pivotIO = pivotIO;
         
         this.topRollerMap = topRollerMap;
         this.bottomRollerMap = bottomRollerMap;
-        this.shooterAngleMap = shooterAngleMap;
+        this.pivotAngleMap = pivotAngleMap;
 
         setDefaultCommand(disabledCommand());
     }
@@ -48,51 +50,51 @@ public class ShooterSubsystem extends SubsystemBase {
         return new ShooterState(
             topRollerMap.getInterpolated(distance).get().value,
             bottomRollerMap.getInterpolated(distance).get().value,
-            shooterAngleMap.getInterpolated(distance).get().value
+            pivotAngleMap.getInterpolated(distance).get().value
         );
     }
 
     public void periodic() {
         updateShooterStateForDistance(currentDistance);
-        rollerIO.updateInputs(roller1Inputs);
-        rollerIO2.updateInputs(roller2Inputs);
+        topRollerIO.updateInputs(topRollerInputs);
+        bottomRollerIO.updateInputs(bottomRollerInputs);
         pivotIO.updateInputs(pivotInputs);
         logShooterInformation();
 
-        rollerIO.setSpeed(currentShooterState.topRollerRPM);
-        rollerIO2.setSpeed(currentShooterState.bottomRollerRPM);
+        topRollerIO.setSpeed(currentShooterState.topRollerRPM);
+        bottomRollerIO.setSpeed(currentShooterState.bottomRollerRPM);
         pivotIO.setAngle(currentShooterState.pivotAngle);
     }
 
     public boolean isShooterAtPosition() {
         return MathUtils.equalsWithinError(
-                currentShooterState.topRollerRPM, roller1Inputs.speed, shooterSpeedTolerance) && 
+                currentShooterState.topRollerRPM, topRollerInputs.speed, shooterSpeedTolerance) && 
             MathUtils.equalsWithinError(
-                currentShooterState.bottomRollerRPM, roller2Inputs.speed, shooterSpeedTolerance) && 
+                currentShooterState.bottomRollerRPM, bottomRollerInputs.speed, shooterSpeedTolerance) && 
             MathUtils.equalsWithinError(
                 currentShooterState.pivotAngle, pivotInputs.currentAngle, shooterAngleTolerance);
     }
 
     public Command disabledCommand() {
-        return runOnce(() -> {
-            currentShooterState = new ShooterState(0,0,0);
+        return run(() -> {
+            currentShooterState = defaultState;
         });
     }
 
     public Command shootCommand(double topRollerRPM, double bottomRollerRPM, double shooterAngle) {
-        return runOnce(() -> {
+        return run(() -> {
             currentShooterState = new ShooterState(topRollerRPM, bottomRollerRPM, shooterAngle);
         });
     }
 
     public Command shootCommand(double distance) {
-        return runOnce(() -> {
+        return run(() -> {
             currentShooterState = updateShooterStateForDistance(distance);
         });
     }
 
     public Command shootCommand(ShooterState shooterState) {
-        return runOnce(() -> {
+        return run(() -> {
             currentShooterState = shooterState;
         });
     }
@@ -109,9 +111,11 @@ public class ShooterSubsystem extends SubsystemBase {
         Logger.log("/ShooterSubsystem/shooterPositionSetpoint", currentShooterState.pivotAngle);
         Logger.log("/ShooterSubsystem/shooterDistanceSetpoint", currentDistance);
 
-        Logger.log("/ShooterSubsystem/topRollerSpeed", roller1Inputs.speed);
-        Logger.log("/ShooterSubsystem/bottomRollerSpeed", roller2Inputs.speed);
+        Logger.log("/ShooterSubsystem/topRollerSpeed", topRollerInputs.speed);
+        Logger.log("/ShooterSubsystem/bottomRollerSpeed", bottomRollerInputs.speed);
         Logger.log("/ShooterSubsystem/shooterPosition", pivotInputs.currentAngle);
         Logger.log("/ShooterSubsystem/isAtAngle", pivotInputs.atTarget);
+
+        Logger.log("/ShooterSubsystem/isAtPosition", isShooterAtPosition());
     }
 }

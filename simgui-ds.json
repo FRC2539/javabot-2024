@@ -1,14 +1,19 @@
 {
+  "FMS": {
+    "window": {
+      "visible": false
+    }
+  },
   "keyboardJoysticks": [
     {
       "axisConfig": [
         {
-          "decKey": 65,
-          "incKey": 68
-        },
-        {
           "decKey": 87,
           "incKey": 83
+        },
+        {
+          "decKey": 68,
+          "incKey": 65
         },
         {
           "decKey": 69,
@@ -58,19 +63,17 @@
         46,
         47
       ],
-      "povCount": 0
-    },
-    {
-      "axisConfig": [
+      "povConfig": [
         {
-          "decKey": 263,
-          "incKey": 262
-        },
-        {
-          "decKey": 265,
-          "incKey": 264
+          "key0": 262,
+          "key180": 263,
+          "key270": 265,
+          "key90": 264
         }
       ],
+      "povCount": 1
+    },
+    {
       "axisCount": 2,
       "buttonCount": 6,
       "buttonKeys": [
@@ -87,6 +90,14 @@
       "axisCount": 0,
       "buttonCount": 0,
       "povCount": 0
+    }
+  ],
+  "robotJoysticks": [
+    {
+      "guid": "Keyboard0"
+    },
+    {
+      "guid": "Keyboard1"
     }
   ]
 }
