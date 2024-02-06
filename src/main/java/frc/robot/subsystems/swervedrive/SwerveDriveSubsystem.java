@@ -176,9 +176,13 @@ public class SwerveDriveSubsystem extends SwerveDrivetrain implements Subsystem 
     private boolean directionCommandIsRunning = false; 
 
     public Command directionCommand(Supplier<Rotation2d> targetAngle, DoubleSupplier forward, DoubleSupplier strafe, final ProfiledPIDController omegaController) {
+        return directionCommand(targetAngle, forward, strafe, omegaController,false);
+    }
+
+    public Command directionCommand(Supplier<Rotation2d> targetAngle, DoubleSupplier forward, DoubleSupplier strafe, final ProfiledPIDController omegaController, boolean closedLoop) {
         final double maxCardinalVelocity = omegaController.getConstraints().maxVelocity;
 
-        omegaController.enableContinuousInput(-Math.PI, Math.PI);   
+        omegaController.enableContinuousInput(-Math.PI, Math.PI);
 
         return run(() -> {
                     var currentRotation = getPose().getRotation().getRadians();
@@ -189,6 +193,13 @@ public class SwerveDriveSubsystem extends SwerveDrivetrain implements Subsystem 
                             omegaController.calculate(currentRotation, currentTarget);
 
                     setControl(
+                            closedLoop ?
+                            closedLoopRobotCentric
+                                .withVelocityX(forward.getAsDouble())
+                                .withVelocityY(strafe.getAsDouble())
+                                .withRotationalRate(
+                                    MathUtils.ensureRange(
+                                            rotationCorrection + omegaController.getSetpoint().velocity, -maxCardinalVelocity, maxCardinalVelocity)) :
                             openLoop
                                 .withVelocityX(forward.getAsDouble())
                                 .withVelocityY(strafe.getAsDouble())
