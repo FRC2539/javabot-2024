@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib.controller.LogitechController;
 import frc.lib.controller.ThrustmasterJoystick;
 import frc.robot.Constants.ControllerConstants;
+import frc.robot.subsystems.intake.IntakeIOFalconRedline;
 import frc.robot.subsystems.intake.IntakeIOFalconRedlineDupe;
 import frc.robot.subsystems.intake.IntakeIOSim;
 import frc.robot.subsystems.intake.IntakeSubsystem;
@@ -78,7 +79,7 @@ public class RobotContainer {
                 limelight = new PositionTargetIOSim();
             }
             visionSubsystem = new VisionSubsystem(swerveDriveSubsystem, leftCamera, rightCamera, limelight);
-            intakeSubsystem = new IntakeSubsystem(new IntakeIOFalconRedlineDupe());
+            intakeSubsystem = new IntakeSubsystem(new IntakeIOFalconRedline());
         
         } else {
             swerveDriveSubsystem = TunerConstants.DriveTrain;
