@@ -15,6 +15,8 @@ import frc.lib.logging.Logger;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.lights.LightsSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveDriveSubsystem;
+
+import java.util.Optional;
 import java.util.stream.Stream;
 
 public class AutonomousManager {
@@ -34,14 +36,16 @@ public class AutonomousManager {
         intakeSubsystem = container.getIntakeSubsystem();
 
         // Create an event map for use in all autos
-        NamedCommands.registerCommand("stop", runOnce(() -> swerveDriveSubsystem.setControl(new SwerveRequest.Idle()), swerveDriveSubsystem));
-        NamedCommands.registerCommand("shoot", parallel());
-        NamedCommands.registerCommand("intake", intakeSubsystem.intakeCommand().withTimeout(.5));
+
+        //It appears that for any default commands to run, the commands need to be registered as proxies. Howevery, anything that uses swerve cannot have the swerve proxied out.
+        NamedCommands.registerCommand("stop", runOnce(() -> swerveDriveSubsystem.setControl(new SwerveRequest.Idle()), swerveDriveSubsystem).asProxy());
+        NamedCommands.registerCommand("shoot", container.stoppedShootAndAimCommand(Optional.of(1d)));
+        NamedCommands.registerCommand("intake", intakeSubsystem.intakeCommand().withTimeout(2).asProxy());
         NamedCommands.registerCommand("mlintake", parallel());
         NamedCommands.registerCommand("amp", parallel());
-        NamedCommands.registerCommand("aim", parallel());
+        NamedCommands.registerCommand("aim", container.movingAimCommandAuto());
         NamedCommands.registerCommand("coast", parallel());
-        NamedCommands.registerCommand("eject", intakeSubsystem.ejectCommand().withTimeout(2));
+        NamedCommands.registerCommand("eject", intakeSubsystem.ejectCommand().withTimeout(2).asProxy());
         NamedCommands.registerCommand("rainbow", parallel());
 
         PathPlannerLogging.setLogTargetPoseCallback((pose) -> {

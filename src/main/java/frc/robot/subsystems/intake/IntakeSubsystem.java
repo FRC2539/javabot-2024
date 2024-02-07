@@ -1,6 +1,7 @@
 package frc.robot.subsystems.intake;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -19,7 +20,7 @@ public class IntakeSubsystem extends SubsystemBase {
     public IntakeSubsystem(IntakeIO intakeIO) {
         this.intakeIO = intakeIO;
 
-        setDefaultCommand(disabledCommand());
+        setDefaultCommand(Commands.either(moveCommand(), disabledCommand(), () -> state == IntakeState.INTAKING));
     }
 
     public enum IntakeState {
@@ -95,17 +96,13 @@ public class IntakeSubsystem extends SubsystemBase {
         .andThen(waitSeconds(.2))
         .until(() -> getRollerSensor());
 
-        Trigger isIntakeFinished = new Trigger(() -> intakeCommand.isScheduled());
-
-        isIntakeFinished.onFalse(moveCommand());
-
         return intakeCommand;
     }
 
     public Command moveCommand() {
         return runEnd(() -> {
             setIntakeState(IntakeState.MOVING);
-        }, () -> {}).until(() -> getRollerSensor()).withTimeout(5);
+        }, () -> {}).until(() -> getRollerSensor()).withTimeout(3);
     }
 
 

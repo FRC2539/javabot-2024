@@ -2,14 +2,20 @@ package frc.robot;
 
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
+import com.pathplanner.lib.util.GeometryUtil;
+
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Quaternion;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
+import frc.lib.interpolation.InterpolatableDouble;
+import frc.lib.interpolation.InterpolatingMap;
 
 import java.util.Arrays;
 
@@ -43,14 +49,49 @@ public final class Constants {
     }
 
     public static final class ShooterConstants {
-        public static final int rightShooterPort = 2;
-        public static final int leftShooterPort = 3;
-        public static final int rightPivotPort = 10;
-        public static final int leftPivotPort = 11;
+        public static final int bottomShooterPort = 11;
+        public static final int topShooterPort = 12;
+        public static final int pivotPort = 10;
 
-        public static final int encoderPort = 1;
+        public static final double gearRatioRoller = 1;
+        public static final double momentOfInertiaRoller = 1;
 
-        public static final int shooterSensorPort = 1;
+        public static final double gearRatioPivot = 1;
+        public static final double momentOfInertiaPivot = 1;
+        public static final double comPivot = 1;
+        public static final double massPivot = 1;
+
+        public static final int talonFXPort = 1;
+
+        public static final InterpolatingMap<InterpolatableDouble> topRollerMap() {
+            var map = new InterpolatingMap<InterpolatableDouble>();
+            map.put(0, new InterpolatableDouble(0.0));
+            map.put(5, new InterpolatableDouble(1.0));
+            map.put(15, new InterpolatableDouble(10.0));
+            map.put(100, new InterpolatableDouble(10.0));
+
+            return map;
+        }
+
+        public static final InterpolatingMap<InterpolatableDouble> bottomRollerMap() {
+            var map = new InterpolatingMap<InterpolatableDouble>();
+            map.put(0, new InterpolatableDouble(0.0));
+            map.put(5, new InterpolatableDouble(1.0));
+            map.put(15, new InterpolatableDouble(10.0));
+            map.put(100, new InterpolatableDouble(10.0));
+
+            return map;
+        }
+
+        public static final InterpolatingMap<InterpolatableDouble> shooterAngleMap() {
+            var map = new InterpolatingMap<InterpolatableDouble>();
+            map.put(0, new InterpolatableDouble(0.0));
+            map.put(5, new InterpolatableDouble(.5));
+            map.put(15, new InterpolatableDouble(.75));
+            map.put(100, new InterpolatableDouble(1));
+
+            return map;
+        }
     }
 
     public static final class SwerveConstants extends DevelopmentBotConstants {}
@@ -171,9 +212,28 @@ public final class Constants {
                         return null;
                 }
         }
-        
 
+        public static Pose2d getSpeakerPose() {
+            return aprilTagFieldLayout.getTagPose(getSpeakerTag()).get().toPose2d();
+        }
+
+        public static int getSpeakerTag() {
+            return isBlue() ? 7 : 4;
+        }
+
+        public static int getAmpAprilTag() {
+            return isBlue() ? 6 : 5;
+        }
+
+        public static boolean isBlue() {
+            return DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Blue;
+        }
+
+        public static Pose2d conditionallyFlipPose(Pose2d pose) {
+            return isBlue() ? pose : GeometryUtil.flipFieldPose(pose);
+        }
     }
+
 
     public static final class VisionConstants {
 

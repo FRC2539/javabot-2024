@@ -1,0 +1,87 @@
+{
+  "version": 1.0,
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 1.801884562065486,
+        "y": 5.67439388649851
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 1.7508951433164621,
+        "y": 4.982394632047472
+      },
+      "isLocked": false,
+      "linkedName": "close shot"
+    },
+    {
+      "anchor": {
+        "x": 7.410720624458108,
+        "y": 3.052080922262998
+      },
+      "prevControl": {
+        "x": 6.922679045003165,
+        "y": 3.234185989223797
+      },
+      "nextControl": {
+        "x": 7.4657422149745285,
+        "y": 3.031550478040453
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 8.284824945869945,
+        "y": 2.440207897274712
+      },
+      "prevControl": {
+        "x": 8.262972337834649,
+        "y": 2.4620605053100086
+      },
+      "nextControl": {
+        "x": 8.306677553905239,
+        "y": 2.418355289239415
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 4.992365335218691,
+        "y": 7.102097611471177
+      },
+      "prevControl": {
+        "x": 5.101628375395171,
+        "y": 7.058392395400586
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "far shot 1"
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 1,
+      "rotationDegrees": 135.67403689798448,
+      "rotateFast": false
+    }
+  ],
+  "constraintZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": -153.43494882292202,
+    "rotateFast": false
+  },
+  "reversed": false,
+  "folder": null,
+  "previewStartingState": null,
+  "useDefaultConstraints": false
+}

@@ -1,8 +1,8 @@
 {
   "HALProvider": {
-    "Other Devices": {
+    "RoboRIO": {
       "window": {
-        "visible": false
+        "visible": true
       }
     }
   },
@@ -10,31 +10,49 @@
     "types": {
       "/FMSInfo": "FMSInfo",
       "/SmartDashboard/AutoChooser": "String Chooser"
+    },
+    "windows": {
+      "/SmartDashboard/AutoChooser": {
+        "window": {
+          "visible": true
+        }
+      }
     }
   },
   "NetworkTables": {
+    "Persistent Values": {
+      "open": false
+    },
+    "Transitory Values": {
+      "open": false
+    },
     "transitory": {
+      "SmartDashboard": {
+        "AutoChooser": {
+          "string[]##v_/SmartDashboard/AutoChooser/options": {
+            "open": true
+          }
+        }
+      },
       "SwerveDriveSubsystem": {
         "double[]##v_/SwerveDriveSubsystem/Pose": {
           "open": true
-        },
-        "open": true
+        }
       }
     }
   },
   "NetworkTables Info": {
-    "Clients": {
-      "open": true
-    },
     "Server": {
       "Publishers": {
         "open": true
       },
       "Subscribers": {
         "open": true
-      },
-      "open": true
+      }
     },
     "visible": true
+  },
+  "NetworkTables View": {
+    "visible": false
   }
 }

@@ -62,13 +62,19 @@
       "name": "intake",
       "waypointRelativePos": 0.5,
       "command": {
-        "type": "parallel",
+        "type": "sequential",
         "data": {
           "commands": [
             {
               "type": "named",
               "data": {
                 "name": "intake"
+              }
+            },
+            {
+              "type": "named",
+              "data": {
+                "name": "aim"
               }
             }
           ]
@@ -84,8 +90,8 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -154.93253656193943,
-    "rotateFast": false
+    "rotation": -167.36345131315,
+    "rotateFast": true
   },
   "reversed": false,
   "folder": null,

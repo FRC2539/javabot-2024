@@ -1,5 +1,6 @@
 package frc.robot.subsystems.swervedrive;
 
+import java.util.Optional;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
@@ -11,6 +12,7 @@ import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.SteerRequestType;
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
@@ -43,6 +45,8 @@ public class SwerveDriveSubsystem extends SwerveDrivetrain implements Subsystem 
     private double m_lastSimTime;
 
     private SwerveDriveState currentState = new SwerveDriveState();
+
+    private Optional<Rotation2d> autoRotationOverride = Optional.empty();
 
     public final SwerveRequest.RobotCentric closedLoopRobotCentric = new SwerveRequest.RobotCentric()
                     .withDriveRequestType(DriveRequestType.Velocity)
@@ -132,7 +136,13 @@ public class SwerveDriveSubsystem extends SwerveDrivetrain implements Subsystem 
                 this // Reference to this subsystem to set requirements
         );
 
+        PPHolonomicDriveController.setRotationTargetOverride(this::getRotationOverride);
+
         registerTelemetry((state) -> currentState = state);
+    }
+
+    public Optional<Rotation2d> getRotationOverride() {
+        return autoRotationOverride;
     }
 
     public Command applyRequest(Supplier<SwerveRequest> requestSupplier) {
@@ -161,28 +171,81 @@ public class SwerveDriveSubsystem extends SwerveDrivetrain implements Subsystem 
         return directionCommand(() -> targetAngle, forward, strafe, omegaController);
     }
 
+    private double directionCommandErrorRadiansRotation = 0;
+    private double directionCommandErrorRaidansVelocity = 0;
+    private boolean directionCommandIsRunning = false; 
+
     public Command directionCommand(Supplier<Rotation2d> targetAngle, DoubleSupplier forward, DoubleSupplier strafe, final ProfiledPIDController omegaController) {
+        return directionCommand(targetAngle, forward, strafe, omegaController,false);
+    }
+
+    public Command directionCommand(Supplier<Rotation2d> targetAngle, DoubleSupplier forward, DoubleSupplier strafe, final ProfiledPIDController omegaController, boolean closedLoop) {
         final double maxCardinalVelocity = omegaController.getConstraints().maxVelocity;
 
-        omegaController.enableContinuousInput(-Math.PI, Math.PI);   
+        omegaController.enableContinuousInput(-Math.PI, Math.PI);
 
         return run(() -> {
+                    var currentRotation = getPose().getRotation().getRadians();
+                    var currentTarget = targetAngle.get().getRadians();
+                    var currentVelocity = getRobotRelativeChassisSpeeds().omegaRadiansPerSecond;
+
                     var rotationCorrection =
-                            omegaController.calculate(getPose().getRotation().getRadians(), targetAngle.get().getRadians());
+                            omegaController.calculate(currentRotation, currentTarget);
 
                     setControl(
+                            closedLoop ?
+                            closedLoopRobotCentric
+                                .withVelocityX(forward.getAsDouble())
+                                .withVelocityY(strafe.getAsDouble())
+                                .withRotationalRate(
+                                    MathUtils.ensureRange(
+                                            rotationCorrection + omegaController.getSetpoint().velocity, -maxCardinalVelocity, maxCardinalVelocity)) :
                             openLoop
                                 .withVelocityX(forward.getAsDouble())
                                 .withVelocityY(strafe.getAsDouble())
                                 .withRotationalRate(
                                     MathUtils.ensureRange(
-                                            rotationCorrection, -maxCardinalVelocity, maxCardinalVelocity)
+                                            rotationCorrection + omegaController.getSetpoint().velocity, -maxCardinalVelocity, maxCardinalVelocity)
                             ));
+
+                    directionCommandErrorRadiansRotation = currentRotation - currentTarget;
+                    directionCommandErrorRaidansVelocity = currentVelocity - 0;
+                    directionCommandIsRunning = true;
                 })
                 .beforeStarting(() -> {
                     omegaController.reset(new TrapezoidProfile.State(
                             getRotation().getRadians(), getFieldRelativeChassisSpeeds().omegaRadiansPerSecond));
+                }).finallyDo(() -> {
+                    directionCommandIsRunning = false;
                 });
+    }
+
+    public Command directionCommandAuto(Supplier<Rotation2d> targetAngle) {
+        // Uses Commands because technically this command has no requirements.
+        return Commands.run(() -> {
+                    var currentRotation = getPose().getRotation().getRadians();
+                    var currentTarget = targetAngle.get().getRadians();
+                    var currentVelocity = getRobotRelativeChassisSpeeds().omegaRadiansPerSecond;
+
+                    autoRotationOverride = Optional.of(targetAngle.get());
+                    
+                    directionCommandErrorRadiansRotation = currentRotation - currentTarget;
+                    directionCommandErrorRaidansVelocity = currentVelocity - 0;
+                    directionCommandIsRunning = true;
+                }).finallyDo(() -> {
+                    directionCommandIsRunning = false;
+                    autoRotationOverride = Optional.empty();
+                });
+    }
+
+    public boolean isAtDirectionCommand(double angularTolerance, double velocityTolerance) {
+        boolean result = Math.abs(directionCommandErrorRadiansRotation) <= angularTolerance
+            && Math.abs(directionCommandErrorRaidansVelocity) <= velocityTolerance
+            && directionCommandIsRunning;
+
+        Logger.log("/SwerveDriveSubsystem/DirectionCommand/AtAngle", result);
+
+        return result;
     }
 
     public Command pathfindToPoseCommand(Pose2d targetPose) {
@@ -311,5 +374,9 @@ public class SwerveDriveSubsystem extends SwerveDrivetrain implements Subsystem 
         } catch (Exception e) {
             System.err.print(e);
         }
+
+        Logger.log("/SwerveDriveSubsystem/DirectionCommand/DirectionError", directionCommandErrorRadiansRotation);
+        Logger.log("/SwerveDriveSubsystem/DirectionCommand/VelocityError", directionCommandErrorRaidansVelocity);
+        Logger.log("/SwerveDriveSubsystem/DirectionCommand/IsRunning", directionCommandIsRunning);
     }
 }
