@@ -8,7 +8,9 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -110,5 +112,25 @@ public class VisionSubsystem extends SubsystemBase {
         var rotationStdDev = rotationStdDevCoefficient * Math.pow(distance, 2);
 
         return VecBuilder.fill(translationStdDev, translationStdDev, rotationStdDev);
+    }
+
+    public Rotation2d getSpeakerAngle(Pose2d currentPose) {
+        Optional<PhotonTrackedTarget> speakerTag  = VisionSubsystem.getTagInfo(leftTargets, FieldConstants.getSpeakerTag());
+        if (speakerTag.isPresent()) {
+            // TODO: This is not right
+            return currentPose.getRotation().plus(new Rotation2d(-speakerTag.get().getYaw()));
+        } else {
+            return FieldConstants.getSpeakerPose().getTranslation().minus(currentPose.getTranslation()).getAngle();
+        }
+    }
+
+    public double getSpeakerDistance(Pose2d currentPose) {
+        Optional<PhotonTrackedTarget> speakerTag  = VisionSubsystem.getTagInfo(leftTargets, FieldConstants.getSpeakerTag());
+        if (speakerTag.isPresent()) {
+            // TODO: This is not right
+            return 10; //needs some trig
+        } else {
+            return FieldConstants.getSpeakerPose().getTranslation().minus(currentPose.getTranslation()).getNorm();
+        }
     }
 }
