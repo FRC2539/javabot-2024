@@ -146,18 +146,26 @@ public class RobotContainer {
                 .nameTrigger("Shoot");
 
         rightDriveController
+                .getRightThumb()
+                .whileTrue(intakeSubsystem.disabledCommand());
+
+        rightDriveController
                 .getBottomThumb()
                 .whileTrue(intakeSubsystem.intakeCommand());
+
+        rightDriveController
+                .getLeftThumb()
+                .whileTrue(intakeSubsystem.ejectCommand());
         
         leftDriveController
                 .getTrigger()
                 .whileTrue(movingAimCommand());
         leftDriveController
                 .nameTrigger("Aim");
-
+        
         leftDriveController
                 .getBottomThumb()
-                .whileTrue(intakeSubsystem.ejectCommand());
+                .whileTrue(shooterSubsystem.shootCommand(60,60,0));
 
         rightDriveController.sendButtonNamesToNT();
         leftDriveController.sendButtonNamesToNT();

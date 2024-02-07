@@ -3,6 +3,7 @@ package frc.robot.subsystems.shooter;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib.interpolation.InterpolatableDouble;
@@ -96,6 +97,12 @@ public class ShooterSubsystem extends SubsystemBase {
     public Command shootCommand(ShooterState shooterState) {
         return run(() -> {
             currentShooterState = shooterState;
+        });
+    }
+
+    public Command shootCommand(Supplier<ShooterState> shooterState) {
+        return run(() -> {
+            currentShooterState = shooterState.get();
         });
     }
 
