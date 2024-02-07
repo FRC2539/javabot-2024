@@ -1,0 +1,30 @@
+@import "/edu/wpi/first/shuffleboard/app/dark.css";
+
+.root {
+    -swatch-100: hsb(24, 80%, 98%); /* really bright orange*/
+    -swatch-200: hsb(24, 80%, 93%); /* pretty bright orange*/
+    -swatch-300: hsb(24, 80%, 88%); /* orange*/
+    -swatch-400: hsb(24, 80%, 83%); /* slightly dim orange*/
+    -swatch-500: hsb(24, 80%, 78%); /* dim orange*/
+    -swatch-600: hsb(0, 100% ,0%); /* black*/
+    -swatch-700: hsb(0, 0%, 15%); /* dark grey*/
+
+    -fx-background: -swatch-600;
+    -fx-color: -swatch-600;
+
+}
+
+.widget-pane {
+    -fx-grid-line-color: -swatch-700;
+}
+
+
+.combo-box-popup .list-view {
+    -fx-border-width: 0px;
+}
+
+.combo-box-popup .list-view .list-cell:selected {
+    -fx-background-color: -swatch-500;
+    -fx-text-fill: -fx-text-base-color;
+}
+
