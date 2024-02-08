@@ -4,6 +4,8 @@ import static edu.wpi.first.wpilibj2.command.Commands.*;
 
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
+import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
 
 import org.photonvision.PhotonCamera;
 
@@ -246,6 +248,17 @@ public class RobotContainer {
 
     public Command getAutonomousCommand() {
         return autonomousManager.getAutonomousCommand();
+    }
+
+    public Command autoIntakeCommand() {
+        final double speed = 1;
+        Supplier<Rotation2d> angleOfGamepiece = () -> new Rotation2d(); 
+        ProfiledPIDController omegaController = 
+            new ProfiledPIDController(0, 0, 0, new TrapezoidProfile.Constraints(0, 0));
+        DoubleSupplier forward = () -> angleOfGamepiece.get().getCos() * speed;
+        DoubleSupplier strafe = () -> angleOfGamepiece.get().getSin() * speed;
+
+        return swerveDriveSubsystem.directionCommand(angleOfGamepiece, forward, strafe, omegaController);
     }
 
     public double getDriveForwardAxis() {
