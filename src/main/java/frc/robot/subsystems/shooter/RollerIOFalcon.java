@@ -1,6 +1,7 @@
 package frc.robot.subsystems.shooter;
 
 import com.ctre.phoenix6.controls.VelocityVoltage;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 public class RollerIOFalcon implements RollerIO {
@@ -20,5 +21,9 @@ public class RollerIOFalcon implements RollerIO {
 
     public void setSpeed(double speed) {
         talonFX.setControl(new VelocityVoltage(speed / 60 /gearRatio));
+    }
+
+    public void setVoltage(double voltage) {
+        talonFX.setControl(new VoltageOut(voltage));
     }
 }

@@ -23,10 +23,10 @@
     "Persistent Values": {
       "open": false
     },
-    "Transitory Values": {
-      "open": false
-    },
     "transitory": {
+      "ShooterSubsystem": {
+        "open": true
+      },
       "SmartDashboard": {
         "AutoChooser": {
           "string[]##v_/SmartDashboard/AutoChooser/options": {
@@ -42,6 +42,9 @@
     }
   },
   "NetworkTables Info": {
+    "Clients": {
+      "open": true
+    },
     "Server": {
       "Publishers": {
         "open": true
@@ -51,8 +54,5 @@
       }
     },
     "visible": true
-  },
-  "NetworkTables View": {
-    "visible": false
   }
 }
