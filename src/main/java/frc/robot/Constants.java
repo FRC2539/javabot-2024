@@ -42,16 +42,16 @@ public final class Constants {
     }
 
     public static final class IntakeConstants {
-        public static final int chamberMotorPort = 8; //random IDs
-        public static final int rollerMotorPort = 9;
+        public static final int chamberMotorPort = 15;
+        public static final int rollerMotorPort = 14;
         public static final int chamberSensorPort = 0;
         public static final int rollerSensorPort = 1;
     }
 
     public static final class ShooterConstants {
-        public static final int bottomShooterPort = 11;
-        public static final int topShooterPort = 12;
-        public static final int pivotPort = 10;
+        public static final int bottomShooterPort = 8;
+        public static final int topShooterPort = 9;
+        public static final int pivotPort = 13;
 
         public static final double gearRatioRoller = 1;
         public static final double momentOfInertiaRoller = 1;
@@ -94,9 +94,7 @@ public final class Constants {
         }
     }
 
-    public static final class SwerveConstants extends DevelopmentBotConstants {}
-
-    public static class DevelopmentBotConstants {
+    public static class SwerveConstants {
         // See https://github.com/Team364/BaseFalconSwerve for getting these values.
 
         public static final boolean hasPigeon = false;
