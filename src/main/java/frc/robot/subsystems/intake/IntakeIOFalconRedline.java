@@ -9,8 +9,10 @@ public class IntakeIOFalconRedline implements IntakeIO{
     private double chamberSpeed;
     private double rollerSpeed;
 
-    private TalonFX chamberMotor = new TalonFX(IntakeConstants.chamberMotorPort);
-    private TalonFX rollerMotor = new TalonFX(IntakeConstants.rollerMotorPort);
+    private final double percentMaxOutput = 1;
+
+    private TalonFX chamberMotor = new TalonFX(IntakeConstants.chamberMotorPort, "CANivore");
+    private TalonFX rollerMotor = new TalonFX(IntakeConstants.rollerMotorPort, "CANivore");
 
     private AnalogInput rollerSensor = new AnalogInput(IntakeConstants.rollerSensorPort);
     private AnalogInput chamberSensor = new AnalogInput(IntakeConstants.chamberSensorPort);
@@ -24,21 +26,21 @@ public class IntakeIOFalconRedline implements IntakeIO{
     }
 
     public boolean hasRollerPiece() {
-        return rollerSensor.getValue() > 50;
+        return false; //rollerSensor.getValue() > 50;
     }
 
     public boolean hasChamberPiece() {
-        return chamberSensor.getValue() > 50;
+        return false; //chamberSensor.getValue() > 50;
     }
 
     public void setRollerSpeed(double speed) {
         rollerSpeed = speed;
-        rollerMotor.set(speed);
+        rollerMotor.set(percentMaxOutput * speed);
     }
 
     public void setChamberSpeed(double speed) {
         chamberSpeed = speed;
-        chamberMotor.set(speed);
+        chamberMotor.set(percentMaxOutput * speed * 4);
     }
 
 }
