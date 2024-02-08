@@ -13,4 +13,6 @@ public interface RollerIO {
 
     public void setSpeed(double speed);
 
+    public void setVoltage(double voltage);
+
 }

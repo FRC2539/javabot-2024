@@ -18,6 +18,8 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib.controller.LogitechController;
 import frc.lib.controller.ThrustmasterJoystick;
+import frc.lib.logging.LoggedReceiver;
+import frc.lib.logging.Logger;
 import frc.robot.Constants.ControllerConstants;
 import frc.robot.subsystems.intake.IntakeIOFalconRedline;
 import frc.robot.subsystems.intake.IntakeIOFalconRedlineDupe;
@@ -28,6 +30,7 @@ import frc.robot.subsystems.lights.LightsIOSim;
 import frc.robot.subsystems.lights.LightsSubsystem;
 import frc.robot.subsystems.shooter.PivotIOSim;
 import frc.robot.subsystems.shooter.RollerIOSim;
+import frc.robot.subsystems.shooter.ShooterState;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveDriveSubsystem;
 import frc.robot.subsystems.vision.AprilTagIO;
@@ -164,9 +167,17 @@ public class RobotContainer {
         leftDriveController
                 .nameTrigger("Aim");
         
+        LoggedReceiver topRollerSpeedTunable = Logger.tunable("/ShooterSubsystem/topTunable", 0d);
+        LoggedReceiver bottomRollerSpeedTunable = Logger.tunable("/ShooterSubsystem/bottomTunable", 0d);
+        LoggedReceiver pivotAngleTunable = Logger.tunable("/ShooterSubsystem/pivotTunable", 0d);
+        LoggedReceiver isVoltageBasedTunable = Logger.tunable("/ShooterSubsystem/voltageTunable", true);
         leftDriveController
                 .getBottomThumb()
-                .whileTrue(shooterSubsystem.shootCommand(60,60,0));
+                .whileTrue(shooterSubsystem.shootCommand(() -> new ShooterState(
+                    topRollerSpeedTunable.getDouble(),
+                    bottomRollerSpeedTunable.getDouble(),
+                    pivotAngleTunable.getDouble(),
+                    isVoltageBasedTunable.getBoolean())));
 
         rightDriveController.sendButtonNamesToNT();
         leftDriveController.sendButtonNamesToNT();

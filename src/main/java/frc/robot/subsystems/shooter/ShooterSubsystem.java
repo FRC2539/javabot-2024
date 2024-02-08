@@ -62,11 +62,18 @@ public class ShooterSubsystem extends SubsystemBase {
         pivotIO.updateInputs(pivotInputs);
         logShooterInformation();
 
-        topRollerIO.setSpeed(currentShooterState.topRollerRPM);
-        bottomRollerIO.setSpeed(currentShooterState.bottomRollerRPM);
-        pivotIO.setAngle(currentShooterState.pivotAngle);
+        if (currentShooterState.isVoltageBased) {
+            topRollerIO.setVoltage(currentShooterState.topRollerRPM);
+            bottomRollerIO.setVoltage(currentShooterState.bottomRollerRPM);
+            pivotIO.setAngle(currentShooterState.pivotAngle);
+        } else {
+            topRollerIO.setSpeed(currentShooterState.topRollerRPM);
+            bottomRollerIO.setSpeed(currentShooterState.bottomRollerRPM);
+            pivotIO.setAngle(currentShooterState.pivotAngle);
+        }
     }
 
+    /** NOTE: This does not work with voltage requests as there is no "SPEED" */
     public boolean isShooterAtPosition() {
         return MathUtils.equalsWithinError(
                 currentShooterState.topRollerRPM, topRollerInputs.speed, shooterSpeedTolerance) && 

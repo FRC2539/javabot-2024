@@ -6,15 +6,26 @@ public class ShooterState implements Interpolatable<ShooterState> {
     public double topRollerRPM;
     public double bottomRollerRPM;
     public double pivotAngle;
+    public boolean isVoltageBased;
 
-    public ShooterState(double topRollerRPM, double bottomRollerRPM, double shooterAngle) {
+    public ShooterState(double topRollerRPM, double bottomRollerRPM, double shooterAngle, boolean isVoltageBased) {
         this.topRollerRPM = topRollerRPM;
         this.bottomRollerRPM = bottomRollerRPM;
         this.pivotAngle = shooterAngle;       
+        this.isVoltageBased = isVoltageBased;
     }
 
+    public ShooterState(double topRollerRPM, double bottomRollerRPM, double shooterAngle) {
+        this(topRollerRPM, bottomRollerRPM, shooterAngle, false);
+    }
+
+    public static ShooterState fromVoltages(double topRollerVoltage, double bottomRollerVoltage, double shooterAngle) {
+        return new ShooterState(topRollerVoltage, bottomRollerVoltage, shooterAngle, true);
+    }
+
+
     public ShooterState() {
-        this(0, 0, 0);
+        this(0, 0, 0, false);
     }
 
     @Override

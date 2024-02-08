@@ -1,6 +1,7 @@
 package frc.robot.subsystems.shooter;
 
 import com.ctre.phoenix6.controls.VelocityVoltage;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 
@@ -36,5 +37,9 @@ public class RollerIOPhoenixSim implements RollerIO {
 
     public void setSpeed(double speed) {
         talonFX.setControl(new VelocityVoltage(speed / 60 / ShooterConstants.gearRatioRoller));
+    }
+
+    public void setVoltage(double voltage) {
+        talonFX.setControl(new VoltageOut(voltage));
     }
 }
