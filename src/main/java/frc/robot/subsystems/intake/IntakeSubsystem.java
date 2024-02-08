@@ -19,16 +19,21 @@ public class IntakeSubsystem extends SubsystemBase {
     public IntakeSubsystem(IntakeIO intakeIO) {
         this.intakeIO = intakeIO;
 
-        setDefaultCommand(Commands.either(moveCommand(), disabledCommand(), () -> state == IntakeState.INTAKING));
+        setDefaultCommand(Commands.either(
+            moveCommand()
+                .andThen(reverseMoveCommand().withTimeout(.5)
+                .andThen(moveCommand().withTimeout(0.5))), 
+            disabledCommand(), 
+            () -> state == IntakeState.INTAKING));
     }
 
     public enum IntakeState {
         DISABLED,
         MOVING,
+        MOVING_REVERSE,
         INTAKING,
         SHOOTING,
         EJECTING,
-        MANUAL_DRIVE,
     }
 
     public void periodic() {
@@ -43,10 +48,6 @@ public class IntakeSubsystem extends SubsystemBase {
                 setChamber(-1);
                 setRoller(-1);
                 break;
-            case MANUAL_DRIVE:
-                setChamber(.25);
-                setRoller(.25);
-                break;
             case SHOOTING:
                 setChamber(1);
                 setRoller(0);
@@ -54,6 +55,10 @@ public class IntakeSubsystem extends SubsystemBase {
             case MOVING:
                 setChamber(.25);
                 setRoller(.25);
+                break;
+            case MOVING_REVERSE:
+                setChamber(-.25);
+                setRoller(-.25);
                 break;
             case INTAKING:
                 setChamber(1);
@@ -76,9 +81,9 @@ public class IntakeSubsystem extends SubsystemBase {
         }, () -> {});
     }
 
-    public Command manualDriveCommand() {
+    public Command reverseMoveCommand() {
         return runEnd(() -> {
-            setIntakeState(IntakeState.MANUAL_DRIVE);
+            setIntakeState(IntakeState.MOVING_REVERSE);
         }, () -> {});
     }
 
@@ -102,6 +107,11 @@ public class IntakeSubsystem extends SubsystemBase {
         return runEnd(() -> {
             setIntakeState(IntakeState.MOVING);
         }, () -> {}).until(() -> getRollerSensor()).withTimeout(3);
+    }
+    public Command manualMoveCommand() {
+        return runEnd(() -> {
+            setIntakeState(IntakeState.MOVING);
+        }, () -> {});
     }
 
 
