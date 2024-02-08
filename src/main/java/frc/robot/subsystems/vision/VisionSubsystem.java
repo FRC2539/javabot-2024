@@ -116,7 +116,7 @@ public class VisionSubsystem extends SubsystemBase {
 
     public Rotation2d getSpeakerAngle(Pose2d currentPose) {
         Optional<PhotonTrackedTarget> speakerTag  = VisionSubsystem.getTagInfo(leftTargets, FieldConstants.getSpeakerTag());
-        if (speakerTag.isPresent()) {
+        if (false && speakerTag.isPresent()) {
             // TODO: This is not right
             return currentPose.getRotation().plus(new Rotation2d(-speakerTag.get().getYaw()));
         } else {
@@ -126,7 +126,7 @@ public class VisionSubsystem extends SubsystemBase {
 
     public double getSpeakerDistance(Pose2d currentPose) {
         Optional<PhotonTrackedTarget> speakerTag  = VisionSubsystem.getTagInfo(leftTargets, FieldConstants.getSpeakerTag());
-        if (speakerTag.isPresent()) {
+        if (false && speakerTag.isPresent()) {
             // TODO: This is not right
             return 10; //needs some trig
         } else {
