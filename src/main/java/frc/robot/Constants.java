@@ -35,6 +35,10 @@ public final class Constants {
         public static final double DRIVETRAIN_PERIOD = 0.0025;
     }
 
+    public static final class LightsConstants {
+        public static final int CANDLE_PORT = 0; //random ID
+    }
+
     public static final class IntakeConstants {
         public static final int chamberMotorPort = 8; //random IDs
         public static final int rollerMotorPort = 9;
