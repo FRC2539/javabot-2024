@@ -226,6 +226,21 @@ public final class Constants {
         public static int getAmpTag() {
             return isBlue() ? 6 : 5;
         }
+        
+        public static Pose2d getSourcePose() {
+            //returns the position immedialey between the two tags
+            return aprilTagFieldLayout.getTagPose(getRightSourceTag()).get().toPose2d()
+                .interpolate(aprilTagFieldLayout.getTagPose(getLeftSourceTag()).get().toPose2d(),
+                0.5);
+        }
+
+        public static int getLeftSourceTag() {
+            return isBlue() ? 2 : 10;
+        }
+
+        public static int getRightSourceTag() {
+            return isBlue() ? 1 : 9;
+        }
 
         public static boolean isBlue() {
             return DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Blue;

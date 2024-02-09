@@ -91,9 +91,9 @@ public class IntakeSubsystem extends SubsystemBase {
     public Command intakeCommand() {
         Command intakeCommand = runEnd(() -> {
             setIntakeState(IntakeState.INTAKING);
-        }, () -> {}).until(() -> getChamberSensor())
+        }, () -> {}).until(() -> getRollerSensor())
         .andThen(waitSeconds(.2))
-        .until(() -> getRollerSensor());
+        .until(() -> getChamberSensor());
 
         return intakeCommand;
     }

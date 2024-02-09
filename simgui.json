@@ -1,6 +1,9 @@
 {
   "HALProvider": {
     "RoboRIO": {
+      "RoboRIO Input": {
+        "open": true
+      },
       "window": {
         "visible": true
       }
