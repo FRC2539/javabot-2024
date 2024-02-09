@@ -15,6 +15,7 @@ public interface AprilTagIO extends CameraIO<AprilTagIO.AprilTagIOInputs> {
         Pose3d alternatePoseEstimate3d = new Pose3d();
         double targetDistance = 0;
         double timestamp = 0;
+        boolean multitag = false;
     }
 
     public List<PhotonTrackedTarget> updateTagsInfo();
