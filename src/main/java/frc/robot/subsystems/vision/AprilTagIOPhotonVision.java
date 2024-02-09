@@ -48,8 +48,10 @@ public class AprilTagIOPhotonVision implements AprilTagIO {
                     outputs.targetDistance = myDistance;
                 }
             }
+            outputs.multitag = stuff.targetsUsed.size() > 1;
             Logger.log("/VisionSubsystem/" + getName(), outputs.poseEstimate3d, true);
             Logger.log("/VisionSubsystem/" + getName() + "alternate", outputs.alternatePoseEstimate3d, true);
+            Logger.log("/VisionSubsystem/" + getName() + "multitag", outputs.multitag);
             outputs.timestamp = stuff.timestampSeconds;
             
             return outputs;
