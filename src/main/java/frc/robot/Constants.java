@@ -218,8 +218,12 @@ public final class Constants {
         public static int getSpeakerTag() {
             return isBlue() ? 7 : 4;
         }
+        
+        public static Pose2d getAmpPose() {
+            return aprilTagFieldLayout.getTagPose(getAmpTag()).get().toPose2d();
+        }
 
-        public static int getAmpAprilTag() {
+        public static int getAmpTag() {
             return isBlue() ? 6 : 5;
         }
 

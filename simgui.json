@@ -24,7 +24,7 @@
       "open": false
     },
     "transitory": {
-      "ShooterSubsystem": {
+      "IntakeSubsystem": {
         "open": true
       },
       "SmartDashboard": {
@@ -37,7 +37,8 @@
       "SwerveDriveSubsystem": {
         "double[]##v_/SwerveDriveSubsystem/Pose": {
           "open": true
-        }
+        },
+        "open": true
       }
     }
   },
