@@ -113,6 +113,10 @@ public class DriveToPositionCommand extends Command {
         return driveController.atGoal() && omegaController.atGoal() && finishes;
     }
 
+    public boolean atGoal() {
+        return driveController.atGoal() && omegaController.atGoal();
+    }
+
     @Override
     public void end(boolean interrupted) {
         swerveDriveSubsystem.setControl(swerveDriveSubsystem.stopped);

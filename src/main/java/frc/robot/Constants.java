@@ -218,9 +218,28 @@ public final class Constants {
         public static int getSpeakerTag() {
             return isBlue() ? 7 : 4;
         }
+        
+        public static Pose2d getAmpPose() {
+            return aprilTagFieldLayout.getTagPose(getAmpTag()).get().toPose2d();
+        }
 
-        public static int getAmpAprilTag() {
+        public static int getAmpTag() {
             return isBlue() ? 6 : 5;
+        }
+        
+        public static Pose2d getSourcePose() {
+            //returns the position immedialey between the two tags
+            return aprilTagFieldLayout.getTagPose(getRightSourceTag()).get().toPose2d()
+                .interpolate(aprilTagFieldLayout.getTagPose(getLeftSourceTag()).get().toPose2d(),
+                0.5);
+        }
+
+        public static int getLeftSourceTag() {
+            return isBlue() ? 2 : 10;
+        }
+
+        public static int getRightSourceTag() {
+            return isBlue() ? 1 : 9;
         }
 
         public static boolean isBlue() {
