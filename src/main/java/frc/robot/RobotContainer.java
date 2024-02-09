@@ -12,17 +12,23 @@ import org.photonvision.PhotonCamera;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import frc.lib.controller.LogitechController;
 import frc.lib.controller.ThrustmasterJoystick;
 import frc.lib.logging.LoggedReceiver;
 import frc.lib.logging.Logger;
 import frc.robot.Constants.ControllerConstants;
+import frc.robot.Constants.FieldConstants;
+import frc.robot.commands.DriveToPositionCommand;
+import frc.robot.subsystems.intake.IntakeIOFalconRedline;
 import frc.robot.subsystems.intake.IntakeIOFalconRedlineDupe;
 import frc.robot.subsystems.intake.IntakeIOSim;
 import frc.robot.subsystems.intake.IntakeSubsystem;
@@ -242,6 +248,18 @@ public class RobotContainer {
         Command spinUpCommand = shooterSubsystem.shootCommand(() -> visionSubsystem.getSpeakerDistance(swerveDriveSubsystem.getPose()));
 
         return parallel(aimAtTag, spinUpCommand.asProxy(), run(() -> {readyToFire.getAsBoolean();}));
+    }
+
+    public Command ampScoreCommand() {
+        DriveToPositionCommand driveToPosition = new DriveToPositionCommand(swerveDriveSubsystem, FieldConstants.getAmpPose().plus(new Transform2d(1, 0, new Rotation2d())), false);
+        Debouncer debouncer = new Debouncer(0.5);
+        return Commands.parallel(driveToPosition, shooterSubsystem.ampCommand(), Commands.waitUntil(() -> debouncer.calculate(driveToPosition.atGoal())).andThen(intakeSubsystem.shootCommand()));
+    }
+
+    public Command sourceIntakeCommand() {
+        DriveToPositionCommand driveToPosition = new DriveToPositionCommand(swerveDriveSubsystem, FieldConstants.getSourcePose().plus(new Transform2d(1, 0, new Rotation2d())), false);
+        Debouncer debouncer = new Debouncer(0.5);
+        return Commands.parallel(driveToPosition);
     }
 
 

@@ -119,6 +119,10 @@ public class ShooterSubsystem extends SubsystemBase {
         });
     }
 
+    public Command ampCommand(){
+        return shootCommand(new ShooterState(0 ,0 ,0));
+    }
+
     public void logShooterInformation() {
         Logger.log("/ShooterSubsystem/topRollerSpeedSetpoint", currentShooterState.topRollerRPM);
         Logger.log("/ShooterSubsystem/bottomRollerSpeedSetpoint", currentShooterState.bottomRollerRPM);
