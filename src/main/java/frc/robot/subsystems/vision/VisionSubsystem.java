@@ -22,8 +22,11 @@ import frc.robot.subsystems.vision.AprilTagIO.AprilTagIOInputs;
 import frc.robot.subsystems.vision.PositionTargetIO.PositionTargetIOInputs;
 
 public class VisionSubsystem extends SubsystemBase {
-    private final double translationStdDevCoefficient = 0.35;
-    private final double rotationStdDevCoefficient = 1;
+    private final double translationStdDevCoefficient = 0.3;
+    private final double rotationStdDevCoefficient = .9;
+
+    private final double multitagTranslationStdDevCoefficient = 0.1;
+    private final double multitagRotationStdDevCoefficient = 0.5;
 
     private AprilTagIO left;
     private AprilTagIO right;
@@ -72,7 +75,13 @@ public class VisionSubsystem extends SubsystemBase {
     }
 
     private void addVisionPoseEstimate(Optional<AprilTagIOInputs> inputs) {
-        inputs.ifPresent((t) -> addVisionPoseEstimateWithBackup(t.poseEstimate3d, t.alternatePoseEstimate3d, t.targetDistance, t.timestamp));
+        inputs.ifPresent((t) -> {
+            if (t.multitag) {
+                addVisionPoseEstimateWithBackupMultitag(t.poseEstimate3d, t.alternatePoseEstimate3d, t.targetDistance, t.timestamp);
+            } {
+                addVisionPoseEstimateWithBackup(t.poseEstimate3d, t.alternatePoseEstimate3d, t.targetDistance, t.timestamp);
+            }
+        });
     }
 
     private void addVisionPoseEstimate(Pose3d estimate, double distance, double timestamp) {
@@ -81,7 +90,16 @@ public class VisionSubsystem extends SubsystemBase {
         // TODO: acutlally calculate
 
         consumer.addVisionMeasurement(
-            estimate.toPose2d(), timestamp); //calculateVisionStdDevs(distance));
+            estimate.toPose2d(), timestamp, calculateVisionStdDevs(distance));
+    }
+
+    private void addVisionPoseEstimateTwoTags(Pose3d estimate, double distance, double timestamp) {
+        if (!isWithinField(estimate)) return;
+
+        // TODO: acutlally calculate
+
+        consumer.addVisionMeasurement(
+            estimate.toPose2d(), timestamp, calculateMultitagVisionStdDevs(distance));
     }
 
     private void addVisionPoseEstimateWithBackup(Pose3d estimate, Pose3d backup, double distance, double timestamp) {
@@ -89,6 +107,14 @@ public class VisionSubsystem extends SubsystemBase {
             addVisionPoseEstimate(backup, distance, timestamp);
         } else {
             addVisionPoseEstimate(estimate, distance, timestamp);
+        }
+    }
+
+    private void addVisionPoseEstimateWithBackupMultitag(Pose3d estimate, Pose3d backup, double distance, double timestamp) {
+        if (!isWithinField(estimate)) {
+            addVisionPoseEstimateTwoTags(backup, distance, timestamp);
+        } else {
+            addVisionPoseEstimateTwoTags(estimate, distance, timestamp);
         }
     }
 
@@ -108,8 +134,15 @@ public class VisionSubsystem extends SubsystemBase {
 
 
     public Matrix<N3, N1> calculateVisionStdDevs(double distance) {
-        var translationStdDev = translationStdDevCoefficient * Math.pow(distance, 2);
-        var rotationStdDev = rotationStdDevCoefficient * Math.pow(distance, 2);
+        var translationStdDev = translationStdDevCoefficient * distance;
+        var rotationStdDev = rotationStdDevCoefficient * distance;
+
+        return VecBuilder.fill(translationStdDev, translationStdDev, rotationStdDev);
+    }
+
+    public Matrix<N3, N1> calculateMultitagVisionStdDevs(double distance) {
+        var translationStdDev = multitagTranslationStdDevCoefficient * distance;
+        var rotationStdDev = multitagRotationStdDevCoefficient * distance;
 
         return VecBuilder.fill(translationStdDev, translationStdDev, rotationStdDev);
     }
