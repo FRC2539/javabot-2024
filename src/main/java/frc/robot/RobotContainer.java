@@ -152,7 +152,7 @@ public class RobotContainer {
 
         rightDriveController
                 .getTrigger()
-                .whileTrue(ampScoreCommand());//stoppedShootAndAimCommand());
+                .whileTrue(stoppedShootAndAimCommand());
         rightDriveController
                 .nameTrigger("Shoot");
 
@@ -251,6 +251,7 @@ public class RobotContainer {
     }
 
     public Command ampScoreCommand() {
+        //Create new command to drive to postition in front 
         DriveToPositionCommand driveToPosition = new DriveToPositionCommand(swerveDriveSubsystem, FieldConstants.getAmpPose().plus(new Transform2d(1, 0, new Rotation2d())), false);
         Debouncer debouncer = new Debouncer(0.5);
         return Commands.parallel(driveToPosition, shooterSubsystem.ampCommand(), Commands.waitUntil(() -> debouncer.calculate(driveToPosition.atGoal())).andThen(intakeSubsystem.shootCommand()));
