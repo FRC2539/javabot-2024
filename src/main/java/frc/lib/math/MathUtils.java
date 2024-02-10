@@ -32,4 +32,10 @@ public class MathUtils {
             this.thing = thing;
         }
     }
+
+    public static double accomidateOverflow(double oldRotations, double newRotations, double period) {
+        // weird ((x % b) + b) % b to get modulo instead of remainder
+        double result = (((newRotations - oldRotations) % period) + period) % period;
+        return ((result > period / 2) ? result - period : result) + oldRotations;
+    }
 }

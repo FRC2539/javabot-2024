@@ -56,7 +56,7 @@ public final class Constants {
         public static final double gearRatioRoller = 1;
         public static final double momentOfInertiaRoller = 1;
 
-        public static final double gearRatioPivot = 1;
+        public static final double gearRatioPivot = 12;
         public static final double momentOfInertiaPivot = 1;
         public static final double comPivot = 1;
         public static final double massPivot = 1;

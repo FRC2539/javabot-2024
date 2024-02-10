@@ -183,7 +183,7 @@ public class RobotContainer {
                 .whileTrue(shooterSubsystem.shootCommand(() -> new ShooterState(
                     topRollerSpeedTunable.getDouble(),
                     bottomRollerSpeedTunable.getDouble(),
-                    pivotAngleTunable.getDouble(),
+                    Rotation2d.fromDegrees(pivotAngleTunable.getDouble()),
                     isVoltageBasedTunable.getBoolean())));
 
         rightDriveController.sendButtonNamesToNT();
