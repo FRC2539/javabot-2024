@@ -2,6 +2,8 @@ package frc.robot;
 
 import static edu.wpi.first.wpilibj2.command.Commands.*;
 
+import java.sql.Array;
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
@@ -258,6 +260,23 @@ public class RobotContainer {
 
     public Command sourceIntakeCommand() {
         DriveToPositionCommand driveToPosition = new DriveToPositionCommand(swerveDriveSubsystem, FieldConstants.getSourcePose().plus(new Transform2d(1, 0, new Rotation2d())), false);
+        Debouncer debouncer = new Debouncer(0.5);
+        return Commands.parallel(driveToPosition);
+    }
+
+    public Command trapScoringCommand() {
+        ArrayList<Pose2d> trapPoses = new ArrayList<Pose2d>();
+        trapPoses.add(FieldConstants.getPoseFromTag(FieldConstants.getTrap1Tag()));
+        trapPoses.add(FieldConstants.getPoseFromTag(FieldConstants.getTrap2Tag()));
+        trapPoses.add(FieldConstants.getPoseFromTag(FieldConstants.getTrap3Tag()));
+
+        Supplier<Pose2d> getNearestPose = () -> {
+            Pose2d currentPose = swerveDriveSubsystem.getPose();
+
+            return currentPose.nearest(trapPoses).plus(new Transform2d(1, 0, new Rotation2d()));
+        };
+
+        DriveToPositionCommand driveToPosition = new DriveToPositionCommand(swerveDriveSubsystem, getNearestPose, false);
         Debouncer debouncer = new Debouncer(0.5);
         return Commands.parallel(driveToPosition);
     }
