@@ -22,6 +22,7 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -32,6 +33,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.lib.logging.Logger;
 import frc.lib.math.MathUtils;
+import frc.lib.math.MathUtils.AnyContainer;
 import frc.robot.Constants;
 import frc.robot.commands.DriveToPositionCommand;
 
@@ -246,6 +248,43 @@ public class SwerveDriveSubsystem extends SwerveDrivetrain implements Subsystem 
         Logger.log("/SwerveDriveSubsystem/DirectionCommand/AtAngle", result);
 
         return result;
+    }
+
+    public Command drivePredictionCommand(DoubleSupplier forward, DoubleSupplier strafe, DoubleSupplier rotation) {
+        
+        Supplier<Command> test = () -> {
+            final double aheadPlanningDistance = 2;
+
+        Translation2d direction = new Translation2d(forward.getAsDouble(), strafe.getAsDouble());
+
+        Translation2d normDirection = direction.div(direction.getNorm()).times(aheadPlanningDistance);
+
+        Pose2d targetPose = new Pose2d(getPose().getTranslation().plus(normDirection), getRotation().plus(new Rotation2d(rotation.getAsDouble() * 1)));
+
+        PathConstraints constraints = new PathConstraints(
+        5, 5.0,
+        Math.PI * 3, Math.PI * 4);
+
+
+        Command pathfindingCommand = AutoBuilder.pathfindToPose(
+            targetPose,
+            constraints,
+        0, // Goal end velocity in meters/sec
+        0.0 // Rotation delay distance in meters. This is how far the robot should travel before attempting to rotate.
+        );
+
+        return Commands.either(
+            new DriveToPositionCommand(this, targetPose), 
+            pathfindingCommand.andThen(new DriveToPositionCommand(this, targetPose)), 
+            () -> targetPose.getTranslation().getDistance(getPose().getTranslation()) < .5);
+        };
+
+        AnyContainer<Command> runnableComand = new AnyContainer<Command>(run(() -> {}));
+
+        return Commands.runOnce(() -> {
+            runnableComand.thing = test.get();
+            runnableComand.thing.schedule();
+        }).andThen(Commands.waitSeconds(.25)).repeatedly().finallyDo(() -> runnableComand.thing.cancel());
     }
 
     public Command pathfindToPoseCommand(Pose2d targetPose) {
