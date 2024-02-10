@@ -13,6 +13,7 @@ import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -29,7 +30,6 @@ import frc.robot.Constants.ControllerConstants;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.commands.DriveToPositionCommand;
 import frc.robot.subsystems.intake.IntakeIOFalconRedline;
-import frc.robot.subsystems.intake.IntakeIOFalconRedlineDupe;
 import frc.robot.subsystems.intake.IntakeIOSim;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.lights.LightsIOBlinkin;
@@ -269,11 +269,23 @@ public class RobotContainer {
 
     public Command autoIntakeCommand() {
         final double speed = 1;
-        Supplier<Rotation2d> angleOfGamepiece = () -> new Rotation2d(); 
+        final LinearFilter myFilter = LinearFilter.singlePoleIIR(0.1,0.02);
+        Supplier<Rotation2d> angleOfGamepiece = () -> {if(visionSubsystem.getDetectorInfo().isPresent())
+                                                            return Rotation2d.fromDegrees(visionSubsystem.getDetectorInfo().get().tx());
+                                                        else
+                                                            return new Rotation2d();};
+
+        Supplier<Rotation2d> absoluteTargetAngle = () -> Rotation2d.fromRotations(myFilter.calculate(angleOfGamepiece.get().plus(swerveDriveSubsystem.getRotation()).getRotations()));
         ProfiledPIDController omegaController = 
             new ProfiledPIDController(0, 0, 0, new TrapezoidProfile.Constraints(0, 0));
-        DoubleSupplier forward = () -> angleOfGamepiece.get().getCos() * speed;
-        DoubleSupplier strafe = () -> angleOfGamepiece.get().getSin() * speed;
+        DoubleSupplier forward = () -> {if(visionSubsystem.getDetectorInfo().isPresent()) 
+                                            return absoluteTargetAngle.get().getCos() * speed;
+                                        else
+                                            return 0;};
+        DoubleSupplier strafe = () -> {if(visionSubsystem.getDetectorInfo().isPresent())
+                                            return absoluteTargetAngle.get().getSin() * speed;
+                                        else
+                                            return 0;};
 
         return swerveDriveSubsystem.directionCommand(angleOfGamepiece, forward, strafe, omegaController);
     }
