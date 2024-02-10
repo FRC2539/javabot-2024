@@ -56,7 +56,7 @@ public final class Constants {
         public static final double gearRatioRoller = 1;
         public static final double momentOfInertiaRoller = 1;
 
-        public static final double gearRatioPivot = 1;
+        public static final double gearRatioPivot = 12;
         public static final double momentOfInertiaPivot = 1;
         public static final double comPivot = 1;
         public static final double massPivot = 1;
@@ -226,6 +226,10 @@ public final class Constants {
         public static int getAmpTag() {
             return isBlue() ? 6 : 5;
         }
+
+        public static Pose2d getPoseFromTag(int tag){
+            return aprilTagFieldLayout.getTagPose(tag).get().toPose2d();
+        }
         
         public static Pose2d getSourcePose() {
             //returns the position immedialey between the two tags
@@ -240,6 +244,35 @@ public final class Constants {
 
         public static int getRightSourceTag() {
             return isBlue() ? 1 : 9;
+        }
+
+        public static Pose2d getTrapPose() {
+            if(aprilTagFieldLayout.getTagPose(getTrap1Tag()).get().toPose2d() == null){
+
+                if(aprilTagFieldLayout.getTagPose(getTrap2Tag()).get().toPose2d() == null){
+                    
+                    return aprilTagFieldLayout.getTagPose(getTrap3Tag()).get().toPose2d();
+                }
+                else{
+                    
+                    return aprilTagFieldLayout.getTagPose(getTrap2Tag()).get().toPose2d();
+                }
+            }
+            else{
+                return aprilTagFieldLayout.getTagPose(getTrap1Tag()).get().toPose2d();
+            }
+        }
+
+        public static int getTrap1Tag() {
+            return isBlue() ? 12 : 15;
+        }
+
+        public static int getTrap2Tag() {
+            return isBlue() ? 13 : 14;
+        }
+
+        public static int getTrap3Tag() {
+            return isBlue() ? 11 : 16;
         }
 
         public static boolean isBlue() {

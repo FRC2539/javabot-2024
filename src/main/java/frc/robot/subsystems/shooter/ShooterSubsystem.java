@@ -5,6 +5,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib.interpolation.InterpolatableDouble;
 import frc.lib.interpolation.InterpolatingMap;
@@ -31,9 +33,12 @@ public class ShooterSubsystem extends SubsystemBase {
     private RollerIOInputs bottomRollerInputs = new RollerIOInputs();
     private PivotIOInputs pivotInputs = new PivotIOInputs();
 
-    private final ShooterState defaultState = new ShooterState(0,0,0);
+    private final ShooterState defaultState = new ShooterState(0,0,new Rotation2d(), true);
 
     private ShooterState currentShooterState = defaultState;
+
+    private boolean inZeroingMode = true;
+    private Timer zeroingTimer = new Timer();
 
     public ShooterSubsystem(RollerIO topRollerIO, RollerIO bottomRollerIO, PivotIO pivotIO, InterpolatingMap<InterpolatableDouble> topRollerMap, InterpolatingMap<InterpolatableDouble> bottomRollerMap, InterpolatingMap<InterpolatableDouble> pivotAngleMap) {
         this.topRollerIO = topRollerIO;
@@ -51,11 +56,23 @@ public class ShooterSubsystem extends SubsystemBase {
         return new ShooterState(
             topRollerMap.getInterpolated(distance).get().value,
             bottomRollerMap.getInterpolated(distance).get().value,
-            pivotAngleMap.getInterpolated(distance).get().value
+            Rotation2d.fromDegrees(pivotAngleMap.getInterpolated(distance).get().value)
         );
     }
 
     public void periodic() {
+        if (inZeroingMode) {
+            if (!zeroingTimer.hasElapsed(0.5)) {
+                pivotIO.setVoltage(1);
+                zeroingTimer.start();
+            } else {
+                pivotIO.setVoltage(0);
+                pivotIO.updateAngle(new Rotation2d(1));
+                inZeroingMode = false;
+            }
+            return;
+        }
+
         updateShooterStateForDistance(currentDistance);
         topRollerIO.updateInputs(topRollerInputs);
         bottomRollerIO.updateInputs(bottomRollerInputs);
@@ -80,7 +97,7 @@ public class ShooterSubsystem extends SubsystemBase {
             MathUtils.equalsWithinError(
                 currentShooterState.bottomRollerRPM, bottomRollerInputs.speed, shooterSpeedTolerance) && 
             MathUtils.equalsWithinError(
-                currentShooterState.pivotAngle, pivotInputs.currentAngle, shooterAngleTolerance);
+                currentShooterState.pivotAngle.getRadians(), pivotInputs.currentAngle.getRadians(), shooterAngleTolerance);
     }
 
     public Command disabledCommand() {
@@ -89,7 +106,7 @@ public class ShooterSubsystem extends SubsystemBase {
         });
     }
 
-    public Command shootCommand(double topRollerRPM, double bottomRollerRPM, double shooterAngle) {
+    public Command shootCommand(double topRollerRPM, double bottomRollerRPM, Rotation2d shooterAngle) {
         return run(() -> {
             currentShooterState = new ShooterState(topRollerRPM, bottomRollerRPM, shooterAngle);
         });
@@ -120,18 +137,18 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public Command ampCommand(){
-        return shootCommand(new ShooterState(0 ,0 ,0));
+        return shootCommand(new ShooterState(0 ,0 , new Rotation2d()));
     }
 
     public void logShooterInformation() {
         Logger.log("/ShooterSubsystem/topRollerSpeedSetpoint", currentShooterState.topRollerRPM);
         Logger.log("/ShooterSubsystem/bottomRollerSpeedSetpoint", currentShooterState.bottomRollerRPM);
-        Logger.log("/ShooterSubsystem/shooterPositionSetpoint", currentShooterState.pivotAngle);
+        Logger.log("/ShooterSubsystem/shooterPositionSetpoint", currentShooterState.pivotAngle.getRadians());
         Logger.log("/ShooterSubsystem/shooterDistanceSetpoint", currentDistance);
 
         Logger.log("/ShooterSubsystem/topRollerSpeed", topRollerInputs.speed);
         Logger.log("/ShooterSubsystem/bottomRollerSpeed", bottomRollerInputs.speed);
-        Logger.log("/ShooterSubsystem/shooterPosition", pivotInputs.currentAngle);
+        Logger.log("/ShooterSubsystem/shooterPosition", pivotInputs.currentAngle.getRadians());
         Logger.log("/ShooterSubsystem/isAtAngle", pivotInputs.atTarget);
 
         Logger.log("/ShooterSubsystem/isAtPosition", isShooterAtPosition());
