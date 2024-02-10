@@ -1,16 +1,17 @@
 package frc.robot.subsystems.lights;
 
+import frc.lib.math.MathUtils;
+
 public interface LightsIO {
 
-    public void setPattern(Pattern pattern);
+    public void setAnimation(Animation animation);
 
-    // The LightsIO class has no LightsIOInputs because there are no inputs
+    public static class Animation {
+        public double speed;
 
-    public static class Pattern {
-        public double PWMValue;
-
-        public Pattern(double PWMValue) {
-            this.PWMValue = PWMValue;
+        public Animation(double speed) {
+            this.speed = speed;
         }
     }
+
 }

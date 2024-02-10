@@ -17,6 +17,7 @@ import frc.robot.Constants.ControllerConstants;
 import frc.robot.subsystems.intake.IntakeIOFalconRedlineDupe;
 import frc.robot.subsystems.intake.IntakeIOSim;
 import frc.robot.subsystems.intake.IntakeSubsystem;
+import frc.robot.subsystems.lights.LightsIO;
 import frc.robot.subsystems.lights.LightsIOCANdle;
 import frc.robot.subsystems.lights.LightsIOSim;
 import frc.robot.subsystems.lights.LightsSubsystem;
@@ -46,12 +47,14 @@ public class RobotContainer {
     private VisionSubsystem visionSubsystem;
     private IntakeSubsystem intakeSubsystem;
 
+    private LightsIOCANdle lightsIOCANdle;
+
     public AutonomousManager autonomousManager;
 
     public RobotContainer(TimedRobot robot) {
         if (Robot.isReal()) {
             swerveDriveSubsystem = TunerConstants.DriveTrain;
-            lightsSubsystem = new LightsSubsystem(new LightsIOCANdle(0));
+            lightsSubsystem = new LightsSubsystem(lightsIOCANdle);
             AprilTagIO leftCamera;
             AprilTagIO rightCamera;
             PositionTargetIO limelight;

@@ -10,6 +10,7 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.util.Color;
 
 import java.util.Arrays;
 
@@ -37,6 +38,16 @@ public final class Constants {
 
     public static final class LightsConstants {
         public static final int CANDLE_PORT = 0; //random ID
+
+        //Team colors
+        public static final Color orange = new Color(255, 25, 0);
+        public static final Color black = new Color(0, 0, 0);
+
+        // Indicator colors
+        public static final Color white = new Color(255, 230, 220);
+        public static final Color green = new Color(56, 209, 0);
+        public static final Color blue = new Color(8, 32, 255);
+        public static final Color red = new Color(255, 0, 0);
     }
 
     public static final class IntakeConstants {
