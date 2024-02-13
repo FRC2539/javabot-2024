@@ -189,12 +189,13 @@ public class RobotContainer {
                     topRollerSpeedTunable.getDouble(),
                     bottomRollerSpeedTunable.getDouble(),
                     Rotation2d.fromDegrees(pivotAngleTunable.getDouble()),
-                    isVoltageBasedTunable.getBoolean())));
+                    isVoltageBasedTunable.getBoolean(),
+                    false)));
 
         operatorController.getDPadUp().whileTrue(shooterSubsystem.shootCommand(ShooterState.fromVoltages(0, 0, -.6)));
         operatorController.getDPadDown().whileTrue(shooterSubsystem.shootCommand(ShooterState.fromVoltages(0, 0, .6)));
         
-        operatorController.getA().onTrue(Commands.runOnce(() -> shooterSubsystem.inZeroingMode = true));
+        operatorController.getA().onTrue(Commands.runOnce(() -> shooterSubsystem.zeroShooterAngleCommand(Rotation2d.fromDegrees(90-20))));
 
         rightDriveController.sendButtonNamesToNT();
         leftDriveController.sendButtonNamesToNT();

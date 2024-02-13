@@ -8,25 +8,31 @@ public class ShooterState implements Interpolatable<ShooterState> {
     public double bottomRollerRPM;
     public Rotation2d pivotAngle;
     public boolean isVoltageBased;
+    public boolean isAngleVoltageBased;
 
-    public ShooterState(double topRollerRPM, double bottomRollerRPM, Rotation2d shooterAngle, boolean isVoltageBased) {
+    public ShooterState(double topRollerRPM, double bottomRollerRPM, Rotation2d shooterAngle, boolean isVoltageBased, boolean isAngleVoltageBased) {
         this.topRollerRPM = topRollerRPM;
         this.bottomRollerRPM = bottomRollerRPM;
         this.pivotAngle = shooterAngle;       
         this.isVoltageBased = isVoltageBased;
+        this.isAngleVoltageBased = isAngleVoltageBased;
     }
 
     public ShooterState(double topRollerRPM, double bottomRollerRPM, Rotation2d shooterAngle) {
-        this(topRollerRPM, bottomRollerRPM, shooterAngle, false);
+        this(topRollerRPM, bottomRollerRPM, shooterAngle, false, false);
     }
 
-    public static ShooterState fromVoltages(double topRollerVoltage, double bottomRollerVoltage, double shooterAngle) {
-        return new ShooterState(topRollerVoltage, bottomRollerVoltage, Rotation2d.fromRotations(shooterAngle), true);
+    public static ShooterState fromVoltages(double topRollerVoltage, double bottomRollerVoltage, Rotation2d shooterAngle) {
+        return new ShooterState(topRollerVoltage, bottomRollerVoltage, shooterAngle, true, false);
+    }
+
+    public static ShooterState fromVoltages(double topRollerVoltage, double bottomRollerVoltage, double shooterVoltage) {
+        return new ShooterState(topRollerVoltage, bottomRollerVoltage, Rotation2d.fromRotations(shooterVoltage), true, true);
     }
 
 
     public ShooterState() {
-        this(0, 0, new Rotation2d(), false);
+        this(0, 0, new Rotation2d(), false, true);
     }
 
     @Override

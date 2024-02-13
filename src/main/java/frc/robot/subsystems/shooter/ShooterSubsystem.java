@@ -6,7 +6,6 @@ import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib.interpolation.InterpolatableDouble;
 import frc.lib.interpolation.InterpolatingMap;
@@ -32,12 +31,9 @@ public class ShooterSubsystem extends SubsystemBase {
     private RollerIOInputs bottomRollerInputs = new RollerIOInputs();
     private PivotIOInputs pivotInputs = new PivotIOInputs();
 
-    private final ShooterState defaultState = new ShooterState(0,0, new Rotation2d(), true);
+    private final ShooterState defaultState = new ShooterState(0,0, new Rotation2d(), true, true);
 
     private ShooterState currentShooterState = defaultState;
-
-    public boolean inZeroingMode = false;
-    private Timer zeroingTimer = new Timer();
 
     public ShooterSubsystem(RollerIO topRollerIO, RollerIO bottomRollerIO, PivotIO pivotIO, InterpolatingMap<InterpolatableDouble> topRollerMap, InterpolatingMap<InterpolatableDouble> bottomRollerMap, InterpolatingMap<InterpolatableDouble> pivotAngleMap) {
         this.topRollerIO = topRollerIO;
@@ -61,17 +57,8 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public void periodic() {
         logShooterInformation();
-        if (inZeroingMode) {
-            if (!zeroingTimer.hasElapsed(4)) {
-                pivotIO.setVoltage(-1);
-                zeroingTimer.start();
-            } else {
-                pivotIO.setVoltage(0);
-                pivotIO.updateAngle(new Rotation2d(1));
-                inZeroingMode = false;
-            }
-            return;
-        }
+
+        
 
         updateShooterStateForDistance(currentDistance);
         topRollerIO.updateInputs(topRollerInputs);
@@ -87,6 +74,11 @@ public class ShooterSubsystem extends SubsystemBase {
             bottomRollerIO.setVoltage(currentShooterState.bottomRollerRPM * 12);
             pivotIO.setAngle(currentShooterState.pivotAngle);
         }
+    }
+
+
+    public Command zeroShooterAngleCommand(Rotation2d angle) {
+        return runOnce(() -> pivotIO.updateAngle(angle));
     }
 
     /** NOTE: This does not work with voltage requests as there is no "SPEED" */
@@ -148,6 +140,7 @@ public class ShooterSubsystem extends SubsystemBase {
         Logger.log("/ShooterSubsystem/topRollerSpeed", topRollerInputs.speed);
         Logger.log("/ShooterSubsystem/bottomRollerSpeed", bottomRollerInputs.speed);
         Logger.log("/ShooterSubsystem/shooterPosition", pivotInputs.currentAngle.getRadians());
+        Logger.log("/ShooterSubsystem/shooterPositionDegrees", pivotInputs.currentAngle.getDegrees());
         Logger.log("/ShooterSubsystem/isAtAngle", pivotInputs.atTarget);
 
         Logger.log("/ShooterSubsystem/isAtPosition", isShooterAtPosition());

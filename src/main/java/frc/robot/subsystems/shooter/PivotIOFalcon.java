@@ -48,7 +48,9 @@ public class PivotIOFalcon implements PivotIO {
 
     public void updateAngle(Rotation2d angle) {
         lastEncoderAngle = angle.getRotations() * ShooterConstants.gearRatioPivot;
-        encoder.setPositionOffset(encoder.getAbsolutePosition() - angle.getRotations() * ShooterConstants.gearRatioPivot % 1);
+        encoder.setPositionOffset(0);
+        // plus 100 because the number of rotations should never ever get that high
+        encoder.setPositionOffset((encoder.getAbsolutePosition() - angle.getRotations() * ShooterConstants.gearRatioPivot + 100) % 1);
     }
 
     private double getGripperEncoderAngle() {
