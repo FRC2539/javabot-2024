@@ -169,15 +169,41 @@
               "_glyph": 122,
               "_showGlyph": true
             }
+          },
+          "4,0": {
+            "size": [
+              1,
+              1
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///ShooterSubsystem/bottomTunable",
+              "_title": "/ShooterSubsystem/bottomTunable",
+              "_glyph": 148,
+              "_showGlyph": false
+            }
+          },
+          "5,0": {
+            "size": [
+              1,
+              1
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///ShooterSubsystem/topTunable",
+              "_title": "/ShooterSubsystem/topTunable",
+              "_glyph": 148,
+              "_showGlyph": false
+            }
           }
         }
       }
     }
   ],
   "windowGeometry": {
-    "x": -0.800000011920929,
-    "y": 2.4000000953674316,
-    "width": 1541.5999755859375,
-    "height": 571.2000122070312
+    "x": 78.4000015258789,
+    "y": 141.60000610351562,
+    "width": 1392.0,
+    "height": 572.0
   }
 }

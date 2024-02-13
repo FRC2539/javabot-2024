@@ -28,16 +28,15 @@ public class ShooterSubsystem extends SubsystemBase {
     private final InterpolatingMap<InterpolatableDouble> topRollerMap;
     private final InterpolatingMap<InterpolatableDouble> bottomRollerMap;
     private final InterpolatingMap<InterpolatableDouble> pivotAngleMap;
-    
     private RollerIOInputs topRollerInputs = new RollerIOInputs();
     private RollerIOInputs bottomRollerInputs = new RollerIOInputs();
     private PivotIOInputs pivotInputs = new PivotIOInputs();
 
-    private final ShooterState defaultState = new ShooterState(0,0,new Rotation2d(), true);
+    private final ShooterState defaultState = new ShooterState(0,0, new Rotation2d(), true);
 
     private ShooterState currentShooterState = defaultState;
 
-    private boolean inZeroingMode = true;
+    public boolean inZeroingMode = false;
     private Timer zeroingTimer = new Timer();
 
     public ShooterSubsystem(RollerIO topRollerIO, RollerIO bottomRollerIO, PivotIO pivotIO, InterpolatingMap<InterpolatableDouble> topRollerMap, InterpolatingMap<InterpolatableDouble> bottomRollerMap, InterpolatingMap<InterpolatableDouble> pivotAngleMap) {
@@ -61,9 +60,10 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public void periodic() {
+        logShooterInformation();
         if (inZeroingMode) {
-            if (!zeroingTimer.hasElapsed(0.5)) {
-                pivotIO.setVoltage(1);
+            if (!zeroingTimer.hasElapsed(4)) {
+                pivotIO.setVoltage(-1);
                 zeroingTimer.start();
             } else {
                 pivotIO.setVoltage(0);
@@ -77,15 +77,14 @@ public class ShooterSubsystem extends SubsystemBase {
         topRollerIO.updateInputs(topRollerInputs);
         bottomRollerIO.updateInputs(bottomRollerInputs);
         pivotIO.updateInputs(pivotInputs);
-        logShooterInformation();
 
         if (currentShooterState.isVoltageBased) {
-            topRollerIO.setVoltage(currentShooterState.topRollerRPM);
-            bottomRollerIO.setVoltage(currentShooterState.bottomRollerRPM);
-            pivotIO.setAngle(currentShooterState.pivotAngle);
+            topRollerIO.setVoltage(currentShooterState.topRollerRPM * 12);
+            bottomRollerIO.setVoltage(currentShooterState.bottomRollerRPM * 12);
+            pivotIO.setVoltage(currentShooterState.pivotAngle.getRotations());
         } else {
-            topRollerIO.setSpeed(currentShooterState.topRollerRPM);
-            bottomRollerIO.setSpeed(currentShooterState.bottomRollerRPM);
+            topRollerIO.setVoltage(currentShooterState.topRollerRPM * 12);
+            bottomRollerIO.setVoltage(currentShooterState.bottomRollerRPM * 12);
             pivotIO.setAngle(currentShooterState.pivotAngle);
         }
     }

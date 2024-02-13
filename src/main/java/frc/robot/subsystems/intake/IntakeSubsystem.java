@@ -21,8 +21,8 @@ public class IntakeSubsystem extends SubsystemBase {
 
         setDefaultCommand(Commands.either(
             moveCommand()
-                .andThen(reverseMoveCommand().withTimeout(.5)
-                .andThen(moveCommand().withTimeout(0.5))), 
+                .andThen(reverseMoveCommand().withTimeout(.4)),
+                //.andThen(moveCommand().withTimeout(0.0))), 
             disabledCommand(), 
             () -> state == IntakeState.INTAKING));
     }
@@ -39,6 +39,8 @@ public class IntakeSubsystem extends SubsystemBase {
     public void periodic() {
         intakeIO.updateInputs(inputs);
 
+        //Roller moves 4 times as fast as chamber
+
         switch (state) {
             case DISABLED:
                 setChamber(0);
@@ -46,23 +48,23 @@ public class IntakeSubsystem extends SubsystemBase {
                 break;
             case EJECTING:
                 setChamber(-1);
-                setRoller(-1);
+                setRoller(-.25);
                 break;
             case SHOOTING:
                 setChamber(1);
                 setRoller(0);
                 break;
             case MOVING:
-                setChamber(.25);
-                setRoller(.25);
+                setChamber(1);
+                setRoller(1);
                 break;
             case MOVING_REVERSE:
-                setChamber(-.25);
-                setRoller(-.25);
+                setChamber(-.20);
+                setRoller(-.05);
                 break;
             case INTAKING:
                 setChamber(1);
-                setRoller(1);
+                setRoller(.25);
                 break;
         }
 
@@ -97,7 +99,7 @@ public class IntakeSubsystem extends SubsystemBase {
         Command intakeCommand = runEnd(() -> {
             setIntakeState(IntakeState.INTAKING);
         }, () -> {}).until(() -> getRollerSensor())
-        .andThen(waitSeconds(.2))
+        .andThen(waitSeconds(0))
         .until(() -> getChamberSensor());
 
         return intakeCommand;
@@ -106,7 +108,7 @@ public class IntakeSubsystem extends SubsystemBase {
     public Command moveCommand() {
         return runEnd(() -> {
             setIntakeState(IntakeState.MOVING);
-        }, () -> {}).until(() -> getRollerSensor()).withTimeout(3);
+        }, () -> {}).until(() -> getRollerSensor()).withTimeout(.2);
     }
     public Command manualMoveCommand() {
         return runEnd(() -> {

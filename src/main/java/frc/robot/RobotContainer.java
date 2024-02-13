@@ -30,6 +30,7 @@ import frc.lib.logging.LoggedReceiver;
 import frc.lib.logging.Logger;
 import frc.robot.Constants.ControllerConstants;
 import frc.robot.Constants.FieldConstants;
+import frc.robot.Constants.ShooterConstants;
 import frc.robot.commands.DriveToPositionCommand;
 import frc.robot.subsystems.intake.IntakeIOFalconRedline;
 import frc.robot.subsystems.intake.IntakeIOSim;
@@ -37,7 +38,9 @@ import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.lights.LightsIOBlinkin;
 import frc.robot.subsystems.lights.LightsIOSim;
 import frc.robot.subsystems.lights.LightsSubsystem;
+import frc.robot.subsystems.shooter.PivotIOFalcon;
 import frc.robot.subsystems.shooter.PivotIOSim;
+import frc.robot.subsystems.shooter.RollerIOFalcon;
 import frc.robot.subsystems.shooter.RollerIOSim;
 import frc.robot.subsystems.shooter.ShooterState;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
@@ -74,7 +77,7 @@ public class RobotContainer {
         if (Robot.isReal()) {
             swerveDriveSubsystem = TunerConstants.DriveTrain;
             lightsSubsystem = new LightsSubsystem(new LightsIOBlinkin(0));
-            shooterSubsystem = new ShooterSubsystem(new RollerIOSim(), new RollerIOSim(), new PivotIOSim(), Constants.ShooterConstants.topRollerMap(), Constants.ShooterConstants.bottomRollerMap(), Constants.ShooterConstants.shooterAngleMap());
+            shooterSubsystem = new ShooterSubsystem(new RollerIOFalcon(ShooterConstants.topShooterPort), new RollerIOFalcon(ShooterConstants.bottomShooterPort), new PivotIOFalcon(), Constants.ShooterConstants.topRollerMap(), Constants.ShooterConstants.bottomRollerMap(), Constants.ShooterConstants.shooterAngleMap());
             
             AprilTagIO leftCamera;
             AprilTagIO rightCamera;
@@ -176,8 +179,8 @@ public class RobotContainer {
         leftDriveController
                 .nameTrigger("Aim");
         
-        LoggedReceiver topRollerSpeedTunable = Logger.tunable("/ShooterSubsystem/topTunable", 0d);
-        LoggedReceiver bottomRollerSpeedTunable = Logger.tunable("/ShooterSubsystem/bottomTunable", 0d);
+        LoggedReceiver topRollerSpeedTunable = Logger.tunable("/ShooterSubsystem/topTunable", -.6d);
+        LoggedReceiver bottomRollerSpeedTunable = Logger.tunable("/ShooterSubsystem/bottomTunable", -.6d);
         LoggedReceiver pivotAngleTunable = Logger.tunable("/ShooterSubsystem/pivotTunable", 0d);
         LoggedReceiver isVoltageBasedTunable = Logger.tunable("/ShooterSubsystem/voltageTunable", true);
         leftDriveController
@@ -187,6 +190,11 @@ public class RobotContainer {
                     bottomRollerSpeedTunable.getDouble(),
                     Rotation2d.fromDegrees(pivotAngleTunable.getDouble()),
                     isVoltageBasedTunable.getBoolean())));
+
+        operatorController.getDPadUp().whileTrue(shooterSubsystem.shootCommand(ShooterState.fromVoltages(0, 0, -.6)));
+        operatorController.getDPadDown().whileTrue(shooterSubsystem.shootCommand(ShooterState.fromVoltages(0, 0, .6)));
+        
+        operatorController.getA().onTrue(Commands.runOnce(() -> shooterSubsystem.inZeroingMode = true));
 
         rightDriveController.sendButtonNamesToNT();
         leftDriveController.sendButtonNamesToNT();

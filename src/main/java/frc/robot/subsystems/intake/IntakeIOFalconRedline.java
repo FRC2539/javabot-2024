@@ -40,7 +40,7 @@ public class IntakeIOFalconRedline implements IntakeIO{
 
     public void setChamberSpeed(double speed) {
         chamberSpeed = speed;
-        chamberMotor.set(percentMaxOutput * speed * 4);
+        chamberMotor.set(percentMaxOutput * speed);
     }
 
 }

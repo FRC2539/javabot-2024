@@ -11,6 +11,7 @@ import frc.lib.math.MathUtils;
 import frc.robot.Constants;
 import frc.robot.Constants.ShooterConstants;
 
+
 public class PivotIOFalcon implements PivotIO {
     private TalonFX pivotMotor;
     private MotionMagicDutyCycle control = new MotionMagicDutyCycle(0);
@@ -22,6 +23,8 @@ public class PivotIOFalcon implements PivotIO {
 
     public PivotIOFalcon() {
         pivotMotor = new TalonFX(Constants.ShooterConstants.pivotPort, "CANivore");
+        encoder = new DutyCycleEncoder(0);
+        encoder.setPositionOffset(0);
         FeedbackConfigs feedbackConfigs  = new FeedbackConfigs();
         pivotMotor.getConfigurator().refresh(feedbackConfigs);
         feedbackConfigs.SensorToMechanismRatio = Constants.ShooterConstants.gearRatioPivot;
@@ -36,7 +39,7 @@ public class PivotIOFalcon implements PivotIO {
     }
 
     public void setAngle(Rotation2d angle) {
-        pivotMotor.setControl(control.withPosition(angle.getRotations()));
+        //pivotMotor.setControl(control.withPosition(angle.getRotations()));
     }
 
     public void setVoltage(double voltage) {
@@ -45,6 +48,7 @@ public class PivotIOFalcon implements PivotIO {
 
     public void updateAngle(Rotation2d angle) {
         lastEncoderAngle = angle.getRotations() * ShooterConstants.gearRatioPivot;
+        encoder.setPositionOffset(encoder.getAbsolutePosition() - angle.getRotations() * ShooterConstants.gearRatioPivot % 1);
     }
 
     private double getGripperEncoderAngle() {
