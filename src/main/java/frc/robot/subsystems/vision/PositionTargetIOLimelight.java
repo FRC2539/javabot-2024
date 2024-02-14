@@ -7,13 +7,16 @@ import frc.lib.logging.LoggedReceiver;
 import frc.lib.logging.Logger;
 
 public class PositionTargetIOLimelight implements PositionTargetIO {
-    LoggedReceiver tx = Logger.receive("/limelight/tx", 0.0d);
-    LoggedReceiver ty = Logger.receive("/limelight/ty", 0.0d);
-    LoggedReceiver tl = Logger.receive("/limelight/cl", 0.0d);
-    LoggedReceiver tv = Logger.receive("/limelight/tv", 0);
+    LoggedReceiver tx;;
+    LoggedReceiver ty;
+    LoggedReceiver tl;
+    LoggedReceiver tv;
 
-    public PositionTargetIOLimelight() {
-        
+    public PositionTargetIOLimelight(String limelightName) {
+        tx = Logger.receive("/" + limelightName + "/tx", 0.0d);
+        ty = Logger.receive("/" + limelightName + "/ty", 0.0d);
+        tl = Logger.receive("/" +limelightName + "/cl", 0.0d);
+        tv = Logger.receive("/" +limelightName + "/tv", 0);
     }
 
     public Optional<PositionTargetIOInputs> updateInputs() {

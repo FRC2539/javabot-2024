@@ -22,6 +22,10 @@ public class ShooterState implements Interpolatable<ShooterState> {
         this(topRollerRPM, bottomRollerRPM, shooterAngle, false, false);
     }
 
+    public ShooterState(double topRollerRPM, double bottomRollerRPM, double shooterVoltage) {
+        this(topRollerRPM, bottomRollerRPM, Rotation2d.fromRotations(shooterVoltage), false, true);
+    }
+
     public static ShooterState fromVoltages(double topRollerVoltage, double bottomRollerVoltage, Rotation2d shooterAngle) {
         return new ShooterState(topRollerVoltage, bottomRollerVoltage, shooterAngle, true, false);
     }

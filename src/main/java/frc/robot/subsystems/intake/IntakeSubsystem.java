@@ -64,7 +64,7 @@ public class IntakeSubsystem extends SubsystemBase {
                 break;
             case INTAKING:
                 setChamber(1);
-                setRoller(.25);
+                setRoller(.50);
                 break;
         }
 

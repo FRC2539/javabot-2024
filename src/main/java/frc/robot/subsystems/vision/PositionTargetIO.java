@@ -10,5 +10,6 @@ public interface PositionTargetIO extends CameraIO<PositionTargetIO.PositionTarg
         public double pitch = 0;
         public double timestamp = 0;
         public double area = 0;
+        public double id = -1;
     }
 }

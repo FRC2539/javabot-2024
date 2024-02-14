@@ -68,11 +68,15 @@ public class ShooterSubsystem extends SubsystemBase {
         if (currentShooterState.isVoltageBased) {
             topRollerIO.setVoltage(currentShooterState.topRollerRPM * 12);
             bottomRollerIO.setVoltage(currentShooterState.bottomRollerRPM * 12);
+        } else {
+            topRollerIO.setSpeed(currentShooterState.topRollerRPM);
+            bottomRollerIO.setSpeed(currentShooterState.bottomRollerRPM);
+        }
+
+        if (currentShooterState.isAngleVoltageBased) {
             pivotIO.setVoltage(currentShooterState.pivotAngle.getRotations());
         } else {
-            topRollerIO.setVoltage(currentShooterState.topRollerRPM * 12);
-            bottomRollerIO.setVoltage(currentShooterState.bottomRollerRPM * 12);
-            pivotIO.setAngle(currentShooterState.pivotAngle);
+            pivotIO.setAngle(Rotation2d.fromDegrees(MathUtils.ensureRange(currentShooterState.pivotAngle.getDegrees(), 20, 55)));
         }
     }
 

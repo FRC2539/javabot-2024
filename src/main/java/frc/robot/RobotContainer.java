@@ -82,6 +82,7 @@ public class RobotContainer {
             AprilTagIO leftCamera;
             AprilTagIO rightCamera;
             PositionTargetIO limelight;
+            PositionTargetIO limelightApriltag;
 
             //This silly thing is so that if a camera doesn't connect, the robot still runs.
             try {
@@ -99,19 +100,27 @@ public class RobotContainer {
                 rightCamera = new AprilTagIOSim();
             }
             try {
-                limelight = new PositionTargetIOLimelight();
-            } catch (Exception e) {
+                limelight = new PositionTargetIOLimelight("limelight-intake");
+            }  catch (Exception e) {
                 System.err.print(e);
                 limelight = new PositionTargetIOSim();
             }
-            visionSubsystem = new VisionSubsystem(swerveDriveSubsystem, leftCamera, rightCamera, limelight);
+            
+            try {
+                limelightApriltag = new PositionTargetIOLimelight("limelight-shooter");
+
+            } catch (Exception e) {
+                System.err.print(e);
+                limelightApriltag = new PositionTargetIOSim();
+            }
+            visionSubsystem = new VisionSubsystem(swerveDriveSubsystem, leftCamera, rightCamera, limelight, limelightApriltag);
             intakeSubsystem = new IntakeSubsystem(new IntakeIOFalconRedline());
         
         } else {
             swerveDriveSubsystem = TunerConstants.DriveTrain;
             lightsSubsystem = new LightsSubsystem(new LightsIOSim());
             shooterSubsystem = new ShooterSubsystem(new RollerIOSim(), new RollerIOSim(), new PivotIOSim(), Constants.ShooterConstants.topRollerMap(), Constants.ShooterConstants.bottomRollerMap(), Constants.ShooterConstants.shooterAngleMap());
-            visionSubsystem = new VisionSubsystem(swerveDriveSubsystem, new AprilTagIOSim(), new AprilTagIOSim(), new PositionTargetIOSim() );
+            visionSubsystem = new VisionSubsystem(swerveDriveSubsystem, new AprilTagIOSim(), new AprilTagIOSim(), new PositionTargetIOSim(),new PositionTargetIOSim() );
             intakeSubsystem = new IntakeSubsystem(new IntakeIOSim());
         }
 
@@ -179,9 +188,9 @@ public class RobotContainer {
         leftDriveController
                 .nameTrigger("Aim");
         
-        LoggedReceiver topRollerSpeedTunable = Logger.tunable("/ShooterSubsystem/topTunable", -.6d);
-        LoggedReceiver bottomRollerSpeedTunable = Logger.tunable("/ShooterSubsystem/bottomTunable", -.6d);
-        LoggedReceiver pivotAngleTunable = Logger.tunable("/ShooterSubsystem/pivotTunable", 0d);
+        LoggedReceiver topRollerSpeedTunable = Logger.tunable("/ShooterSubsystem/topTunable", .7d);
+        LoggedReceiver bottomRollerSpeedTunable = Logger.tunable("/ShooterSubsystem/bottomTunable", .7d);
+        LoggedReceiver pivotAngleTunable = Logger.tunable("/ShooterSubsystem/pivotTunable", 55d);
         LoggedReceiver isVoltageBasedTunable = Logger.tunable("/ShooterSubsystem/voltageTunable", true);
         leftDriveController
                 .getBottomThumb()
@@ -192,10 +201,10 @@ public class RobotContainer {
                     isVoltageBasedTunable.getBoolean(),
                     false)));
 
-        operatorController.getDPadUp().whileTrue(shooterSubsystem.shootCommand(ShooterState.fromVoltages(0, 0, -.6)));
-        operatorController.getDPadDown().whileTrue(shooterSubsystem.shootCommand(ShooterState.fromVoltages(0, 0, .6)));
+        operatorController.getDPadUp().whileTrue(shooterSubsystem.shootCommand(ShooterState.fromVoltages(0, 0, .6)));
+        operatorController.getDPadDown().whileTrue(shooterSubsystem.shootCommand(ShooterState.fromVoltages(0, 0, -.6)));
         
-        operatorController.getA().onTrue(Commands.runOnce(() -> shooterSubsystem.zeroShooterAngleCommand(Rotation2d.fromDegrees(90-20))));
+        operatorController.getA().onTrue(shooterSubsystem.zeroShooterAngleCommand(Rotation2d.fromDegrees(56)));
 
         rightDriveController.sendButtonNamesToNT();
         leftDriveController.sendButtonNamesToNT();
@@ -210,16 +219,18 @@ public class RobotContainer {
         final double angularTolerance = 0.015;
         final double velocityTolerance = 0.01;
 
+        Supplier<Pose2d> getPose = () -> swerveDriveSubsystem.getPose();
+
         BooleanSupplier readyToFire = () -> (swerveDriveSubsystem.isAtDirectionCommand(angularTolerance, velocityTolerance));
 
         ProfiledPIDController controller = new ProfiledPIDController(10, 0, .5, new TrapezoidProfile.Constraints(4.5, 8));
 
-        Command aimAtTag = swerveDriveSubsystem.directionCommand(() -> visionSubsystem.getSpeakerAngle(swerveDriveSubsystem.getPose()), 
+        Command aimAtTag = swerveDriveSubsystem.directionCommand(() -> visionSubsystem.getSpeakerAngle(getPose.get()), 
             () -> 0, () -> 0, controller, true);
 
         
 
-        Command spinUpCommand = shooterSubsystem.shootCommand(() -> visionSubsystem.getSpeakerDistance(swerveDriveSubsystem.getPose()));
+        Command spinUpCommand = shooterSubsystem.shootCommand(() -> visionSubsystem.getSpeakerDistance(getPose.get()));
 
         Command runBeltCommand;
 
@@ -239,6 +250,8 @@ public class RobotContainer {
         BooleanSupplier readyToFire = () -> swerveDriveSubsystem.isAtDirectionCommand(angularTolerance, velocityTolerance);
 
         ProfiledPIDController controller = new ProfiledPIDController(5, 0, .5, new TrapezoidProfile.Constraints(4.5, 8));
+
+        
 
         Command aimAtTag = swerveDriveSubsystem.directionCommand(() -> visionSubsystem.getSpeakerAngle(swerveDriveSubsystem.getPose()), 
             this::getDriveForwardAxis, this::getDriveStrafeAxis, controller);

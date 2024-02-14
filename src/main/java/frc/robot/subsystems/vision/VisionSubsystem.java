@@ -31,20 +31,23 @@ public class VisionSubsystem extends SubsystemBase {
     private AprilTagIO left;
     private AprilTagIO right;
     private PositionTargetIO limelight;
+    private PositionTargetIO limelightApriltag;
 
     private Optional<AprilTagIOInputs> leftInputs = Optional.empty();
     private Optional<AprilTagIOInputs> rightInputs = Optional.empty();
     private Optional<PositionTargetIOInputs> limelightInputs = Optional.empty();
+    private Optional<PositionTargetIOInputs> limelightApriltagInputs = Optional.empty();
 
     public List<PhotonTrackedTarget> leftTargets = new ArrayList<>();
     public List<PhotonTrackedTarget> rightTargets = new ArrayList<>();
 
     private SwerveDriveSubsystem consumer;
 
-    public VisionSubsystem(SwerveDriveSubsystem consumer, AprilTagIO left, AprilTagIO right, PositionTargetIO limelight) {
+    public VisionSubsystem(SwerveDriveSubsystem consumer, AprilTagIO left, AprilTagIO right, PositionTargetIO limelight, PositionTargetIO limelightApriltag) {
         this.left = left;
         this.right = right;
         this.limelight = limelight;
+        this.limelightApriltag = limelightApriltag;
 
         this.consumer = consumer;
     }
@@ -53,6 +56,7 @@ public class VisionSubsystem extends SubsystemBase {
         leftInputs = left.updateInputs();
         rightInputs = right.updateInputs();
         limelightInputs = limelight.updateInputs();
+        limelightApriltagInputs = limelightApriltag.updateInputs();
 
         leftTargets = left.updateTagsInfo();
         rightTargets = right.updateTagsInfo();
@@ -72,6 +76,10 @@ public class VisionSubsystem extends SubsystemBase {
 
     public Optional<LimelightRawAngles> getDetectorInfo() {
         return limelightInputs.map((inputs) -> new LimelightRawAngles(inputs.yaw, inputs.pitch, inputs.area));
+    }
+
+    public Optional<LimelightRawAngles> getTagAngleInfo() {
+        return limelightApriltagInputs.map((inputs) -> new LimelightRawAngles(inputs.yaw, inputs.pitch, inputs.area));
     }
 
     private void addVisionPoseEstimate(Optional<AprilTagIOInputs> inputs) {
@@ -147,16 +155,18 @@ public class VisionSubsystem extends SubsystemBase {
         return VecBuilder.fill(translationStdDev, translationStdDev, rotationStdDev);
     }
 
+    private Rotation2d lastSpeakerAngle = new Rotation2d(0);
     public Rotation2d getSpeakerAngle(Pose2d currentPose) {
-        Optional<PhotonTrackedTarget> speakerTag  = VisionSubsystem.getTagInfo(leftTargets, FieldConstants.getSpeakerTag());
+        Optional<LimelightRawAngles> speakerTag  = getTagAngleInfo();
         if (speakerTag.isPresent()) {
             // TODO: This is not right
-            return currentPose.getRotation().plus(new Rotation2d(-speakerTag.get().getYaw()));
+            lastSpeakerAngle = currentPose.getRotation().plus(Rotation2d.fromDegrees(-speakerTag.get().ty()));
         } else {
-            return FieldConstants.getSpeakerPose().getTranslation().minus(currentPose.getTranslation()).getAngle();
+            //return FieldConstants.getSpeakerPose().getTranslation().minus(currentPose.getTranslation()).getAngle();
         }
-    }
 
+        return lastSpeakerAngle;
+    }
     public double getSpeakerDistance(Pose2d currentPose) {
         Optional<PhotonTrackedTarget> speakerTag  = VisionSubsystem.getTagInfo(leftTargets, FieldConstants.getSpeakerTag());
         if (speakerTag.isPresent()) {
