@@ -2,7 +2,6 @@ package frc.robot.subsystems.shooter;
 
 import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
-import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -36,6 +35,10 @@ public class PivotIOFalcon implements PivotIO {
         slot0Configs.kP = 240;
         slot0Configs.kS = 0.3;
         pivotMotor.getConfigurator().apply(slot0Configs);
+        
+        lastEncoderAngle = Rotation2d.fromDegrees(50).getRotations() * Constants.ShooterConstants.gearRatioPivot;
+        encoder.setPositionOffset(0.0);
+        pivotMotor.setPosition(getGripperEncoderAngle());
     }
 
     public void updateInputs(PivotIOInputs inputs) {
@@ -59,6 +62,8 @@ public class PivotIOFalcon implements PivotIO {
         encoder.setPositionOffset((encoder.getAbsolutePosition() - angle.getRotations() * ShooterConstants.gearRatioPivot + 100) % 1);
 
         pivotMotor.setPosition(getGripperEncoderAngle() / ShooterConstants.gearRatioPivot);
+
+        System.out.println(encoder.getPositionOffset());
     }
 
     private double getGripperEncoderAngle() {

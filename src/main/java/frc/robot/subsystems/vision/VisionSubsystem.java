@@ -11,12 +11,14 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.math.MathUtils;
 import frc.lib.vision.LimelightRawAngles;
 import frc.robot.Constants.FieldConstants;
+import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.swervedrive.SwerveDriveSubsystem;
 import frc.robot.subsystems.vision.AprilTagIO.AprilTagIOInputs;
 import frc.robot.subsystems.vision.PositionTargetIO.PositionTargetIOInputs;
@@ -157,12 +159,19 @@ public class VisionSubsystem extends SubsystemBase {
 
     private Rotation2d lastSpeakerAngle = new Rotation2d(0);
     public Rotation2d getSpeakerAngle(Pose2d currentPose) {
-        Optional<LimelightRawAngles> speakerTag  = getTagAngleInfo();
+        Optional<PhotonTrackedTarget> speakerTag  = VisionSubsystem.getTagInfo(leftTargets, FieldConstants.getSpeakerTag());
         if (speakerTag.isPresent()) {
             // TODO: This is not right
-            lastSpeakerAngle = currentPose.getRotation().plus(Rotation2d.fromDegrees(-speakerTag.get().ty()));
+            double distance = getSpeakerDistance(currentPose);
+            Transform2d transformToCamera = new Transform2d(
+                VisionConstants.robotToLeftCamera.getTranslation().toTranslation2d(), 
+                new Rotation2d(VisionConstants.robotToLeftCamera.getRotation().getZ()));
+            Transform2d transformToGoal = transformToCamera.plus(new Transform2d(distance, 0, Rotation2d.fromRadians(speakerTag.get().getYaw())));
+
+            // Gets that final translation to goal and
+            lastSpeakerAngle = currentPose.getRotation().plus(transformToGoal.getTranslation().getAngle().plus(new Rotation2d(Math.PI)));
         } else {
-            //return FieldConstants.getSpeakerPose().getTranslation().minus(currentPose.getTranslation()).getAngle();
+            //lastSpeakerAngle = FieldConstants.getSpeakerPose().getTranslation().minus(currentPose.getTranslation()).getAngle();
         }
 
         return lastSpeakerAngle;
