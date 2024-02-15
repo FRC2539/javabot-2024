@@ -1,0 +1,43 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 2,
+      "y": 2
+    },
+    "rotation": 0
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "BottomToTop1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "BottomToTop1.5"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "BottomToTop2"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "BottomToTop3"
+          }
+        }
+      ]
+    }
+  },
+  "folder": null,
+  "choreoAuto": false
+}
