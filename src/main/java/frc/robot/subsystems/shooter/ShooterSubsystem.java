@@ -76,13 +76,17 @@ public class ShooterSubsystem extends SubsystemBase {
         if (currentShooterState.isAngleVoltageBased) {
             pivotIO.setVoltage(currentShooterState.pivotAngle.getRotations());
         } else {
-            pivotIO.setAngle(Rotation2d.fromDegrees(MathUtils.ensureRange(currentShooterState.pivotAngle.getDegrees(), 20, 55)));
+            pivotIO.setAngle(Rotation2d.fromDegrees(MathUtils.ensureRange(currentShooterState.pivotAngle.getDegrees(), 20, 52.5)));
         }
     }
 
 
     public Command zeroShooterAngleCommand(Rotation2d angle) {
         return runOnce(() -> pivotIO.updateAngle(angle));
+    }
+
+    public Command updateShooterAngleCommand() {
+        return runOnce(() -> pivotIO.updateAngle(pivotInputs.currentAngle));
     }
 
     /** NOTE: This does not work with voltage requests as there is no "SPEED" */
