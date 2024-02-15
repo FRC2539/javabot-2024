@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 4.992365335218691,
-        "y": 7.102097611471177
+        "x": 5.0287863486108515,
+        "y": 7.109381814149609
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.4897553504068854,
-        "y": 6.934560949867241
+        "x": 4.5261763637990455,
+        "y": 6.941845152545673
       },
       "isLocked": false,
       "linkedName": "far shot 1"
@@ -39,7 +39,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0,
+    "rotation": 3.7152891054287,
     "rotateFast": false
   },
   "reversed": false,
