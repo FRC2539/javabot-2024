@@ -94,32 +94,40 @@ public class AutonomousManager {
     }
 
     private enum AutonomousOption {
-        AUTO1(
-                "Amp",
-                0,
-                "testAuto",
-                "Test Auto",
-                true,
-                "Goes in circles in front of the amp 6 times."
-                ),
-
-        AUTO2(
+        EASY4(
                 "Amp",
                 4,
-                "testAuto1",
+                "Easy4",
                 "Near Line",
                 true,
-                "Picks up all three near pieces and shoots."
+                "Shoots in the starting piece and then picks up and shoots the near row."
+                ),
+
+        SOURCE4(
+                "Source",
+                4,
+                "Source4",
+                "Source Side",
+                true,
+                "Shoots the starting piece and then shoots the three near the source on the centerline."
                 ),
         
-        AUTO3(
+        AMP5(
                 "Amp",
-                3,
-                "testAuto2",
-                "Midline",
+                5,
+                "Amp5",
+                "Amp Side",
                 true,
-                "Picks up the piece nearest to the amp and then one on the midline."
-                );
+                "Scores the starting piece, the amp side near line piece, and the three pieces on the amp side centerline."
+                ),
+        MOBILITY1(
+            "Source",
+            1,
+            "Mobility1",
+            "Mobility",
+            true,
+            "Shoots the starting piece and goes off to the side to get mobility."
+        );
 
         private String pathName;
         public String startPosition;
@@ -153,18 +161,7 @@ public class AutonomousManager {
         }
     }
 
-    public static String[] getStartingLocations() {
-        return Stream.of(StartingLocation.values()).map(StartingLocation::name).toArray(String[]::new);
-    }
-
     public static String[] getAutonomousOptionNames() {
         return Stream.of(AutonomousOption.values()).map(AutonomousOption::name).toArray(String[]::new);
-    }
-
-    private enum StartingLocation {
-        OPEN,
-        STATIONOPEN,
-        STATIONCABLE,
-        CABLE
     }
 }

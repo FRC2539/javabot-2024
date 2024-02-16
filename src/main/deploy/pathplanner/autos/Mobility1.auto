@@ -16,6 +16,12 @@
           "data": {
             "pathName": "S-M"
           }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "shoot"
+          }
         }
       ]
     }

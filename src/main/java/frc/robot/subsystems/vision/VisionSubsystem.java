@@ -169,9 +169,9 @@ public class VisionSubsystem extends SubsystemBase {
             Transform2d transformToGoal = transformToCamera.plus(new Transform2d(distance, 0, Rotation2d.fromRadians(speakerTag.get().getYaw())));
 
             // Gets that final translation to goal and
-            lastSpeakerAngle = currentPose.getRotation().plus(transformToGoal.getTranslation().getAngle().plus(new Rotation2d(Math.PI)));
+            lastSpeakerAngle = currentPose.getRotation().plus(transformToGoal.getTranslation().getAngle());
         } else {
-            //lastSpeakerAngle = FieldConstants.getSpeakerPose().getTranslation().minus(currentPose.getTranslation()).getAngle();
+            lastSpeakerAngle = FieldConstants.getSpeakerPose().getTranslation().minus(currentPose.getTranslation()).getAngle();
         }
 
         return lastSpeakerAngle;
