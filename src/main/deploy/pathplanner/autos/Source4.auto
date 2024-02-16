@@ -1,0 +1,79 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 0.9744053724911999,
+      "y": 4.27445533921025
+    },
+    "rotation": -58.78159723565369
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "shoot"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "S-5b"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "-3s"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "shoot"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "-4b"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "-3s"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "shoot"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "3s-3b"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "-3s"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "shoot"
+          }
+        }
+      ]
+    }
+  },
+  "folder": "The Square Autos",
+  "choreoAuto": false
+}

@@ -3,54 +3,48 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.069305852897574,
-        "y": 5.7025291193393715
+        "x": 8.281967377058862,
+        "y": 4.063660281386183
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.4064733843753405,
-        "y": 5.731848035124642
+        "x": 6.9235103377482075,
+        "y": 4.04023860829462
       },
       "isLocked": false,
-      "linkedName": "closeShot2"
+      "linkedName": "3b"
     },
     {
       "anchor": {
-        "x": 2.9195544105373927,
-        "y": 6.142312856054285
+        "x": 5.565053298437552,
+        "y": 4.063660281386183
       },
       "prevControl": {
-        "x": 2.8169382053049823,
-        "y": 5.761166950905332
+        "x": 6.068619269906157,
+        "y": 3.934841079382587
       },
       "nextControl": {
-        "x": 2.980531533523243,
-        "y": 6.368799312858872
+        "x": 5.065722823898794,
+        "y": 4.191395984175167
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 2.9195544105373927,
-        "y": 7.212453282049422
+        "x": 3.99580120130283,
+        "y": 5.258165609055897
       },
       "prevControl": {
-        "x": 2.904894952647049,
-        "y": 6.889945208461847
+        "x": 4.651608047866594,
+        "y": 4.672623781766821
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "closeShot1"
+      "linkedName": "2s"
     }
   ],
-  "rotationTargets": [
-    {
-      "waypointRelativePos": 1,
-      "rotationDegrees": 90.0,
-      "rotateFast": true
-    }
-  ],
+  "rotationTargets": [],
   "constraintZones": [],
   "eventMarkers": [],
   "globalConstraints": {
@@ -61,13 +55,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 88.26429541107163,
+    "rotation": 0,
     "rotateFast": false
   },
   "reversed": false,
-  "folder": null,
+  "folder": "The Square Convention",
   "previewStartingState": {
-    "rotation": -169.15969454566934,
+    "rotation": 0,
     "velocity": 0
   },
   "useDefaultConstraints": true

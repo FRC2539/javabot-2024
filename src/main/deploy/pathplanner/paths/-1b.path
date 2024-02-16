@@ -3,32 +3,38 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.9150679737991423,
-        "y": 6.981389396191697
+        "x": 6.958642847385552,
+        "y": 7.424670370025476
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.5085249599885775,
-        "y": 6.604911811820771
+        "x": 7.958642847385551,
+        "y": 7.424670370025476
       },
       "isLocked": false,
-      "linkedName": "1a"
+      "linkedName": null
     },
     {
       "anchor": {
-        "x": 2.9150679737991423,
-        "y": 5.527514849608872
+        "x": 8.305389050150424,
+        "y": 7.424670370025476
       },
       "prevControl": {
-        "x": 2.2040432097982583,
-        "y": 6.265297551993107
+        "x": 7.305389050150424,
+        "y": 7.424670370025476
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "1b"
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.0,
+      "rotationDegrees": 0,
+      "rotateFast": false
+    }
+  ],
   "constraintZones": [],
   "eventMarkers": [],
   "globalConstraints": {
@@ -39,13 +45,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -47.536724191666444,
-    "rotateFast": true
+    "rotation": 0,
+    "rotateFast": false
   },
   "reversed": false,
   "folder": "The Square Convention",
   "previewStartingState": {
-    "rotation": 28.12449336596933,
+    "rotation": 0,
     "velocity": 0
   },
   "useDefaultConstraints": true

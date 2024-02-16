@@ -1,0 +1,25 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 1.0212487186743262,
+      "y": 4.122214464115091
+    },
+    "rotation": -61.07357416474646
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "S-M"
+          }
+        }
+      ]
+    }
+  },
+  "folder": "The Square Autos",
+  "choreoAuto": false
+}

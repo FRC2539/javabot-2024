@@ -1,0 +1,76 @@
+{
+  "version": 1.0,
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 1.0212487186743262,
+        "y": 4.122214464115091
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 2.3328624118018553,
+        "y": 2.623227386255058
+      },
+      "isLocked": false,
+      "linkedName": "S"
+    },
+    {
+      "anchor": {
+        "x": 8.27025654051308,
+        "y": 0.749493538930016
+      },
+      "prevControl": {
+        "x": 5.623607481166459,
+        "y": 1.182794491123933
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": null
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.5,
+      "rotationDegrees": -21.630886836517995,
+      "rotateFast": false
+    }
+  ],
+  "constraintZones": [],
+  "eventMarkers": [
+    {
+      "name": "intake",
+      "waypointRelativePos": 0.85,
+      "command": {
+        "type": "parallel",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "intake"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 4.5,
+    "maxAcceleration": 3.5,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": -8.652541791114816,
+    "rotateFast": false
+  },
+  "reversed": false,
+  "folder": "The Square Convention",
+  "previewStartingState": {
+    "rotation": -58.39249775375108,
+    "velocity": 0
+  },
+  "useDefaultConstraints": true
+}
