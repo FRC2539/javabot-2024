@@ -3,13 +3,16 @@ package frc.robot;
 import static edu.wpi.first.wpilibj2.command.Commands.*;
 
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
+import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
+import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.PathPlannerLogging;
 
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import frc.lib.logging.LoggedReceiver;
 import frc.lib.logging.Logger;
 import frc.robot.subsystems.intake.IntakeSubsystem;
@@ -39,7 +42,7 @@ public class AutonomousManager {
 
         //It appears that for any default commands to run, the commands need to be registered as proxies. Howevery, anything that uses swerve cannot have the swerve proxied out.
         NamedCommands.registerCommand("stop", runOnce(() -> swerveDriveSubsystem.setControl(new SwerveRequest.Idle()), swerveDriveSubsystem).asProxy());
-        NamedCommands.registerCommand("shoot", container.stoppedShootAndAimCommand(Optional.of(1d)));
+        NamedCommands.registerCommand("shoot", container.stoppedShootAndAimCommand(Optional.of(1d)).onlyIf(() -> intakeSubsystem.hasPiece()));
         NamedCommands.registerCommand("intake", intakeSubsystem.intakeCommand().withTimeout(2).asProxy());
         NamedCommands.registerCommand("mlintake", parallel());
         NamedCommands.registerCommand("amp", parallel());
@@ -47,6 +50,10 @@ public class AutonomousManager {
         NamedCommands.registerCommand("coast", parallel());
         NamedCommands.registerCommand("eject", intakeSubsystem.ejectCommand().withTimeout(2).asProxy());
         NamedCommands.registerCommand("rainbow", parallel());
+
+        //Run sussy paths conditionally
+        registerConditionalPaths();
+
 
         PathPlannerLogging.setLogTargetPoseCallback((pose) -> {
             // Do whatever you want with the pose here
@@ -82,6 +89,42 @@ public class AutonomousManager {
         });
     }
 
+    private Command pathFromFile(String name) {
+        return AutoBuilder.followPath(PathPlannerPath.fromPathFile(name));
+    }
+
+    public void registerConditionalPaths() {
+        NamedCommands.registerCommand("1b-1s-2b", Commands.either(
+            Commands.sequence(pathFromFile("-1s"), NamedCommands.getCommand("shoot"), pathFromFile("-2b")),
+            pathFromFile("1b-2b"), 
+            () -> intakeSubsystem.hasPiece()));
+        
+        NamedCommands.registerCommand("2b-1s-3b", Commands.either(
+            Commands.sequence(pathFromFile("-1s"), NamedCommands.getCommand("shoot"), pathFromFile("1s-3b")),
+            pathFromFile("2b-3b"), 
+            () -> intakeSubsystem.hasPiece()));
+        
+        NamedCommands.registerCommand("3b-2s-3b", Commands.either(
+            Commands.sequence(pathFromFile("3b-2s"), NamedCommands.getCommand("shoot"), pathFromFile("2s-3b")),
+            Commands.runOnce(() -> {}), 
+            () -> intakeSubsystem.hasPiece()));
+        
+        NamedCommands.registerCommand("5b-3s-4b", Commands.either(
+            Commands.sequence(pathFromFile("-3s"), NamedCommands.getCommand("shoot"), pathFromFile("-4b")),
+            pathFromFile("5b-4b"), 
+            () -> intakeSubsystem.hasPiece()));
+        
+        NamedCommands.registerCommand("4b-3s-3b", Commands.either(
+            Commands.sequence(pathFromFile("-3s"), NamedCommands.getCommand("shoot"), pathFromFile("3s-3b")),
+            pathFromFile("4b-3b"), 
+            () -> intakeSubsystem.hasPiece()));
+        
+        NamedCommands.registerCommand("3b-3s-5b", Commands.either(
+            Commands.sequence(pathFromFile("3b-3s"), NamedCommands.getCommand("shoot"), pathFromFile("3s-5b")),
+            pathFromFile("3b-5b"), 
+            () -> intakeSubsystem.hasPiece()));
+    }
+
     public Command getAutonomousCommand() {
         Command chosenPathCommand = new PathPlannerAuto(autoChooser.getSelected().pathName);
 
@@ -112,6 +155,15 @@ public class AutonomousManager {
                 "Shoots the starting piece and then shoots the three near the source on the centerline."
                 ),
         
+        SOURCE4A(
+                "Source",
+                4,
+                "Source4A",
+                "Source Side Conditional",
+                true,
+                "Shoots the starting piece and then shoots the three near the source on the centerline."
+                ),
+        
         AMP5(
                 "Amp",
                 5,
@@ -120,6 +172,16 @@ public class AutonomousManager {
                 true,
                 "Scores the starting piece, the amp side near line piece, and the three pieces on the amp side centerline."
                 ),
+        
+        AMP5A(
+                "Amp",
+                5,
+                "Amp5A",
+                "Amp Side Conditional",
+                true,
+                "Scores the starting piece, the amp side near line piece, and the three pieces on the amp side centerline."
+                ),
+        
         MOBILITY1(
             "Source",
             1,

@@ -37,6 +37,9 @@
       "IntakeSubsystem": {
         "open": true
       },
+      "IntakeSybsystem": {
+        "open": true
+      },
       "SmartDashboard": {
         "AutoChooser": {
           "string[]##v_/SmartDashboard/AutoChooser/options": {
@@ -62,11 +65,8 @@
       },
       "Subscribers": {
         "open": true
-      }
-    },
-    "visible": true
-  },
-  "NetworkTables View": {
-    "visible": false
+      },
+      "open": true
+    }
   }
 }

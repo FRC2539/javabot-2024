@@ -44,8 +44,8 @@ public final class Constants {
     public static final class IntakeConstants {
         public static final int chamberMotorPort = 15;
         public static final int rollerMotorPort = 14;
-        public static final int chamberSensorPort = 0;
-        public static final int rollerSensorPort = 1;
+        public static final int chamberSensorPort = 1;
+        public static final int rollerSensorPort = 0;
     }
 
     public static final class ShooterConstants {
