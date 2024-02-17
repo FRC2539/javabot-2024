@@ -62,13 +62,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "-3s"
+            "pathName": "3b-3s"
           }
         },
         {
           "type": "named",
           "data": {
             "name": "shoot"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "3s-5b"
           }
         }
       ]
