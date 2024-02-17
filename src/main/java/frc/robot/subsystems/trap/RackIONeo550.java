@@ -22,7 +22,7 @@ public class RackIONeo550 implements RackIO {
     private boolean shutdown = false;
 
     public RackIONeo550() {
-        neo550 = new CANSparkMax(Constants.ShooterConstants.pivotPort, MotorType.kBrushless);
+        neo550 = new CANSparkMax(Constants.TrapConstants.rackMotorPort, MotorType.kBrushless);
         
         neo550.setSmartCurrentLimit(40);
         neo550.setSecondaryCurrentLimit(45);

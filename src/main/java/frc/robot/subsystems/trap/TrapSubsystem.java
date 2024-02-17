@@ -90,6 +90,12 @@ public class TrapSubsystem extends SubsystemBase {
         return shootCommand(new TrapState(0 ,0, 0.5));
     }
 
+    public Command manuallyMoveRackCommand(double voltage){
+        return run(() -> {
+            rackIO.setVoltage(voltage);
+        });
+    }
+
     public void logTrapInformation() {
         Logger.log("/TrapSubsystem/topRollerSpeedSetpoint", currentTrapState.topVoltage);
         Logger.log("/TrapSubsystem/bottomRollerSpeedSetpoint", currentTrapState.bottomVoltage);
