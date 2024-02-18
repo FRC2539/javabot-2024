@@ -16,21 +16,55 @@
     },
     {
       "anchor": {
-        "x": 2.672476671629519,
-        "y": 4.20419031993556
+        "x": 2.379705757984981,
+        "y": 4.438407050851191
       },
       "prevControl": {
-        "x": 2.2743082290729473,
-        "y": 4.473539560488536
+        "x": 1.9932481519741916,
+        "y": 4.649202108675259
+      },
+      "nextControl": {
+        "x": 2.4674953152764196,
+        "y": 4.390521837783133
+      },
+      "isLocked": false,
+      "linkedName": "3a"
+    },
+    {
+      "anchor": {
+        "x": 2.6373441619921745,
+        "y": 4.262744502664469
+      },
+      "prevControl": {
+        "x": 2.465910701851752,
+        "y": 4.36575211764648
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "3a"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
   "constraintZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "intake",
+      "waypointRelativePos": 0.45,
+      "command": {
+        "type": "parallel",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "intake"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
   "globalConstraints": {
     "maxVelocity": 4.5,
     "maxAcceleration": 3.5,
@@ -40,7 +74,7 @@
   "goalEndState": {
     "velocity": 0,
     "rotation": -31.504266719204185,
-    "rotateFast": false
+    "rotateFast": true
   },
   "reversed": false,
   "folder": "The Square Convention",

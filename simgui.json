@@ -1,11 +1,18 @@
 {
   "HALProvider": {
+    "Other Devices": {
+      "window": {
+        "visible": false
+      }
+    },
     "RoboRIO": {
       "RoboRIO Input": {
         "open": true
-      },
+      }
+    },
+    "Timing": {
       "window": {
-        "visible": true
+        "visible": false
       }
     }
   },
@@ -28,6 +35,9 @@
     },
     "transitory": {
       "IntakeSubsystem": {
+        "open": true
+      },
+      "IntakeSybsystem": {
         "open": true
       },
       "SmartDashboard": {
@@ -55,8 +65,8 @@
       },
       "Subscribers": {
         "open": true
-      }
-    },
-    "visible": true
+      },
+      "open": true
+    }
   }
 }

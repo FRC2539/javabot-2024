@@ -133,7 +133,7 @@ public class IntakeSubsystem extends SubsystemBase {
         return inputs.chamberSensor;
     }
 
-    private boolean hasPiece() {
+    public boolean hasPiece() {
         return getRollerSensor() || getChamberSensor();
     }
 

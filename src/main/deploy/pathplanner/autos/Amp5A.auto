@@ -36,57 +36,21 @@
           }
         },
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "-1s"
+            "name": "1b-1s-2b"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "shoot"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "-2b"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "-1s"
+            "name": "2b-1s-3b"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "shoot"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "1s-3b"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "3b-2s"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "shoot"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "2s-3b"
+            "name": "3b-2s-3b"
           }
         }
       ]

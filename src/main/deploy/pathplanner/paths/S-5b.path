@@ -17,15 +17,15 @@
     {
       "anchor": {
         "x": 8.27025654051308,
-        "y": 0.749493538930016
+        "y": 0.75
       },
       "prevControl": {
         "x": 5.623607481166459,
-        "y": 1.182794491123933
+        "y": 1.183300952193917
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "5b"
     }
   ],
   "rotationTargets": [
@@ -39,7 +39,7 @@
   "eventMarkers": [
     {
       "name": "intake",
-      "waypointRelativePos": 0.85,
+      "waypointRelativePos": 0.7,
       "command": {
         "type": "parallel",
         "data": {

@@ -241,7 +241,8 @@ public class SwerveDriveSubsystem extends SwerveDrivetrain implements Subsystem 
     }
 
     public boolean isAtDirectionCommand(double angularTolerance, double velocityTolerance) {
-        boolean result = Math.abs(directionCommandErrorRadiansRotation) <= angularTolerance
+        // the acos(cos(x)) bascially figures out the net error accounting for looping
+        boolean result = Math.acos(Math.cos(directionCommandErrorRadiansRotation)) <= angularTolerance
             && Math.abs(directionCommandErrorRaidansVelocity) <= velocityTolerance
             && directionCommandIsRunning;
 
