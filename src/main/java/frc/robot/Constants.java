@@ -291,18 +291,14 @@ public final class Constants {
         // public static final Transform3d limelightRobotToCamera = new Transform3d(
         //         new Translation3d(Units.inchesToMeters(0), Units.inchesToMeters(0), Units.inchesToMeters(34.25)),
         //         new Rotation3d(0, Math.toRadians(15), Math.PI));
-        public static final Transform3d robotToLeftCamera = new Transform3d(0,0,0, new Rotation3d(0,0,0)).plus(new Transform3d(Units.inchesToMeters(54),0, Units.inchesToMeters(54), new Rotation3d(0,0,Math.PI)).plus(new Transform3d(
-            1.762,
-            0.448,
-            0.141,
-            new Rotation3d(new Quaternion(0.196,-0.220,0.078,-0.952))
-        ).inverse()));
-        public static final Transform3d robotToRightCamera = new Transform3d(0,0,0, new Rotation3d(0,0,0)).plus(new Transform3d(Units.inchesToMeters(54),0, Units.inchesToMeters(54), new Rotation3d(0,0,Math.PI)).plus(new Transform3d(
-            1.630,
-            -0.492,
-            0.315,
-            new Rotation3d(new Quaternion(-0.190,-0.174,-0.037,-0.966))
-        ).inverse()));
+        // public static final Transform3d robotToLeftCamera = new Transform3d(0,0,0, new Rotation3d(0,0,0)).plus(new Transform3d(Units.inchesToMeters(54),0, Units.inchesToMeters(54), new Rotation3d(0,0,Math.PI)).plus(new Transform3d(
+        //     1.762,
+        //     0.448,
+        //     0.141,
+        //     new Rotation3d(new Quaternion(0.196,-0.220,0.078,-0.952))
+        // ).inverse()));
+        public static final Transform3d robotToLeftCamera = new Transform3d(0,0,0, new Rotation3d(0,0,Math.toRadians(-19 + 180)));
+        public static final Transform3d robotToRightCamera = new Transform3d(0,0,0, new Rotation3d(0,0,Math.toRadians(19 + 180)));
 
         public static final Transform3d limelightRobotToCamera = new Transform3d(
                 new Translation3d(Units.inchesToMeters(-5), Units.inchesToMeters(0), Units.inchesToMeters(34.25)),
