@@ -189,6 +189,15 @@ public class AutonomousManager {
             "Mobility",
             true,
             "Shoots the starting piece and goes off to the side to get mobility."
+        ),
+
+        LINE0(
+            "Anywhere",
+            0,
+            "straightLine",
+            "Straight Line",
+            true,
+            "Slowly accelerates in a straight line."
         );
 
         private String pathName;

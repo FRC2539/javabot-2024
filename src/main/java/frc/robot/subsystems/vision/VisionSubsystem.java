@@ -24,8 +24,8 @@ import frc.robot.subsystems.vision.AprilTagIO.AprilTagIOInputs;
 import frc.robot.subsystems.vision.PositionTargetIO.PositionTargetIOInputs;
 
 public class VisionSubsystem extends SubsystemBase {
-    private final double translationStdDevCoefficient = 0.3;
-    private final double rotationStdDevCoefficient = .9;
+    public static double translationStdDevCoefficient = 1;
+    public static double rotationStdDevCoefficient = 1.2;
 
     private final double multitagTranslationStdDevCoefficient = 0.1;
     private final double multitagRotationStdDevCoefficient = 0.5;
