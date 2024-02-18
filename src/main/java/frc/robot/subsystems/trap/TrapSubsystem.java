@@ -22,7 +22,7 @@ public class TrapSubsystem extends SubsystemBase {
     private RollerIOInputs bottomRollerInputs = new RollerIOInputs();
     private RackIOInputs rackInputs = new RackIOInputs();
 
-    private final TrapState defaultState = new TrapState();
+    private final TrapState defaultState = new TrapState(0,0,1.2,true);
 
     private TrapState currentTrapState = defaultState;
 
@@ -96,12 +96,19 @@ public class TrapSubsystem extends SubsystemBase {
         });
     }
 
+    public Command runIntakeCommand(double topVoltage, double bottomVoltage) {
+        return shootCommand(TrapState.fromVoltages(topVoltage, bottomVoltage, 1.2));
+    }
+
     public void logTrapInformation() {
         Logger.log("/TrapSubsystem/topRollerSpeedSetpoint", currentTrapState.topVoltage);
         Logger.log("/TrapSubsystem/bottomRollerSpeedSetpoint", currentTrapState.bottomVoltage);
         Logger.log("/TrapSubsystem/trapPositionSetpoint", currentTrapState.rack);
 
         Logger.log("/TrapSubsystem/topRollerSpeed", topRollerInputs.speed);
+        Logger.log("/TrapSubsystem/topRollerTemperature", topRollerInputs.motorTemperature);
+        Logger.log("/TrapSubsystem/bottomRollerTemperature", topRollerInputs.motorTemperature);
+        Logger.log("/TrapSubsystem/rackTemperature", topRollerInputs.motorTemperature);
         Logger.log("/TrapSubsystem/bottomRollerSpeed", bottomRollerInputs.speed);
         Logger.log("/TrapSubsystem/trapPosition", rackInputs.position);
         Logger.log("/TrapSubsystem/isAtAngle", rackInputs.atTarget);

@@ -25,7 +25,7 @@ public class TrapState implements Interpolatable<TrapState> {
 
 
     public TrapState() {
-        this(0, 0, 0.1);
+        this(0, 0, 0.0, true);
     }
 
     @Override

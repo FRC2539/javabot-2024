@@ -4,6 +4,7 @@ import com.ctre.phoenix6.controls.PositionVoltage;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.SparkPIDController;
 import com.revrobotics.CANSparkBase.ControlType;
+import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkBase.SoftLimitDirection;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
@@ -37,6 +38,10 @@ public class RackIONeo550 implements RackIO {
         pidController.setI(0);
         pidController.setD(1);
         pidController.setOutputRange(-1,1);
+
+        neo550.setIdleMode(IdleMode.kBrake);
+
+        neo550.setInverted(true);
 
         neo550.burnFlash();
     }

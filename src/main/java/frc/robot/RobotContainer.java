@@ -50,6 +50,7 @@ import frc.robot.subsystems.trap.RackIONeo550;
 import frc.robot.subsystems.trap.RackIOSim;
 import frc.robot.subsystems.trap.TrapRollerIONeo550;
 import frc.robot.subsystems.trap.TrapRollerIOSim;
+import frc.robot.subsystems.trap.TrapState;
 import frc.robot.subsystems.trap.TrapSubsystem;
 import frc.robot.subsystems.vision.AprilTagIO;
 import frc.robot.subsystems.vision.AprilTagIOPhotonVision;
@@ -216,8 +217,14 @@ public class RobotContainer {
         operatorController.getA().onTrue(shooterSubsystem.zeroShooterAngleCommand(Rotation2d.fromDegrees(46)));
         operatorController.getB().onTrue(shooterSubsystem.updateShooterAngleCommand());
 
-        operatorController.getLeftBumper().onTrue(trapSubsystem.manuallyMoveRackCommand(0.3));
-        operatorController.getRightBumper().onTrue(trapSubsystem.manuallyMoveRackCommand(-0.3));
+        // 1.2 is about kG
+        operatorController.getLeftBumper().whileTrue(trapSubsystem.shootCommand(TrapState.fromVoltages(0, 0, 0.0)));
+        operatorController.getRightBumper().whileTrue(trapSubsystem.shootCommand(TrapState.fromVoltages(0, 0, 2.4)));
+
+        operatorController.getDPadLeft().whileTrue(trapSubsystem.runIntakeCommand(2.0, 6.0));
+        operatorController.getDPadRight().whileTrue(trapSubsystem.runIntakeCommand(-2.0, -6.0));
+        operatorController.getY().whileTrue(trapSubsystem.runIntakeCommand(-2.0, 6.0));
+        operatorController.getB().whileTrue(trapSubsystem.runIntakeCommand(2.0, -6.0));
 
         rightDriveController.sendButtonNamesToNT();
         leftDriveController.sendButtonNamesToNT();
