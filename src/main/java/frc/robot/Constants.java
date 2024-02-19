@@ -41,6 +41,12 @@ public final class Constants {
         public static final double DRIVETRAIN_PERIOD = 0.0025;
     }
 
+    public static final class TrapConstants {
+        public static final int rackMotorPort = 19;
+        public static final int topRollerPort = 17;
+        public static final int bottomRollerPort = 18;
+    }
+
     public static final class IntakeConstants {
         public static final int chamberMotorPort = 15;
         public static final int rollerMotorPort = 14;

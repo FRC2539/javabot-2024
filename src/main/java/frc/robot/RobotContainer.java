@@ -31,6 +31,7 @@ import frc.lib.logging.Logger;
 import frc.robot.Constants.ControllerConstants;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.ShooterConstants;
+import frc.robot.Constants.TrapConstants;
 import frc.robot.commands.DriveToPositionCommand;
 import frc.robot.subsystems.intake.IntakeIOFalconRedline;
 import frc.robot.subsystems.intake.IntakeIOSim;
@@ -45,6 +46,12 @@ import frc.robot.subsystems.shooter.RollerIOSim;
 import frc.robot.subsystems.shooter.ShooterState;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveDriveSubsystem;
+import frc.robot.subsystems.trap.RackIONeo550;
+import frc.robot.subsystems.trap.RackIOSim;
+import frc.robot.subsystems.trap.TrapRollerIONeo550;
+import frc.robot.subsystems.trap.TrapRollerIOSim;
+import frc.robot.subsystems.trap.TrapState;
+import frc.robot.subsystems.trap.TrapSubsystem;
 import frc.robot.subsystems.vision.AprilTagIO;
 import frc.robot.subsystems.vision.AprilTagIOPhotonVision;
 import frc.robot.subsystems.vision.AprilTagIOSim;
@@ -70,6 +77,7 @@ public class RobotContainer {
     private VisionSubsystem visionSubsystem;
     private ShooterSubsystem shooterSubsystem;
     private IntakeSubsystem intakeSubsystem;
+    private TrapSubsystem trapSubsystem;
 
     public AutonomousManager autonomousManager;
 
@@ -78,6 +86,7 @@ public class RobotContainer {
             swerveDriveSubsystem = TunerConstants.DriveTrain;
             lightsSubsystem = new LightsSubsystem(new LightsIOBlinkin(0));
             shooterSubsystem = new ShooterSubsystem(new RollerIOFalcon(ShooterConstants.topShooterPort), new RollerIOFalcon(ShooterConstants.bottomShooterPort), new PivotIOFalcon(), Constants.ShooterConstants.topRollerMap(), Constants.ShooterConstants.bottomRollerMap(), Constants.ShooterConstants.shooterAngleMap());
+            trapSubsystem = new TrapSubsystem(new TrapRollerIONeo550(TrapConstants.topRollerPort), new TrapRollerIONeo550(TrapConstants.bottomRollerPort), new RackIONeo550());
             
             AprilTagIO leftCamera;
             AprilTagIO rightCamera;
@@ -122,6 +131,7 @@ public class RobotContainer {
             shooterSubsystem = new ShooterSubsystem(new RollerIOSim(), new RollerIOSim(), new PivotIOSim(), Constants.ShooterConstants.topRollerMap(), Constants.ShooterConstants.bottomRollerMap(), Constants.ShooterConstants.shooterAngleMap());
             visionSubsystem = new VisionSubsystem(swerveDriveSubsystem, new AprilTagIOSim(), new AprilTagIOSim(), new PositionTargetIOSim(),new PositionTargetIOSim() );
             intakeSubsystem = new IntakeSubsystem(new IntakeIOSim());
+            trapSubsystem = new TrapSubsystem(new TrapRollerIOSim(), new TrapRollerIOSim(), new RackIOSim());
         }
 
         autonomousManager = new AutonomousManager(this);
@@ -207,6 +217,15 @@ public class RobotContainer {
         
         operatorController.getA().onTrue(shooterSubsystem.zeroShooterAngleCommand(Rotation2d.fromDegrees(46)));
         operatorController.getB().onTrue(shooterSubsystem.updateShooterAngleCommand());
+
+        // 1.2 is about kG
+        operatorController.getLeftBumper().whileTrue(trapSubsystem.shootCommand(TrapState.fromVoltages(0, 0, 0.0)));
+        operatorController.getRightBumper().whileTrue(trapSubsystem.shootCommand(TrapState.fromVoltages(0, 0, 2.4)));
+
+        operatorController.getDPadLeft().whileTrue(trapSubsystem.runIntakeCommand(6.0, 6.0));
+        operatorController.getDPadRight().whileTrue(trapSubsystem.runIntakeCommand(-6.0, -6.0));
+        operatorController.getY().whileTrue(trapSubsystem.runIntakeCommand(-2.0, 2.0));
+        operatorController.getB().whileTrue(trapSubsystem.runIntakeCommand(2.0, -2.0));
 
         rightDriveController.sendButtonNamesToNT();
         leftDriveController.sendButtonNamesToNT();
@@ -305,7 +324,6 @@ public class RobotContainer {
         return Commands.parallel(driveToPosition);
     }
 
-
     public Command getAutonomousCommand() {
         return autonomousManager.getAutonomousCommand();
     }
@@ -377,6 +395,10 @@ public class RobotContainer {
 
     public IntakeSubsystem getIntakeSubsystem() {
         return intakeSubsystem;
+    }
+
+    public TrapSubsystem getTrapSubsystem() {
+        return trapSubsystem;
     }
 }
 
