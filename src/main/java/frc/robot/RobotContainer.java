@@ -221,10 +221,10 @@ public class RobotContainer {
         operatorController.getLeftBumper().whileTrue(trapSubsystem.shootCommand(TrapState.fromVoltages(0, 0, 0.0)));
         operatorController.getRightBumper().whileTrue(trapSubsystem.shootCommand(TrapState.fromVoltages(0, 0, 2.4)));
 
-        operatorController.getDPadLeft().whileTrue(trapSubsystem.runIntakeCommand(2.0, 6.0));
-        operatorController.getDPadRight().whileTrue(trapSubsystem.runIntakeCommand(-2.0, -6.0));
-        operatorController.getY().whileTrue(trapSubsystem.runIntakeCommand(-2.0, 6.0));
-        operatorController.getB().whileTrue(trapSubsystem.runIntakeCommand(2.0, -6.0));
+        operatorController.getDPadLeft().whileTrue(trapSubsystem.runIntakeCommand(6.0, 6.0));
+        operatorController.getDPadRight().whileTrue(trapSubsystem.runIntakeCommand(-6.0, -6.0));
+        operatorController.getY().whileTrue(trapSubsystem.runIntakeCommand(-2.0, 2.0));
+        operatorController.getB().whileTrue(trapSubsystem.runIntakeCommand(2.0, -2.0));
 
         rightDriveController.sendButtonNamesToNT();
         leftDriveController.sendButtonNamesToNT();
