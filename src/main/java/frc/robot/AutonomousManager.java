@@ -191,6 +191,15 @@ public class AutonomousManager {
             "Shoots the starting piece and goes off to the side to get mobility."
         ),
 
+        CENTER4(
+        "Center",
+            4,
+            "Center4",
+            "Center",
+            true,
+            "Shoots the starting piece, collects the next nearest piece, and scores the two most middle on the centerline."
+        ),
+
         LINE0(
             "Anywhere",
             0,
