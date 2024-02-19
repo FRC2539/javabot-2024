@@ -146,15 +146,15 @@ public class RobotContainer {
                 this::getDriveForwardAxis, this::getDriveStrafeAxis, this::getDriveRotationAxis));
 
         /* Set left joystick bindings */
-        leftDriveController.getLeftTopLeft().onTrue(runOnce(() -> swerveDriveSubsystem.seedFieldRelative(new Pose2d()), swerveDriveSubsystem));
-        leftDriveController
-                .getLeftTopRight()
+        rightDriveController.getLeftTopRight().onTrue(runOnce(() -> swerveDriveSubsystem.seedFieldRelative(new Pose2d()), swerveDriveSubsystem));
+        rightDriveController
+                .getLeftTopLeft()
                 .onTrue(runOnce(swerveDriveSubsystem::seedFieldRelative, swerveDriveSubsystem));
-        leftDriveController.nameLeftTopLeft("Reset Gyro Angle");
+        rightDriveController.nameLeftTopLeft("Reset Gyro Angle");
 
 
-        leftDriveController.getLeftBottomMiddle().whileTrue(runOnce(() -> swerveDriveSubsystem.setControl(new SwerveRequest.SwerveDriveBrake()), swerveDriveSubsystem));
-        leftDriveController.nameLeftBottomMiddle("Lock Wheels");
+        rightDriveController.getLeftBottomMiddle().whileTrue(runOnce(() -> swerveDriveSubsystem.setControl(new SwerveRequest.SwerveDriveBrake()), swerveDriveSubsystem));
+        rightDriveController.nameLeftBottomMiddle("Lock Wheels");
 
         // Cardinal drive commands (inverted since the arm is on the back of the robot)
         rightDriveController
@@ -175,18 +175,15 @@ public class RobotContainer {
                         Rotation2d.fromDegrees(90), this::getDriveForwardAxis, this::getDriveStrafeAxis));
 
         rightDriveController
-                .getTrigger()
-                .whileTrue(stoppedShootAndAimCommand());
-        rightDriveController
-                .nameTrigger("Shoot");
-
-        rightDriveController
                 .getRightThumb()
                 .whileTrue(intakeSubsystem.ejectCommand());
 
         rightDriveController
                 .getBottomThumb()
                 .whileTrue(shooterSubsystem.shootCommand(ShooterState.fromVoltages(.85,.75,Rotation2d.fromDegrees(35))));
+
+        rightDriveController.getBottomThumb().and(rightDriveController.getTrigger())
+            .whileTrue(intakeSubsystem.shootCommand());
 
         rightDriveController
                 .getLeftThumb()
@@ -197,6 +194,12 @@ public class RobotContainer {
                 .whileTrue(movingAimCommand());
         leftDriveController
                 .nameTrigger("Aim");
+        
+        leftDriveController
+                .getTrigger().and(rightDriveController.getTrigger())
+                .whileTrue(stoppedShootAndAimCommand());
+        rightDriveController
+                .nameTrigger("Shoot");
         
         LoggedReceiver topRollerSpeedTunable = Logger.tunable("/ShooterSubsystem/topTunable", .4d);
         LoggedReceiver bottomRollerSpeedTunable = Logger.tunable("/ShooterSubsystem/bottomTunable", .7d);
@@ -211,10 +214,18 @@ public class RobotContainer {
                     Rotation2d.fromDegrees(pivotAngleTunable.getDouble()),
                     isVoltageBasedTunable.getBoolean(),
                     false)));
-
-        operatorController.getDPadUp().whileTrue(shooterSubsystem.shootCommand(ShooterState.fromVoltages(0, 0, .6)));
-        operatorController.getDPadDown().whileTrue(shooterSubsystem.shootCommand(ShooterState.fromVoltages(0, 0, -.6)));
         
+        leftDriveController.getBottomThumb().and(rightDriveController.getTrigger())
+            .whileTrue(intakeSubsystem.shootCommand());
+        
+        leftDriveController.getLeftTopLeft().whileTrue(
+            shooterSubsystem.shootCommand(ShooterState.fromVoltages(0, 0, .6)));
+        leftDriveController.getLeftBottomLeft().whileTrue(
+            shooterSubsystem.shootCommand(ShooterState.fromVoltages(0, 0, -.6)));
+        
+        leftDriveController.getLeftBottomMiddle().whileTrue(trapSubsystem.shootCommand(TrapState.fromVoltages(0, 0, 0.0)));
+        leftDriveController.getLeftTopMiddle().whileTrue(trapSubsystem.shootCommand(TrapState.fromVoltages(0, 0, 2.4)));
+
         operatorController.getA().onTrue(shooterSubsystem.zeroShooterAngleCommand(Rotation2d.fromDegrees(46)));
         operatorController.getB().onTrue(shooterSubsystem.updateShooterAngleCommand());
 
@@ -224,8 +235,8 @@ public class RobotContainer {
 
         operatorController.getDPadLeft().whileTrue(trapSubsystem.runIntakeCommand(6.0, 6.0));
         operatorController.getDPadRight().whileTrue(trapSubsystem.runIntakeCommand(-6.0, -6.0));
-        operatorController.getY().whileTrue(trapSubsystem.runIntakeCommand(-2.0, 2.0));
-        operatorController.getB().whileTrue(trapSubsystem.runIntakeCommand(2.0, -2.0));
+        operatorController.getDPadUp().whileTrue(trapSubsystem.runIntakeCommand(-2.0, 2.0));
+        operatorController.getDPadDown().whileTrue(trapSubsystem.runIntakeCommand(2.0, -2.0));
 
         rightDriveController.sendButtonNamesToNT();
         leftDriveController.sendButtonNamesToNT();
