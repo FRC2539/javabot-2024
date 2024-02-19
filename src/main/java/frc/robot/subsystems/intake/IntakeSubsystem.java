@@ -55,8 +55,8 @@ public class IntakeSubsystem extends SubsystemBase {
                 setRoller(0);
                 break;
             case MOVING:
-                setChamber(1);
-                setRoller(1);
+                setChamber(1/2);
+                setRoller(.25/2);
                 break;
             case MOVING_REVERSE:
                 setChamber(-.20);
@@ -108,7 +108,7 @@ public class IntakeSubsystem extends SubsystemBase {
     public Command moveCommand() {
         return runEnd(() -> {
             setIntakeState(IntakeState.MOVING);
-        }, () -> {}).until(() -> getRollerSensor()).withTimeout(.2);
+        }, () -> {}).until(() -> getRollerSensor()).withTimeout(.4);
     }
     public Command manualMoveCommand() {
         return runEnd(() -> {

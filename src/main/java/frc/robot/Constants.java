@@ -157,9 +157,12 @@ public final class Constants {
         public static final double driveKP = 0.1;
         public static final double driveKI = 0.0;
         public static final double driveKD = 0.0;
-        public static final double driveKV = 0.11;
-        public static final double driveKS = 0.12;
+        public static final double driveKV = 0.12;
+        public static final double driveKS = 0.25;
         public static final double driveKA = 0.0;
+
+        /* Angular Velocity Coefficient */
+        public static final double angularVelocityCoefficient = 0.0;
 
         /* Swerve Profiling Values */
         public static final double maxSpeed = 4.968230454756032; // meters per second
@@ -294,17 +297,18 @@ public final class Constants {
     public static final class VisionConstants {
 
         // Currently working, not sure
-        // public static final Transform3d limelightRobotToCamera = new Transform3d(
-        //         new Translation3d(Units.inchesToMeters(0), Units.inchesToMeters(0), Units.inchesToMeters(34.25)),
-        //         new Rotation3d(0, Math.toRadians(15), Math.PI));
-        // public static final Transform3d robotToLeftCamera = new Transform3d(0,0,0, new Rotation3d(0,0,0)).plus(new Transform3d(Units.inchesToMeters(54),0, Units.inchesToMeters(54), new Rotation3d(0,0,Math.PI)).plus(new Transform3d(
-        //     1.762,
-        //     0.448,
-        //     0.141,
-        //     new Rotation3d(new Quaternion(0.196,-0.220,0.078,-0.952))
-        // ).inverse()));
-        public static final Transform3d robotToLeftCamera = new Transform3d(0,0,0, new Rotation3d(0,0,Math.toRadians(-19 + 180)));
-        public static final Transform3d robotToRightCamera = new Transform3d(0,0,0, new Rotation3d(0,0,Math.toRadians(19 + 180)));
+        public static final Transform3d robotToRightCamera = new Transform3d(0,0,0, new Rotation3d(0,0,0)).plus(new Transform3d(Units.inchesToMeters(-54),0, Units.inchesToMeters(57.75), new Rotation3d(0,0,0)).plus(new Transform3d(
+            1.539,
+            -0.293,
+            0.299,
+            new Rotation3d(0.082,-0.325,2.755)
+        ).inverse()));
+        public static final Transform3d robotToLeftCamera = new Transform3d(0,0,0, new Rotation3d(0,0,0)).plus(new Transform3d(Units.inchesToMeters(-54),0, Units.inchesToMeters(57.75), new Rotation3d(0,0,0)).plus(new Transform3d(
+            1.523,
+            0.395,
+            0.294,
+            new Rotation3d(-0.036,-0.340,-2.819)
+        ).inverse()));
 
         public static final Transform3d limelightRobotToCamera = new Transform3d(
                 new Translation3d(Units.inchesToMeters(-5), Units.inchesToMeters(0), Units.inchesToMeters(34.25)),

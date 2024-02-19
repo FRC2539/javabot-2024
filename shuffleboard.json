@@ -169,31 +169,80 @@
               "_glyph": 122,
               "_showGlyph": true
             }
-          },
-          "4,0": {
+          }
+        }
+      }
+    },
+    {
+      "title": "Configs",
+      "autoPopulate": false,
+      "autoPopulatePrefix": "",
+      "widgetPane": {
+        "gridSize": 200.0,
+        "showGrid": true,
+        "hgap": 16.0,
+        "vgap": 16.0,
+        "titleType": 0,
+        "tiles": {
+          "0,0": {
             "size": [
-              1,
+              2,
               1
             ],
             "content": {
-              "_type": "Text View",
-              "_source0": "network_table:///ShooterSubsystem/bottomTunable",
-              "_title": "/ShooterSubsystem/bottomTunable",
-              "_glyph": 148,
-              "_showGlyph": false
+              "_type": "Grid Layout",
+              "_title": "Tunable Shoot",
+              "_glyph": 149,
+              "_showGlyph": false,
+              "Layout/Number of columns": 2,
+              "Layout/Number of rows": 2,
+              "Layout/Label position": "TOP",
+              "_children": {
+                "0,0": {
+                  "_type": "Text View",
+                  "_source0": "network_table:///ShooterSubsystem/topTunable",
+                  "_title": "Top Speed",
+                  "_glyph": 148,
+                  "_showGlyph": false
+                },
+                "1,0": {
+                  "_type": "Text View",
+                  "_source0": "network_table:///ShooterSubsystem/pivotTunable",
+                  "_title": "Pivot Angle",
+                  "_glyph": 148,
+                  "_showGlyph": false
+                },
+                "0,1": {
+                  "_type": "Text View",
+                  "_source0": "network_table:///ShooterSubsystem/bottomTunable",
+                  "_title": "Bottom Speed",
+                  "_glyph": 148,
+                  "_showGlyph": false
+                },
+                "1,1": {
+                  "_type": "Toggle Switch",
+                  "_source0": "network_table:///ShooterSubsystem/voltageTunable",
+                  "_title": "Use Voltage over RPM",
+                  "_glyph": 148,
+                  "_showGlyph": false
+                }
+              }
             }
           },
-          "5,0": {
+          "2,0": {
             "size": [
               1,
               1
             ],
             "content": {
-              "_type": "Text View",
-              "_source0": "network_table:///ShooterSubsystem/topTunable",
-              "_title": "/ShooterSubsystem/topTunable",
+              "_type": "Simple Dial",
+              "_source0": "network_table:///ShooterSubsystem/shooterPositionDegrees",
+              "_title": "Shooter Position",
               "_glyph": 148,
-              "_showGlyph": false
+              "_showGlyph": false,
+              "Range/Min": 0.0,
+              "Range/Max": 180.0,
+              "Visuals/Show value": true
             }
           }
         }
@@ -201,9 +250,9 @@
     }
   ],
   "windowGeometry": {
-    "x": 78.4000015258789,
-    "y": 141.60000610351562,
-    "width": 1392.0,
+    "x": 0.0,
+    "y": 4.800000190734863,
+    "width": 1540.800048828125,
     "height": 572.0
   }
 }

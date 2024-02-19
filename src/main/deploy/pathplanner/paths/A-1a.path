@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.1032245744947966,
-        "y": 6.981389396191697
+        "x": 0.7518994781213513,
+        "y": 6.663465994549679
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.3140196323188638,
-        "y": 6.745441850370149
+        "x": 1.3959954881393342,
+        "y": 6.9328152351026535
       },
       "isLocked": false,
       "linkedName": "A"
@@ -32,6 +32,11 @@
     {
       "waypointRelativePos": 1.0,
       "rotationDegrees": 32.16,
+      "rotateFast": false
+    },
+    {
+      "waypointRelativePos": 0.5,
+      "rotationDegrees": 58.73626830562266,
       "rotateFast": false
     }
   ],
@@ -56,8 +61,8 @@
     }
   ],
   "globalConstraints": {
-    "maxVelocity": 4.5,
-    "maxAcceleration": 3.5,
+    "maxVelocity": 4.0,
+    "maxAcceleration": 3.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0
   },
@@ -68,6 +73,9 @@
   },
   "reversed": false,
   "folder": "The Square Convention",
-  "previewStartingState": null,
+  "previewStartingState": {
+    "rotation": 61.38954033403479,
+    "velocity": 0
+  },
   "useDefaultConstraints": true
 }

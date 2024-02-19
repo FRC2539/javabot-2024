@@ -33,10 +33,10 @@
     "Persistent Values": {
       "open": false
     },
+    "Retained Values": {
+      "open": false
+    },
     "transitory": {
-      "IntakeSubsystem": {
-        "open": true
-      },
       "IntakeSybsystem": {
         "open": true
       },
@@ -50,8 +50,7 @@
       "SwerveDriveSubsystem": {
         "double[]##v_/SwerveDriveSubsystem/Pose": {
           "open": true
-        },
-        "open": true
+        }
       }
     }
   },
@@ -67,6 +66,7 @@
         "open": true
       },
       "open": true
-    }
+    },
+    "visible": true
   }
 }

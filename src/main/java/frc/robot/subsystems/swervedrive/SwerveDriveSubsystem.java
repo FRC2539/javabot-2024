@@ -35,6 +35,7 @@ import frc.lib.logging.Logger;
 import frc.lib.math.MathUtils;
 import frc.lib.math.MathUtils.AnyContainer;
 import frc.robot.Constants;
+import frc.robot.Constants.SwerveConstants;
 import frc.robot.commands.DriveToPositionCommand;
 
 /**
@@ -112,14 +113,17 @@ public class SwerveDriveSubsystem extends SwerveDrivetrain implements Subsystem 
                 this::getPose, // Robot pose supplier
                 this::seedFieldRelative, // Method to res.et odometry (will be called if your auto has a starting pose)
                 this::getRobotRelativeChassisSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
-                (velocity) -> this.setControl(
+                (velocity) -> {
+                    var correctedVelocity = ChassisSpeeds.fromFieldRelativeSpeeds(velocity, new Rotation2d(getRobotRelativeChassisSpeeds().omegaRadiansPerSecond * SwerveConstants.angularVelocityCoefficient));
+                    this.setControl(
                     closedLoopRobotCentric
-                    .withVelocityX(velocity.vxMetersPerSecond)
-                    .withVelocityY(velocity.vyMetersPerSecond)
-                    .withRotationalRate(velocity.omegaRadiansPerSecond)), // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
+                    .withVelocityX(correctedVelocity.vxMetersPerSecond)
+                    .withVelocityY(correctedVelocity.vyMetersPerSecond)
+                    .withRotationalRate(correctedVelocity.omegaRadiansPerSecond));
+                }, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
                 new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should likely live in your Constants class
-                        new PIDConstants(5, 0.0, 0.01), // Translation PID constants
-                        new PIDConstants(4, 0.0, 0.01), // Rotation PID constants
+                        new PIDConstants(3, 0.0, 0.05), // Translation PID constants
+                        new PIDConstants(2, 0.0, 0.05), // Rotation PID constants
                         Constants.SwerveConstants.maxSpeed, // Max module speed, in m/s
                         Constants.SwerveConstants.moduleTranslations[0].getNorm(), // Drive base radius in meters. Distance from robot center to furthest module.
                         new ReplanningConfig() // Default path replanning config. See the API for the options here
@@ -153,11 +157,12 @@ public class SwerveDriveSubsystem extends SwerveDrivetrain implements Subsystem 
 
     public Command driveCommand(
             DoubleSupplier forward, DoubleSupplier strafe, DoubleSupplier rotation) {
+        var correctedVelocity = ChassisSpeeds.fromFieldRelativeSpeeds(new ChassisSpeeds(forward.getAsDouble(),strafe.getAsDouble(),rotation.getAsDouble()), new Rotation2d(getRobotRelativeChassisSpeeds().omegaRadiansPerSecond * SwerveConstants.angularVelocityCoefficient));
         return applyRequest(
                     () ->openLoop.withDeadband(0.0).withRotationalDeadband(0.0)
-                    .withVelocityX(forward.getAsDouble())
-                    .withVelocityY(strafe.getAsDouble())
-                    .withRotationalRate(rotation.getAsDouble())
+                    .withVelocityX(correctedVelocity.vxMetersPerSecond)
+                    .withVelocityY(correctedVelocity.vyMetersPerSecond)
+                    .withRotationalRate(correctedVelocity.omegaRadiansPerSecond)
         );
     }
 
@@ -342,6 +347,7 @@ public class SwerveDriveSubsystem extends SwerveDrivetrain implements Subsystem 
             Logger.log("/SwerveDriveSubsystem/Acceleration Commanded", 0);
 
             Logger.log("/SwerveDriveSubsystem/Wheel Zero Speed", state.ModuleStates[0].speedMetersPerSecond);
+            Logger.log("/SwerveDriveSubsystem/Wheel Zero Voltage", getModule(0).getDriveMotor().getMotorVoltage().getValue());
 
             Rotation3d currentRotation = getRotation3d();
 
