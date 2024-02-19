@@ -155,6 +155,9 @@ public final class Constants {
         public static final double driveKS = 0.25;
         public static final double driveKA = 0.0;
 
+        /* Angular Velocity Coefficient */
+        public static final double angularVelocityCoefficient = 0.0;
+
         /* Swerve Profiling Values */
         public static final double maxSpeed = 4.968230454756032; // meters per second
         public static final double maxAcceleration =

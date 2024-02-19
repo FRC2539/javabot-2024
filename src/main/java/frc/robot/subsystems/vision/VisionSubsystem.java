@@ -170,7 +170,7 @@ public class VisionSubsystem extends SubsystemBase {
             Transform2d transformToCamera = new Transform2d(
                 VisionConstants.robotToLeftCamera.getTranslation().toTranslation2d(), 
                 new Rotation2d(VisionConstants.robotToLeftCamera.getRotation().getZ()));
-            Transform2d transformToGoal = transformToCamera.plus(new Transform2d(distance, 0, Rotation2d.fromRadians(speakerTag.get().getYaw())));
+            Transform2d transformToGoal = transformToCamera.plus(new Transform2d(distance, 0, Rotation2d.fromDegrees(speakerTag.get().getYaw())));
 
             // Gets that final translation to goal and
             lastSpeakerAngle = currentPose.getRotation().plus(transformToGoal.getTranslation().getAngle());
@@ -184,10 +184,12 @@ public class VisionSubsystem extends SubsystemBase {
         Optional<PhotonTrackedTarget> speakerTag  = VisionSubsystem.getTagInfo(leftTargets, FieldConstants.getSpeakerTag());
         if (speakerTag.isPresent()) {
             // TODO: This is not right
+            Logger.log("/VisionSubsystem/LastSpeakerAngle", lastSpeakerAngle.getRadians());
             return PhotonUtils.calculateDistanceToTargetMeters(
                 VisionConstants.robotToLeftCamera.getZ(), Units.inchesToMeters(57.75), 
                 Units.degreesToRadians(19), Units.degreesToRadians(speakerTag.get().getPitch()));
         } else {
+            Logger.log("/VisionSubsystem/LastSpeakerAngle", lastSpeakerAngle.getRadians());
             return FieldConstants.getSpeakerPose().getTranslation().minus(currentPose.getTranslation()).getNorm();
         }
     }

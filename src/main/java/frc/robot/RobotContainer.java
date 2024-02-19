@@ -172,15 +172,15 @@ public class RobotContainer {
 
         rightDriveController
                 .getRightThumb()
-                .whileTrue(intakeSubsystem.disabledCommand());
+                .whileTrue(intakeSubsystem.ejectCommand());
 
         rightDriveController
                 .getBottomThumb()
-                .whileTrue(intakeSubsystem.intakeCommand());
+                .whileTrue(shooterSubsystem.shootCommand(ShooterState.fromVoltages(.85,.75,Rotation2d.fromDegrees(35))));
 
         rightDriveController
                 .getLeftThumb()
-                .whileTrue(intakeSubsystem.ejectCommand());
+                .whileTrue(intakeSubsystem.intakeCommand());
         
         leftDriveController
                 .getTrigger()
@@ -188,10 +188,11 @@ public class RobotContainer {
         leftDriveController
                 .nameTrigger("Aim");
         
-        LoggedReceiver topRollerSpeedTunable = Logger.tunable("/ShooterSubsystem/topTunable", .7d);
+        LoggedReceiver topRollerSpeedTunable = Logger.tunable("/ShooterSubsystem/topTunable", .4d);
         LoggedReceiver bottomRollerSpeedTunable = Logger.tunable("/ShooterSubsystem/bottomTunable", .7d);
-        LoggedReceiver pivotAngleTunable = Logger.tunable("/ShooterSubsystem/pivotTunable", 55d);
+        LoggedReceiver pivotAngleTunable = Logger.tunable("/ShooterSubsystem/pivotTunable", 53d);
         LoggedReceiver isVoltageBasedTunable = Logger.tunable("/ShooterSubsystem/voltageTunable", true);
+        
         leftDriveController
                 .getBottomThumb()
                 .whileTrue(shooterSubsystem.shootCommand(() -> new ShooterState(
