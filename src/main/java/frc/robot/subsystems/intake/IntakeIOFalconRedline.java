@@ -26,7 +26,7 @@ public class IntakeIOFalconRedline implements IntakeIO{
     }
 
     public boolean hasRollerPiece() {
-        return false; //rollerSensor.getValue() < 50;
+        return rollerSensor.getValue() < 50;
     }
 
     public boolean hasChamberPiece() {

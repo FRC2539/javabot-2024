@@ -4,7 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.photonvision.PhotonUtils;
 import org.photonvision.targeting.PhotonTrackedTarget;
+
+import frc.lib.logging.Logger;
 
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
@@ -14,6 +17,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.math.MathUtils;
 import frc.lib.vision.LimelightRawAngles;
@@ -173,14 +177,16 @@ public class VisionSubsystem extends SubsystemBase {
         } else {
             lastSpeakerAngle = FieldConstants.getSpeakerPose().getTranslation().minus(currentPose.getTranslation()).getAngle();
         }
-
+        Logger.log("/VisionSubsystem/LastSpeakerAngle", lastSpeakerAngle.getRadians());
         return lastSpeakerAngle;
     }
     public double getSpeakerDistance(Pose2d currentPose) {
         Optional<PhotonTrackedTarget> speakerTag  = VisionSubsystem.getTagInfo(leftTargets, FieldConstants.getSpeakerTag());
         if (speakerTag.isPresent()) {
             // TODO: This is not right
-            return 10; //needs some trig
+            return PhotonUtils.calculateDistanceToTargetMeters(
+                VisionConstants.robotToLeftCamera.getZ(), Units.inchesToMeters(57.75), 
+                Units.degreesToRadians(19), Units.degreesToRadians(speakerTag.get().getPitch()));
         } else {
             return FieldConstants.getSpeakerPose().getTranslation().minus(currentPose.getTranslation()).getNorm();
         }
