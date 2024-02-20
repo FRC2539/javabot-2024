@@ -2,7 +2,6 @@ package frc.robot;
 
 import static edu.wpi.first.wpilibj2.command.Commands.*;
 
-import java.sql.Array;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
@@ -20,6 +19,7 @@ import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -289,6 +289,36 @@ public class RobotContainer {
             this::getDriveForwardAxis, this::getDriveStrafeAxis, controller);
 
         Command spinUpCommand = shooterSubsystem.shootCommand(() -> visionSubsystem.getSpeakerDistance(swerveDriveSubsystem.getPose()));
+
+        return parallel(aimAtTag, spinUpCommand, run(() -> {readyToFire.getAsBoolean();}));
+    }
+
+    public Command adaptiveMovingAimCommand() {
+        final double angularTolerance = 0.015;
+        final double velocityTolerance = 0.01;
+
+        // This is in theory the inverse of the speed of the note
+        final double forwardPredictionCoefficient = 1 / 2.0;
+
+        BooleanSupplier readyToFire = () -> swerveDriveSubsystem.isAtDirectionCommand(angularTolerance, velocityTolerance);
+
+        ProfiledPIDController controller = new ProfiledPIDController(5, 0, .5, new TrapezoidProfile.Constraints(4.5, 8));
+
+        Pose2d currentPose = swerveDriveSubsystem.getPose();
+        ChassisSpeeds currentSpeed = swerveDriveSubsystem.getFieldRelativeChassisSpeeds();
+
+        Supplier<Pose2d> predictedPose = () -> {
+            double distance = visionSubsystem.getSpeakerDistance(swerveDriveSubsystem.getPose());
+            return new Pose2d(
+                currentPose.getX() + currentSpeed.vxMetersPerSecond * forwardPredictionCoefficient * distance,
+                currentPose.getY() + currentSpeed.vyMetersPerSecond * forwardPredictionCoefficient * distance,
+                new Rotation2d(currentPose.getRotation().getRadians() + currentSpeed.omegaRadiansPerSecond * forwardPredictionCoefficient * distance));
+        };
+
+        Command aimAtTag = swerveDriveSubsystem.directionCommand(() -> visionSubsystem.getSpeakerAngle(predictedPose.get()).plus(new Rotation2d(Math.PI)), 
+            this::getDriveForwardAxis, this::getDriveStrafeAxis, controller);
+
+        Command spinUpCommand = shooterSubsystem.shootCommand(() -> visionSubsystem.getSpeakerDistance(predictedPose.get()));
 
         return parallel(aimAtTag, spinUpCommand, run(() -> {readyToFire.getAsBoolean();}));
     }
