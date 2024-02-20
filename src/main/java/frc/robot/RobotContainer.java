@@ -32,6 +32,7 @@ import frc.robot.Constants.ControllerConstants;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.Constants.TrapConstants;
+import frc.robot.commands.AimAndShootCommands;
 import frc.robot.commands.DriveToPositionCommand;
 import frc.robot.subsystems.climber.ClimberIO;
 import frc.robot.subsystems.climber.ClimberIOFalcon;
@@ -83,6 +84,8 @@ public class RobotContainer {
     private IntakeSubsystem intakeSubsystem;
     private TrapSubsystem trapSubsystem;
     private ClimberSubsystem climberSubsystem;
+
+    private AimAndShootCommands aimAndShootCommands;
 
     public AutonomousManager autonomousManager;
 
@@ -141,13 +144,16 @@ public class RobotContainer {
             climberSubsystem = new ClimberSubsystem(new ClimberIOSim());
         }
 
+        aimAndShootCommands = new AimAndShootCommands(
+            swerveDriveSubsystem, visionSubsystem, shooterSubsystem, intakeSubsystem
+        );
+
         autonomousManager = new AutonomousManager(this);
 
         configureBindings();
     }
 
     private void configureBindings() {
-
         /* Set default commands */
         swerveDriveSubsystem.setDefaultCommand(swerveDriveSubsystem.driveCommand(
                 this::getDriveForwardAxis, this::getDriveStrafeAxis, this::getDriveRotationAxis));
@@ -198,7 +204,8 @@ public class RobotContainer {
         
         leftDriveController
                 .getTrigger()
-                .whileTrue(movingAimCommand());
+                .whileTrue(aimAndShootCommands.movingAimCommand(
+                    this::getDriveForwardAxis, this::getDriveStrafeAxis, this::getDriveRotationAxis));
         leftDriveController
                 .nameTrigger("Aim");
         
@@ -257,104 +264,6 @@ public class RobotContainer {
         rightDriveController.sendButtonNamesToNT();
         leftDriveController.sendButtonNamesToNT();
         operatorController.sendButtonNamesToNT();
-    }
-
-    public Command stoppedShootAndAimCommand() {
-        return stoppedShootAndAimCommand(Optional.empty());
-    }
-
-    public Command stoppedShootAndAimCommand(Optional<Double> timeout) {
-        final double angularTolerance = 0.015;
-        final double velocityTolerance = 0.01;
-
-        Supplier<Pose2d> getPose = () -> swerveDriveSubsystem.getPose();
-
-        BooleanSupplier readyToFire = () -> (swerveDriveSubsystem.isAtDirectionCommand(angularTolerance, velocityTolerance));
-
-        ProfiledPIDController controller = new ProfiledPIDController(10, 0, .5, new TrapezoidProfile.Constraints(4.5, 8));
-
-        Command aimAtTag = swerveDriveSubsystem.directionCommand(() -> {
-            Rotation2d output = visionSubsystem.getSpeakerAngle(getPose.get()).plus(new Rotation2d(Math.PI));
-            System.out.println(output);
-            Logger.log("/ShooterSubsystem/targetRotationForShooting", output.getRadians());
-            return output;
-        }, 
-            () -> 0, () -> 0, controller, true);
-
-        
-
-        Command spinUpCommand = shooterSubsystem.shootCommand(() -> visionSubsystem.getSpeakerDistance(getPose.get()));
-
-        Command runBeltCommand;
-
-        if (timeout.isEmpty()) {
-            runBeltCommand = intakeSubsystem.shootCommand();
-        } else {
-            runBeltCommand = intakeSubsystem.shootCommand().withTimeout(timeout.get());
-        }
-
-        return deadline(waitUntil(readyToFire).andThen(runBeltCommand.asProxy()), aimAtTag, spinUpCommand.asProxy());
-    }
-
-    public Command movingAimCommand() {
-        final double angularTolerance = 0.015;
-        final double velocityTolerance = 0.01;
-
-        BooleanSupplier readyToFire = () -> swerveDriveSubsystem.isAtDirectionCommand(angularTolerance, velocityTolerance);
-
-        ProfiledPIDController controller = new ProfiledPIDController(5, 0, .5, new TrapezoidProfile.Constraints(4.5, 8));
-
-        
-
-        Command aimAtTag = swerveDriveSubsystem.directionCommand(() -> visionSubsystem.getSpeakerAngle(swerveDriveSubsystem.getPose()).plus(new Rotation2d(Math.PI)), 
-            this::getDriveForwardAxis, this::getDriveStrafeAxis, controller);
-
-        Command spinUpCommand = shooterSubsystem.shootCommand(() -> visionSubsystem.getSpeakerDistance(swerveDriveSubsystem.getPose()));
-
-        return parallel(aimAtTag, spinUpCommand, run(() -> {readyToFire.getAsBoolean();}));
-    }
-
-    public Command adaptiveMovingAimCommand() {
-        final double angularTolerance = 0.015;
-        final double velocityTolerance = 0.01;
-
-        // This is in theory the inverse of the speed of the note
-        final double forwardPredictionCoefficient = 1 / 2.0;
-
-        BooleanSupplier readyToFire = () -> swerveDriveSubsystem.isAtDirectionCommand(angularTolerance, velocityTolerance);
-
-        ProfiledPIDController controller = new ProfiledPIDController(5, 0, .5, new TrapezoidProfile.Constraints(4.5, 8));
-
-        Pose2d currentPose = swerveDriveSubsystem.getPose();
-        ChassisSpeeds currentSpeed = swerveDriveSubsystem.getFieldRelativeChassisSpeeds();
-
-        Supplier<Pose2d> predictedPose = () -> {
-            double distance = visionSubsystem.getSpeakerDistance(swerveDriveSubsystem.getPose());
-            return new Pose2d(
-                currentPose.getX() + currentSpeed.vxMetersPerSecond * forwardPredictionCoefficient * distance,
-                currentPose.getY() + currentSpeed.vyMetersPerSecond * forwardPredictionCoefficient * distance,
-                new Rotation2d(currentPose.getRotation().getRadians() + currentSpeed.omegaRadiansPerSecond * forwardPredictionCoefficient * distance));
-        };
-
-        Command aimAtTag = swerveDriveSubsystem.directionCommand(() -> visionSubsystem.getSpeakerAngle(predictedPose.get()).plus(new Rotation2d(Math.PI)), 
-            this::getDriveForwardAxis, this::getDriveStrafeAxis, controller);
-
-        Command spinUpCommand = shooterSubsystem.shootCommand(() -> visionSubsystem.getSpeakerDistance(predictedPose.get()));
-
-        return parallel(aimAtTag, spinUpCommand, run(() -> {readyToFire.getAsBoolean();}));
-    }
-
-    public Command movingAimCommandAuto() {
-        final double angularTolerance = 0.015;
-        final double velocityTolerance = 0.01;
-
-        BooleanSupplier readyToFire = () -> swerveDriveSubsystem.isAtDirectionCommand(angularTolerance, velocityTolerance);
-
-        Command aimAtTag = swerveDriveSubsystem.directionCommandAuto(() -> visionSubsystem.getSpeakerAngle(swerveDriveSubsystem.getPose()).plus(new Rotation2d(Math.PI)));
-
-        Command spinUpCommand = shooterSubsystem.shootCommand(() -> visionSubsystem.getSpeakerDistance(swerveDriveSubsystem.getPose()));
-
-        return parallel(aimAtTag, spinUpCommand.asProxy(), run(() -> {readyToFire.getAsBoolean();}));
     }
 
     public Command ampScoreCommand() {
@@ -465,6 +374,10 @@ public class RobotContainer {
 
     public ShooterSubsystem getShooterSubsystem() {
         return shooterSubsystem;
+    }
+
+    public AimAndShootCommands getAimAndShootCommands() {
+        return aimAndShootCommands;
     }
 }
 
