@@ -33,6 +33,10 @@ import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.Constants.TrapConstants;
 import frc.robot.commands.DriveToPositionCommand;
+import frc.robot.subsystems.climber.ClimberIO;
+import frc.robot.subsystems.climber.ClimberIOFalcon;
+import frc.robot.subsystems.climber.ClimberIOSim;
+import frc.robot.subsystems.climber.ClimberSubsystem;
 import frc.robot.subsystems.intake.IntakeIOFalconRedline;
 import frc.robot.subsystems.intake.IntakeIOSim;
 import frc.robot.subsystems.intake.IntakeSubsystem;
@@ -78,6 +82,7 @@ public class RobotContainer {
     private ShooterSubsystem shooterSubsystem;
     private IntakeSubsystem intakeSubsystem;
     private TrapSubsystem trapSubsystem;
+    private ClimberSubsystem climberSubsystem;
 
     public AutonomousManager autonomousManager;
 
@@ -87,7 +92,8 @@ public class RobotContainer {
             lightsSubsystem = new LightsSubsystem(new LightsIOBlinkin(0));
             shooterSubsystem = new ShooterSubsystem(new RollerIOFalcon(ShooterConstants.topShooterPort), new RollerIOFalcon(ShooterConstants.bottomShooterPort), new PivotIOFalcon(), Constants.ShooterConstants.topRollerMap(), Constants.ShooterConstants.bottomRollerMap(), Constants.ShooterConstants.shooterAngleMap());
             trapSubsystem = new TrapSubsystem(new TrapRollerIONeo550(TrapConstants.topRollerPort), new TrapRollerIONeo550(TrapConstants.bottomRollerPort), new RackIONeo550());
-            
+            climberSubsystem = new ClimberSubsystem(new ClimberIOFalcon());
+
             AprilTagIO leftCamera;
             AprilTagIO rightCamera;
             PositionTargetIO limelight;
@@ -132,6 +138,7 @@ public class RobotContainer {
             visionSubsystem = new VisionSubsystem(swerveDriveSubsystem, new AprilTagIOSim(), new AprilTagIOSim(), new PositionTargetIOSim(),new PositionTargetIOSim() );
             intakeSubsystem = new IntakeSubsystem(new IntakeIOSim());
             trapSubsystem = new TrapSubsystem(new TrapRollerIOSim(), new TrapRollerIOSim(), new RackIOSim());
+            climberSubsystem = new ClimberSubsystem(new ClimberIOSim());
         }
 
         autonomousManager = new AutonomousManager(this);
@@ -198,6 +205,15 @@ public class RobotContainer {
         leftDriveController
                 .getTrigger().and(rightDriveController.getTrigger())
                 .whileTrue(stoppedShootAndAimCommand());
+
+        leftDriveController
+                .getLeftThumb()
+                .whileTrue(climberSubsystem.setVoltage(-4));
+        
+        leftDriveController
+                .getRightThumb()
+                .whileTrue(climberSubsystem.setVoltage(4));
+        
         rightDriveController
                 .nameTrigger("Shoot");
         

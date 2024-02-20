@@ -157,12 +157,12 @@ public class SwerveDriveSubsystem extends SwerveDrivetrain implements Subsystem 
 
     public Command driveCommand(
             DoubleSupplier forward, DoubleSupplier strafe, DoubleSupplier rotation) {
-        var correctedVelocity = ChassisSpeeds.fromFieldRelativeSpeeds(new ChassisSpeeds(forward.getAsDouble(),strafe.getAsDouble(),rotation.getAsDouble()), new Rotation2d(getRobotRelativeChassisSpeeds().omegaRadiansPerSecond * SwerveConstants.angularVelocityCoefficient));
+        //var correctedVelocity = ChassisSpeeds.fromFieldRelativeSpeeds(new ChassisSpeeds(forward.getAsDouble(),strafe.getAsDouble(),rotation.getAsDouble()), new Rotation2d(getRobotRelativeChassisSpeeds().omegaRadiansPerSecond * SwerveConstants.angularVelocityCoefficient));
         return applyRequest(
                     () ->openLoop.withDeadband(0.0).withRotationalDeadband(0.0)
-                    .withVelocityX(correctedVelocity.vxMetersPerSecond)
-                    .withVelocityY(correctedVelocity.vyMetersPerSecond)
-                    .withRotationalRate(correctedVelocity.omegaRadiansPerSecond)
+                    .withVelocityX(forward.getAsDouble())
+                    .withVelocityY(strafe.getAsDouble())
+                    .withRotationalRate(rotation.getAsDouble())
         );
     }
 
