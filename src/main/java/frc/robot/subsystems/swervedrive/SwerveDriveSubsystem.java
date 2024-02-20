@@ -114,12 +114,12 @@ public class SwerveDriveSubsystem extends SwerveDrivetrain implements Subsystem 
                 this::seedFieldRelative, // Method to res.et odometry (will be called if your auto has a starting pose)
                 this::getRobotRelativeChassisSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
                 (velocity) -> {
-                    var correctedVelocity = ChassisSpeeds.fromFieldRelativeSpeeds(velocity, new Rotation2d(getRobotRelativeChassisSpeeds().omegaRadiansPerSecond * SwerveConstants.angularVelocityCoefficient));
+                    //var correctedVelocity = ChassisSpeeds.fromFieldRelativeSpeeds(velocity, new Rotation2d(getRobotRelativeChassisSpeeds().omegaRadiansPerSecond * SwerveConstants.angularVelocityCoefficient));
                     this.setControl(
                     closedLoopRobotCentric
-                    .withVelocityX(correctedVelocity.vxMetersPerSecond)
-                    .withVelocityY(correctedVelocity.vyMetersPerSecond)
-                    .withRotationalRate(correctedVelocity.omegaRadiansPerSecond));
+                    .withVelocityX(velocity.vxMetersPerSecond)
+                    .withVelocityY(velocity.vyMetersPerSecond)
+                    .withRotationalRate(velocity.omegaRadiansPerSecond));
                 }, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
                 new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should likely live in your Constants class
                         new PIDConstants(3, 0.0, 0.05), // Translation PID constants

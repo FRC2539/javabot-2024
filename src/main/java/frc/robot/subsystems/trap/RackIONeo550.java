@@ -29,8 +29,8 @@ public class RackIONeo550 implements RackIO {
         neo550.setSecondaryCurrentLimit(45);
 
         neo550.getEncoder().setPosition(0);
-        neo550.setSoftLimit(SoftLimitDirection.kReverse, 0);
-        neo550.setSoftLimit(SoftLimitDirection.kForward, 10);
+        neo550.setSoftLimit(SoftLimitDirection.kReverse, Float.MIN_NORMAL);
+        neo550.setSoftLimit(SoftLimitDirection.kForward, Float.MAX_VALUE);
 
         pidController = neo550.getPIDController();
 
@@ -53,10 +53,14 @@ public class RackIONeo550 implements RackIO {
 
         inputs.temperature = neo550.getMotorTemperature();
 
-        if (inputs.temperature > 40) {
+        inputs.current = neo550.getOutputCurrent();
+
+        inputs.voltage = neo550.getAppliedOutput();
+
+        if (inputs.temperature > 60) {
             shutdown = true;
             neo550.stopMotor();
-        } else if (inputs.temperature < 30) {
+        } else if (inputs.temperature < 58) {
             shutdown = false;
         }
         //pivotMotor.setPosition(getGripperEncoderAngle() / ShooterConstants.gearRatioPivot);

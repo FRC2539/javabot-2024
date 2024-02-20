@@ -48,7 +48,7 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public ShooterState updateShooterStateForDistance(double distance) {
-        return new ShooterState(
+        return ShooterState.fromVoltages(
             topRollerMap.getInterpolated(distance).get().value,
             bottomRollerMap.getInterpolated(distance).get().value,
             Rotation2d.fromDegrees(pivotAngleMap.getInterpolated(distance).get().value)
@@ -76,7 +76,7 @@ public class ShooterSubsystem extends SubsystemBase {
         if (currentShooterState.isAngleVoltageBased) {
             pivotIO.setVoltage(currentShooterState.pivotAngle.getRotations());
         } else {
-            pivotIO.setAngle(Rotation2d.fromDegrees(MathUtils.ensureRange(currentShooterState.pivotAngle.getDegrees(), 20, 53)));
+            pivotIO.setAngle(Rotation2d.fromDegrees(MathUtils.ensureRange(currentShooterState.pivotAngle.getDegrees(), 20, 55)));
         }
     }
 

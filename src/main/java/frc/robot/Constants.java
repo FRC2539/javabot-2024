@@ -71,30 +71,48 @@ public final class Constants {
 
         public static final InterpolatingMap<InterpolatableDouble> topRollerMap() {
             var map = new InterpolatingMap<InterpolatableDouble>();
-            map.put(0, new InterpolatableDouble(0.0));
-            map.put(5, new InterpolatableDouble(1.0));
-            map.put(15, new InterpolatableDouble(10.0));
-            map.put(100, new InterpolatableDouble(10.0));
+            map.put(0, new InterpolatableDouble(0.4));
+            map.put(1.539, new InterpolatableDouble(0.4));
+            map.put(2.035, new InterpolatableDouble(.6));
+            map.put(2.512, new InterpolatableDouble(.6));
+            map.put(3.065, new InterpolatableDouble(.6));
+            map.put(3.545, new InterpolatableDouble(.65));
+            map.put(4.009, new InterpolatableDouble(.75));
+            map.put(4.518, new InterpolatableDouble(.85));
+            map.put(5.25, new InterpolatableDouble(.9));
+            map.put(100, new InterpolatableDouble(.9));
 
             return map;
         }
 
         public static final InterpolatingMap<InterpolatableDouble> bottomRollerMap() {
             var map = new InterpolatingMap<InterpolatableDouble>();
-            map.put(0, new InterpolatableDouble(0.0));
-            map.put(5, new InterpolatableDouble(1.0));
-            map.put(15, new InterpolatableDouble(10.0));
-            map.put(100, new InterpolatableDouble(10.0));
+            map.put(0, new InterpolatableDouble(0.7));
+            map.put(1.539, new InterpolatableDouble(0.7));
+            map.put(2.035, new InterpolatableDouble(.6));
+            map.put(2.512, new InterpolatableDouble(.6));
+            map.put(3.065, new InterpolatableDouble(.6));
+            map.put(3.545, new InterpolatableDouble(.6));
+            map.put(4.009, new InterpolatableDouble(.7));
+            map.put(4.518, new InterpolatableDouble(.8));
+            map.put(5.25, new InterpolatableDouble(.8));
+            map.put(100, new InterpolatableDouble(.8));
 
             return map;
         }
 
         public static final InterpolatingMap<InterpolatableDouble> shooterAngleMap() {
             var map = new InterpolatingMap<InterpolatableDouble>();
-            map.put(0, new InterpolatableDouble(0.0));
-            map.put(5, new InterpolatableDouble(.5));
-            map.put(15, new InterpolatableDouble(.75));
-            map.put(100, new InterpolatableDouble(1));
+            map.put(0, new InterpolatableDouble(55));
+            map.put(1.539, new InterpolatableDouble(55));
+            map.put(2.035, new InterpolatableDouble(50));
+            map.put(2.512, new InterpolatableDouble(43));
+            map.put(3.065, new InterpolatableDouble(38));
+            map.put(3.545, new InterpolatableDouble(34));
+            map.put(4.009, new InterpolatableDouble(31.5));
+            map.put(4.518, new InterpolatableDouble(29));
+            map.put(5.25, new InterpolatableDouble(25.5));
+            map.put(100, new InterpolatableDouble(20));
 
             return map;
         }
