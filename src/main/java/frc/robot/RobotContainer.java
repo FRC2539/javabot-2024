@@ -197,13 +197,13 @@ public class RobotContainer {
         
         leftDriveController
                 .getTrigger().and(rightDriveController.getTrigger())
-                .whileTrue(stoppedShootAndAimCommand());
+                .whileTrue(intakeSubsystem.shootCommand());//stoppedShootAndAimCommand());
         rightDriveController
                 .nameTrigger("Shoot");
         
         LoggedReceiver topRollerSpeedTunable = Logger.tunable("/ShooterSubsystem/topTunable", .4d);
         LoggedReceiver bottomRollerSpeedTunable = Logger.tunable("/ShooterSubsystem/bottomTunable", .7d);
-        LoggedReceiver pivotAngleTunable = Logger.tunable("/ShooterSubsystem/pivotTunable", 53d);
+        LoggedReceiver pivotAngleTunable = Logger.tunable("/ShooterSubsystem/pivotTunable", 55d);
         LoggedReceiver isVoltageBasedTunable = Logger.tunable("/ShooterSubsystem/voltageTunable", true);
         
         leftDriveController
@@ -233,10 +233,10 @@ public class RobotContainer {
         operatorController.getLeftBumper().whileTrue(trapSubsystem.shootCommand(TrapState.fromVoltages(0, 0, -1.5)));
         operatorController.getRightBumper().whileTrue(trapSubsystem.shootCommand(TrapState.fromVoltages(0, 0, 4.0)));
 
-        operatorController.getDPadLeft().whileTrue(trapSubsystem.runIntakeCommand(6.0, 6.0));
-        operatorController.getDPadRight().whileTrue(trapSubsystem.runIntakeCommand(-6.0, -6.0));
-        operatorController.getDPadUp().whileTrue(trapSubsystem.runIntakeCommand(-2.0, 2.0));
-        operatorController.getDPadDown().whileTrue(trapSubsystem.runIntakeCommand(2.0, -2.0));
+        operatorController.getDPadLeft().whileTrue(trapSubsystem.runIntakeCommand(-6.0, -6.0));
+        operatorController.getDPadRight().whileTrue(trapSubsystem.runIntakeCommand(6.0, 6.0));
+        operatorController.getDPadUp().whileTrue(trapSubsystem.runIntakeCommand(2.0, -2.0));
+        operatorController.getDPadDown().whileTrue(trapSubsystem.runIntakeCommand(-2.0, 2.0));
 
         rightDriveController.sendButtonNamesToNT();
         leftDriveController.sendButtonNamesToNT();
@@ -257,7 +257,12 @@ public class RobotContainer {
 
         ProfiledPIDController controller = new ProfiledPIDController(10, 0, .5, new TrapezoidProfile.Constraints(4.5, 8));
 
-        Command aimAtTag = swerveDriveSubsystem.directionCommand(() -> visionSubsystem.getSpeakerAngle(getPose.get()).plus(new Rotation2d(Math.PI)), 
+        Command aimAtTag = swerveDriveSubsystem.directionCommand(() -> {
+            Rotation2d output = visionSubsystem.getSpeakerAngle(getPose.get()).plus(new Rotation2d(Math.PI));
+            System.out.println(output);
+            Logger.log("/ShooterSubsystem/targetRotationForShooting", output.getRadians());
+            return output;
+        }, 
             () -> 0, () -> 0, controller, true);
 
         

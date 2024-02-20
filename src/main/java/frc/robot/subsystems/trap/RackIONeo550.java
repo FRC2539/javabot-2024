@@ -69,14 +69,10 @@ public class RackIONeo550 implements RackIO {
     public void setPosition(double position) {
         if (shutdown) return;
         pidController.setReference(position, ControlType.kPosition);
-        System.out.print("set position to ");
-        System.out.println(position);
     }
 
     public void setVoltage(double voltage) {
         if (shutdown) return;
         neo550.setVoltage(voltage);
-        System.out.print("set voltage to ");
-        System.out.println(voltage);
     }
 }
