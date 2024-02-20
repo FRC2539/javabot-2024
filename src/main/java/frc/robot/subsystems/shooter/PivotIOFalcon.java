@@ -37,7 +37,7 @@ public class PivotIOFalcon implements PivotIO {
         pivotMotor.getConfigurator().apply(slot0Configs);
         
         lastEncoderAngle = Rotation2d.fromDegrees(47).getRotations() * Constants.ShooterConstants.gearRatioPivot;
-        encoder.setPositionOffset((0.1938 - (52.0 / 360.0 * Constants.ShooterConstants.gearRatioPivot) + 10) % 1.0);
+        encoder.setPositionOffset((0.1938 - (47.0 / 360.0 * Constants.ShooterConstants.gearRatioPivot) + 10) % 1.0);
         pivotMotor.setPosition(getGripperEncoderAngle() / Constants.ShooterConstants.gearRatioPivot);
     }
 

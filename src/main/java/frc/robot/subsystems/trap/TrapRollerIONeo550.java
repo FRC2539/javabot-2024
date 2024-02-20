@@ -23,12 +23,13 @@ public class TrapRollerIONeo550 implements TrapRollerIO {
         inputs.current = neo550.getOutputCurrent();
         inputs.motorTemperature = neo550.getMotorTemperature();
 
-        if (inputs.motorTemperature > 40) {
+        if (inputs.motorTemperature > 60) {
             shutdown = true;
             neo550.stopMotor();
-        } else if (inputs.motorTemperature < 30) {
+        } else if (inputs.motorTemperature < 58) {
             shutdown = false;
         }
+
     }
 
     public void setVoltage(double voltage) {

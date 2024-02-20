@@ -230,8 +230,8 @@ public class RobotContainer {
         operatorController.getB().onTrue(shooterSubsystem.updateShooterAngleCommand());
 
         // 1.2 is about kG
-        operatorController.getLeftBumper().whileTrue(trapSubsystem.shootCommand(TrapState.fromVoltages(0, 0, 0.0)));
-        operatorController.getRightBumper().whileTrue(trapSubsystem.shootCommand(TrapState.fromVoltages(0, 0, 2.4)));
+        operatorController.getLeftBumper().whileTrue(trapSubsystem.shootCommand(TrapState.fromVoltages(0, 0, -1.5)));
+        operatorController.getRightBumper().whileTrue(trapSubsystem.shootCommand(TrapState.fromVoltages(0, 0, 4.0)));
 
         operatorController.getDPadLeft().whileTrue(trapSubsystem.runIntakeCommand(6.0, 6.0));
         operatorController.getDPadRight().whileTrue(trapSubsystem.runIntakeCommand(-6.0, -6.0));
@@ -410,6 +410,10 @@ public class RobotContainer {
 
     public TrapSubsystem getTrapSubsystem() {
         return trapSubsystem;
+    }
+
+    public ShooterSubsystem getShooterSubsystem() {
+        return shooterSubsystem;
     }
 }
 

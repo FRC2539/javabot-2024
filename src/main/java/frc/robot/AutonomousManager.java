@@ -9,6 +9,7 @@ import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.PathPlannerLogging;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -17,6 +18,8 @@ import frc.lib.logging.LoggedReceiver;
 import frc.lib.logging.Logger;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.lights.LightsSubsystem;
+import frc.robot.subsystems.shooter.ShooterState;
+import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveDriveSubsystem;
 
 import java.util.Optional;
@@ -32,17 +35,20 @@ public class AutonomousManager {
     SwerveDriveSubsystem swerveDriveSubsystem;
     LightsSubsystem lightsSubsystem;
     IntakeSubsystem intakeSubsystem;
+    ShooterSubsystem shooterSubsystem;
 
     public AutonomousManager(RobotContainer container) {
         swerveDriveSubsystem = container.getSwerveDriveSubsystem();
         lightsSubsystem = container.getLightsSubsystem();
         intakeSubsystem = container.getIntakeSubsystem();
+        shooterSubsystem = container.getShooterSubsystem();
 
         // Create an event map for use in all autos
 
         //It appears that for any default commands to run, the commands need to be registered as proxies. Howevery, anything that uses swerve cannot have the swerve proxied out.
         NamedCommands.registerCommand("stop", runOnce(() -> swerveDriveSubsystem.setControl(new SwerveRequest.Idle()), swerveDriveSubsystem).asProxy());
         NamedCommands.registerCommand("shoot", container.stoppedShootAndAimCommand(Optional.of(1d)).onlyIf(() -> intakeSubsystem.hasPiece()));
+        NamedCommands.registerCommand("subshoot", Commands.parallel(shooterSubsystem.shootCommand(ShooterState.fromVoltages(.4,.7,Rotation2d.fromDegrees(53))).asProxy(), Commands.waitSeconds(1).andThen(intakeSubsystem.shootCommand().asProxy())).withTimeout(1.5));
         NamedCommands.registerCommand("intake", intakeSubsystem.intakeCommand().withTimeout(2).asProxy());
         NamedCommands.registerCommand("mlintake", parallel());
         NamedCommands.registerCommand("amp", parallel());
