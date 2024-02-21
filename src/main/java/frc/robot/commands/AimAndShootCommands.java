@@ -16,6 +16,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import frc.lib.logging.Logger;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
@@ -39,14 +40,14 @@ public class AimAndShootCommands {
     }
 
     public Command stoppedShootAndAimCommand(Optional<Double> timeout) {
-            final double angularTolerance = 0.015;
-            final double velocityTolerance = 0.01;
+            final double angularTolerance = 0.030;
+            final double velocityTolerance = 0.02;
     
             Supplier<Pose2d> getPose = () -> swerveDriveSubsystem.getPose();
     
             BooleanSupplier readyToFire = () -> (swerveDriveSubsystem.isAtDirectionCommand(angularTolerance, velocityTolerance));
     
-            ProfiledPIDController controller = new ProfiledPIDController(10, 0, .5, new TrapezoidProfile.Constraints(4.5, 8));
+            ProfiledPIDController controller = new ProfiledPIDController(5, 0, .5, new TrapezoidProfile.Constraints(4.5, 8));
     
             Command aimAtTag = swerveDriveSubsystem.directionCommand(() -> {
                 Rotation2d output = visionSubsystem.getSpeakerAngle(getPose.get()).plus(new Rotation2d(Math.PI));
@@ -68,7 +69,7 @@ public class AimAndShootCommands {
                 runBeltCommand = intakeSubsystem.shootCommand().withTimeout(timeout.get());
             }
     
-            return deadline(waitUntil(readyToFire).andThen(runBeltCommand.asProxy()), aimAtTag, spinUpCommand.asProxy());
+            return deadline(parallel(waitUntil(readyToFire), Commands.waitSeconds(1.0)).andThen(runBeltCommand.asProxy()), aimAtTag, spinUpCommand.asProxy());
         }
 
     public Command movingAimCommand(DoubleSupplier forward, DoubleSupplier strafe, DoubleSupplier rotate) {

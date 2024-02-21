@@ -215,11 +215,11 @@ public class RobotContainer {
 
         leftDriveController
                 .getLeftThumb()
-                .whileTrue(climberSubsystem.setVoltage(-4));
+                .whileTrue(climberSubsystem.setVoltage(-12));
         
         leftDriveController
                 .getRightThumb()
-                .whileTrue(climberSubsystem.setVoltage(4));
+                .whileTrue(climberSubsystem.setVoltage(12));
     
         rightDriveController
                 .nameTrigger("Shoot");
@@ -255,8 +255,10 @@ public class RobotContainer {
         // 1.2 is about kG
         operatorController.getLeftBumper().whileTrue(trapSubsystem.shootCommand(TrapState.fromVoltages(0, 0, -1.5)));
         operatorController.getRightBumper().whileTrue(trapSubsystem.shootCommand(TrapState.fromVoltages(0, 0, 4.0)));
+        operatorController.getY().whileTrue(trapSubsystem.shootCommand(new TrapState(0,0,16)));
+        operatorController.getX().whileTrue(trapSubsystem.shootCommand(new TrapState(0,0,2)));
 
-        operatorController.getDPadLeft().whileTrue(trapSubsystem.runIntakeCommand(-6.0, -6.0));
+        operatorController.getDPadLeft().whileTrue(trapSubsystem.runIntakeCommand(-12.0, -12.0));
         operatorController.getDPadRight().whileTrue(trapSubsystem.runIntakeCommand(6.0, 6.0));
         operatorController.getDPadUp().whileTrue(trapSubsystem.runIntakeCommand(2.0, -2.0));
         operatorController.getDPadDown().whileTrue(trapSubsystem.runIntakeCommand(-2.0, 2.0));

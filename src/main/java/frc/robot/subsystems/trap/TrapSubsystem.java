@@ -23,6 +23,7 @@ public class TrapSubsystem extends SubsystemBase {
     private RackIOInputs rackInputs = new RackIOInputs();
 
     private final TrapState defaultState = new TrapState(0,0,0,true);
+    private final TrapState defaultStateHolding = new TrapState(0,0,1.2,true);
 
     private TrapState currentTrapState = defaultState;
 
@@ -48,7 +49,7 @@ public class TrapSubsystem extends SubsystemBase {
         if (currentTrapState.isVoltageBased) {
             rackIO.setVoltage(currentTrapState.rack);
         } else {
-            rackIO.setPosition(MathUtils.ensureRange(currentTrapState.rack, 0.1, 1));
+            rackIO.setPosition(MathUtils.ensureRange(currentTrapState.rack, 0.5,16));
         }
     }
 
@@ -64,7 +65,11 @@ public class TrapSubsystem extends SubsystemBase {
 
     public Command disabledCommand() {
         return run(() -> {
-            currentTrapState = defaultState;
+            if (rackInputs.position < 2.5) {
+                currentTrapState = defaultState;
+            } else {
+                currentTrapState = defaultStateHolding;
+            }
         });
     }
 

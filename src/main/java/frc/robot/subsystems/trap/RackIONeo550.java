@@ -15,8 +15,8 @@ import frc.robot.Constants;
 
 public class RackIONeo550 implements RackIO {
     private CANSparkMax neo550;
-    private PositionVoltage control = new PositionVoltage(Rotation2d.fromDegrees(40).getRotations());
     private SparkPIDController pidController;
+    private double goalPosition;
 
     private final double errorThreshold = 0.1;
 
@@ -25,18 +25,19 @@ public class RackIONeo550 implements RackIO {
     public RackIONeo550() {
         neo550 = new CANSparkMax(Constants.TrapConstants.rackMotorPort, MotorType.kBrushless);
         
-        neo550.setSmartCurrentLimit(40);
-        neo550.setSecondaryCurrentLimit(45);
+        neo550.setSmartCurrentLimit(30);
+        neo550.setSecondaryCurrentLimit(35);
 
         neo550.getEncoder().setPosition(0);
-        neo550.setSoftLimit(SoftLimitDirection.kReverse, Float.MIN_NORMAL);
-        neo550.setSoftLimit(SoftLimitDirection.kForward, Float.MAX_VALUE);
+        neo550.setSoftLimit(SoftLimitDirection.kReverse, 2.0f);
+        neo550.setSoftLimit(SoftLimitDirection.kForward, 16.0f);
 
         pidController = neo550.getPIDController();
 
-        pidController.setP(0.1);
+        pidController.setP(1);
         pidController.setI(0);
-        pidController.setD(1);
+        pidController.setD(5);
+        pidController.setFF(0.01);
         pidController.setOutputRange(-1,1);
 
         neo550.setIdleMode(IdleMode.kBrake);
@@ -49,7 +50,7 @@ public class RackIONeo550 implements RackIO {
     public void updateInputs(RackIOInputs inputs) {
         inputs.position = neo550.getEncoder().getPosition();
         //inputs.currentAngle = Rotation2d.fromRotations(getGripperEncoderAngle() / Constants.ShooterConstants.gearRatioPivot); //pivotMotor.getPosition().getValueAsDouble());
-        inputs.atTarget = MathUtils.equalsWithinError(control.Position, inputs.position, errorThreshold);
+        inputs.atTarget = MathUtils.equalsWithinError(goalPosition, inputs.position, errorThreshold);
 
         inputs.temperature = neo550.getMotorTemperature();
 

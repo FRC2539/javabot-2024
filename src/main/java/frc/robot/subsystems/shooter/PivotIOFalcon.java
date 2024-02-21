@@ -7,7 +7,11 @@ import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.WidgetType;
 import frc.lib.math.MathUtils;
 import frc.robot.Constants;
 import frc.robot.Constants.ShooterConstants;
@@ -21,6 +25,11 @@ public class PivotIOFalcon implements PivotIO {
     private double lastEncoderAngle = 0;
 
     private final double errorThreshold = 0.1;
+
+    // Aaron's Persistent Addition
+    private GenericEntry positionOffset = Shuffleboard.getTab("Position Offset").addPersistent("Position Offset", 45)
+        .withWidget(BuiltInWidgets.kTextView)
+        .getEntry();
 
     public PivotIOFalcon() {
         pivotMotor = new TalonFX(Constants.ShooterConstants.pivotPort, "CANivore");
@@ -36,9 +45,7 @@ public class PivotIOFalcon implements PivotIO {
         slot0Configs.kS = 0.3;
         pivotMotor.getConfigurator().apply(slot0Configs);
         
-        lastEncoderAngle = Rotation2d.fromDegrees(47).getRotations() * Constants.ShooterConstants.gearRatioPivot;
-        encoder.setPositionOffset((0.1938 - (47.0 / 360.0 * Constants.ShooterConstants.gearRatioPivot) + 10) % 1.0);
-        pivotMotor.setPosition(getGripperEncoderAngle() / Constants.ShooterConstants.gearRatioPivot);
+        updateAngle(Rotation2d.fromDegrees(47));
     }
 
     public void updateInputs(PivotIOInputs inputs) {
@@ -59,6 +66,8 @@ public class PivotIOFalcon implements PivotIO {
 
     public void updateAngle(Rotation2d angle) {
         lastEncoderAngle = angle.getRotations() * ShooterConstants.gearRatioPivot;
+        //encoder.setPositionOffset((0.1938 - (45.0 / 360.0 * Constants.ShooterConstants.gearRatioPivot) + 10) % 1.0);
+        encoder.setPositionOffset((0.1938 - (positionOffset.getDouble(45) / 360.0 * Constants.ShooterConstants.gearRatioPivot) + 10) % 1.0);
         pivotMotor.setPosition(getGripperEncoderAngle() / ShooterConstants.gearRatioPivot);
 
         System.out.println(encoder.getPositionOffset());
