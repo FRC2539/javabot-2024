@@ -3,7 +3,7 @@ package frc.robot.subsystems.climber;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import frc.lib.logging.Logger;
-
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.climber.ClimberIO.ClimberIOInputs;
 
@@ -13,9 +13,10 @@ public class ClimberSubsystem extends SubsystemBase {
     private ClimberIOInputs climberVoltage = new ClimberIOInputs();
 
     private double voltage = 0;
+    private boolean overrideMode = false;
 
     private final double lowerLimit = 0;
-    private final double upperLimit = 305;
+    private final double upperLimit = 315;
 
     public ClimberSubsystem(ClimberIO pivotIO) {
         this.pivotIO = pivotIO;
@@ -30,7 +31,7 @@ public class ClimberSubsystem extends SubsystemBase {
         this.pivotIO.updateInputs(climberVoltage);
 
         var tempVoltage = voltage;
-        if (voltage < 0 && climberVoltage.currentPosition < lowerLimit) {
+        if (voltage < 0 && climberVoltage.currentPosition < lowerLimit && !overrideMode) {
             tempVoltage = 0;
         }
         
@@ -49,6 +50,18 @@ public class ClimberSubsystem extends SubsystemBase {
 
     public Command setVoltage(double voltage) {
         return run(() -> {this.voltage = voltage;});
+    }
+
+    public Command overrideVoltageCommand() {
+        return runEnd(() -> {
+            voltage = -2;
+            overrideMode = true;
+        }, () -> overrideMode = false
+            );
+    }
+
+    public Command zeroClimberCommand() {
+        return runOnce(() -> pivotIO.setPosition(0));
     }
     
     public void logClimberInformation() {
