@@ -62,6 +62,10 @@ public class SwerveDriveSubsystem extends SwerveDrivetrain implements Subsystem 
     public final SwerveRequest.FieldCentric openLoop = new SwerveRequest.FieldCentric()
                     .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
                     .withSteerRequestType(SteerRequestType.MotionMagicExpo);
+    
+    public final SwerveRequest.RobotCentric openLoopRobotCentric = new SwerveRequest.RobotCentric()
+                    .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
+                    .withSteerRequestType(SteerRequestType.MotionMagicExpo);
 
     public final SwerveRequest.ApplyChassisSpeeds stopped = new SwerveRequest.ApplyChassisSpeeds()
                     .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
