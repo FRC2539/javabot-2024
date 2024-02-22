@@ -44,6 +44,7 @@ import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.lights.LightsIOBlinkin;
 import frc.robot.subsystems.lights.LightsIOSim;
 import frc.robot.subsystems.lights.LightsSubsystem;
+import frc.robot.subsystems.lights.LightsSubsystemB;
 import frc.robot.subsystems.shooter.PivotIOFalcon;
 import frc.robot.subsystems.shooter.PivotIOSim;
 import frc.robot.subsystems.shooter.RollerIOFalcon;
@@ -78,7 +79,7 @@ public class RobotContainer {
     public static SlewRateLimiter strafeRateLimiter = new SlewRateLimiter(35, -35, 0);
 
     private SwerveDriveSubsystem swerveDriveSubsystem;
-    private LightsSubsystem lightsSubsystem;
+    private LightsSubsystemB lightsSubsystem;
     private VisionSubsystem visionSubsystem;
     private ShooterSubsystem shooterSubsystem;
     private IntakeSubsystem intakeSubsystem;
@@ -92,7 +93,7 @@ public class RobotContainer {
     public RobotContainer(TimedRobot robot) {
         if (Robot.isReal()) {
             swerveDriveSubsystem = TunerConstants.DriveTrain;
-            lightsSubsystem = new LightsSubsystem(new LightsIOBlinkin(0));
+            lightsSubsystem = new LightsSubsystemB(); //new LightsSubsystem(new LightsIOBlinkin(0));
             shooterSubsystem = new ShooterSubsystem(new RollerIOFalcon(ShooterConstants.topShooterPort), new RollerIOFalcon(ShooterConstants.bottomShooterPort), new PivotIOFalcon(), Constants.ShooterConstants.topRollerMap(), Constants.ShooterConstants.bottomRollerMap(), Constants.ShooterConstants.shooterAngleMap());
             trapSubsystem = new TrapSubsystem(new TrapRollerIONeo550(TrapConstants.topRollerPort), new TrapRollerIONeo550(TrapConstants.bottomRollerPort), new RackIONeo550());
             climberSubsystem = new ClimberSubsystem(new ClimberIOFalcon());
@@ -136,7 +137,7 @@ public class RobotContainer {
         
         } else {
             swerveDriveSubsystem = TunerConstants.DriveTrain;
-            lightsSubsystem = new LightsSubsystem(new LightsIOSim());
+            lightsSubsystem = new LightsSubsystemB();
             shooterSubsystem = new ShooterSubsystem(new RollerIOSim(), new RollerIOSim(), new PivotIOSim(), Constants.ShooterConstants.topRollerMap(), Constants.ShooterConstants.bottomRollerMap(), Constants.ShooterConstants.shooterAngleMap());
             visionSubsystem = new VisionSubsystem(swerveDriveSubsystem, new AprilTagIOSim(), new AprilTagIOSim(), new PositionTargetIOSim(),new PositionTargetIOSim() );
             intakeSubsystem = new IntakeSubsystem(new IntakeIOSim());
@@ -266,6 +267,14 @@ public class RobotContainer {
         operatorController.getDPadUp().whileTrue(trapSubsystem.runIntakeCommand(2.0, -2.0));
         operatorController.getDPadDown().whileTrue(trapSubsystem.runIntakeCommand(-2.0, 2.0));
 
+        operatorController.getRightTrigger().whileTrue(run(() -> LightsSubsystemB.LEDSegment.MainStrip.setStrobeAnimation(LightsSubsystemB.purple, 0.3), lightsSubsystem));
+        operatorController.getLeftTrigger().whileTrue(repeatingSequence(
+            run(() -> LightsSubsystemB.LEDSegment.MainStrip.setColor(LightsSubsystemB.red), lightsSubsystem).withTimeout(.1),
+            run(() -> LightsSubsystemB.LEDSegment.MainStrip.setColor(LightsSubsystemB.green), lightsSubsystem).withTimeout(.1)
+        ));
+        operatorController.getStart().toggleOnTrue(run(() -> LightsSubsystemB.LEDSegment.MainStrip.setRainbowAnimation(1), lightsSubsystem));
+
+
         rightDriveController.sendButtonNamesToNT();
         leftDriveController.sendButtonNamesToNT();
         operatorController.sendButtonNamesToNT();
@@ -361,7 +370,7 @@ public class RobotContainer {
         return swerveDriveSubsystem;
     }
 
-    public LightsSubsystem getLightsSubsystem() {
+    public LightsSubsystemB getLightsSubsystem() {
         return lightsSubsystem;
     }
 

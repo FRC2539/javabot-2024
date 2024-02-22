@@ -19,6 +19,7 @@ import frc.lib.logging.Logger;
 import frc.robot.commands.AimAndShootCommands;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.lights.LightsSubsystem;
+import frc.robot.subsystems.lights.LightsSubsystemB;
 import frc.robot.subsystems.shooter.ShooterState;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveDriveSubsystem;
@@ -34,7 +35,7 @@ public class AutonomousManager {
     private SendableChooser<AutonomousOption> autoChooser = new SendableChooser<AutonomousOption>();
 
     SwerveDriveSubsystem swerveDriveSubsystem;
-    LightsSubsystem lightsSubsystem;
+    LightsSubsystemB lightsSubsystem;
     IntakeSubsystem intakeSubsystem;
     ShooterSubsystem shooterSubsystem;
 

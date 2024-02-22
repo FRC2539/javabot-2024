@@ -161,37 +161,43 @@ public class VisionSubsystem extends SubsystemBase {
         return VecBuilder.fill(translationStdDev, translationStdDev, rotationStdDev);
     }
 
+    private static boolean usingCameraDirectly = false;
     private Rotation2d lastSpeakerAngle = new Rotation2d(0);
     public Rotation2d getSpeakerAngle(Pose2d currentPose) {
         Optional<PhotonTrackedTarget> speakerTag  = VisionSubsystem.getTagInfo(leftTargets, FieldConstants.getSpeakerTag());
-        if (speakerTag.isPresent() && false) {
+        lastSpeakerAngle = FieldConstants.getSpeakerPose().getTranslation().minus(currentPose.getTranslation()).getAngle();
+        Logger.log("/VisionSubsystem/LastSpeakerAngle", lastSpeakerAngle.getRadians());
+        if (speakerTag.isPresent() && usingCameraDirectly) {
             // TODO: This is not right
             double distance = getSpeakerDistance(currentPose);
-            Transform2d transformToCamera = new Transform2d(
+            Transform2d transformRobotToCamera = new Transform2d(
                 VisionConstants.robotToLeftCamera.getTranslation().toTranslation2d(), 
-                new Rotation2d(VisionConstants.robotToLeftCamera.getRotation().getZ()));
-            Transform2d transformToGoal = transformToCamera.plus(new Transform2d(distance, 0, Rotation2d.fromDegrees(speakerTag.get().getYaw())));
+                Rotation2d.fromDegrees(19));
+            Transform2d transformCameraToGoal = 
+                    new Transform2d(0,0,Rotation2d.fromDegrees(-speakerTag.get().getYaw()))
+                    .plus(new Transform2d(distance, 0, new Rotation2d()));
+
+            Transform2d transformRobotToGoal = transformRobotToCamera.plus(transformCameraToGoal);
 
             // Gets that final translation to goal and
-            lastSpeakerAngle = currentPose.getRotation().plus(transformToGoal.getTranslation().getAngle());
-        } else {
-            lastSpeakerAngle = FieldConstants.getSpeakerPose().getTranslation().minus(currentPose.getTranslation()).getAngle();
+            lastSpeakerAngle = currentPose.getRotation().plus(transformRobotToGoal.getTranslation().getAngle());
+            Logger.log("/VisionSubsystem/LastSpeakerAngleDirect", lastSpeakerAngle.getRadians());
         }
-        Logger.log("/VisionSubsystem/LastSpeakerAngle", lastSpeakerAngle.getRadians());
         return lastSpeakerAngle;
     }
+
     public double getSpeakerDistance(Pose2d currentPose) {
         Optional<PhotonTrackedTarget> speakerTag  = VisionSubsystem.getTagInfo(leftTargets, FieldConstants.getSpeakerTag());
         double distance;
-        if (speakerTag.isPresent() && false) {
+        distance = FieldConstants.getSpeakerPose().getTranslation().minus(currentPose.getTranslation()).getNorm();
+        Logger.log("/VisionSubsystem/LastSpeakerDistance", distance);
+        if (speakerTag.isPresent() && usingCameraDirectly) {
             // TODO: This is not right
             distance = PhotonUtils.calculateDistanceToTargetMeters(
                 VisionConstants.robotToLeftCamera.getZ(), Units.inchesToMeters(57.75), 
                 Units.degreesToRadians(19), Units.degreesToRadians(speakerTag.get().getPitch()));
-        } else {
-            distance = FieldConstants.getSpeakerPose().getTranslation().minus(currentPose.getTranslation()).getNorm();
+                Logger.log("/VisionSubsystem/LastSpeakerDistanceDirect", distance);
         }
-        Logger.log("/VisionSubsystem/LastSpeakerDistance", distance);
         return distance;
     }
 }
