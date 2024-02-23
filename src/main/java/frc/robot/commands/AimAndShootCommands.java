@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.lib.logging.Logger;
 import frc.robot.subsystems.intake.IntakeSubsystem;
+import frc.robot.subsystems.lights.LightsSubsystemB;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveDriveSubsystem;
 import frc.robot.subsystems.vision.VisionSubsystem;
@@ -35,11 +36,11 @@ public class AimAndShootCommands {
         this.intakeSubsystem = intakeSubsystem;
     }
 
-    public Command stoppedShootAndAimCommand() {
-        return stoppedShootAndAimCommand(Optional.empty());
+    public Command stoppedShootAndAimCommand(LightsSubsystemB lightsSubsystem) {
+        return stoppedShootAndAimCommand(Optional.empty(), lightsSubsystem);
     }
 
-    public Command stoppedShootAndAimCommand(Optional<Double> timeout) {
+    public Command stoppedShootAndAimCommand(Optional<Double> timeout, LightsSubsystemB lightsSubsystem) {
             final double angularTolerance = 0.030;
             final double velocityTolerance = 0.02;
     
@@ -57,22 +58,30 @@ public class AimAndShootCommands {
             }, 
                 () -> 0, () -> 0, controller, true);
     
-            
-    
+        
             Command spinUpCommand = shooterSubsystem.shootCommand(() -> visionSubsystem.getSpeakerDistance(getPose.get()));
     
             Command runBeltCommand;
-    
+
             if (timeout.isEmpty()) {
                 runBeltCommand = intakeSubsystem.shootCommand();
             } else {
                 runBeltCommand = intakeSubsystem.shootCommand().withTimeout(timeout.get());
             }
+
+            Command lightsCommand;
+
+            if (readyToFire.getAsBoolean()) {
+                lightsCommand = run(() -> LightsSubsystemB.LEDSegment.MainStrip.setColor(LightsSubsystemB.green), lightsSubsystem);
+            }
+            else {
+                lightsCommand = run(() -> LightsSubsystemB.LEDSegment.MainStrip.setStrobeAnimation(LightsSubsystemB.yellow, 0.3), lightsSubsystem);
+            }
     
-            return deadline(parallel(waitUntil(readyToFire), Commands.waitSeconds(1.0)).andThen(runBeltCommand.asProxy()), aimAtTag, spinUpCommand.asProxy());
+            return deadline(parallel(waitUntil(readyToFire), Commands.waitSeconds(1.0)).andThen(runBeltCommand.asProxy()), aimAtTag, spinUpCommand.asProxy(), lightsCommand);
         }
 
-    public Command movingAimCommand(DoubleSupplier forward, DoubleSupplier strafe, DoubleSupplier rotate) {
+    public Command movingAimCommand(DoubleSupplier forward, DoubleSupplier strafe, DoubleSupplier rotate, LightsSubsystemB lightsSubsystem) {
         final double angularTolerance = 0.015;
         final double velocityTolerance = 0.01;
 
@@ -80,17 +89,23 @@ public class AimAndShootCommands {
 
         ProfiledPIDController controller = new ProfiledPIDController(5, 0, .5, new TrapezoidProfile.Constraints(4.5, 8));
 
-        
-
         Command aimAtTag = swerveDriveSubsystem.directionCommand(() -> visionSubsystem.getSpeakerAngle(swerveDriveSubsystem.getPose()).plus(new Rotation2d(Math.PI)), 
             forward, strafe, controller);
 
         Command spinUpCommand = shooterSubsystem.shootCommand(() -> visionSubsystem.getSpeakerDistance(swerveDriveSubsystem.getPose()));
 
-        return parallel(aimAtTag, spinUpCommand, run(() -> {readyToFire.getAsBoolean();}));
+        Command lightsCommand;
+        if (readyToFire.getAsBoolean()) {
+            lightsCommand = run(() -> LightsSubsystemB.LEDSegment.MainStrip.setColor(LightsSubsystemB.green), lightsSubsystem);
+        }
+        else {
+            lightsCommand = run(() -> LightsSubsystemB.LEDSegment.MainStrip.setStrobeAnimation(LightsSubsystemB.yellow, 0.3), lightsSubsystem);
+        }
+
+        return parallel(aimAtTag, spinUpCommand, lightsCommand, run(() -> {readyToFire.getAsBoolean();}));
     }
 
-    public Command adaptiveMovingAimCommand(DoubleSupplier forward, DoubleSupplier strafe, DoubleSupplier rotate) {
+    public Command adaptiveMovingAimCommand(DoubleSupplier forward, DoubleSupplier strafe, DoubleSupplier rotate, LightsSubsystemB lightsSubsystem) {
         final double angularTolerance = 0.015;
         final double velocityTolerance = 0.01;
 
@@ -117,7 +132,15 @@ public class AimAndShootCommands {
 
         Command spinUpCommand = shooterSubsystem.shootCommand(() -> visionSubsystem.getSpeakerDistance(predictedPose.get()));
 
-        return parallel(aimAtTag, spinUpCommand, run(() -> {readyToFire.getAsBoolean();}));
+        Command lightsCommand;
+        if (readyToFire.getAsBoolean()) {
+            lightsCommand = run(() -> LightsSubsystemB.LEDSegment.MainStrip.setColor(LightsSubsystemB.green), lightsSubsystem);
+        }
+        else {
+            lightsCommand = run(() -> LightsSubsystemB.LEDSegment.MainStrip.setStrobeAnimation(LightsSubsystemB.yellow, 0.3), lightsSubsystem);
+        }
+
+        return parallel(aimAtTag, spinUpCommand, lightsCommand, run(() -> {readyToFire.getAsBoolean();}));
     }
 
     public Command movingAimCommandAuto() {

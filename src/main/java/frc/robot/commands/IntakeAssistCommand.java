@@ -11,6 +11,8 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.swervedrive.SwerveDriveSubsystem;
 import frc.robot.subsystems.vision.VisionSubsystem;
+import frc.robot.subsystems.lights.LightsSubsystemB;
+import frc.robot.subsystems.lights.LightsSubsystem;
 
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
@@ -29,9 +31,7 @@ public class IntakeAssistCommand extends Command {
     }
 
     @Override
-    public void initialize() {
-
-    }
+    public void initialize() {}
 
     @Override
     public void execute() {
@@ -61,8 +61,6 @@ public class IntakeAssistCommand extends Command {
     }
 
     @Override
-    public void end(boolean interrupted) {
-
-    }
+    public void end(boolean interrupted) {}
 
 }

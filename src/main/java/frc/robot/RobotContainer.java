@@ -24,6 +24,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.controller.LogitechController;
 import frc.lib.controller.ThrustmasterJoystick;
 import frc.lib.logging.LoggedReceiver;
@@ -155,17 +156,31 @@ public class RobotContainer {
     }
 
     private void configureBindings() {
+
         /* Set default commands */
         swerveDriveSubsystem.setDefaultCommand(swerveDriveSubsystem.driveCommand(
                 this::getDriveForwardAxis, this::getDriveStrafeAxis, this::getDriveRotationAxis));
 
-        /* Set left joystick bindings */
+        /*Set non-button, multi-subsystem triggers */
+
+        Trigger hasPieceTrigger =
+                new Trigger(() -> intakeSubsystem.hasPiece());
+        hasPieceTrigger.onTrue(runOnce(() -> Logger.log("/Robot/Has Game Piece", true)));
+        hasPieceTrigger.onFalse(runOnce(() -> Logger.log("/Robot/Has Game Piece", false)));
+
+        new Trigger(() -> intakeSubsystem.hasPiece())
+                .debounce(0.05)
+                .whileTrue(run(() -> LightsSubsystemB.LEDSegment.MainStrip.setColor(LightsSubsystemB.white), lightsSubsystem));
+
+        /* Set right joystick bindings */
         rightDriveController.getLeftTopRight().onTrue(runOnce(() -> swerveDriveSubsystem.seedFieldRelative(new Pose2d()), swerveDriveSubsystem));
         rightDriveController
                 .getLeftTopLeft()
                 .onTrue(runOnce(swerveDriveSubsystem::seedFieldRelative, swerveDriveSubsystem));
         rightDriveController.nameLeftTopLeft("Reset Gyro Angle");
 
+        rightDriveController
+                .nameTrigger("Shoot");
 
         rightDriveController.getLeftBottomMiddle().whileTrue(runOnce(() -> swerveDriveSubsystem.setControl(new SwerveRequest.SwerveDriveBrake()), swerveDriveSubsystem));
         rightDriveController.nameLeftBottomMiddle("Lock Wheels");
@@ -203,10 +218,12 @@ public class RobotContainer {
                 .getLeftThumb()
                 .whileTrue(intakeSubsystem.intakeCommand());
         
+        /*Set left joystic bindings */
+        
         leftDriveController
                 .getTrigger()
                 .whileTrue(aimAndShootCommands.movingAimCommand(
-                    this::getDriveForwardAxis, this::getDriveStrafeAxis, this::getDriveRotationAxis));
+                    this::getDriveForwardAxis, this::getDriveStrafeAxis, this::getDriveRotationAxis, lightsSubsystem));
         leftDriveController
                 .nameTrigger("Aim");
         
@@ -222,8 +239,6 @@ public class RobotContainer {
                 .getRightThumb()
                 .whileTrue(climberSubsystem.setVoltage(12));
     
-        rightDriveController
-                .nameTrigger("Shoot");
         
         LoggedReceiver topRollerSpeedTunable = Logger.tunable("/ShooterSubsystem/topTunable", .4d);
         LoggedReceiver bottomRollerSpeedTunable = Logger.tunable("/ShooterSubsystem/bottomTunable", .7d);
@@ -252,6 +267,7 @@ public class RobotContainer {
 
         operatorController.getA().onTrue(shooterSubsystem.zeroShooterAngleCommand(Rotation2d.fromDegrees(46)));
         operatorController.getB().onTrue(shooterSubsystem.updateShooterAngleCommand());
+
 
         // 1.2 is about kG
         operatorController.getLeftBumper().whileTrue(trapSubsystem.shootCommand(TrapState.fromVoltages(0, 0, -1.5)));
