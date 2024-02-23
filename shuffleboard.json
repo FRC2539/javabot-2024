@@ -49,7 +49,7 @@
                   "Crosshair/Show crosshair": false,
                   "Crosshair/Crosshair color": "#FFFFFFFF",
                   "Controls/Show controls": false,
-                  "Controls/Rotation": "NONE",
+                  "Controls/Rotation": "QUARTER_CW",
                   "compression": -1.0,
                   "fps": -1,
                   "imageWidth": 0,
