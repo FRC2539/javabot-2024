@@ -261,6 +261,9 @@ public class RobotContainer {
             shooterSubsystem.shootCommand(ShooterState.fromVoltages(0, 0, .6)));
         leftDriveController.getLeftBottomLeft().whileTrue(
             shooterSubsystem.shootCommand(ShooterState.fromVoltages(0, 0, -.6)));
+
+        leftDriveController.getRightTopLeft().whileTrue(climberSubsystem.overrideVoltageCommand());
+        leftDriveController.getRightBottomLeft().onTrue(climberSubsystem.zeroClimberCommand());
         
         leftDriveController.getLeftBottomMiddle().whileTrue(trapSubsystem.shootCommand(TrapState.fromVoltages(0, 0, 0.0)));
         leftDriveController.getLeftTopMiddle().whileTrue(trapSubsystem.shootCommand(TrapState.fromVoltages(0, 0, 2.4)));
