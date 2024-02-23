@@ -29,7 +29,7 @@ public class RackIONeo550 implements RackIO {
         neo550.setSecondaryCurrentLimit(35);
 
         neo550.getEncoder().setPosition(0);
-        neo550.setSoftLimit(SoftLimitDirection.kReverse, 2.0f);
+        neo550.setSoftLimit(SoftLimitDirection.kReverse, 0.0f);
         neo550.setSoftLimit(SoftLimitDirection.kForward, 16.0f);
 
         pidController = neo550.getPIDController();
@@ -37,8 +37,8 @@ public class RackIONeo550 implements RackIO {
         pidController.setP(1);
         pidController.setI(0);
         pidController.setD(5);
-        pidController.setFF(0.01);
-        pidController.setOutputRange(-1,1);
+        pidController.setFF(0.001);
+        pidController.setOutputRange(-.25,.8);
 
         neo550.setIdleMode(IdleMode.kBrake);
 
