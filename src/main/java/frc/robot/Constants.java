@@ -50,8 +50,8 @@ public final class Constants {
     public static final class IntakeConstants {
         public static final int chamberMotorPort = 15;
         public static final int rollerMotorPort = 14;
-        public static final int chamberSensorPort = 1;
-        public static final int rollerSensorPort = 0;
+        public static final int chamberSensorPort = 1; 
+        public static final int rollerSensorPort = 0; 
     }
 
     public static final class ShooterConstants {
@@ -111,7 +111,7 @@ public final class Constants {
             map.put(3.545, new InterpolatableDouble(34));
             map.put(4.009, new InterpolatableDouble(31.5));
             map.put(4.518, new InterpolatableDouble(29));
-            map.put(5.25, new InterpolatableDouble(25.5));
+            map.put(5.25, new InterpolatableDouble(23.5)); //25.5
             map.put(100, new InterpolatableDouble(20));
 
             return map;

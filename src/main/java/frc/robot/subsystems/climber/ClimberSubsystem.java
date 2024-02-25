@@ -16,7 +16,7 @@ public class ClimberSubsystem extends SubsystemBase {
     private boolean overrideMode = false;
 
     private final double lowerLimit = 0;
-    private final double upperLimit = 315;
+    private final double upperLimit = 310.23; //315
 
     public ClimberSubsystem(ClimberIO pivotIO) {
         this.pivotIO = pivotIO;

@@ -48,7 +48,7 @@ public class AimAndShootCommands {
     
             BooleanSupplier readyToFire = () -> (swerveDriveSubsystem.isAtDirectionCommand(angularTolerance, velocityTolerance));
     
-            ProfiledPIDController controller = new ProfiledPIDController(5, 0, .5, new TrapezoidProfile.Constraints(4.5, 8));
+            ProfiledPIDController controller = new ProfiledPIDController(3, 0, .5, new TrapezoidProfile.Constraints(4.5, 8));
     
             Command aimAtTag = swerveDriveSubsystem.directionCommand(() -> {
                 Rotation2d output = visionSubsystem.getSpeakerAngle(getPose.get()).plus(new Rotation2d(Math.PI));

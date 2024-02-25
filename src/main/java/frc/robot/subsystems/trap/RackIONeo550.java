@@ -38,7 +38,7 @@ public class RackIONeo550 implements RackIO {
         pidController.setI(0);
         pidController.setD(5);
         pidController.setFF(0.001);
-        pidController.setOutputRange(-.25,.8);
+        pidController.setOutputRange(-1,.8);
 
         neo550.setIdleMode(IdleMode.kBrake);
 

@@ -170,7 +170,9 @@ public class RobotContainer {
 
         new Trigger(() -> intakeSubsystem.hasPiece())
                 .debounce(0.05)
-                .whileTrue(run(() -> LightsSubsystemB.LEDSegment.MainStrip.setColor(LightsSubsystemB.white), lightsSubsystem));
+                .onTrue(run(() -> LightsSubsystemB.LEDSegment.MainStrip.setColor(LightsSubsystemB.white), lightsSubsystem)
+                // .withTimeout(2)
+                );
 
         /* Set right joystick bindings */
         rightDriveController.getLeftTopRight().onTrue(runOnce(() -> swerveDriveSubsystem.seedFieldRelative(new Pose2d()), swerveDriveSubsystem));
@@ -274,23 +276,33 @@ public class RobotContainer {
 
 
         // 1.2 is about kG
-        operatorController.getLeftBumper().whileTrue(trapSubsystem.shootCommand(TrapState.fromVoltages(0, 0, 0)));
-        operatorController.getRightBumper().whileTrue(trapSubsystem.shootCommand(TrapState.fromVoltages(0, 0, .9)));
+        //operatorController.getLeftBumper().whileTrue(trapSubsystem.shootCommand(TrapState.fromVoltages(0, 0, 0))); //trap coast mode
+        operatorController.getLeftBumper().whileTrue(trapSubsystem.shootCommand(new TrapState(0,0,24.0))); //set amp position
+        //operatorController.getRightBumper().whileTrue(trapSubsystem.shootCommand(TrapState.fromVoltages(0, 0, .9))); //idk
+        operatorController.getRightBumper().whileTrue(trapSubsystem.shootCommand(new TrapState(0,0,17.7))); //set station position
+
         operatorController.getY().whileTrue(trapSubsystem.shootCommand(new TrapState(0,0,33)));
-        operatorController.getX().whileTrue(trapSubsystem.shootCommand(new TrapState(0,0,2)));
+        operatorController.getX().whileTrue(trapSubsystem.shootCommand(new TrapState(0,0,0)));
 
         operatorController.getDPadLeft().whileTrue(trapSubsystem.runIntakeCommand(-12.0, -12.0));
         operatorController.getDPadRight().whileTrue(trapSubsystem.runIntakeCommand(6.0, 6.0));
-        operatorController.getDPadUp().whileTrue(trapSubsystem.runIntakeCommand(2.0, -2.0));
-        operatorController.getDPadDown().whileTrue(trapSubsystem.runIntakeCommand(-2.0, 2.0));
+        operatorController.getDPadUp().whileTrue(trapSubsystem.runIntakeCommand(2.0, -6.5));
+        operatorController.getDPadDown().whileTrue(trapSubsystem.runIntakeCommand(-1.0, 10.0));
 
         operatorController.getRightTrigger().whileTrue(run(() -> LightsSubsystemB.LEDSegment.MainStrip.setStrobeAnimation(LightsSubsystemB.purple, 0.3), lightsSubsystem));
         operatorController.getLeftTrigger().whileTrue(repeatingSequence(
             run(() -> LightsSubsystemB.LEDSegment.MainStrip.setColor(LightsSubsystemB.red), lightsSubsystem).withTimeout(.1),
             run(() -> LightsSubsystemB.LEDSegment.MainStrip.setColor(LightsSubsystemB.green), lightsSubsystem).withTimeout(.1)
         ));
-        operatorController.getStart().toggleOnTrue(run(() -> LightsSubsystemB.LEDSegment.MainStrip.setRainbowAnimation(1), lightsSubsystem));
+        //operatorController.getStart().toggleOnTrue(run(() -> LightsSubsystemB.LEDSegment.MainStrip.setRainbowAnimation(1), lightsSubsystem));
+        
+        operatorController
+                .getStart()
+                .whileTrue(climberSubsystem.setVoltage(12));
 
+        // operatorController
+        //         .getBack()
+        //         .whileTrue(climberSubsystem.setposi(12));
 
         rightDriveController.sendButtonNamesToNT();
         leftDriveController.sendButtonNamesToNT();
