@@ -1,5 +1,6 @@
 package frc.robot.subsystems.vision;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,42 +29,55 @@ public class AprilTagIOPhotonVision implements AprilTagIO {
     }
 
     public Optional<AprilTagIOInputs> updateInputs() {
-        Optional<EstimatedRobotPose> myPose = poseEstimator.update();
-        Optional<EstimatedRobotPose> myPoseHeight = poseEstimatorHeight.update();
+        try {
+            Optional<EstimatedRobotPose> myPose = poseEstimator.update();
+            Optional<EstimatedRobotPose> myPoseHeight = poseEstimatorHeight.update();
 
-
-        return myPose.map((stuff) -> {
-            var outputs = new AprilTagIOInputs();
-            outputs.poseEstimate3d = stuff.estimatedPose;
-            if (myPoseHeight.isPresent()) {
-                outputs.alternatePoseEstimate3d = myPoseHeight.get().estimatedPose;
-            } else {
-                outputs.alternatePoseEstimate3d = outputs.poseEstimate3d;
-            }
-            outputs.targetDistance = Double.MAX_VALUE;
-            for (var targetUsed : stuff.targetsUsed) {
-                var myDistance = targetUsed.getBestCameraToTarget().getTranslation().getNorm();
-                Logger.log("/VisionSubsystem/testPoseThing"+ getName() + "" + targetUsed.getFiducialId(), new Pose3d().transformBy(targetUsed.getBestCameraToTarget()), false);
-                if (myDistance < outputs.targetDistance) {
-                    outputs.targetDistance = myDistance;
+            return myPose.map((stuff) -> {
+                var outputs = new AprilTagIOInputs();
+                outputs.poseEstimate3d = stuff.estimatedPose;
+                if (myPoseHeight.isPresent()) {
+                    outputs.alternatePoseEstimate3d = myPoseHeight.get().estimatedPose;
+                } else {
+                    outputs.alternatePoseEstimate3d = outputs.poseEstimate3d;
                 }
-            }
-            outputs.multitag = stuff.targetsUsed.size() > 1;
-            Logger.log("/VisionSubsystem/" + getName(), outputs.poseEstimate3d, true);
-            Logger.log("/VisionSubsystem/" + getName() + "alternate", outputs.alternatePoseEstimate3d, true);
-            Logger.log("/VisionSubsystem/" + getName() + "multitag", outputs.multitag);
-            outputs.timestamp = stuff.timestampSeconds;
-            
-            return outputs;
-        });
+                outputs.targetDistance = Double.MAX_VALUE;
+                for (var targetUsed : stuff.targetsUsed) {
+                    var myDistance = targetUsed.getBestCameraToTarget().getTranslation().getNorm();
+                    Logger.log("/VisionSubsystem/testPoseThing"+ getName() + "" + targetUsed.getFiducialId(), new Pose3d().transformBy(targetUsed.getBestCameraToTarget()), false);
+                    if (myDistance < outputs.targetDistance) {
+                        outputs.targetDistance = myDistance;
+                    }
+                }
+                outputs.multitag = false; //stuff.targetsUsed.size() > 1;
+                Logger.log("/VisionSubsystem/" + getName(), outputs.poseEstimate3d, true);
+                Logger.log("/VisionSubsystem/" + getName() + "alternate", outputs.alternatePoseEstimate3d, true);
+                Logger.log("/VisionSubsystem/" + getName() + "multitag", outputs.multitag);
+                outputs.timestamp = stuff.timestampSeconds;
+                
+                return outputs;
+            });
+        } catch (Exception e) {
+            return Optional.empty();
+        }
     }
 
     public List<PhotonTrackedTarget> updateTagsInfo() {
-        var results = camera.getLatestResult();
-        return results.getTargets();
+        try {
+            var results = camera.getLatestResult();
+            return results.getTargets();
+        } catch (Exception e) {
+            System.out.print(e);
+            return new ArrayList<PhotonTrackedTarget>();
+        }
     }
 
     public String getName() {
-        return camera.getName();
+        try {
+            return camera.getName();
+        } catch (Exception e) {
+            System.out.print(e);
+            return "error";
+        }
     }
 }

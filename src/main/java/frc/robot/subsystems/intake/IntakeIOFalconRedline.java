@@ -9,6 +9,11 @@ public class IntakeIOFalconRedline implements IntakeIO{
     private double chamberSpeed;
     private double rollerSpeed;
 
+    private boolean hasSeenChamber = false;
+    private boolean hasSeenRoller = false;
+
+    private final boolean isThreading = true;
+
     private final double percentMaxOutput = 1;
 
     private TalonFX chamberMotor = new TalonFX(IntakeConstants.chamberMotorPort, "CANivore");
@@ -17,19 +22,35 @@ public class IntakeIOFalconRedline implements IntakeIO{
     private AnalogInput rollerSensor = new AnalogInput(IntakeConstants.rollerSensorPort);
     private AnalogInput chamberSensor = new AnalogInput(IntakeConstants.chamberSensorPort);
 
+    public IntakeIOFalconRedline() {
+        if (isThreading) {
+            Thread updatingThread = new Thread(new SubRunner());
+
+            updatingThread.start();
+        }
+    }
+
     public void updateInputs(IntakeIOInputs inputs) {
         inputs.chamberSpeed = chamberSpeed;
         inputs.rollerSpeed = rollerSpeed;
 
-        inputs.chamberSensor = hasChamberPiece();
-        inputs.rollerSensor = hasRollerPiece();
+        if (isThreading) {
+            inputs.chamberSensor = hasSeenChamber;
+            inputs.rollerSensor = hasSeenRoller;
+
+            hasSeenChamber = false;
+            hasSeenRoller = false;
+        } else {
+            inputs.chamberSensor = hasChamberPiece();
+            inputs.rollerSensor = hasRollerPiece();
+        }
     }
 
-    public boolean hasRollerPiece() {
+    private boolean hasRollerPiece() {
         return rollerSensor.getValue() < 50;
     }
 
-    public boolean hasChamberPiece() {
+    private boolean hasChamberPiece() {
         return false; //chamberSensor.getValue() > 50;
     }
 
@@ -43,4 +64,21 @@ public class IntakeIOFalconRedline implements IntakeIO{
         chamberMotor.set(percentMaxOutput * speed);
     }
 
+    private class SubRunner implements Runnable {
+        public void run() {
+            while (true) {
+                try {
+                    Thread.sleep(2);
+                    if (hasRollerPiece()) {
+                        hasSeenRoller = true;
+                    }
+                    if (hasChamberPiece()) {
+                        hasSeenChamber = true;
+                    }
+                } catch (Exception e) {
+                    
+                }
+            }
+        }
+    }
 }

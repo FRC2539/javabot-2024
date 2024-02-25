@@ -1,5 +1,7 @@
 package frc.robot.subsystems.lights;
 
+import java.util.function.BooleanSupplier;
+
 import com.ctre.phoenix.led.Animation;
 import com.ctre.phoenix.led.CANdle;
 import com.ctre.phoenix.led.CANdle.LEDStripType;
@@ -23,6 +25,8 @@ public class LightsSubsystemB extends SubsystemBase {
         
         public static final int SENSOR_PORT = 0;
     }
+
+    private BooleanSupplier hasPiece = () -> false;
 
     private static final CANdle candle = new CANdle(LightsConstants.CANDLE_PORT);
 
@@ -57,15 +61,23 @@ public class LightsSubsystemB extends SubsystemBase {
     }
 
     public Command defaultCommand() {
-        return runOnce(() -> {
+        return run(() -> {
             LEDSegment.BatteryIndicator.fullClear();
             LEDSegment.PressureIndicator.fullClear();
             LEDSegment.MastEncoderIndicator.fullClear();
             LEDSegment.BoomEncoderIndicator.fullClear();
             LEDSegment.WristEncoderIndicator.fullClear();
 
-            LEDSegment.MainStrip.setColor(orange);
+            if (hasPiece.getAsBoolean()) {
+                LightsSubsystemB.LEDSegment.MainStrip.setStrobeAnimation(LightsSubsystemB.white, 0.3);
+            } else {
+                LEDSegment.MainStrip.setColor(orange);
+            }
         });
+    }
+
+    public void setHasPieceSupplier(BooleanSupplier hasPiece) {
+        this.hasPiece = hasPiece;
     }
 
     public Command clearSegmentCommand(LEDSegment segment) {

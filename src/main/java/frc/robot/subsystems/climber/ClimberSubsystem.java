@@ -17,6 +17,7 @@ public class ClimberSubsystem extends SubsystemBase {
 
     private final double lowerLimit = 0;
     private final double upperLimit = 310.23; //315
+    private final double operatorLimit = 200;
 
     public ClimberSubsystem(ClimberIO pivotIO) {
         this.pivotIO = pivotIO;
@@ -62,6 +63,10 @@ public class ClimberSubsystem extends SubsystemBase {
 
     public Command zeroClimberCommand() {
         return runOnce(() -> pivotIO.setPosition(0));
+    }
+
+    public Command moveClimberUpOperator() {
+        return setVoltage(12).until(() -> climberVoltage.currentPosition >= operatorLimit);
     }
     
     public void logClimberInformation() {

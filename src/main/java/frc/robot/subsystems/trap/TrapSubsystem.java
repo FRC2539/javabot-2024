@@ -13,6 +13,8 @@ import frc.robot.subsystems.trap.TrapRollerIO.RollerIOInputs;
 public class TrapSubsystem extends SubsystemBase {
     private final double trapSpeedTolerance = 0.1;
     private final double trapAngleTolerance = 0.01;
+
+    public final double holdingVoltage = 0.5;
     
     private TrapRollerIO topRollerIO;
     private TrapRollerIO bottomRollerIO;
@@ -23,7 +25,7 @@ public class TrapSubsystem extends SubsystemBase {
     private RackIOInputs rackInputs = new RackIOInputs();
 
     private final TrapState defaultState = new TrapState(0,0,0,true);
-    private final TrapState defaultStateHolding = new TrapState(0,0,0.5,true);
+    private final TrapState defaultStateHolding = new TrapState(0,0,holdingVoltage,true);
 
     private TrapState currentTrapState = defaultState;
 
@@ -90,11 +92,7 @@ public class TrapSubsystem extends SubsystemBase {
             currentTrapState = trapState.get();
         });
     }
-
-    public Command ampCommand(){
-        return shootCommand(new TrapState(0 ,0, 0.5));
-    }
-
+    
     public Command manuallyMoveRackCommand(double voltage){
         return run(() -> {
             rackIO.setVoltage(voltage);
@@ -102,7 +100,7 @@ public class TrapSubsystem extends SubsystemBase {
     }
 
     public Command runIntakeCommand(double topVoltage, double bottomVoltage) {
-        return shootCommand(TrapState.fromVoltages(topVoltage, bottomVoltage, 1.2));
+        return shootCommand(TrapState.fromVoltages(topVoltage, bottomVoltage, holdingVoltage));
     }
 
     public void logTrapInformation() {

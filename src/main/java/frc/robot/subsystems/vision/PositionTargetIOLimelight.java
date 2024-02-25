@@ -20,16 +20,20 @@ public class PositionTargetIOLimelight implements PositionTargetIO {
     }
 
     public Optional<PositionTargetIOInputs> updateInputs() {
-        if (tv.getInteger() != 1) {
+        try {
+            if (tv.getInteger() != 1) {
+                return Optional.empty();
+            }
+
+            var myThingy = new PositionTargetIOInputs();
+            myThingy.pitch = ty.getDouble();
+            myThingy.yaw = tx.getDouble();
+            myThingy.timestamp = tl.getDouble() / 1000 + Timer.getFPGATimestamp();
+
+            return Optional.of(myThingy);
+        } catch (Exception e) {
             return Optional.empty();
         }
-
-        var myThingy = new PositionTargetIOInputs();
-        myThingy.pitch = ty.getDouble();
-        myThingy.yaw = tx.getDouble();
-        myThingy.timestamp = tl.getDouble() / 1000 + Timer.getFPGATimestamp();
-
-        return Optional.of(myThingy);
     }
 
     public String getName() {

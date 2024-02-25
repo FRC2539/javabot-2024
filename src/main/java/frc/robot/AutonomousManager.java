@@ -49,7 +49,7 @@ public class AutonomousManager {
 
         //It appears that for any default commands to run, the commands need to be registered as proxies. Howevery, anything that uses swerve cannot have the swerve proxied out.
         NamedCommands.registerCommand("stop", runOnce(() -> swerveDriveSubsystem.setControl(new SwerveRequest.Idle()), swerveDriveSubsystem).asProxy());
-        NamedCommands.registerCommand("shoot", container.getAimAndShootCommands().stoppedShootAndAimCommand(Optional.of(0.25d), lightsSubsystem));//.onlyIf(() -> intakeSubsystem.hasPiece()));
+        NamedCommands.registerCommand("shoot", container.getAimAndShootCommands().stoppedShootAndAimCommand(Optional.of(0.25d), lightsSubsystem).withTimeout(4));//.onlyIf(() -> intakeSubsystem.hasPiece()));
         NamedCommands.registerCommand("subshoot", Commands.parallel(shooterSubsystem.shootCommand(ShooterState.fromVoltages(.4,.7,Rotation2d.fromDegrees(55))).asProxy(), Commands.waitSeconds(1).andThen(intakeSubsystem.shootCommand().asProxy())).withTimeout(1.5));
         NamedCommands.registerCommand("intake", intakeSubsystem.intakeCommand().withTimeout(3).asProxy());
         NamedCommands.registerCommand("mlintake", parallel());

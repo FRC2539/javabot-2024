@@ -168,13 +168,14 @@ public class RobotContainer {
         hasPieceTrigger.onTrue(runOnce(() -> Logger.log("/Robot/Has Game Piece", true)));
         hasPieceTrigger.onFalse(runOnce(() -> Logger.log("/Robot/Has Game Piece", false)));
 
-        new Trigger(() -> intakeSubsystem.hasPiece())
-                .debounce(0.05)
-                .onTrue(run(() -> LightsSubsystemB.LEDSegment.MainStrip.setColor(LightsSubsystemB.white), lightsSubsystem)
-                // .withTimeout(2)
-                );
+        // the negates are in place so it debounces falling edges only. the .debounce decorator only debonces rising edges by default 
+        // (the oppositie of what we want if it keeps randomly flickering off)
+        lightsSubsystem.setHasPieceSupplier(new Trigger(() -> intakeSubsystem.hasPiece()).negate()
+            .debounce(0.1).negate());
 
-        /* Set right joystick bindings */
+        /* Set right joystick bindings ]
+         * 
+        */
         rightDriveController.getLeftTopRight().onTrue(runOnce(() -> swerveDriveSubsystem.seedFieldRelative(new Pose2d()), swerveDriveSubsystem));
         rightDriveController
                 .getLeftTopLeft()
@@ -219,6 +220,13 @@ public class RobotContainer {
         rightDriveController
                 .getLeftThumb()
                 .whileTrue(intakeSubsystem.intakeCommand());
+
+        rightDriveController
+                .getRightBottomRight()
+                .whileTrue(intakeSubsystem.ejectCommand().until(()-> intakeSubsystem.hasPiece()))
+                .whileTrue(shooterSubsystem.shootCommand(ShooterState.fromVoltages(-.25,-.25,Rotation2d.fromDegrees(55)))
+
+            );
         
         /*Set left joystic bindings */
         
@@ -271,6 +279,7 @@ public class RobotContainer {
         leftDriveController.getLeftTopMiddle().whileTrue(trapSubsystem.shootCommand(TrapState.fromVoltages(0, 0, 2.4)));
 
         operatorController.getA().onTrue(shooterSubsystem.zeroShooterAngleCommand(Rotation2d.fromDegrees(46)));
+        leftDriveController.getLeftTopRight().onTrue(shooterSubsystem.zeroShooterAngleCommand(Rotation2d.fromDegrees(46)));
         operatorController.getB().onTrue(shooterSubsystem.updateShooterAngleCommand());
 
 
@@ -294,11 +303,10 @@ public class RobotContainer {
             run(() -> LightsSubsystemB.LEDSegment.MainStrip.setColor(LightsSubsystemB.red), lightsSubsystem).withTimeout(.1),
             run(() -> LightsSubsystemB.LEDSegment.MainStrip.setColor(LightsSubsystemB.green), lightsSubsystem).withTimeout(.1)
         ));
-        //operatorController.getStart().toggleOnTrue(run(() -> LightsSubsystemB.LEDSegment.MainStrip.setRainbowAnimation(1), lightsSubsystem));
+
+        operatorController.getBack().whileTrue(climberSubsystem.moveClimberUpOperator());
         
-        operatorController
-                .getStart()
-                .whileTrue(climberSubsystem.setVoltage(12));
+        operatorController.getStart().toggleOnTrue(run(() -> LightsSubsystemB.LEDSegment.MainStrip.setRainbowAnimation(1), lightsSubsystem));
 
         // operatorController
         //         .getBack()
