@@ -15,7 +15,7 @@ public class TrapSubsystem extends SubsystemBase {
     private final double trapAngleTolerance = 0.01;
 
     public final double holdingVoltage = 0.5;
-    
+
     private TrapRollerIO topRollerIO;
     private TrapRollerIO bottomRollerIO;
     private RackIO rackIO;
@@ -58,9 +58,9 @@ public class TrapSubsystem extends SubsystemBase {
     /** NOTE: This does not work with voltage requests as there is no "SPEED" */
     public boolean isTrapAtPosition() {
         return MathUtils.equalsWithinError(
-                currentTrapState.topVoltage, topRollerInputs.speed, trapSpeedTolerance) && 
+                currentTrapState.topVoltage, topRollerInputs.speed, trapSpeedTolerance) &&
             MathUtils.equalsWithinError(
-                currentTrapState.bottomVoltage, bottomRollerInputs.speed, trapSpeedTolerance) && 
+                currentTrapState.bottomVoltage, bottomRollerInputs.speed, trapSpeedTolerance) &&
             MathUtils.equalsWithinError(
                 currentTrapState.rack, rackInputs.position, trapAngleTolerance);
     }
@@ -92,10 +92,16 @@ public class TrapSubsystem extends SubsystemBase {
             currentTrapState = trapState.get();
         });
     }
-    
+
     public Command manuallyMoveRackCommand(double voltage){
         return run(() -> {
             rackIO.setVoltage(voltage);
+        });
+    }
+
+    public Command zeroRackPositionCommand() {
+        return runOnce(() -> {
+            rackIO.zeroPosition();
         });
     }
 

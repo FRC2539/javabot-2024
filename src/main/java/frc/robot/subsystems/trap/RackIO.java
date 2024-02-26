@@ -15,4 +15,6 @@ public interface RackIO {
     public void setPosition(double targetAngle);
 
     public void setVoltage(double voltage);
+
+    public void zeroPosition();
 }

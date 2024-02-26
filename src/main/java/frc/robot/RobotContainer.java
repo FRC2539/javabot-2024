@@ -278,31 +278,54 @@ public class RobotContainer {
         leftDriveController.getLeftBottomMiddle().whileTrue(trapSubsystem.shootCommand(TrapState.fromVoltages(0, 0, 0.0)));
         leftDriveController.getLeftTopMiddle().whileTrue(trapSubsystem.shootCommand(TrapState.fromVoltages(0, 0, 2.4)));
 
-        operatorController.getA().onTrue(shooterSubsystem.zeroShooterAngleCommand(Rotation2d.fromDegrees(46)));
         leftDriveController.getLeftTopRight().onTrue(shooterSubsystem.zeroShooterAngleCommand(Rotation2d.fromDegrees(46)));
-        operatorController.getB().onTrue(shooterSubsystem.updateShooterAngleCommand());
+        leftDriveController.getLeftBottomRight().onTrue(trapSubsystem.zeroRackPositionCommand());
 
 
-
-        // 1.2 is about kG
-        //operatorController.getLeftBumper().whileTrue(trapSubsystem.shootCommand(TrapState.fromVoltages(0, 0, 0))); //trap coast mode
-        operatorController.getLeftBumper().whileTrue(trapSubsystem.shootCommand(new TrapState(0,0,24.0))); //set amp position
-        //operatorController.getRightBumper().whileTrue(trapSubsystem.shootCommand(TrapState.fromVoltages(0, 0, .9))); //idk
-        operatorController.getRightBumper().whileTrue(trapSubsystem.shootCommand(new TrapState(0,0,17.7))); //set station position
-
+        // Trap Pose Command
         operatorController.getY().whileTrue(trapSubsystem.shootCommand(new TrapState(0,0,33)));
-        operatorController.getX().whileTrue(trapSubsystem.shootCommand(new TrapState(0,0,0)));
 
+        // Trap Amp Command
+        operatorController.getX().whileTrue(trapSubsystem.shootCommand(new TrapState(0,0,24.0)));
+
+        // Trap Source Command
+        operatorController.getB().whileTrue(trapSubsystem.shootCommand(new TrapState(0,0,17.7)));
+
+        //Trap Bottom Command (this is not zero to reduce banging. it will slowly glide down if it is below 2.5 instead of stalling)
+        operatorController.getA().whileTrue(trapSubsystem.shootCommand(new TrapState(0,0,0)));
+
+
+        // Trap Eject Comand
         operatorController.getDPadLeft().whileTrue(trapSubsystem.runIntakeCommand(-12.0, -12.0));
+
+        // Trap Intake Command
         operatorController.getDPadRight().whileTrue(trapSubsystem.runIntakeCommand(6.0, 6.0));
+
+        // Trap Rotate Note Up
         operatorController.getDPadUp().whileTrue(trapSubsystem.runIntakeCommand(2.0, -6.5));
+
+        // Trap Rotate Note Down
         operatorController.getDPadDown().whileTrue(trapSubsystem.runIntakeCommand(-1.0, 10.0));
 
-        operatorController.getRightTrigger().whileTrue(run(() -> LightsSubsystemB.LEDSegment.MainStrip.setStrobeAnimation(LightsSubsystemB.purple, 0.3), lightsSubsystem));
-        operatorController.getLeftTrigger().whileTrue(repeatingSequence(
+        // Ground Intaking Indicator (Strobe Purple)
+        operatorController.getRightTrigger().and(operatorController.getLeftTrigger().negate()).whileTrue(run(() -> LightsSubsystemB.LEDSegment.MainStrip.setStrobeAnimation(LightsSubsystemB.purple, 0.3), lightsSubsystem));
+        
+        // Trap Intaking Indicator (Flash Red and Green)
+        operatorController.getLeftTrigger().and(operatorController.getRightTrigger().negate()).whileTrue(repeatingSequence(
             run(() -> LightsSubsystemB.LEDSegment.MainStrip.setColor(LightsSubsystemB.red), lightsSubsystem).withTimeout(.1),
             run(() -> LightsSubsystemB.LEDSegment.MainStrip.setColor(LightsSubsystemB.green), lightsSubsystem).withTimeout(.1)
         ));
+
+        // Shooter Intaking Indicator (Flash Blue and Yellow)
+        operatorController.getLeftTrigger().and(operatorController.getRightTrigger()).whileTrue(
+            repeatingSequence(
+                run(() -> LightsSubsystemB.LEDSegment.MainStrip.setColor(LightsSubsystemB.blue), lightsSubsystem).withTimeout(.1),
+                run(() -> LightsSubsystemB.LEDSegment.MainStrip.setColor(LightsSubsystemB.yellow), lightsSubsystem).withTimeout(.1)
+            )
+        );
+
+        operatorController.getA().onTrue(shooterSubsystem.adjustPitchCorrectionCommand(Rotation2d.fromDegrees(0.5)));
+        operatorController.getB().onTrue(shooterSubsystem.adjustPitchCorrectionCommand(Rotation2d.fromDegrees(0.5)));
 
         operatorController.getBack().whileTrue(climberSubsystem.moveClimberUpOperator());
         

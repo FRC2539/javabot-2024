@@ -15,4 +15,8 @@ public class RackIOSim implements RackIO {
 
     public void setVoltage(double voltage) {
     }
+
+    public void zeroPosition() {
+        this.position = 0;
+    }
 }

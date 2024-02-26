@@ -1,6 +1,5 @@
 package frc.robot.subsystems.trap;
 
-import com.ctre.phoenix6.controls.PositionVoltage;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.SparkPIDController;
 import com.revrobotics.CANSparkBase.ControlType;
@@ -8,7 +7,6 @@ import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkBase.SoftLimitDirection;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
-import edu.wpi.first.math.geometry.Rotation2d;
 import frc.lib.math.MathUtils;
 import frc.robot.Constants;
 
@@ -24,7 +22,7 @@ public class RackIONeo550 implements RackIO {
 
     public RackIONeo550() {
         neo550 = new CANSparkMax(Constants.TrapConstants.rackMotorPort, MotorType.kBrushless);
-        
+
         neo550.setSmartCurrentLimit(30);
         neo550.setSecondaryCurrentLimit(35);
 
@@ -75,5 +73,9 @@ public class RackIONeo550 implements RackIO {
     public void setVoltage(double voltage) {
         if (shutdown) return;
         neo550.setVoltage(voltage);
+    }
+
+    public void zeroPosition() {
+        neo550.getEncoder().setPosition(0);
     }
 }

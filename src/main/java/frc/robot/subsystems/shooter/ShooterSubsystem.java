@@ -6,18 +6,20 @@ import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib.interpolation.InterpolatableDouble;
 import frc.lib.interpolation.InterpolatingMap;
 import frc.lib.logging.Logger;
 import frc.lib.math.MathUtils;
+import frc.robot.Constants.ShooterConstants;
 import frc.robot.subsystems.shooter.PivotIO.PivotIOInputs;
 import frc.robot.subsystems.shooter.RollerIO.RollerIOInputs;
 
 public class ShooterSubsystem extends SubsystemBase {
     private final double shooterSpeedTolerance = 0.1;
     private final double shooterAngleTolerance = 0.01;
-    
+
     private RollerIO topRollerIO;
     private RollerIO bottomRollerIO;
     private PivotIO pivotIO;
@@ -31,15 +33,19 @@ public class ShooterSubsystem extends SubsystemBase {
     private RollerIOInputs bottomRollerInputs = new RollerIOInputs();
     private PivotIOInputs pivotInputs = new PivotIOInputs();
 
+    private static final DCMotor exampleMotor = DCMotor.getFalcon500(1).withReduction(ShooterConstants.gearRatioRoller);
+
     private final ShooterState defaultState = new ShooterState(0,0, new Rotation2d(), true, true);
 
     private ShooterState currentShooterState = defaultState;
+
+    private Rotation2d pitchCorrection = new Rotation2d();
 
     public ShooterSubsystem(RollerIO topRollerIO, RollerIO bottomRollerIO, PivotIO pivotIO, InterpolatingMap<InterpolatableDouble> topRollerMap, InterpolatingMap<InterpolatableDouble> bottomRollerMap, InterpolatingMap<InterpolatableDouble> pivotAngleMap) {
         this.topRollerIO = topRollerIO;
         this.bottomRollerIO = bottomRollerIO;
         this.pivotIO = pivotIO;
-        
+
         this.topRollerMap = topRollerMap;
         this.bottomRollerMap = bottomRollerMap;
         this.pivotAngleMap = pivotAngleMap;
@@ -58,8 +64,6 @@ public class ShooterSubsystem extends SubsystemBase {
     public void periodic() {
         logShooterInformation();
 
-        
-
         updateShooterStateForDistance(currentDistance);
         topRollerIO.updateInputs(topRollerInputs);
         bottomRollerIO.updateInputs(bottomRollerInputs);
@@ -69,17 +73,33 @@ public class ShooterSubsystem extends SubsystemBase {
             topRollerIO.setVoltage(currentShooterState.topRollerRPM * 12);
             bottomRollerIO.setVoltage(currentShooterState.bottomRollerRPM * 12);
         } else {
-            topRollerIO.setSpeed(currentShooterState.topRollerRPM);
-            bottomRollerIO.setSpeed(currentShooterState.bottomRollerRPM);
+            topRollerIO.setSpeed(exampleMotor.getSpeed(0, currentShooterState.topRollerRPM * 12) / ( 2 * Math.PI));
+            bottomRollerIO.setSpeed(exampleMotor.getSpeed(0, currentShooterState.bottomRollerRPM * 12) / ( 2 * Math.PI));
         }
 
         if (currentShooterState.isAngleVoltageBased) {
             pivotIO.setVoltage(currentShooterState.pivotAngle.getRotations());
         } else {
-            pivotIO.setAngle(Rotation2d.fromDegrees(MathUtils.ensureRange(currentShooterState.pivotAngle.getDegrees(), 20, 55)));
+            pivotIO.setAngle(Rotation2d.fromDegrees(MathUtils.ensureRange(currentShooterState.pivotAngle.plus(pitchCorrection).getDegrees(), 20, 55)));
         }
     }
 
+    // this code was added using the zed text editor as a test
+    public Rotation2d getPitchCorrection() {
+        return pitchCorrection;
+    }
+
+    public void setPitchCorrection(Rotation2d pitchCorrection) {
+        this.pitchCorrection = pitchCorrection;
+    }
+
+    public void adjustPitchCorrection(Rotation2d additionalPitchCorrection) {
+        this.pitchCorrection = this.pitchCorrection.plus(additionalPitchCorrection);
+    }
+
+    public Command adjustPitchCorrectionCommand(Rotation2d additionalPitchCorrection) {
+        return runOnce(() -> adjustPitchCorrection(additionalPitchCorrection));
+    }
 
     public Command zeroShooterAngleCommand(Rotation2d angle) {
         return runOnce(() -> pivotIO.updateAngle(angle));
@@ -92,9 +112,9 @@ public class ShooterSubsystem extends SubsystemBase {
     /** NOTE: This does not work with voltage requests as there is no "SPEED" */
     public boolean isShooterAtPosition() {
         return MathUtils.equalsWithinError(
-                currentShooterState.topRollerRPM, topRollerInputs.speed, shooterSpeedTolerance) && 
+                currentShooterState.topRollerRPM, topRollerInputs.speed, shooterSpeedTolerance) &&
             MathUtils.equalsWithinError(
-                currentShooterState.bottomRollerRPM, bottomRollerInputs.speed, shooterSpeedTolerance) && 
+                currentShooterState.bottomRollerRPM, bottomRollerInputs.speed, shooterSpeedTolerance) &&
             MathUtils.equalsWithinError(
                 currentShooterState.pivotAngle.getRadians(), pivotInputs.currentAngle.getRadians(), shooterAngleTolerance);
     }
