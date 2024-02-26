@@ -425,7 +425,7 @@ public class SwerveDriveSubsystem extends SwerveDrivetrain implements Subsystem 
             System.err.print(e);
         }
 
-        Logger.log("/SwerveDriveSubsystem/DirectionCommand/DirectionError", directionCommandErrorRadiansRotation);
+        Logger.log("/SwerveDriveSubsystem/DirectionCommand/DirectionError", Math.acos(Math.cos(directionCommandErrorRadiansRotation)));
         Logger.log("/SwerveDriveSubsystem/DirectionCommand/VelocityError", directionCommandErrorRaidansVelocity);
         Logger.log("/SwerveDriveSubsystem/DirectionCommand/IsRunning", directionCommandIsRunning);
     }
