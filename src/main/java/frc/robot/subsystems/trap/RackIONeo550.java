@@ -56,10 +56,10 @@ public class RackIONeo550 implements RackIO {
 
         inputs.voltage = neo550.getAppliedOutput();
 
-        if (inputs.temperature > 60) {
+        if (inputs.temperature > 65) {
             shutdown = true;
             neo550.stopMotor();
-        } else if (inputs.temperature < 58) {
+        } else if (inputs.temperature < 63) {
             shutdown = false;
         }
         //pivotMotor.setPosition(getGripperEncoderAngle() / ShooterConstants.gearRatioPivot);

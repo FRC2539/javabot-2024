@@ -227,6 +227,12 @@ public class RobotContainer {
                 .whileTrue(shooterSubsystem.shootCommand(ShooterState.fromVoltages(-.25,-.25,Rotation2d.fromDegrees(55)))
 
             );
+
+        rightDriveController
+                .getRightBottomMiddle()
+                .whileTrue(shooterSubsystem.shootCommand(ShooterState.fromVoltages(.5,.5,Rotation2d.fromDegrees(48.5)))
+
+            );
         
         /*Set left joystic bindings */
         
@@ -282,8 +288,9 @@ public class RobotContainer {
         leftDriveController.getLeftBottomRight().onTrue(trapSubsystem.zeroRackPositionCommand());
 
 
-        // Trap Pose Command
-        operatorController.getY().whileTrue(trapSubsystem.shootCommand(new TrapState(0,0,33)));
+
+        // Trap Command
+        operatorController.getY().whileTrue(trapSubsystem.shootCommand(new TrapState(0,0,34)));
 
         // Trap Amp Command
         operatorController.getX().whileTrue(trapSubsystem.shootCommand(new TrapState(0,0,24.0)));
@@ -302,10 +309,10 @@ public class RobotContainer {
         operatorController.getDPadRight().whileTrue(trapSubsystem.runIntakeCommand(6.0, 6.0));
 
         // Trap Rotate Note Up
-        operatorController.getDPadUp().whileTrue(trapSubsystem.runIntakeCommand(2.0, -6.5));
+        operatorController.getDPadUp().whileTrue(trapSubsystem.runIntakeCommand(2.0, -2));
 
         // Trap Rotate Note Down
-        operatorController.getDPadDown().whileTrue(trapSubsystem.runIntakeCommand(-1.0, 10.0));
+        operatorController.getDPadDown().whileTrue(trapSubsystem.runIntakeCommand(-2.0, 2.0));
 
         // Ground Intaking Indicator (Strobe Purple)
         operatorController.getRightTrigger().and(operatorController.getLeftTrigger().negate()).whileTrue(run(() -> LightsSubsystemB.LEDSegment.MainStrip.setStrobeAnimation(LightsSubsystemB.purple, 0.3), lightsSubsystem));

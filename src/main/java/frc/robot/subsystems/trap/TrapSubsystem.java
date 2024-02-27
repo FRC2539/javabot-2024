@@ -51,7 +51,7 @@ public class TrapSubsystem extends SubsystemBase {
         if (currentTrapState.isVoltageBased) {
             rackIO.setVoltage(currentTrapState.rack);
         } else {
-            rackIO.setPosition(MathUtils.ensureRange(currentTrapState.rack, 0.5,33));
+            rackIO.setPosition(MathUtils.ensureRange(currentTrapState.rack, 0.5,34.0));
         }
     }
 
