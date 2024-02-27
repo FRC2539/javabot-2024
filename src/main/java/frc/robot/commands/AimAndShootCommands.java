@@ -77,7 +77,7 @@ public class AimAndShootCommands {
                 }
             }, lightsSubsystem).asProxy();
     
-            return deadline(parallel(waitUntil(readyToFire), Commands.waitUntil(() -> intakeSubsystem.hasPiece()).andThen(Commands.waitSeconds(1.0))).andThen(runBeltCommand.asProxy()), aimAtTag, Commands.waitUntil(() -> intakeSubsystem.hasPiece()).andThen(spinUpCommand.asProxy()), lightsCommand);
+            return deadline(parallel(waitUntil(readyToFire), Commands.waitSeconds(1.0)).andThen(runBeltCommand.asProxy()), aimAtTag, spinUpCommand.asProxy(), lightsCommand);
         }
 
     public Command movingAimCommand(DoubleSupplier forward, DoubleSupplier strafe, DoubleSupplier rotate, LightsSubsystemB lightsSubsystem) {

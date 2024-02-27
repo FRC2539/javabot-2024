@@ -2,6 +2,8 @@ package frc.robot.subsystems.trap;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
+import static edu.wpi.first.wpilibj2.command.Commands.waitSeconds;
+
 import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj2.command.Command;
@@ -51,7 +53,7 @@ public class TrapSubsystem extends SubsystemBase {
         if (currentTrapState.isVoltageBased) {
             rackIO.setVoltage(currentTrapState.rack);
         } else {
-            rackIO.setPosition(MathUtils.ensureRange(currentTrapState.rack, 0.5,34.0));
+            rackIO.setPosition(MathUtils.ensureRange(currentTrapState.rack, 0.0,34.0));
         }
     }
 
@@ -103,6 +105,10 @@ public class TrapSubsystem extends SubsystemBase {
         return runOnce(() -> {
             rackIO.zeroPosition();
         });
+    }
+
+    public Command bringRackDownCommand() {
+        return shootCommand(0,0,2).until(() -> rackInputs.position < 3).andThen(waitSeconds(0.2)).andThen(shootCommand(0,0,0));
     }
 
     public Command runIntakeCommand(double topVoltage, double bottomVoltage) {

@@ -54,7 +54,7 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public ShooterState updateShooterStateForDistance(double distance) {
-        return ShooterState.fromVoltages(
+        return new ShooterState(
             topRollerMap.getInterpolated(distance).get().value,
             bottomRollerMap.getInterpolated(distance).get().value,
             Rotation2d.fromDegrees(pivotAngleMap.getInterpolated(distance).get().value)
@@ -73,8 +73,10 @@ public class ShooterSubsystem extends SubsystemBase {
             topRollerIO.setVoltage(currentShooterState.topRollerRPM * 12);
             bottomRollerIO.setVoltage(currentShooterState.bottomRollerRPM * 12);
         } else {
-            topRollerIO.setSpeed(exampleMotor.getSpeed(0, currentShooterState.topRollerRPM * 12) / ( 2 * Math.PI));
-            bottomRollerIO.setSpeed(exampleMotor.getSpeed(0, currentShooterState.bottomRollerRPM * 12) / ( 2 * Math.PI));
+            topRollerIO.setSpeed(exampleMotor.getSpeed(0, currentShooterState.topRollerRPM * 12));
+            bottomRollerIO.setSpeed(exampleMotor.getSpeed(0, currentShooterState.bottomRollerRPM * 12));
+            Logger.log("/ShooterSubsystem/topRollerSetpointSpeed", exampleMotor.getSpeed(0, currentShooterState.topRollerRPM * 12));
+            Logger.log("/ShooterSubsystem/bottomRollerSetpointSpeed", exampleMotor.getSpeed(0, currentShooterState.bottomRollerRPM * 12));
         }
 
         if (currentShooterState.isAngleVoltageBased) {

@@ -36,11 +36,12 @@ public class RackIONeo550 implements RackIO {
         pidController.setI(0);
         pidController.setD(5);
         pidController.setFF(0.001);
-        pidController.setOutputRange(-1,.8);
 
         neo550.setIdleMode(IdleMode.kBrake);
 
         neo550.setInverted(true);
+
+        pidController.setOutputRange(-.35,1);
 
         neo550.burnFlash();
     }

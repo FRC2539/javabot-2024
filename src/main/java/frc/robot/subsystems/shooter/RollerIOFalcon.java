@@ -22,9 +22,9 @@ public class RollerIOFalcon implements RollerIO {
 
         slot0Configs.kS = 0;
         // converts rads/s / V to V/rps
-        slot0Configs.kV = 1 / (exampleMotor.KvRadPerSecPerVolt / Math.PI * 2);
+        slot0Configs.kV = 0.113; //1 / (exampleMotor.KvRadPerSecPerVolt / Math.PI * 2);
 
-        slot0Configs.kP = 0.11;
+        slot0Configs.kP = 1;
         slot0Configs.kI = 0;
         slot0Configs.kD = 0;
 
@@ -34,14 +34,14 @@ public class RollerIOFalcon implements RollerIO {
     }
 
     public void updateInputs(RollerIOInputs inputs) {
-        inputs.speed = talonFX.getVelocity().getValue() * 60 * gearRatio; //converts rps to rpm
+        inputs.speed = talonFX.getVelocity().getValue() * 2 * Math.PI; //converts rps to rpm
         inputs.voltage = talonFX.getMotorVoltage().getValue();
         inputs.current = talonFX.getStatorCurrent().getValue();
         inputs.motorTemperature = talonFX.getDeviceTemp().getValue();
     }
 
     public void setSpeed(double speed) {
-        talonFX.setControl(new VelocityVoltage(speed));
+        talonFX.setControl(new VelocityVoltage(speed / (Math.PI * 2)));
     }
 
     public void setVoltage(double voltage) {
