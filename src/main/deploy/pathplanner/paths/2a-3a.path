@@ -63,6 +63,23 @@
           ]
         }
       }
+    },
+    {
+      "name": "spinup",
+      "waypointRelativePos": 0.65,
+      "command": {
+        "type": "parallel",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "spinup"
+              }
+            }
+          ]
+        }
+      }
     }
   ],
   "globalConstraints": {

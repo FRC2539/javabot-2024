@@ -3,37 +3,37 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.883271729453586,
-        "y": 7.014791090923124
+        "x": 8.305389050150424,
+        "y": 7.424670370025476
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.137114455815358,
-        "y": 6.568048487277507
+        "x": 8.082883155780575,
+        "y": 7.424670370025476
       },
       "isLocked": false,
-      "linkedName": "1a"
+      "linkedName": "1b"
     },
     {
       "anchor": {
-        "x": 3.023801768002964,
-        "y": 5.5040931765173085
+        "x": 4.089487893669082,
+        "y": 6.75715268691593
       },
       "prevControl": {
-        "x": 1.984873580720198,
-        "y": 6.007659147985914
+        "x": 4.31199378803893,
+        "y": 6.792285196553275
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "1s"
     }
   ],
   "rotationTargets": [],
   "constraintZones": [],
   "eventMarkers": [
     {
-      "name": "intake",
-      "waypointRelativePos": 0.5,
+      "name": "aim",
+      "waypointRelativePos": 0.55,
       "command": {
         "type": "parallel",
         "data": {
@@ -41,24 +41,7 @@
             {
               "type": "named",
               "data": {
-                "name": "intake"
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
-      "name": "spinup",
-      "waypointRelativePos": 0.45,
-      "command": {
-        "type": "parallel",
-        "data": {
-          "commands": [
-            {
-              "type": "named",
-              "data": {
-                "name": "spinup"
+                "name": "aim"
               }
             }
           ]
@@ -74,14 +57,11 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -34.33097097907321,
-    "rotateFast": true
+    "rotation": 12.530000000000001,
+    "rotateFast": false
   },
   "reversed": false,
   "folder": "The Square Convention",
-  "previewStartingState": {
-    "rotation": 28.12449336596933,
-    "velocity": 0
-  },
+  "previewStartingState": null,
   "useDefaultConstraints": true
 }
