@@ -1,1 +1,11 @@
-[]
+[
+  {
+    "name": "/Shuffleboard/Position Offset/Position Offset",
+    "type": "double",
+    "value": 17.0,
+    "properties": {
+      "persistent": true,
+      "retained": true
+    }
+  }
+]

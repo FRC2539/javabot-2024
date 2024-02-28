@@ -4,8 +4,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-import static edu.wpi.first.wpilibj2.command.Commands.waitSeconds;
-
 import frc.lib.logging.Logger;
 import frc.robot.subsystems.intake.IntakeIO.IntakeIOInputs;
 
@@ -99,7 +97,7 @@ public class IntakeSubsystem extends SubsystemBase {
     public Command intakeCommand() {
         Command intakeCommand = runEnd(() -> {
             setIntakeState(IntakeState.INTAKING);
-        }, () -> {}).andThen(waitSeconds(0.08)).until(() -> getRollerSensor());
+        }, () -> {}).until(() -> getRollerSensor());
 
         return intakeCommand;
     }

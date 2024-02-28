@@ -17,8 +17,8 @@ import frc.robot.subsystems.shooter.PivotIO.PivotIOInputs;
 import frc.robot.subsystems.shooter.RollerIO.RollerIOInputs;
 
 public class ShooterSubsystem extends SubsystemBase {
-    private final double shooterSpeedTolerance = 0.1;
-    private final double shooterAngleTolerance = 0.01;
+    private final double shooterSpeedTolerance = 6;
+    private final Rotation2d shooterAngleTolerance = Rotation2d.fromDegrees(0.25);
 
     private RollerIO topRollerIO;
     private RollerIO bottomRollerIO;
@@ -118,7 +118,7 @@ public class ShooterSubsystem extends SubsystemBase {
             MathUtils.equalsWithinError(
                 currentShooterState.bottomRollerRPM, bottomRollerInputs.speed, shooterSpeedTolerance) &&
             MathUtils.equalsWithinError(
-                currentShooterState.pivotAngle.getRadians(), pivotInputs.currentAngle.getRadians(), shooterAngleTolerance);
+                currentShooterState.pivotAngle.getRadians(), pivotInputs.currentAngle.getRadians(), shooterAngleTolerance.getRadians());
     }
 
     public Command disabledCommand() {

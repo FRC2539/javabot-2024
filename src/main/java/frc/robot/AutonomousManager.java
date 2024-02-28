@@ -55,6 +55,7 @@ public class AutonomousManager {
         NamedCommands.registerCommand("mlintake", parallel());
         NamedCommands.registerCommand("amp", parallel());
         NamedCommands.registerCommand("aim", container.getAimAndShootCommands().movingAimCommandAuto());
+        NamedCommands.registerCommand("spinup", container.getAimAndShootCommands().spinupCommand());
         NamedCommands.registerCommand("coast", parallel());
         NamedCommands.registerCommand("eject", intakeSubsystem.ejectCommand().withTimeout(2).asProxy());
         NamedCommands.registerCommand("rainbow", parallel());

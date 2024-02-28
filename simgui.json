@@ -30,12 +30,6 @@
     }
   },
   "NetworkTables": {
-    "Persistent Values": {
-      "open": false
-    },
-    "Retained Values": {
-      "open": false
-    },
     "transitory": {
       "IntakeSybsystem": {
         "open": true
@@ -56,6 +50,9 @@
   },
   "NetworkTables Info": {
     "Clients": {
+      "open": true
+    },
+    "Connections": {
       "open": true
     },
     "Server": {

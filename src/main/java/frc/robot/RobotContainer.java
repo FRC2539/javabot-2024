@@ -16,6 +16,7 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
@@ -218,14 +219,17 @@ public class RobotContainer {
             .whileTrue(intakeSubsystem.shootCommand());
 
         rightDriveController
-                .getLeftThumb()
+                .getLeftThumb().and(rightDriveController.getTrigger().negate())
                 .whileTrue(intakeSubsystem.intakeCommand());
 
         rightDriveController
-                .getRightBottomRight()
-                .whileTrue(intakeSubsystem.ejectCommand().until(()-> intakeSubsystem.hasPiece()))
-                .whileTrue(shooterSubsystem.shootCommand(ShooterState.fromVoltages(-.25,-.25,Rotation2d.fromDegrees(55)))
+                .getRightBottomRight().debounce(0.2, DebounceType.kFalling)
+                .whileTrue(parallel(intakeSubsystem.ejectCommand(), shooterSubsystem.shootCommand(ShooterState.fromVoltages(-.25,-.25,Rotation2d.fromDegrees(55)))).until(() -> intakeSubsystem.getChamberSensor())
+            );
 
+        (rightDriveController
+                .getLeftThumb().and(rightDriveController.getTrigger())).debounce(0.2, DebounceType.kFalling)
+                .whileTrue(parallel(intakeSubsystem.ejectCommand(), shooterSubsystem.shootCommand(ShooterState.fromVoltages(-.25,-.25,Rotation2d.fromDegrees(55)))).until(() -> intakeSubsystem.getChamberSensor())
             );
 
         rightDriveController
@@ -238,7 +242,7 @@ public class RobotContainer {
         
         leftDriveController
                 .getTrigger()
-                .whileTrue(aimAndShootCommands.movingAimCommand(
+                .whileTrue(aimAndShootCommands.adaptiveMovingAimCommand(
                     this::getDriveForwardAxis, this::getDriveStrafeAxis, this::getDriveRotationAxis, lightsSubsystem));
         leftDriveController
                 .nameTrigger("Aim");
@@ -309,10 +313,16 @@ public class RobotContainer {
         operatorController.getDPadRight().whileTrue(trapSubsystem.runIntakeCommand(6.0, 6.0));
 
         // Trap Rotate Note Up
-        operatorController.getDPadUp().whileTrue(trapSubsystem.runIntakeCommand(2.0, -2));
+        operatorController.getDPadUp().and(operatorController.getRightBumper().negate()).whileTrue(trapSubsystem.runIntakeCommand(2.0, -2));
 
         // Trap Rotate Note Down
-        operatorController.getDPadDown().whileTrue(trapSubsystem.runIntakeCommand(-2.0, 2.0));
+        operatorController.getDPadDown().and(operatorController.getRightBumper().negate()).whileTrue(trapSubsystem.runIntakeCommand(-2.0, 2.0));
+
+        // Shooter Adjustment Up
+        operatorController.getDPadUp().and(operatorController.getRightBumper()).onTrue(shooterSubsystem.adjustPitchCorrectionCommand(Rotation2d.fromDegrees(.25)));
+
+        // Shooter Adjustment Down
+        operatorController.getDPadDown().and(operatorController.getRightBumper()).onTrue(shooterSubsystem.adjustPitchCorrectionCommand(Rotation2d.fromDegrees(-.25)));
 
         // Ground Intaking Indicator (Strobe Purple)
         operatorController.getRightTrigger().and(operatorController.getLeftTrigger().negate()).whileTrue(run(() -> LightsSubsystemB.LEDSegment.MainStrip.setStrobeAnimation(LightsSubsystemB.purple, 0.3), lightsSubsystem));

@@ -109,21 +109,20 @@ public class AimAndShootCommands {
         final double velocityTolerance = 0.02;
 
         // This is in theory the inverse of the speed of the note
-        final double forwardPredictionCoefficient = 1 / 4.0;
+        final double forwardPredictionCoefficient = 1 / 16.0;
 
         BooleanSupplier readyToFire = () -> swerveDriveSubsystem.isAtDirectionCommand(angularTolerance, velocityTolerance);
 
         ProfiledPIDController controller = new ProfiledPIDController(5, 0, .5, new TrapezoidProfile.Constraints(4.5, 8));
 
-        Pose2d currentPose = swerveDriveSubsystem.getPose();
-        ChassisSpeeds currentSpeed = swerveDriveSubsystem.getFieldRelativeChassisSpeeds();
-
         Supplier<Pose2d> predictedPose = () -> {
+            Pose2d currentPose = swerveDriveSubsystem.getPose();
+            ChassisSpeeds currentSpeed = swerveDriveSubsystem.getFieldRelativeChassisSpeeds();
             double distance = visionSubsystem.getSpeakerDistance(swerveDriveSubsystem.getPose());
             return new Pose2d(
                 currentPose.getX() + currentSpeed.vxMetersPerSecond * forwardPredictionCoefficient * distance,
                 currentPose.getY() + currentSpeed.vyMetersPerSecond * forwardPredictionCoefficient * distance,
-                new Rotation2d(currentPose.getRotation().getRadians() + currentSpeed.omegaRadiansPerSecond * forwardPredictionCoefficient * distance));
+                new Rotation2d(currentPose.getRotation().getRadians()));
         };
 
         Command aimAtTag = swerveDriveSubsystem.directionCommand(() -> visionSubsystem.getSpeakerAngle(predictedPose.get()).plus(new Rotation2d(Math.PI)), 
@@ -153,6 +152,12 @@ public class AimAndShootCommands {
         Command spinUpCommand = shooterSubsystem.shootCommand(() -> visionSubsystem.getSpeakerDistance(swerveDriveSubsystem.getPose()));
 
         return parallel(aimAtTag, spinUpCommand.asProxy(), run(() -> {readyToFire.getAsBoolean();}));
+    }
+
+    public Command spinupCommand() {
+        Command spinUpCommand = shooterSubsystem.shootCommand(() -> visionSubsystem.getSpeakerDistance(swerveDriveSubsystem.getPose()));
+
+        return spinUpCommand.asProxy();
     }
 
 }
