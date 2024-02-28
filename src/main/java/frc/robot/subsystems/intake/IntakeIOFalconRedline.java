@@ -56,12 +56,12 @@ public class IntakeIOFalconRedline implements IntakeIO{
 
     public void setRollerSpeed(double speed) {
         rollerSpeed = speed;
-        rollerMotor.set(percentMaxOutput * speed);
+        rollerMotor.setVoltage(percentMaxOutput * speed * 12);
     }
 
     public void setChamberSpeed(double speed) {
         chamberSpeed = speed;
-        chamberMotor.set(percentMaxOutput * speed);
+        chamberMotor.setVoltage(percentMaxOutput * speed * 12);
     }
 
     private class SubRunner implements Runnable {

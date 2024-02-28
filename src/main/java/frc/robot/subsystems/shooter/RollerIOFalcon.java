@@ -22,9 +22,9 @@ public class RollerIOFalcon implements RollerIO {
 
         slot0Configs.kS = 0;
         // converts rads/s / V to V/rps
-        slot0Configs.kV = 0.113; //1 / (exampleMotor.KvRadPerSecPerVolt / Math.PI * 2);
+        slot0Configs.kV = 0.119; //1 / (exampleMotor.KvRadPerSecPerVolt / Math.PI * 2);
 
-        slot0Configs.kP = 1;
+        slot0Configs.kP = 0.2;
         slot0Configs.kI = 0;
         slot0Configs.kD = 0;
 

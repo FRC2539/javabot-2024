@@ -234,18 +234,28 @@ public class RobotContainer {
 
         rightDriveController
                 .getRightBottomMiddle()
-                .whileTrue(shooterSubsystem.shootCommand(ShooterState.fromVoltages(.5,.5,Rotation2d.fromDegrees(48.5)))
-
+                .whileTrue(shooterSubsystem.shootCommand(new ShooterState(.05,.2,Rotation2d.fromDegrees(57)))
             );
+            
         
+        rightDriveController
+                .getRightBottomLeft()
+                .whileTrue(ampScoreCommand());
+
         /*Set left joystic bindings */
         
         leftDriveController
                 .getTrigger()
-                .whileTrue(aimAndShootCommands.adaptiveMovingAimCommand(
+                .whileTrue(aimAndShootCommands.movingAimCommand(
                     this::getDriveForwardAxis, this::getDriveStrafeAxis, this::getDriveRotationAxis, lightsSubsystem));
         leftDriveController
                 .nameTrigger("Aim");
+
+        // leftDriveController
+        //         .getTrigger().and(operatorController.getLeftBumper())
+        //         .whileTrue(aimAndShootCommands.adaptiveMovingAimCommand(
+        //             this::getDriveForwardAxis, this::getDriveStrafeAxis, this::getDriveRotationAxis, lightsSubsystem
+        //         ));
         
         leftDriveController
                 .getTrigger().and(rightDriveController.getTrigger())
@@ -313,10 +323,10 @@ public class RobotContainer {
         operatorController.getDPadRight().whileTrue(trapSubsystem.runIntakeCommand(6.0, 6.0));
 
         // Trap Rotate Note Up
-        operatorController.getDPadUp().and(operatorController.getRightBumper().negate()).whileTrue(trapSubsystem.runIntakeCommand(2.0, -2));
+        operatorController.getDPadUp().and(operatorController.getRightBumper().negate()).whileTrue(trapSubsystem.runIntakeCommand(3, -1));
 
         // Trap Rotate Note Down
-        operatorController.getDPadDown().and(operatorController.getRightBumper().negate()).whileTrue(trapSubsystem.runIntakeCommand(-2.0, 2.0));
+        operatorController.getDPadDown().and(operatorController.getRightBumper().negate()).whileTrue(trapSubsystem.runIntakeCommand(-1.0, 3.0));
 
         // Shooter Adjustment Up
         operatorController.getDPadUp().and(operatorController.getRightBumper()).onTrue(shooterSubsystem.adjustPitchCorrectionCommand(Rotation2d.fromDegrees(.25)));
@@ -358,9 +368,9 @@ public class RobotContainer {
     }
 
     public Command ampScoreCommand() {
-        DriveToPositionCommand driveToPosition = new DriveToPositionCommand(swerveDriveSubsystem, FieldConstants.getAmpPose().plus(new Transform2d(1, 0, new Rotation2d())), false);
+        DriveToPositionCommand driveToPosition = new DriveToPositionCommand(swerveDriveSubsystem, () -> FieldConstants.getAmpPose().plus(new Transform2d(.6, 0, new Rotation2d())), false);
         Debouncer debouncer = new Debouncer(0.5);
-        return Commands.parallel(driveToPosition, shooterSubsystem.ampCommand(), Commands.waitUntil(() -> debouncer.calculate(driveToPosition.atGoal())).andThen(intakeSubsystem.shootCommand()));
+        return Commands.parallel(driveToPosition);//, shooterSubsystem.ampCommand(), Commands.waitUntil(() -> debouncer.calculate(driveToPosition.atGoal())).andThen(intakeSubsystem.shootCommand()));
     }
 
     public Command sourceIntakeCommand() {
