@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.lib.logging.LoggedReceiver;
 import frc.lib.logging.Logger;
+import frc.lib.vision.LimelightRawAngles;
 import frc.robot.commands.AimAndShootCommands;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.lights.LightsSubsystem;
@@ -23,6 +24,7 @@ import frc.robot.subsystems.lights.LightsSubsystemB;
 import frc.robot.subsystems.shooter.ShooterState;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveDriveSubsystem;
+import frc.robot.subsystems.vision.VisionSubsystem;
 
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -38,12 +40,14 @@ public class AutonomousManager {
     LightsSubsystemB lightsSubsystem;
     IntakeSubsystem intakeSubsystem;
     ShooterSubsystem shooterSubsystem;
+    VisionSubsystem visionSubsystem;
 
     public AutonomousManager(RobotContainer container) {
         swerveDriveSubsystem = container.getSwerveDriveSubsystem();
         lightsSubsystem = container.getLightsSubsystem();
         intakeSubsystem = container.getIntakeSubsystem();
         shooterSubsystem = container.getShooterSubsystem();
+        visionSubsystem = container.getVisionSubsystem();
 
         // Create an event map for use in all autos
 
@@ -52,7 +56,14 @@ public class AutonomousManager {
         NamedCommands.registerCommand("shoot", container.getAimAndShootCommands().stoppedShootAndAimCommand(Optional.of(0.25d), lightsSubsystem).withTimeout(4));//.onlyIf(() -> intakeSubsystem.hasPiece()));
         NamedCommands.registerCommand("subshoot", Commands.parallel(shooterSubsystem.shootCommand(new ShooterState(.4,.7,Rotation2d.fromDegrees(55))).asProxy(), Commands.waitSeconds(1).andThen(intakeSubsystem.shootCommand().asProxy())).withTimeout(1.25));
         NamedCommands.registerCommand("intake", intakeSubsystem.intakeCommand().withTimeout(3).asProxy());
-        NamedCommands.registerCommand("mlintake", parallel());
+        NamedCommands.registerCommand("mlintake", swerveDriveSubsystem.directionCommandAuto(() -> {
+                    Optional<LimelightRawAngles> direction = visionSubsystem.getDetectorInfo();
+                    if (direction.isPresent()) {
+                        return swerveDriveSubsystem.getRotation().plus(Rotation2d.fromDegrees(-direction.get().tx()));
+                    } else {
+                        return swerveDriveSubsystem.getRotation();
+                    }
+                }));
         NamedCommands.registerCommand("amp", parallel());
         NamedCommands.registerCommand("aim", container.getAimAndShootCommands().movingAimCommandAuto());
         NamedCommands.registerCommand("spinup", container.getAimAndShootCommands().spinupCommand());

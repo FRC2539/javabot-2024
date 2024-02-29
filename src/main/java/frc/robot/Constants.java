@@ -73,14 +73,16 @@ public final class Constants {
             var map = new InterpolatingMap<InterpolatableDouble>();
             map.put(0, new InterpolatableDouble(0.4));
             map.put(1.539, new InterpolatableDouble(0.4));
-            map.put(2.035, new InterpolatableDouble(.6));
-            map.put(2.512, new InterpolatableDouble(.6));
-            map.put(3.065, new InterpolatableDouble(.6));
-            map.put(3.545, new InterpolatableDouble(.65));
-            map.put(4.009, new InterpolatableDouble(.75));
-            map.put(4.518, new InterpolatableDouble(.85));
-            map.put(5.25, new InterpolatableDouble(.9));
-            map.put(100, new InterpolatableDouble(.9));
+            map.put(2.095, new InterpolatableDouble(0.6));
+            map.put(2.458, new InterpolatableDouble(0.6));
+            map.put(2.9, new InterpolatableDouble(0.6));
+            map.put(3.376, new InterpolatableDouble(0.6));
+            map.put(3.98, new InterpolatableDouble(0.625));
+            map.put(4.417, new InterpolatableDouble(0.625));
+            map.put(4.862, new InterpolatableDouble(0.675));
+            map.put(5.406, new InterpolatableDouble(0.675));
+            map.put(5.9, new InterpolatableDouble(0.725));
+            map.put(1000, new InterpolatableDouble(0.725));
 
             return map;
         }
@@ -89,14 +91,16 @@ public final class Constants {
             var map = new InterpolatingMap<InterpolatableDouble>();
             map.put(0, new InterpolatableDouble(0.7));
             map.put(1.539, new InterpolatableDouble(0.7));
-            map.put(2.035, new InterpolatableDouble(.6));
-            map.put(2.512, new InterpolatableDouble(.6));
-            map.put(3.065, new InterpolatableDouble(.6));
-            map.put(3.545, new InterpolatableDouble(.6));
-            map.put(4.009, new InterpolatableDouble(.7));
-            map.put(4.518, new InterpolatableDouble(.8));
-            map.put(5.25, new InterpolatableDouble(.8));
-            map.put(100, new InterpolatableDouble(.8));
+            map.put(2.095, new InterpolatableDouble(0.6));
+            map.put(2.458, new InterpolatableDouble(0.6));
+            map.put(2.9, new InterpolatableDouble(0.6));
+            map.put(3.376, new InterpolatableDouble(0.6));
+            map.put(3.98, new InterpolatableDouble(0.6));
+            map.put(4.417, new InterpolatableDouble(0.6));
+            map.put(4.862, new InterpolatableDouble(0.65));
+            map.put(5.406, new InterpolatableDouble(0.65));
+            map.put(5.9, new InterpolatableDouble(0.7));
+            map.put(1000, new InterpolatableDouble(0.7));
 
             return map;
         }
@@ -105,18 +109,67 @@ public final class Constants {
             var map = new InterpolatingMap<InterpolatableDouble>();
             map.put(0, new InterpolatableDouble(55));
             map.put(1.539, new InterpolatableDouble(55));
-            map.put(2.035, new InterpolatableDouble(50));
-            map.put(2.512, new InterpolatableDouble(43));
-            map.put(2.898, new InterpolatableDouble(37));
-            map.put(3.065, new InterpolatableDouble(36.5));
-            map.put(3.545, new InterpolatableDouble(34));
-            map.put(4.009, new InterpolatableDouble(31.5));
-            map.put(4.518, new InterpolatableDouble(29));
-            map.put(5.25, new InterpolatableDouble(26.5)); //25.5
-            map.put(100, new InterpolatableDouble(20));
+            map.put(2.095, new InterpolatableDouble(44));
+            map.put(2.458, new InterpolatableDouble(40));
+            map.put(2.9, new InterpolatableDouble(036));
+            map.put(3.376, new InterpolatableDouble(32));
+            map.put(3.98, new InterpolatableDouble(29.5));
+            map.put(4.417, new InterpolatableDouble(27.5));
+            map.put(4.862, new InterpolatableDouble(26));
+            map.put(5.406, new InterpolatableDouble(24.75));
+            map.put(5.9, new InterpolatableDouble(22));
+            map.put(1000, new InterpolatableDouble(22));
 
             return map;
         }
+        // public static final InterpolatingMap<InterpolatableDouble> topRollerMap() {
+        //     var map = new InterpolatingMap<InterpolatableDouble>();
+        //     map.put(0, new InterpolatableDouble(0.4));
+        //     map.put(1.539, new InterpolatableDouble(0.4));
+        //     map.put(2.035, new InterpolatableDouble(.6));
+        //     map.put(2.512, new InterpolatableDouble(.6));
+        //     map.put(3.065, new InterpolatableDouble(.6));
+        //     map.put(3.545, new InterpolatableDouble(.65));
+        //     map.put(3.843, new InterpolatableDouble(.725));
+        //     map.put(4.432, new InterpolatableDouble(.825));
+        //     map.put(5.25, new InterpolatableDouble(.825));
+        //     map.put(100, new InterpolatableDouble(.85));
+
+        //     return map;
+        // }
+
+        // public static final InterpolatingMap<InterpolatableDouble> bottomRollerMap() {
+        //     var map = new InterpolatingMap<InterpolatableDouble>();
+        //     map.put(0, new InterpolatableDouble(0.7));
+        //     map.put(1.539, new InterpolatableDouble(0.7));
+        //     map.put(2.035, new InterpolatableDouble(.6));
+        //     map.put(2.512, new InterpolatableDouble(.6));
+        //     map.put(3.065, new InterpolatableDouble(.6));
+        //     map.put(3.545, new InterpolatableDouble(.6));
+        //     map.put(3.842, new InterpolatableDouble(.7));
+        //     map.put(4.432, new InterpolatableDouble(.8));
+        //     map.put(5.25, new InterpolatableDouble(.8));
+        //     map.put(100, new InterpolatableDouble(.825));
+
+        //     return map;
+        // }
+
+        // public static final InterpolatingMap<InterpolatableDouble> shooterAngleMap() {
+        //     var map = new InterpolatingMap<InterpolatableDouble>();
+        //     map.put(0, new InterpolatableDouble(55));
+        //     map.put(1.539, new InterpolatableDouble(55));
+        //     map.put(1.734, new InterpolatableDouble(51));
+        //     map.put(2.134, new InterpolatableDouble(48));
+        //     map.put(2.746, new InterpolatableDouble(41));
+        //     map.put(3.248, new InterpolatableDouble(38));
+        //     map.put(3.653, new InterpolatableDouble(33));
+        //     map.put(3.843, new InterpolatableDouble(32));
+        //     map.put(4.432, new InterpolatableDouble(29));
+        //     map.put(5.25, new InterpolatableDouble(26.5)); //25.5
+        //     map.put(100, new InterpolatableDouble(20));
+
+        //     return map;
+        // }
     }
 
     public static class SwerveConstants {

@@ -30,6 +30,7 @@ import frc.lib.controller.LogitechController;
 import frc.lib.controller.ThrustmasterJoystick;
 import frc.lib.logging.LoggedReceiver;
 import frc.lib.logging.Logger;
+import frc.lib.vision.LimelightRawAngles;
 import frc.robot.Constants.ControllerConstants;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.ShooterConstants;
@@ -234,13 +235,28 @@ public class RobotContainer {
 
         rightDriveController
                 .getRightBottomMiddle()
-                .whileTrue(shooterSubsystem.shootCommand(new ShooterState(.05,.2,Rotation2d.fromDegrees(57)))
+                .whileTrue(shooterSubsystem.shootCommand(new ShooterState(.05,.2,Rotation2d.fromDegrees(55)))
             );
             
         
         rightDriveController
                 .getRightBottomLeft()
                 .whileTrue(ampScoreCommand());
+
+        rightDriveController
+                .getRightBottomMiddle().and(rightDriveController.getTrigger()).whileTrue(intakeSubsystem.ampCommand());
+
+        rightDriveController
+            .getRightTopRight().whileTrue(
+                swerveDriveSubsystem.directionCommand(() -> {
+                    Optional<LimelightRawAngles> direction = visionSubsystem.getDetectorInfo();
+                    if (direction.isPresent()) {
+                        return swerveDriveSubsystem.getRotation().plus(Rotation2d.fromDegrees(-direction.get().tx()));
+                    } else {
+                        return swerveDriveSubsystem.getRotation();
+                    }
+                }, () -> 0.0, ()->0.0, new ProfiledPIDController(5, 0, .5, new TrapezoidProfile.Constraints(4.5, 8)))
+            );
 
         /*Set left joystic bindings */
         
@@ -259,7 +275,7 @@ public class RobotContainer {
         
         leftDriveController
                 .getTrigger().and(rightDriveController.getTrigger())
-                .whileTrue(intakeSubsystem.shootCommand());//stoppedShootAndAimCommand());
+                .whileTrue(waitUntil(() -> shooterSubsystem.isShooterAtPosition()).andThen(intakeSubsystem.shootCommand()));//stoppedShootAndAimCommand());
 
         leftDriveController
                 .getLeftThumb()
@@ -368,7 +384,7 @@ public class RobotContainer {
     }
 
     public Command ampScoreCommand() {
-        DriveToPositionCommand driveToPosition = new DriveToPositionCommand(swerveDriveSubsystem, () -> FieldConstants.getAmpPose().plus(new Transform2d(.6, 0, new Rotation2d())), false);
+        DriveToPositionCommand driveToPosition = new DriveToPositionCommand(swerveDriveSubsystem, () -> FieldConstants.getAmpPose().plus(new Transform2d(.8, 0, new Rotation2d())), false);
         Debouncer debouncer = new Debouncer(0.5);
         return Commands.parallel(driveToPosition);//, shooterSubsystem.ampCommand(), Commands.waitUntil(() -> debouncer.calculate(driveToPosition.atGoal())).andThen(intakeSubsystem.shootCommand()));
     }

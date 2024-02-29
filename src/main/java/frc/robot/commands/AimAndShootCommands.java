@@ -46,7 +46,7 @@ public class AimAndShootCommands {
     
             Supplier<Pose2d> getPose = () -> swerveDriveSubsystem.getPose();
     
-            BooleanSupplier readyToFire = () -> (swerveDriveSubsystem.isAtDirectionCommand(angularTolerance, velocityTolerance));
+            BooleanSupplier readyToFire = () -> (swerveDriveSubsystem.isAtDirectionCommand(angularTolerance, velocityTolerance) && shooterSubsystem.isShooterAtPosition());
     
             ProfiledPIDController controller = new ProfiledPIDController(3, 0, .5, new TrapezoidProfile.Constraints(4.5, 8));
     
@@ -77,7 +77,7 @@ public class AimAndShootCommands {
                 }
             }, lightsSubsystem).asProxy();
     
-            return deadline(parallel(waitUntil(readyToFire), Commands.waitSeconds(1.0)).andThen(runBeltCommand.asProxy()), aimAtTag, spinUpCommand.asProxy(), lightsCommand);
+            return deadline(waitUntil(readyToFire).andThen(runBeltCommand.asProxy()), aimAtTag, spinUpCommand.asProxy(), lightsCommand);
         }
 
     public Command movingAimCommand(DoubleSupplier forward, DoubleSupplier strafe, DoubleSupplier rotate, LightsSubsystemB lightsSubsystem) {
@@ -105,7 +105,7 @@ public class AimAndShootCommands {
     }
 
     public Command adaptiveMovingAimCommand(DoubleSupplier forward, DoubleSupplier strafe, DoubleSupplier rotate, LightsSubsystemB lightsSubsystem) {
-        final double angularTolerance = 0.06;
+        final double angularTolerance = 0.12;
         final double velocityTolerance = 0.02;
 
         // This is in theory the inverse of the speed of the note

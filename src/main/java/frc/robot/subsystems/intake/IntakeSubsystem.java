@@ -32,6 +32,7 @@ public class IntakeSubsystem extends SubsystemBase {
         MOVING_REVERSE,
         INTAKING,
         SHOOTING,
+        AMPING,
         EJECTING,
     }
 
@@ -50,6 +51,10 @@ public class IntakeSubsystem extends SubsystemBase {
                 setRoller(-.25);
                 break;
             case SHOOTING:
+                setChamber(1 * 12.0 / 12.0);
+                setRoller(.25 * 12.0 / 12.0);
+                break;
+            case AMPING:
                 setChamber(1);
                 setRoller(.25);
                 break;
@@ -91,6 +96,12 @@ public class IntakeSubsystem extends SubsystemBase {
     public Command shootCommand() {
         return runEnd(() -> {
             setIntakeState(IntakeState.SHOOTING);
+        }, () -> {});
+    }
+
+    public Command ampCommand() {
+        return runEnd(() -> {
+            setIntakeState(IntakeState.AMPING);
         }, () -> {});
     }
 
