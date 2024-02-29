@@ -59,7 +59,7 @@ public class AutonomousManager {
         NamedCommands.registerCommand("mlintake", swerveDriveSubsystem.directionCommandAuto(() -> {
                     Optional<LimelightRawAngles> direction = visionSubsystem.getDetectorInfo();
                     if (direction.isPresent()) {
-                        return swerveDriveSubsystem.getRotation().plus(Rotation2d.fromDegrees(-direction.get().tx()));
+                        return swerveDriveSubsystem.getRotation().plus(Rotation2d.fromDegrees(-direction.get().ty() / 2));
                     } else {
                         return swerveDriveSubsystem.getRotation();
                     }
@@ -161,7 +161,15 @@ public class AutonomousManager {
                 "Amp",
                 4,
                 "Easy4",
-                "Near Line",
+                "Near Line (Amp)",
+                true,
+                "Shoots in the starting piece and then picks up and shoots the near row."
+                ),
+        EASYSOURCE4(
+                "Source",
+                4,
+                "EasySource4",
+                "Near Line (Source)",
                 true,
                 "Shoots in the starting piece and then picks up and shoots the near row."
                 ),

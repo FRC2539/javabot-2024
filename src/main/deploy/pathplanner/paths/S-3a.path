@@ -3,35 +3,67 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.0040220199046774,
-        "y": 2.7681649432980118
+        "x": 0.7518994781213513,
+        "y": 4.403274541213847
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.965129439525002,
-        "y": 0.31590206990643765
+        "x": 1.4311279977766789,
+        "y": 4.333009521939157
       },
       "isLocked": false,
-      "linkedName": "3s"
+      "linkedName": "S"
     },
     {
       "anchor": {
-        "x": 8.281967377058862,
-        "y": 4.087081954477746
+        "x": 2.086934844340443,
+        "y": 4.403274541213847
       },
       "prevControl": {
-        "x": 7.687844108082582,
-        "y": 2.3819335407388373
+        "x": 1.823891121739049,
+        "y": 4.547524324575902
+      },
+      "nextControl": {
+        "x": 2.4499707772596704,
+        "y": 4.20419031993556
+      },
+      "isLocked": false,
+      "linkedName": "3a"
+    },
+    {
+      "anchor": {
+        "x": 2.7310308543584263,
+        "y": 4.157346973752435
+      },
+      "prevControl": {
+        "x": 2.70028990842575,
+        "y": 4.178572864991663
+      },
+      "nextControl": {
+        "x": 2.7617718002911027,
+        "y": 4.136121082513206
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 2.086934844340443,
+        "y": 4.403274541213847
+      },
+      "prevControl": {
+        "x": 1.8995614596079395,
+        "y": 4.4501178873969724
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "3b"
+      "linkedName": "3a"
     }
   ],
   "rotationTargets": [
     {
       "waypointRelativePos": 0.5,
-      "rotationDegrees": 53.23945334487635,
+      "rotationDegrees": -41.34810273023881,
       "rotateFast": false
     }
   ],
@@ -39,7 +71,7 @@
   "eventMarkers": [
     {
       "name": "intake",
-      "waypointRelativePos": 0.6,
+      "waypointRelativePos": 1.2,
       "command": {
         "type": "parallel",
         "data": {
@@ -55,8 +87,8 @@
       }
     },
     {
-      "name": "mlintake",
-      "waypointRelativePos": 0.7,
+      "name": "spinup",
+      "waypointRelativePos": 0.8,
       "command": {
         "type": "parallel",
         "data": {
@@ -64,7 +96,7 @@
             {
               "type": "named",
               "data": {
-                "name": "mlintake"
+                "name": "spinup"
               }
             }
           ]
@@ -80,13 +112,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 63.43494882292184,
-    "rotateFast": false
+    "rotation": -14.349332042947191,
+    "rotateFast": true
   },
   "reversed": false,
   "folder": "The Square Convention",
   "previewStartingState": {
-    "rotation": 0,
+    "rotation": -57.65255650055799,
     "velocity": 0
   },
   "useDefaultConstraints": true

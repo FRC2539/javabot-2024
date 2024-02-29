@@ -111,7 +111,7 @@ public final class Constants {
             map.put(1.539, new InterpolatableDouble(55));
             map.put(2.095, new InterpolatableDouble(44));
             map.put(2.458, new InterpolatableDouble(40));
-            map.put(2.9, new InterpolatableDouble(036));
+            map.put(2.9, new InterpolatableDouble(36));
             map.put(3.376, new InterpolatableDouble(32));
             map.put(3.98, new InterpolatableDouble(29.5));
             map.put(4.417, new InterpolatableDouble(27.5));

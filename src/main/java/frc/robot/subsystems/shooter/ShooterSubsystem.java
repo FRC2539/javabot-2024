@@ -183,7 +183,7 @@ public class ShooterSubsystem extends SubsystemBase {
     public void logShooterInformation() {
         Logger.log("/ShooterSubsystem/topRollerSpeedSetpoint", currentShooterState.topRollerRPM);
         Logger.log("/ShooterSubsystem/bottomRollerSpeedSetpoint", currentShooterState.bottomRollerRPM);
-        Logger.log("/ShooterSubsystem/shooterPositionSetpoint", currentShooterState.pivotAngle.getRadians());
+        Logger.log("/ShooterSubsystem/shooterPositionSetpoint", currentShooterState.pivotAngle.getDegrees());
         Logger.log("/ShooterSubsystem/shooterDistanceSetpoint", currentDistance);
 
         Logger.log("/ShooterSubsystem/topRollerSpeed", topRollerInputs.speed);

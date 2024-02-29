@@ -214,7 +214,7 @@ public class RobotContainer {
 
         rightDriveController
                 .getBottomThumb()
-                .whileTrue(shooterSubsystem.shootCommand(ShooterState.fromVoltages(.85,.75,Rotation2d.fromDegrees(35))));
+                .whileTrue(shooterSubsystem.shootCommand(new ShooterState(.85,.75,Rotation2d.fromDegrees(35))));
 
         rightDriveController.getBottomThumb().and(rightDriveController.getTrigger())
             .whileTrue(intakeSubsystem.shootCommand());
@@ -236,12 +236,9 @@ public class RobotContainer {
         rightDriveController
                 .getRightBottomMiddle()
                 .whileTrue(shooterSubsystem.shootCommand(new ShooterState(.05,.2,Rotation2d.fromDegrees(55)))
-            );
+            ).whileTrue(ampScoreCommand());
             
         
-        rightDriveController
-                .getRightBottomLeft()
-                .whileTrue(ampScoreCommand());
 
         rightDriveController
                 .getRightBottomMiddle().and(rightDriveController.getTrigger()).whileTrue(intakeSubsystem.ampCommand());
@@ -251,11 +248,11 @@ public class RobotContainer {
                 swerveDriveSubsystem.directionCommand(() -> {
                     Optional<LimelightRawAngles> direction = visionSubsystem.getDetectorInfo();
                     if (direction.isPresent()) {
-                        return swerveDriveSubsystem.getRotation().plus(Rotation2d.fromDegrees(-direction.get().tx()));
+                        return swerveDriveSubsystem.getRotation().plus(Rotation2d.fromDegrees(-direction.get().ty() / 2.0));
                     } else {
                         return swerveDriveSubsystem.getRotation();
                     }
-                }, () -> 0.0, ()->0.0, new ProfiledPIDController(5, 0, .5, new TrapezoidProfile.Constraints(4.5, 8)))
+                }, this::getDriveForwardAxis, this::getDriveStrafeAxis, new ProfiledPIDController(1, 0, .5, new TrapezoidProfile.Constraints(4, 4)))
             );
 
         /*Set left joystic bindings */
@@ -275,7 +272,8 @@ public class RobotContainer {
         
         leftDriveController
                 .getTrigger().and(rightDriveController.getTrigger())
-                .whileTrue(waitUntil(() -> shooterSubsystem.isShooterAtPosition()).andThen(intakeSubsystem.shootCommand()));//stoppedShootAndAimCommand());
+                .whileTrue(waitUntil(() -> shooterSubsystem.isShooterAtPosition() && swerveDriveSubsystem.isAtDirectionCommand(0.06, 0.02)).andThen(intakeSubsystem.shootCommand()))
+;//stoppedShootAndAimCommand());
 
         leftDriveController
                 .getLeftThumb()
@@ -289,7 +287,7 @@ public class RobotContainer {
         LoggedReceiver topRollerSpeedTunable = Logger.tunable("/ShooterSubsystem/topTunable", .4d);
         LoggedReceiver bottomRollerSpeedTunable = Logger.tunable("/ShooterSubsystem/bottomTunable", .7d);
         LoggedReceiver pivotAngleTunable = Logger.tunable("/ShooterSubsystem/pivotTunable", 55d);
-        LoggedReceiver isVoltageBasedTunable = Logger.tunable("/ShooterSubsystem/voltageTunable", true);
+        LoggedReceiver isVoltageBasedTunable = Logger.tunable("/ShooterSubsystem/voltageTunable", false);
         
         leftDriveController
                 .getBottomThumb()
@@ -384,7 +382,7 @@ public class RobotContainer {
     }
 
     public Command ampScoreCommand() {
-        DriveToPositionCommand driveToPosition = new DriveToPositionCommand(swerveDriveSubsystem, () -> FieldConstants.getAmpPose().plus(new Transform2d(.8, 0, new Rotation2d())), false);
+        DriveToPositionCommand driveToPosition = new DriveToPositionCommand(swerveDriveSubsystem, () -> FieldConstants.getAmpPose().plus(new Transform2d(.7, -.1, new Rotation2d())), false);
         Debouncer debouncer = new Debouncer(0.5);
         return Commands.parallel(driveToPosition);//, shooterSubsystem.ampCommand(), Commands.waitUntil(() -> debouncer.calculate(driveToPosition.atGoal())).andThen(intakeSubsystem.shootCommand()));
     }
