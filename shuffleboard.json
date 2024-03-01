@@ -13,7 +13,7 @@
         "tiles": {
           "0,0": {
             "size": [
-              19,
+              17,
               6
             ],
             "content": {
@@ -21,8 +21,8 @@
               "_title": "Vision",
               "_glyph": 149,
               "_showGlyph": false,
-              "Layout/Number of columns": 3,
-              "Layout/Number of rows": 2,
+              "Layout/Number of columns": 2,
+              "Layout/Number of rows": 1,
               "Layout/Label position": "BOTTOM",
               "_children": {
                 "0,0": {
@@ -42,21 +42,6 @@
                 },
                 "1,0": {
                   "_type": "Camera Stream",
-                  "_source0": "camera_server://limelight",
-                  "_title": "Limelight",
-                  "_glyph": 148,
-                  "_showGlyph": false,
-                  "Crosshair/Show crosshair": false,
-                  "Crosshair/Crosshair color": "#FFFFFFFF",
-                  "Controls/Show controls": false,
-                  "Controls/Rotation": "QUARTER_CW",
-                  "compression": -1.0,
-                  "fps": -1,
-                  "imageWidth": 0,
-                  "imageHeight": 0
-                },
-                "2,0": {
-                  "_type": "Camera Stream",
                   "_source0": "camera_server://photonvision_Port_1184_Output_MJPEG_Server",
                   "_title": "Right",
                   "_glyph": 148,
@@ -73,19 +58,65 @@
               }
             }
           },
-          "20,0": {
+          "17,0": {
             "size": [
-              2,
-              3
+              5,
+              6
             ],
             "content": {
-              "_type": "Boolean Box",
-              "_source0": "network_table:///IntakeSubsystem/HasPiece",
-              "_title": "Has Piece",
-              "_glyph": 148,
+              "_type": "Grid Layout",
+              "_title": "Statuses",
+              "_glyph": 149,
               "_showGlyph": false,
-              "Colors/Color when true": "#7CFC00FF",
-              "Colors/Color when false": "#FF0000FF"
+              "Layout/Number of columns": 2,
+              "Layout/Number of rows": 2,
+              "Layout/Label position": "BOTTOM",
+              "_children": {
+                "1,0": {
+                  "_type": "Boolean Box",
+                  "_source0": "network_table:///VisionSubsystem/isUsingVision",
+                  "_title": "Using Vision",
+                  "_glyph": 148,
+                  "_showGlyph": false,
+                  "Colors/Color when true": "#7CFC00FF",
+                  "Colors/Color when false": "#FF0000FF"
+                },
+                "0,0": {
+                  "_type": "Boolean Box",
+                  "_source0": "network_table:///IntakeSubsystem/HasPiece",
+                  "_title": "Has Piece",
+                  "_glyph": 148,
+                  "_showGlyph": false,
+                  "Colors/Color when true": "#7CFC00FF",
+                  "Colors/Color when false": "#FF0000FF"
+                },
+                "0,1": {
+                  "_type": "Number Bar",
+                  "_source0": "network_table:///ShooterSubsystem/shooterPositionDegrees",
+                  "_title": "Shooter Pose",
+                  "_glyph": 148,
+                  "_showGlyph": false,
+                  "Range/Min": 0.0,
+                  "Range/Max": 90.0,
+                  "Range/Center": 0.0,
+                  "Visuals/Num tick marks": 6,
+                  "Visuals/Show text": true,
+                  "Visuals/Orientation": "HORIZONTAL"
+                },
+                "1,1": {
+                  "_type": "Number Bar",
+                  "_source0": "network_table:///ShooterSubsystem/pitchCorrection",
+                  "_title": "Pitch Correction",
+                  "_glyph": 148,
+                  "_showGlyph": false,
+                  "Range/Min": -3.0,
+                  "Range/Max": 3.0,
+                  "Range/Center": 0.0,
+                  "Visuals/Num tick marks": 5,
+                  "Visuals/Show text": true,
+                  "Visuals/Orientation": "HORIZONTAL"
+                }
+              }
             }
           }
         }

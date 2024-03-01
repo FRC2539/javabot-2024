@@ -44,7 +44,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     private ShooterState currentShooterState = defaultState;
 
-    private Rotation2d pitchCorrection = new Rotation2d();
+    private Rotation2d pitchCorrection = new Rotation2d(0.0);
 
     private boolean isShooterAtPosition = false;
 
@@ -193,5 +193,6 @@ public class ShooterSubsystem extends SubsystemBase {
         Logger.log("/ShooterSubsystem/isAtAngle", pivotInputs.atTarget);
 
         Logger.log("/ShooterSubsystem/isAtPosition", isShooterAtPosition());
+        Logger.log("/ShooterSubsystem/pitchCorrection", pitchCorrection.getDegrees());
     }
 }

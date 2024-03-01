@@ -7,6 +7,7 @@ import java.util.Optional;
 import org.photonvision.PhotonUtils;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
+import frc.lib.logging.LoggedReceiver;
 import frc.lib.logging.Logger;
 
 import edu.wpi.first.math.Matrix;
@@ -21,6 +22,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.math.MathUtils;
 import frc.lib.vision.LimelightRawAngles;
+import frc.robot.RobotContainer;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.swervedrive.SwerveDriveSubsystem;
@@ -49,6 +51,8 @@ public class VisionSubsystem extends SubsystemBase {
 
     private SwerveDriveSubsystem consumer;
 
+    public boolean usingVision = true;
+
     public VisionSubsystem(SwerveDriveSubsystem consumer, AprilTagIO left, AprilTagIO right, PositionTargetIO limelight, PositionTargetIO limelightApriltag) {
         this.left = left;
         this.right = right;
@@ -67,8 +71,12 @@ public class VisionSubsystem extends SubsystemBase {
         leftTargets = left.updateTagsInfo();
         rightTargets = right.updateTagsInfo();
 
-        addVisionPoseEstimate(leftInputs);
-        addVisionPoseEstimate(rightInputs);
+        if (usingVision) {
+            addVisionPoseEstimate(leftInputs);
+            addVisionPoseEstimate(rightInputs);
+        }
+
+        Logger.log("/VisionSubsystem/isUsingVision", usingVision);
     }
 
     public static Optional<PhotonTrackedTarget> getTagInfo(List<PhotonTrackedTarget> targets, int tagID) {

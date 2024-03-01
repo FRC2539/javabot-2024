@@ -214,7 +214,7 @@ public class RobotContainer {
 
         rightDriveController
                 .getBottomThumb()
-                .whileTrue(shooterSubsystem.shootCommand(new ShooterState(.85,.75,Rotation2d.fromDegrees(35))));
+                .whileTrue(shooterSubsystem.shootCommand(new ShooterState(.65,.65,Rotation2d.fromDegrees(35))));
 
         rightDriveController.getBottomThumb().and(rightDriveController.getTrigger())
             .whileTrue(intakeSubsystem.shootCommand());
@@ -236,9 +236,18 @@ public class RobotContainer {
         rightDriveController
                 .getRightBottomMiddle()
                 .whileTrue(shooterSubsystem.shootCommand(new ShooterState(.05,.2,Rotation2d.fromDegrees(55)))
-            ).whileTrue(ampScoreCommand());
-            
+            );
         
+            
+
+        rightDriveController
+                .getRightBottomLeft().whileTrue(ampScoreCommand());
+        
+        operatorController
+                .getLeftBumper().whileTrue(shooterSubsystem.shootCommand(new ShooterState(.05,.2,Rotation2d.fromDegrees(55))));
+            
+        operatorController
+                .getLeftBumper().and(rightDriveController.getTrigger()).whileTrue(intakeSubsystem.ampCommand());
 
         rightDriveController
                 .getRightBottomMiddle().and(rightDriveController.getTrigger()).whileTrue(intakeSubsystem.ampCommand());
@@ -315,7 +324,8 @@ public class RobotContainer {
         leftDriveController.getLeftTopRight().onTrue(shooterSubsystem.zeroShooterAngleCommand(Rotation2d.fromDegrees(46)));
         leftDriveController.getLeftBottomRight().onTrue(trapSubsystem.zeroRackPositionCommand());
 
-
+        leftDriveController.getRightTopMiddle().onTrue(run(() -> visionSubsystem.usingVision = false));
+        leftDriveController.getRightTopRight().onTrue(run(() -> visionSubsystem.usingVision = true));
 
         // Trap Command
         operatorController.getY().whileTrue(trapSubsystem.shootCommand(new TrapState(0,0,34)));
@@ -337,7 +347,7 @@ public class RobotContainer {
         operatorController.getDPadRight().whileTrue(trapSubsystem.runIntakeCommand(6.0, 6.0));
 
         // Trap Rotate Note Up
-        operatorController.getDPadUp().and(operatorController.getRightBumper().negate()).whileTrue(trapSubsystem.runIntakeCommand(3, -1));
+        operatorController.getDPadUp().and(operatorController.getRightBumper().negate()).whileTrue(trapSubsystem.runIntakeCommand(5, -2));
 
         // Trap Rotate Note Down
         operatorController.getDPadDown().and(operatorController.getRightBumper().negate()).whileTrue(trapSubsystem.runIntakeCommand(-1.0, 3.0));
@@ -365,8 +375,8 @@ public class RobotContainer {
             )
         );
 
-        operatorController.getA().onTrue(shooterSubsystem.adjustPitchCorrectionCommand(Rotation2d.fromDegrees(0.5)));
-        operatorController.getB().onTrue(shooterSubsystem.adjustPitchCorrectionCommand(Rotation2d.fromDegrees(0.5)));
+        //operatorController.getA().onTrue(shooterSubsystem.adjustPitchCorrectionCommand(Rotation2d.fromDegrees(0.5)));
+        //operatorController.getB().onTrue(shooterSubsystem.adjustPitchCorrectionCommand(Rotation2d.fromDegrees(0.5)));
 
         operatorController.getBack().whileTrue(climberSubsystem.moveClimberUpOperator());
         
