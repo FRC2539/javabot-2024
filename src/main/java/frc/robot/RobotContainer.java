@@ -452,16 +452,17 @@ public class RobotContainer {
     }
 
     public Command autoIntakeCommand() {
+        final double aimingFactor = 1; //up to 1 the pose converges. reduces overshoot chance if less than 1;
         final double speed = 1;
         final LinearFilter myFilter = LinearFilter.singlePoleIIR(0.1,0.02);
         Supplier<Rotation2d> angleOfGamepiece = () -> {if(visionSubsystem.getDetectorInfo().isPresent())
-                                                            return Rotation2d.fromDegrees(visionSubsystem.getDetectorInfo().get().tx());
+                                                            return Rotation2d.fromDegrees(-visionSubsystem.getDetectorInfo().get().ty() * aimingFactor);
                                                         else
                                                             return new Rotation2d();};
 
         Supplier<Rotation2d> absoluteTargetAngle = () -> Rotation2d.fromRotations(myFilter.calculate(angleOfGamepiece.get().plus(swerveDriveSubsystem.getRotation()).getRotations()));
         ProfiledPIDController omegaController = 
-            new ProfiledPIDController(0, 0, 0, new TrapezoidProfile.Constraints(0, 0));
+            new ProfiledPIDController(1, 0, .5, new TrapezoidProfile.Constraints(4, 4));
         DoubleSupplier forward = () -> {if(visionSubsystem.getDetectorInfo().isPresent()) 
                                             return absoluteTargetAngle.get().getCos() * speed;
                                         else
@@ -472,6 +473,35 @@ public class RobotContainer {
                                             return 0;};
 
         return swerveDriveSubsystem.directionCommand(angleOfGamepiece, forward, strafe, omegaController);
+    }
+
+    public Command autoIntakeTurnCommand() {
+        return swerveDriveSubsystem.directionCommandAuto(() -> {
+            Optional<LimelightRawAngles> direction = visionSubsystem.getDetectorInfo();
+            if (direction.isPresent()) {
+                return swerveDriveSubsystem.getRotation().plus(Rotation2d.fromDegrees(-direction.get().ty() * 0.7));
+            } else {
+                return swerveDriveSubsystem.getRotation();
+            }
+        }).until(() -> intakeSubsystem.hasPieceSmoothed());
+    }
+
+    public Command autoIntakeStraightCommand() {
+        final double aimingFactor = 1; //up to 1 the pose converges. reduces overshoot chance if less than 1;
+        final double speed = 1;
+        final LinearFilter myFilter = LinearFilter.singlePoleIIR(0.1,0.02);
+        Supplier<Rotation2d> angleOfGamepiece = () -> {if(visionSubsystem.getDetectorInfo().isPresent())
+                                                            return Rotation2d.fromDegrees(-visionSubsystem.getDetectorInfo().get().ty() * aimingFactor);
+                                                        else
+                                                            return new Rotation2d();};
+
+        Supplier<Rotation2d> absoluteTargetAngle = () -> Rotation2d.fromRotations(myFilter.calculate(angleOfGamepiece.get().plus(swerveDriveSubsystem.getRotation()).getRotations()));
+        ProfiledPIDController omegaController = 
+            new ProfiledPIDController(1, 0, .5, new TrapezoidProfile.Constraints(4, 4));
+        DoubleSupplier forward = () -> -swerveDriveSubsystem.getRotation().getCos() * speed;
+        DoubleSupplier strafe = () -> -swerveDriveSubsystem.getRotation().getSin() * speed;
+
+        return swerveDriveSubsystem.directionCommand(absoluteTargetAngle, forward, strafe, omegaController);
     }
 
     public double getDriveForwardAxis() {

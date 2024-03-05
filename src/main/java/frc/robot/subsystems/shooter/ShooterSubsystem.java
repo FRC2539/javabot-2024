@@ -48,6 +48,8 @@ public class ShooterSubsystem extends SubsystemBase {
 
     private boolean isShooterAtPosition = false;
 
+    public boolean inPositionDisableMode = false;
+
     public ShooterSubsystem(RollerIO topRollerIO, RollerIO bottomRollerIO, PivotIO pivotIO, InterpolatingMap<InterpolatableDouble> topRollerMap, InterpolatingMap<InterpolatableDouble> bottomRollerMap, InterpolatingMap<InterpolatableDouble> pivotAngleMap) {
         this.topRollerIO = topRollerIO;
         this.bottomRollerIO = bottomRollerIO;
@@ -88,7 +90,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
         if (currentShooterState.isAngleVoltageBased) {
             pivotIO.setVoltage(currentShooterState.pivotAngle.getRotations());
-        } else {
+        } else if (!inPositionDisableMode) {
             pivotIO.setAngle(Rotation2d.fromDegrees(MathUtils.ensureRange(currentShooterState.pivotAngle.plus(pitchCorrection).getDegrees(), 20, 60)));
         }
 
@@ -132,7 +134,7 @@ public class ShooterSubsystem extends SubsystemBase {
                 topSpeed, movingAverageTop.calculate(topRollerInputs.speed), shooterSpeedTolerance * topSpeed) &&
             MathUtils.equalsWithinError(
                 bottomSpeed, movingAverageBottom.calculate(bottomRollerInputs.speed), shooterSpeedTolerance * bottomSpeed) &&
-            MathUtils.equalsWithinError(
+            inPositionDisableMode || MathUtils.equalsWithinError(
                 currentShooterState.pivotAngle.plus(pitchCorrection).getDegrees() - 0.25, pivotInputs.currentAngle.getDegrees(), shooterAngleTolerance.getDegrees()));
     }
 
