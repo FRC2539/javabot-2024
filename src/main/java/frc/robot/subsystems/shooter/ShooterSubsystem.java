@@ -44,7 +44,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     private ShooterState currentShooterState = defaultState;
 
-    private Rotation2d pitchCorrection = new Rotation2d(0.0);
+    private Rotation2d pitchCorrection = Rotation2d.fromDegrees(0.5);
 
     private boolean isShooterAtPosition = false;
 
@@ -89,7 +89,7 @@ public class ShooterSubsystem extends SubsystemBase {
         if (currentShooterState.isAngleVoltageBased) {
             pivotIO.setVoltage(currentShooterState.pivotAngle.getRotations());
         } else {
-            pivotIO.setAngle(Rotation2d.fromDegrees(MathUtils.ensureRange(currentShooterState.pivotAngle.plus(pitchCorrection).getDegrees(), 20, 55)));
+            pivotIO.setAngle(Rotation2d.fromDegrees(MathUtils.ensureRange(currentShooterState.pivotAngle.plus(pitchCorrection).getDegrees(), 20, 60)));
         }
 
         isShooterAtPosition = calculateIsShooterAtPosition();
@@ -133,7 +133,7 @@ public class ShooterSubsystem extends SubsystemBase {
             MathUtils.equalsWithinError(
                 bottomSpeed, movingAverageBottom.calculate(bottomRollerInputs.speed), shooterSpeedTolerance * bottomSpeed) &&
             MathUtils.equalsWithinError(
-                currentShooterState.pivotAngle.getDegrees() - 0.25, pivotInputs.currentAngle.getDegrees(), shooterAngleTolerance.getDegrees()));
+                currentShooterState.pivotAngle.plus(pitchCorrection).getDegrees() - 0.25, pivotInputs.currentAngle.getDegrees(), shooterAngleTolerance.getDegrees()));
     }
 
     public boolean isShooterAtPosition() {

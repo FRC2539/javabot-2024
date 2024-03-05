@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 8.27025654051308,
-        "y": 0.75
+        "x": 8.80895502161903,
+        "y": 0.5738309907432926
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.516185706943429,
-        "y": 0.9964050172786598
+        "x": 8.05488418804938,
+        "y": 0.8202360080219524
       },
       "isLocked": false,
       "linkedName": "5b"
@@ -50,20 +50,20 @@
     }
   ],
   "globalConstraints": {
-    "maxVelocity": 4.5,
-    "maxAcceleration": 4.0,
+    "maxVelocity": 3.5,
+    "maxAcceleration": 3.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0
   },
   "goalEndState": {
     "velocity": 0,
     "rotation": -34.49000000000001,
-    "rotateFast": false
+    "rotateFast": true
   },
   "reversed": false,
   "folder": "The Square Convention",
   "previewStartingState": {
-    "rotation": 59.47029410006603,
+    "rotation": -8.673174047879641,
     "velocity": 0
   },
   "useDefaultConstraints": true

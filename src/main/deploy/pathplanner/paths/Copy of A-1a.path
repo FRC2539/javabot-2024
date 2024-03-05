@@ -8,11 +8,11 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.969826478882628,
-        "y": 5.808574926707629
+        "x": 2.4733924503512332,
+        "y": 6.780574360007493
       },
       "isLocked": false,
-      "linkedName": "A"
+      "linkedName": null
     },
     {
       "anchor": {
@@ -30,13 +30,13 @@
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.55,
+      "waypointRelativePos": 0.35,
       "rotationDegrees": 32.16,
       "rotateFast": true
     },
     {
-      "waypointRelativePos": 0.15,
-      "rotationDegrees": 58.73626830562266,
+      "waypointRelativePos": 0.1,
+      "rotationDegrees": -2.136356442713271,
       "rotateFast": false
     }
   ],
@@ -103,7 +103,7 @@
   "reversed": false,
   "folder": "The Square Convention",
   "previewStartingState": {
-    "rotation": 61.38954033403479,
+    "rotation": 0.0,
     "velocity": 0
   },
   "useDefaultConstraints": true

@@ -16,12 +16,12 @@
     },
     {
       "anchor": {
-        "x": 8.27025654051308,
-        "y": 0.75
+        "x": 8.80895502161903,
+        "y": 0.5738309907432926
       },
       "prevControl": {
-        "x": 7.1928595783011815,
-        "y": 1.1359511449408048
+        "x": 7.731558059407131,
+        "y": 0.9597821356840974
       },
       "nextControl": null,
       "isLocked": false,
@@ -50,8 +50,8 @@
     }
   ],
   "globalConstraints": {
-    "maxVelocity": 4.5,
-    "maxAcceleration": 4.0,
+    "maxVelocity": 3.5,
+    "maxAcceleration": 3.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0
   },
@@ -63,7 +63,7 @@
   "reversed": false,
   "folder": "The Square Convention",
   "previewStartingState": {
-    "rotation": 0,
+    "rotation": -36.62930762338645,
     "velocity": 0
   },
   "useDefaultConstraints": true

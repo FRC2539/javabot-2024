@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.lib.logging.Logger;
+import frc.robot.Constants.GlobalConstants;
 import frc.robot.subsystems.lights.LightsSubsystemB;
 import frc.robot.subsystems.lights.LightsSubsystemB.LEDSegment;
 
@@ -73,6 +74,25 @@ public class Robot extends TimedRobot {
     public void disabledPeriodic() {
         // // Update the autonomous command with driver station configuration
         // robotContainer.autonomousManager.update();
+
+        if (RobotController.getBatteryVoltage() > 12.3) {
+            LEDSegment.BatteryIndicator.setColor(LightsSubsystemB.green.dim(.25));
+        } else {
+            LEDSegment.BatteryIndicator.setFadeAnimation(LightsSubsystemB.green.dim(.25),1);
+        }
+
+        // if (robotContainer.getShooterSubsystem().) {
+        //     LEDSegment.BatteryIndicator.setColor(LightsSubsystemB.green.dim(.25));
+        // } else {
+        //     LEDSegment.BatteryIndicator.setFadeAnimation(LightsSubsystemB.green.dim(.25),1);
+        // }
+
+        if (DriverStation.isDSAttached()) {
+            LEDSegment.DriverStationIndicator.setColor(LightsSubsystemB.orange.dim(.25));
+        } else {
+            LEDSegment.DriverStationIndicator.fullClear();
+        }
+
         LEDSegment.MainStrip.setFadeAnimation(LightsSubsystemB.orange, .5);
     }
 

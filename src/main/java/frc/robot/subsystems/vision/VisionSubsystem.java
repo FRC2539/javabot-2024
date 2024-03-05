@@ -51,7 +51,7 @@ public class VisionSubsystem extends SubsystemBase {
 
     private SwerveDriveSubsystem consumer;
 
-    public boolean usingVision = true;
+    public boolean usingVision = false;
 
     public VisionSubsystem(SwerveDriveSubsystem consumer, AprilTagIO left, AprilTagIO right, PositionTargetIO limelight, PositionTargetIO limelightApriltag) {
         this.left = left;
@@ -169,27 +169,34 @@ public class VisionSubsystem extends SubsystemBase {
         return VecBuilder.fill(translationStdDev, translationStdDev, rotationStdDev);
     }
 
-    private static boolean usingCameraDirectly = false;
-    private Rotation2d lastSpeakerAngle = new Rotation2d(0);
+    public boolean hasTag = false;
+    private static boolean usingCameraDirectly = true;
+    private Rotation2d lastSpeakerAngle = new Rotation2d(Math.PI);
     public Rotation2d getSpeakerAngle(Pose2d currentPose) {
-        Optional<PhotonTrackedTarget> speakerTag  = VisionSubsystem.getTagInfo(leftTargets, FieldConstants.getSpeakerTag());
+        Optional<PhotonTrackedTarget> speakerTag  = VisionSubsystem.getTagInfo(rightTargets, FieldConstants.getSpeakerTag());
         lastSpeakerAngle = FieldConstants.getSpeakerPose().getTranslation().minus(currentPose.getTranslation()).getAngle();
         Logger.log("/VisionSubsystem/LastSpeakerAngle", lastSpeakerAngle.getRadians());
         if (speakerTag.isPresent() && usingCameraDirectly) {
-            // TODO: This is not right
-            double distance = getSpeakerDistance(currentPose);
-            Transform2d transformRobotToCamera = new Transform2d(
-                VisionConstants.robotToLeftCamera.getTranslation().toTranslation2d(), 
-                Rotation2d.fromDegrees(19));
-            Transform2d transformCameraToGoal = 
-                    new Transform2d(0,0,Rotation2d.fromDegrees(-speakerTag.get().getYaw()))
-                    .plus(new Transform2d(distance, 0, new Rotation2d()));
+            hasTag = true;
 
-            Transform2d transformRobotToGoal = transformRobotToCamera.plus(transformCameraToGoal);
+            // // TODO: This is not right
+            // double distance = getSpeakerDistance(currentPose);
+            // Transform2d transformRobotToCamera = new Transform2d(
+            //     VisionConstants.robotToLeftCamera.getTranslation().toTranslation2d(), 
+            //     Rotation2d.fromDegrees(19));
+            // Transform2d transformCameraToGoal = 
+            //         new Transform2d(0,0,Rotation2d.fromDegrees(-speakerTag.get().getYaw()))
+            //         .plus(new Transform2d(distance, 0, new Rotation2d()));
 
-            // Gets that final translation to goal and
-            lastSpeakerAngle = currentPose.getRotation().plus(transformRobotToGoal.getTranslation().getAngle());
+            // Transform2d transformRobotToGoal = transformRobotToCamera.plus(transformCameraToGoal);
+
+            // // Gets that final translation to goal and
+            //lastSpeakerAngle = currentPose.getRotation().plus(transformRobotToGoal.getTranslation().getAngle());
+            lastSpeakerAngle = currentPose.getRotation().plus(Rotation2d.fromDegrees(-speakerTag.get().getYaw()).plus(Rotation2d.fromDegrees(180+19)
+            ));
             Logger.log("/VisionSubsystem/LastSpeakerAngleDirect", lastSpeakerAngle.getRadians());
+        } else {
+            hasTag = false;
         }
         return lastSpeakerAngle;
     }

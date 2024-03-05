@@ -25,21 +25,6 @@
               "Layout/Number of rows": 1,
               "Layout/Label position": "BOTTOM",
               "_children": {
-                "0,0": {
-                  "_type": "Camera Stream",
-                  "_source0": "camera_server://photonvision_Port_1182_Output_MJPEG_Server",
-                  "_title": "Left",
-                  "_glyph": 148,
-                  "_showGlyph": false,
-                  "Crosshair/Show crosshair": false,
-                  "Crosshair/Crosshair color": "#FFFFFFFF",
-                  "Controls/Show controls": false,
-                  "Controls/Rotation": "NONE",
-                  "compression": -1.0,
-                  "fps": -1,
-                  "imageWidth": 0,
-                  "imageHeight": 0
-                },
                 "1,0": {
                   "_type": "Camera Stream",
                   "_source0": "camera_server://photonvision_Port_1184_Output_MJPEG_Server",
@@ -54,6 +39,21 @@
                   "fps": -1,
                   "imageWidth": 0,
                   "imageHeight": 0
+                },
+                "0,0": {
+                  "_type": "Camera Stream",
+                  "_source0": "camera_server://limelight-intake",
+                  "_title": "limelight-intake",
+                  "_glyph": 148,
+                  "_showGlyph": false,
+                  "Crosshair/Show crosshair": false,
+                  "Crosshair/Crosshair color": "#FFFFFFFF",
+                  "Controls/Show controls": false,
+                  "Controls/Rotation": "QUARTER_CW",
+                  "compression": -1.0,
+                  "fps": -1,
+                  "imageWidth": -1,
+                  "imageHeight": -1
                 }
               }
             }
@@ -109,8 +109,8 @@
                   "_title": "Pitch Correction",
                   "_glyph": 148,
                   "_showGlyph": false,
-                  "Range/Min": -3.0,
-                  "Range/Max": 3.0,
+                  "Range/Min": -1.0,
+                  "Range/Max": 1.0,
                   "Range/Center": 0.0,
                   "Visuals/Num tick marks": 5,
                   "Visuals/Show text": true,
@@ -275,15 +275,46 @@
               "Range/Max": 180.0,
               "Visuals/Show value": true
             }
+          },
+          "3,0": {
+            "size": [
+              1,
+              1
+            ],
+            "content": {
+              "_type": "Grid Layout",
+              "_title": "Tunable Eject",
+              "_glyph": 149,
+              "_showGlyph": false,
+              "Layout/Number of columns": 1,
+              "Layout/Number of rows": 2,
+              "Layout/Label position": "TOP",
+              "_children": {
+                "0,0": {
+                  "_type": "Text View",
+                  "_source0": "network_table:///TrapSubsystem/bottomTunable",
+                  "_title": "/TrapSubsystem/bottomTunable",
+                  "_glyph": 148,
+                  "_showGlyph": false
+                },
+                "0,1": {
+                  "_type": "Text View",
+                  "_source0": "network_table:///TrapSubsystem/topTunable",
+                  "_title": "/TrapSubsystem/topTunable",
+                  "_glyph": 148,
+                  "_showGlyph": false
+                }
+              }
+            }
           }
         }
       }
     }
   ],
   "windowGeometry": {
-    "x": -7.199999809265137,
-    "y": 4.800000190734863,
+    "x": -4.800000190734863,
+    "y": 0.0,
     "width": 1540.800048828125,
-    "height": 572.0
+    "height": 571.2000122070312
   }
 }

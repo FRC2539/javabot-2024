@@ -105,20 +105,37 @@ public final class Constants {
             return map;
         }
 
+        // public static final InterpolatingMap<InterpolatableDouble> shooterAngleMap() {
+        //     var map = new InterpolatingMap<InterpolatableDouble>();
+        //     map.put(0, new InterpolatableDouble(55));
+        //     map.put(1.539, new InterpolatableDouble(55));
+        //     map.put(2.095, new InterpolatableDouble(44));
+        //     map.put(2.458, new InterpolatableDouble(40));
+        //     map.put(2.9, new InterpolatableDouble(36));
+        //     map.put(3.376, new InterpolatableDouble(32));
+        //     map.put(3.98, new InterpolatableDouble(29.5));
+        //     map.put(4.417, new InterpolatableDouble(27.5));
+        //     map.put(4.862, new InterpolatableDouble(26));
+        //     map.put(5.406, new InterpolatableDouble(24.75));
+        //     map.put(5.9, new InterpolatableDouble(22));
+        //     map.put(1000, new InterpolatableDouble(22));
+
+        //     return map;
+        // }
         public static final InterpolatingMap<InterpolatableDouble> shooterAngleMap() {
             var map = new InterpolatingMap<InterpolatableDouble>();
-            map.put(0, new InterpolatableDouble(55));
-            map.put(1.539, new InterpolatableDouble(55));
-            map.put(2.095, new InterpolatableDouble(44));
-            map.put(2.458, new InterpolatableDouble(40));
-            map.put(2.9, new InterpolatableDouble(36));
-            map.put(3.376, new InterpolatableDouble(32));
-            map.put(3.98, new InterpolatableDouble(29.5));
-            map.put(4.417, new InterpolatableDouble(27.5));
-            map.put(4.862, new InterpolatableDouble(26));
-            map.put(5.406, new InterpolatableDouble(24.75));
-            map.put(5.9, new InterpolatableDouble(22));
-            map.put(1000, new InterpolatableDouble(22));
+            map.put(0, new InterpolatableDouble(55+ 2 -1));
+            map.put(1.539, new InterpolatableDouble(55 + 2 -1));
+            map.put(2.095, new InterpolatableDouble(44+3+2-1));
+            map.put(2.458, new InterpolatableDouble(40+3+2-1));
+            map.put(2.9, new InterpolatableDouble(36+2+2-1));
+            map.put(3.376, new InterpolatableDouble(32+1+2-1));
+            map.put(3.98, new InterpolatableDouble(29.5+1+2-1));
+            map.put(4.417, new InterpolatableDouble(27.5+1+2-1));
+            map.put(4.862, new InterpolatableDouble(26+1+2-1));
+            map.put(5.406, new InterpolatableDouble(24.75+1+2-1));
+            map.put(5.9, new InterpolatableDouble(22+1+2-1));
+            map.put(1000, new InterpolatableDouble(22+1+2-1));
 
             return map;
         }

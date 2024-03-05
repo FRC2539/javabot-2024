@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.9150679737991423,
-        "y": 5.529861219517
+        "x": 3.0589342776403092,
+        "y": 5.562647359246215
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.132482623558017,
-        "y": 5.909189310360896
+        "x": 2.276348927399184,
+        "y": 5.941975450090111
       },
       "isLocked": false,
       "linkedName": "2a"
     },
     {
       "anchor": {
-        "x": 2.883271729453586,
-        "y": 7.014791090923124
+        "x": 3.152620970006561,
+        "y": 7.003080254377342
       },
       "prevControl": {
-        "x": 1.8936423027694524,
-        "y": 6.420161740997806
+        "x": 2.1629915433224274,
+        "y": 6.408450904452024
       },
       "nextControl": null,
       "isLocked": false,
@@ -64,11 +64,28 @@
           ]
         }
       }
+    },
+    {
+      "name": "mlintake",
+      "waypointRelativePos": 0.45,
+      "command": {
+        "type": "parallel",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "mlintake"
+              }
+            }
+          ]
+        }
+      }
     }
   ],
   "globalConstraints": {
-    "maxVelocity": 4.5,
-    "maxAcceleration": 4.0,
+    "maxVelocity": 3.5,
+    "maxAcceleration": 3.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0
   },

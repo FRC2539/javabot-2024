@@ -45,7 +45,8 @@ public class PivotIOFalcon implements PivotIO {
         slot0Configs.kS = 0.3;
         pivotMotor.getConfigurator().apply(slot0Configs);
         
-        updateAngle(Rotation2d.fromDegrees(47));
+        //updateAngle(Rotation2d.fromDegrees(47));
+        pivotMotor.setPosition(Rotation2d.fromDegrees(55.5).getRotations());
     }
 
     public void updateInputs(PivotIOInputs inputs) {
@@ -65,6 +66,7 @@ public class PivotIOFalcon implements PivotIO {
     }
 
     public void updateAngle(Rotation2d angle) {
+        pivotMotor.setPosition(angle.getRotations());
         lastEncoderAngle = angle.getRotations() * ShooterConstants.gearRatioPivot;
         //encoder.setPositionOffset((0.1938 - (45.0 / 360.0 * Constants.ShooterConstants.gearRatioPivot) + 10) % 1.0);
         encoder.setPositionOffset((0.1938 - (positionOffset.getDouble(45) / 360.0 * Constants.ShooterConstants.gearRatioPivot) + 10) % 1.0);

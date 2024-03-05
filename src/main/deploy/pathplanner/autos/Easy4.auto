@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 0.7518994781213513,
-      "y": 6.663465994549679
+      "x": 1.325730468864645,
+      "y": 5.539225686154654
     },
-    "rotation": 59.26451229807989
+    "rotation": -0.939190945735608
   },
   "command": {
     "type": "sequential",
@@ -20,7 +20,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "A-1a"
+            "pathName": "Copy of A-1a"
           }
         },
         {

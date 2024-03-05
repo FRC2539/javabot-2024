@@ -281,7 +281,8 @@ public class RobotContainer {
         
         leftDriveController
                 .getTrigger().and(rightDriveController.getTrigger())
-                .whileTrue(waitUntil(() -> shooterSubsystem.isShooterAtPosition() && swerveDriveSubsystem.isAtDirectionCommand(0.06, 0.02)).andThen(intakeSubsystem.shootCommand()))
+                .whileTrue(intakeSubsystem.shootCommand());
+                //.whileTrue(waitUntil(() -> shooterSubsystem.isShooterAtPosition() && swerveDriveSubsystem.isAtDirectionCommand(0.06, 0.02)).andThen(intakeSubsystem.shootCommand()))
 ;//stoppedShootAndAimCommand());
 
         leftDriveController
@@ -295,7 +296,7 @@ public class RobotContainer {
         
         LoggedReceiver topRollerSpeedTunable = Logger.tunable("/ShooterSubsystem/topTunable", .4d);
         LoggedReceiver bottomRollerSpeedTunable = Logger.tunable("/ShooterSubsystem/bottomTunable", .7d);
-        LoggedReceiver pivotAngleTunable = Logger.tunable("/ShooterSubsystem/pivotTunable", 55d);
+        LoggedReceiver pivotAngleTunable = Logger.tunable("/ShooterSubsystem/pivotTunable", 56d);
         LoggedReceiver isVoltageBasedTunable = Logger.tunable("/ShooterSubsystem/voltageTunable", false);
         
         leftDriveController
@@ -308,7 +309,7 @@ public class RobotContainer {
                     false)));
         
         leftDriveController.getBottomThumb().and(rightDriveController.getTrigger())
-            .whileTrue(intakeSubsystem.shootCommand());
+           .whileTrue(intakeSubsystem.shootCommand());
         
         leftDriveController.getLeftTopLeft().whileTrue(
             shooterSubsystem.shootCommand(ShooterState.fromVoltages(0, 0, .6)));
@@ -324,8 +325,8 @@ public class RobotContainer {
         leftDriveController.getLeftTopRight().onTrue(shooterSubsystem.zeroShooterAngleCommand(Rotation2d.fromDegrees(46)));
         leftDriveController.getLeftBottomRight().onTrue(trapSubsystem.zeroRackPositionCommand());
 
-        leftDriveController.getRightTopMiddle().onTrue(run(() -> visionSubsystem.usingVision = false));
-        leftDriveController.getRightTopRight().onTrue(run(() -> visionSubsystem.usingVision = true));
+        leftDriveController.getRightTopMiddle().onTrue(runOnce(() -> visionSubsystem.usingVision = false));
+        leftDriveController.getRightTopRight().onTrue(runOnce(() -> visionSubsystem.usingVision = true));
 
         // Trap Command
         operatorController.getY().whileTrue(trapSubsystem.shootCommand(new TrapState(0,0,34)));
@@ -334,14 +335,19 @@ public class RobotContainer {
         operatorController.getX().whileTrue(trapSubsystem.shootCommand(new TrapState(0,0,24.0)));
 
         // Trap Source Command
-        operatorController.getB().whileTrue(trapSubsystem.shootCommand(new TrapState(0,0,17.7)));
+        operatorController.getB().whileTrue(trapSubsystem.shootCommand(new TrapState(6,6,24.0)));
 
         //Trap Bottom Command (this is not zero to reduce banging. it will slowly glide down if it is below 2.5 instead of stalling)
         operatorController.getA().whileTrue(trapSubsystem.shootCommand(new TrapState(0,0,0)));
 
 
         // Trap Eject Comand
-        operatorController.getDPadLeft().whileTrue(trapSubsystem.runIntakeCommand(-12.0, -12.0));
+        //operatorController.getDPadLeft().whileTrue(trapSubsystem.runIntakeCommand(-12.0, -12.0));
+
+        LoggedReceiver traptopRollerSpeedTunable = Logger.tunable("/TrapSubsystem/topTunable", -3.5d);
+        LoggedReceiver trapbottomRollerSpeedTunable = Logger.tunable("/TrapSubsystem/bottomTunable", -3.5d);
+        operatorController.getDPadLeft()
+                .whileTrue(trapSubsystem.shootCommand(() -> TrapState.fromVoltages(traptopRollerSpeedTunable.getDouble(), trapbottomRollerSpeedTunable.getDouble(), trapSubsystem.holdingVoltage)));
 
         // Trap Intake Command
         operatorController.getDPadRight().whileTrue(trapSubsystem.runIntakeCommand(6.0, 6.0));
@@ -374,6 +380,15 @@ public class RobotContainer {
                 run(() -> LightsSubsystemB.LEDSegment.MainStrip.setColor(LightsSubsystemB.yellow), lightsSubsystem).withTimeout(.1)
             )
         );
+
+        swerveDriveSubsystem.directionCommandAuto(() -> {
+            Optional<LimelightRawAngles> direction = visionSubsystem.getDetectorInfo();
+            if (direction.isPresent()) {
+                return swerveDriveSubsystem.getRotation().plus(Rotation2d.fromDegrees(-direction.get().ty() * 0.7));
+            } else {
+                return swerveDriveSubsystem.getRotation();
+            }
+        }).until(() -> intakeSubsystem.hasPiece());
 
         //operatorController.getA().onTrue(shooterSubsystem.adjustPitchCorrectionCommand(Rotation2d.fromDegrees(0.5)));
         //operatorController.getB().onTrue(shooterSubsystem.adjustPitchCorrectionCommand(Rotation2d.fromDegrees(0.5)));
