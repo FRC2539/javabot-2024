@@ -4,7 +4,6 @@ import static edu.wpi.first.wpilibj2.command.Commands.*;
 
 import java.util.ArrayList;
 import java.util.Optional;
-import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
@@ -20,7 +19,6 @@ import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -37,16 +35,12 @@ import frc.robot.Constants.ShooterConstants;
 import frc.robot.Constants.TrapConstants;
 import frc.robot.commands.AimAndShootCommands;
 import frc.robot.commands.DriveToPositionCommand;
-import frc.robot.subsystems.climber.ClimberIO;
 import frc.robot.subsystems.climber.ClimberIOFalcon;
 import frc.robot.subsystems.climber.ClimberIOSim;
 import frc.robot.subsystems.climber.ClimberSubsystem;
 import frc.robot.subsystems.intake.IntakeIOFalconRedline;
 import frc.robot.subsystems.intake.IntakeIOSim;
 import frc.robot.subsystems.intake.IntakeSubsystem;
-import frc.robot.subsystems.lights.LightsIOBlinkin;
-import frc.robot.subsystems.lights.LightsIOSim;
-import frc.robot.subsystems.lights.LightsSubsystem;
 import frc.robot.subsystems.lights.LightsSubsystemB;
 import frc.robot.subsystems.shooter.PivotIOFalcon;
 import frc.robot.subsystems.shooter.PivotIOSim;
@@ -166,14 +160,13 @@ public class RobotContainer {
         /*Set non-button, multi-subsystem triggers */
 
         Trigger hasPieceTrigger =
-                new Trigger(() -> intakeSubsystem.hasPiece());
+                new Trigger(() -> intakeSubsystem.hasPieceRaw());
         hasPieceTrigger.onTrue(runOnce(() -> Logger.log("/Robot/Has Game Piece", true)));
         hasPieceTrigger.onFalse(runOnce(() -> Logger.log("/Robot/Has Game Piece", false)));
 
         // the negates are in place so it debounces falling edges only. the .debounce decorator only debonces rising edges by default 
         // (the oppositie of what we want if it keeps randomly flickering off)
-        lightsSubsystem.setHasPieceSupplier(new Trigger(() -> intakeSubsystem.hasPiece()).negate()
-            .debounce(0.1).negate());
+        lightsSubsystem.setHasPieceSupplier(() -> intakeSubsystem.hasPieceSmoothed());
 
         /* Set right joystick bindings ]
          * 
@@ -181,7 +174,11 @@ public class RobotContainer {
         rightDriveController.getLeftTopRight().onTrue(runOnce(() -> swerveDriveSubsystem.seedFieldRelative(new Pose2d()), swerveDriveSubsystem));
         rightDriveController
                 .getLeftTopLeft()
-                .onTrue(runOnce(swerveDriveSubsystem::seedFieldRelative, swerveDriveSubsystem));
+                .onTrue(runOnce(() -> {
+                    Pose2d currentPose = swerveDriveSubsystem.getPose();
+                    Pose2d nextPose = new Pose2d(currentPose.getTranslation(), new Rotation2d(FieldConstants.isBlue() ? 0 : Math.PI));
+                    swerveDriveSubsystem.seedFieldRelative(nextPose);
+                }, swerveDriveSubsystem));
         rightDriveController.nameLeftTopLeft("Reset Gyro Angle");
 
         rightDriveController
@@ -388,7 +385,7 @@ public class RobotContainer {
             } else {
                 return swerveDriveSubsystem.getRotation();
             }
-        }).until(() -> intakeSubsystem.hasPiece());
+        }).until(() -> intakeSubsystem.hasPieceSmoothed());
 
         //operatorController.getA().onTrue(shooterSubsystem.adjustPitchCorrectionCommand(Rotation2d.fromDegrees(0.5)));
         //operatorController.getB().onTrue(shooterSubsystem.adjustPitchCorrectionCommand(Rotation2d.fromDegrees(0.5)));

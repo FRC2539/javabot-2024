@@ -35,7 +35,7 @@ import frc.lib.logging.Logger;
 import frc.lib.math.MathUtils;
 import frc.lib.math.MathUtils.AnyContainer;
 import frc.robot.Constants;
-import frc.robot.Constants.SwerveConstants;
+import frc.robot.Constants.FieldConstants;
 import frc.robot.commands.DriveToPositionCommand;
 
 /**
@@ -163,10 +163,13 @@ public class SwerveDriveSubsystem extends SwerveDrivetrain implements Subsystem 
             DoubleSupplier forward, DoubleSupplier strafe, DoubleSupplier rotation) {
         //var correctedVelocity = ChassisSpeeds.fromFieldRelativeSpeeds(new ChassisSpeeds(forward.getAsDouble(),strafe.getAsDouble(),rotation.getAsDouble()), new Rotation2d(getRobotRelativeChassisSpeeds().omegaRadiansPerSecond * SwerveConstants.angularVelocityCoefficient));
         return applyRequest(
-                    () ->openLoop.withDeadband(0.0).withRotationalDeadband(0.0)
-                    .withVelocityX(forward.getAsDouble())
-                    .withVelocityY(strafe.getAsDouble())
-                    .withRotationalRate(rotation.getAsDouble())
+                    () -> {
+                        boolean blueAlliance = FieldConstants.isBlue();
+                        return openLoop.withDeadband(0.0).withRotationalDeadband(0.0)
+                        .withVelocityX(blueAlliance ? forward.getAsDouble() : -forward.getAsDouble())
+                        .withVelocityY(blueAlliance ? strafe.getAsDouble() : -strafe.getAsDouble())
+                        .withRotationalRate(rotation.getAsDouble());
+                    }
         );
     }
 

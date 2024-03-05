@@ -1,9 +1,12 @@
 package frc.robot.subsystems.intake;
 
+import java.util.function.BooleanSupplier;
+
+import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.logging.Logger;
 import frc.robot.subsystems.intake.IntakeIO.IntakeIOInputs;
 
@@ -14,16 +17,22 @@ public class IntakeSubsystem extends SubsystemBase {
 
     private IntakeState state = IntakeState.DISABLED;
 
+    private BooleanSupplier hasPieceHighDebounce;
+    private BooleanSupplier hasPieceLowDebounce;
+
     public IntakeSubsystem(IntakeIO intakeIO) {
         this.intakeIO = intakeIO;
 
+        this.hasPieceHighDebounce = new Trigger(() -> getRollerSensor()).debounce(1, DebounceType.kFalling);
+        this.hasPieceLowDebounce = new Trigger(() -> getRollerSensor()).debounce(0.1, DebounceType.kFalling);
+
         setDefaultCommand(Commands.either(
-            moveCommand()
+            moveCommand().withTimeout(0.08)
                 //.andThen(reverseMoveCommand().until(() -> getRollerSensor()).withTimeout(2)),
                 .andThen(reverseMoveCommand().until(() -> getRollerSensor())).withTimeout(2),
                 //.andThen(moveCommand().withTimeout(0.0))), 
             disabledCommand(), 
-            () -> state == IntakeState.INTAKING));
+            () -> state == IntakeState.INTAKING || state == IntakeState.INTAKING_REVERSE));
     }
 
     public enum IntakeState {
@@ -31,6 +40,7 @@ public class IntakeSubsystem extends SubsystemBase {
         MOVING,
         MOVING_REVERSE,
         INTAKING,
+        INTAKING_REVERSE,
         SHOOTING,
         AMPING,
         EJECTING,
@@ -70,6 +80,9 @@ public class IntakeSubsystem extends SubsystemBase {
                 setChamber(1.0*.85);//.85
                 setRoller(.50*.85);//.85
                 break;
+            case INTAKING_REVERSE:
+                setChamber(-1.0*.85);
+                setRoller(-.50*.85);
         }
 
         logIntakeInformation();
@@ -113,10 +126,16 @@ public class IntakeSubsystem extends SubsystemBase {
         return intakeCommand;
     }
 
+    public Command shooterIntakeCommand() {
+        return runEnd(() -> {
+            setIntakeState(IntakeState.INTAKING_REVERSE);
+        }, () -> {}).until(() -> getRollerSensor());
+    }
+
     public Command moveCommand() {
         return runEnd(() -> {
             setIntakeState(IntakeState.MOVING);
-        }, () -> {}).until(() -> getChamberSensor()).withTimeout(.08);
+        }, () -> {});
     }
     public Command manualMoveCommand() {
         return runEnd(() -> {
@@ -141,8 +160,17 @@ public class IntakeSubsystem extends SubsystemBase {
         return inputs.chamberSensor;
     }
 
-    public boolean hasPiece() {
+    public boolean hasPieceRaw() {
         return getRollerSensor() || getChamberSensor();
+    }
+
+    public boolean hasPieceSmoothed() {
+        if (state == IntakeState.INTAKING || state == IntakeState.MOVING ||
+            state == IntakeState.INTAKING_REVERSE || state == IntakeState.MOVING_REVERSE) {
+            return hasPieceHighDebounce.getAsBoolean();
+        } else {
+            return hasPieceLowDebounce.getAsBoolean();
+        }
     }
 
     public void setIntakeState(IntakeState state) {
@@ -156,7 +184,8 @@ public class IntakeSubsystem extends SubsystemBase {
         Logger.log("/IntakeSubsystem/RollerHasPiece", inputs.rollerSensor);
         Logger.log("/IntakeSubsystem/BeltHasPiece", inputs.chamberSensor);
 
-        Logger.log("/IntakeSubsystem/HasPiece", hasPiece());
+        Logger.log("/IntakeSubsystem/HasPieceRaw", hasPieceRaw());
+        Logger.log("/IntakeSubsystem/HasPieceSmoothed", hasPieceSmoothed());
 
         Logger.log("/IntakeSubsystem/RollerVoltage", inputs.rollerVoltage);
         Logger.log("/IntakeSubsystem/RollerCurrent", inputs.rollerCurrent);

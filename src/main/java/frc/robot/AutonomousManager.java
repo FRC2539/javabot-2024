@@ -17,9 +17,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import frc.lib.logging.LoggedReceiver;
 import frc.lib.logging.Logger;
 import frc.lib.vision.LimelightRawAngles;
-import frc.robot.commands.AimAndShootCommands;
 import frc.robot.subsystems.intake.IntakeSubsystem;
-import frc.robot.subsystems.lights.LightsSubsystem;
 import frc.robot.subsystems.lights.LightsSubsystemB;
 import frc.robot.subsystems.shooter.ShooterState;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
@@ -27,7 +25,6 @@ import frc.robot.subsystems.swervedrive.SwerveDriveSubsystem;
 import frc.robot.subsystems.vision.VisionSubsystem;
 
 import java.util.Optional;
-import java.util.stream.Stream;
 
 public class AutonomousManager {
 
@@ -63,7 +60,7 @@ public class AutonomousManager {
                     } else {
                         return swerveDriveSubsystem.getRotation();
                     }
-                }).until(() -> intakeSubsystem.hasPiece()));
+                }).until(() -> intakeSubsystem.hasPieceSmoothed()));
         NamedCommands.registerCommand("amp", parallel());
         NamedCommands.registerCommand("aim", container.getAimAndShootCommands().movingAimCommandAuto());
         NamedCommands.registerCommand("spinup", container.getAimAndShootCommands().spinupCommand());
@@ -113,36 +110,25 @@ public class AutonomousManager {
         return AutoBuilder.followPath(PathPlannerPath.fromPathFile(name));
     }
 
-    public void registerConditionalPaths() {
-        NamedCommands.registerCommand("1b-1s-2b", Commands.either(
-            Commands.sequence(pathFromFile("-1s"), NamedCommands.getCommand("shoot"), pathFromFile("-2b")),
-            pathFromFile("1b-2b"), 
-            () -> intakeSubsystem.hasPiece()));
-        
-        NamedCommands.registerCommand("2b-1s-3b", Commands.either(
-            Commands.sequence(pathFromFile("-1s"), NamedCommands.getCommand("shoot"), pathFromFile("1s-3b")),
-            pathFromFile("2b-3b"), 
-            () -> intakeSubsystem.hasPiece()));
+    private void registerConditionalPaths() {
+        registerShootConditionalPath("1b-1s-2b","-1s","-2b","1b-2b");
+        registerShootConditionalPath("2b-1s-3b","-1s","1s-3b","2b-3b");
         
         NamedCommands.registerCommand("3b-2s-3b", Commands.either(
             Commands.sequence(pathFromFile("3b-2s"), NamedCommands.getCommand("shoot"), pathFromFile("2s-3b")),
             Commands.runOnce(() -> {}), 
-            () -> intakeSubsystem.hasPiece()));
+            () -> intakeSubsystem.hasPieceSmoothed()));
         
-        NamedCommands.registerCommand("5b-3s-4b", Commands.either(
-            Commands.sequence(pathFromFile("-3s"), NamedCommands.getCommand("shoot"), pathFromFile("-4b")),
-            pathFromFile("5b-4b"), 
-            () -> intakeSubsystem.hasPiece()));
-        
-        NamedCommands.registerCommand("4b-3s-3b", Commands.either(
-            Commands.sequence(pathFromFile("-3s"), NamedCommands.getCommand("shoot"), pathFromFile("3s-3b")),
-            pathFromFile("4b-3b"), 
-            () -> intakeSubsystem.hasPiece()));
-        
-        NamedCommands.registerCommand("3b-3s-5b", Commands.either(
-            Commands.sequence(pathFromFile("3b-3s"), NamedCommands.getCommand("shoot"), pathFromFile("3s-5b")),
-            pathFromFile("3b-5b"), 
-            () -> intakeSubsystem.hasPiece()));
+        registerShootConditionalPath("5b-3s-4b","-3s","-4b","5b-4b");
+        registerShootConditionalPath("4b-3s-3b","-3s","3s-3b","4b-3b");
+        registerShootConditionalPath("3b-3s-5b","3b-3s","3s-5b","3b-5b");
+    }
+
+    private void registerShootConditionalPath(String commandName, String path1, String path2, String altPath) {
+        NamedCommands.registerCommand(commandName, Commands.either(
+            Commands.sequence(pathFromFile(path1), NamedCommands.getCommand("shoot"), pathFromFile(path2)),
+            pathFromFile(altPath), 
+            () -> intakeSubsystem.hasPieceSmoothed()));
     }
 
     public Command getAutonomousCommand() {
@@ -267,9 +253,5 @@ public class AutonomousManager {
                 boolean display) {
             this(startPosition, gamePieces, pathName, displayName, display, "");
         }
-    }
-
-    public static String[] getAutonomousOptionNames() {
-        return Stream.of(AutonomousOption.values()).map(AutonomousOption::name).toArray(String[]::new);
     }
 }
