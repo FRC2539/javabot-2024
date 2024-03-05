@@ -164,10 +164,9 @@ public class SwerveDriveSubsystem extends SwerveDrivetrain implements Subsystem 
         //var correctedVelocity = ChassisSpeeds.fromFieldRelativeSpeeds(new ChassisSpeeds(forward.getAsDouble(),strafe.getAsDouble(),rotation.getAsDouble()), new Rotation2d(getRobotRelativeChassisSpeeds().omegaRadiansPerSecond * SwerveConstants.angularVelocityCoefficient));
         return applyRequest(
                     () -> {
-                        boolean blueAlliance = FieldConstants.isBlue();
                         return openLoop.withDeadband(0.0).withRotationalDeadband(0.0)
-                        .withVelocityX(blueAlliance ? forward.getAsDouble() : -forward.getAsDouble())
-                        .withVelocityY(blueAlliance ? strafe.getAsDouble() : -strafe.getAsDouble())
+                        .withVelocityX(forward.getAsDouble())
+                        .withVelocityY(strafe.getAsDouble())
                         .withRotationalRate(rotation.getAsDouble());
                     }
         );

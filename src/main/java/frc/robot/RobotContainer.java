@@ -33,6 +33,7 @@ import frc.robot.Constants.ControllerConstants;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.Constants.TrapConstants;
+import frc.robot.Constants.VisionConstants;
 import frc.robot.commands.AimAndShootCommands;
 import frc.robot.commands.DriveToPositionCommand;
 import frc.robot.subsystems.climber.ClimberIOFalcon;
@@ -57,6 +58,7 @@ import frc.robot.subsystems.trap.TrapState;
 import frc.robot.subsystems.trap.TrapSubsystem;
 import frc.robot.subsystems.vision.AprilTagIO;
 import frc.robot.subsystems.vision.AprilTagIOPhotonVision;
+import frc.robot.subsystems.vision.AprilTagIOPhotonVisionPinhole;
 import frc.robot.subsystems.vision.AprilTagIOSim;
 import frc.robot.subsystems.vision.PositionTargetIO;
 import frc.robot.subsystems.vision.PositionTargetIOLimelight;
@@ -102,19 +104,32 @@ public class RobotContainer {
 
             //This silly thing is so that if a camera doesn't connect, the robot still runs.
             try {
-                leftCamera = new AprilTagIOPhotonVision(
-                    new PhotonCamera("LeftCamera"), Constants.VisionConstants.robotToLeftCamera);
+                var camera = new PhotonCamera("LeftCamera");
+                if (VisionConstants.usingPinholeModel) {
+                    leftCamera = new AprilTagIOPhotonVisionPinhole(
+                    camera, Constants.VisionConstants.robotToLeftCamera, () -> swerveDriveSubsystem.getRotation());
+                } else {
+                    leftCamera = new AprilTagIOPhotonVision(
+                        camera, Constants.VisionConstants.robotToLeftCamera);
+                }
             } catch (Exception e) {
                 System.err.print(e);
                 leftCamera = new AprilTagIOSim();
             }
             try {
-                rightCamera = new AprilTagIOPhotonVision(
-                    new PhotonCamera("RightCamera"), Constants.VisionConstants.robotToRightCamera);
+                var camera = new PhotonCamera("RightCamera");
+                if (VisionConstants.usingPinholeModel) {
+                    rightCamera = new AprilTagIOPhotonVisionPinhole(
+                    camera, Constants.VisionConstants.robotToLeftCamera, () -> swerveDriveSubsystem.getRotation());
+                } else {
+                    rightCamera = new AprilTagIOPhotonVision(
+                        camera, Constants.VisionConstants.robotToRightCamera);
+                }
             } catch (Exception e) {
                 System.err.print(e);
                 rightCamera = new AprilTagIOSim();
             }
+
             try {
                 limelight = new PositionTargetIOLimelight("limelight-intake");
             }  catch (Exception e) {
@@ -460,12 +475,12 @@ public class RobotContainer {
     }
 
     public double getDriveForwardAxis() {
-        return // forwardRateLimiter.calculate(
+        return (FieldConstants.isBlue() ? 1 : -1) *
         -square(deadband(leftDriveController.getYAxis().getRaw(), 0.05)) * Constants.SwerveConstants.maxSpeed; // );
     }
 
     public double getDriveStrafeAxis() {
-        return // strafeRateLimiter.calculate(
+        return (FieldConstants.isBlue() ? 1 : -1) *
         -square(deadband(leftDriveController.getXAxis().getRaw(), 0.05)) * Constants.SwerveConstants.maxSpeed; // );
     }
 

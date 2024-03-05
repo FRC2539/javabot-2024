@@ -130,8 +130,8 @@ public class AimAndShootCommands {
     }
 
     public Command adaptiveMovingAimCommand(DoubleSupplier forward, DoubleSupplier strafe, DoubleSupplier rotate, LightsSubsystemB lightsSubsystem) {
-        final double angularTolerance = 0.12;
-        final double velocityTolerance = 0.02;
+        final double angularTolerance = 0.10;
+        final double velocityTolerance = 0.04;
 
         // This is in theory the inverse of the speed of the note
         final double forwardPredictionCoefficient = 1 / 16.0;
