@@ -242,7 +242,7 @@ public class RobotContainer {
 
         (rightDriveController
                 .getLeftThumb().and(rightDriveController.getTrigger())).debounce(0.2, DebounceType.kFalling)
-                .whileTrue(parallel(intakeSubsystem.ejectCommand(), shooterSubsystem.shootCommand(ShooterState.fromVoltages(-.25,-.25,Rotation2d.fromDegrees(55)))).until(() -> intakeSubsystem.getChamberSensor())
+                .whileTrue(parallel(intakeSubsystem.shooterIntakeCommand(), shooterSubsystem.shootCommand(ShooterState.fromVoltages(-.25,-.25,Rotation2d.fromDegrees(55)))).until(() -> intakeSubsystem.getChamberSensor())
             );
 
         rightDriveController
