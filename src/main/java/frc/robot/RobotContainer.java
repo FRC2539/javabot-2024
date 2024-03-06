@@ -19,6 +19,7 @@ import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -199,8 +200,6 @@ public class RobotContainer {
         rightDriveController
                 .nameTrigger("Shoot");
 
-        rightDriveController.getLeftBottomMiddle().whileTrue(runOnce(() -> swerveDriveSubsystem.setControl(new SwerveRequest.SwerveDriveBrake()), swerveDriveSubsystem));
-        rightDriveController.nameLeftBottomMiddle("Lock Wheels");
 
         // Cardinal drive commands (inverted since the arm is on the back of the robot)
         rightDriveController
@@ -235,20 +234,15 @@ public class RobotContainer {
                 .getLeftThumb().and(rightDriveController.getTrigger().negate())
                 .whileTrue(intakeSubsystem.intakeCommand());
 
-        rightDriveController
-                .getRightBottomRight().debounce(0.2, DebounceType.kFalling)
-                .whileTrue(parallel(intakeSubsystem.ejectCommand(), shooterSubsystem.shootCommand(ShooterState.fromVoltages(-.25,-.25,Rotation2d.fromDegrees(55)))).until(() -> intakeSubsystem.getChamberSensor())
-            );
-
         (rightDriveController
-                .getLeftThumb().and(rightDriveController.getTrigger())).debounce(0.2, DebounceType.kFalling)
-                .whileTrue(parallel(intakeSubsystem.shooterIntakeCommand(), shooterSubsystem.shootCommand(ShooterState.fromVoltages(-.25,-.25,Rotation2d.fromDegrees(55)))).until(() -> intakeSubsystem.getChamberSensor())
+                .getRightThumb().and(rightDriveController.getTrigger())).debounce(0.2, DebounceType.kFalling)
+                .whileTrue(parallel(intakeSubsystem.shooterIntakeCommand(), shooterSubsystem.shootCommand(ShooterState.fromVoltages(-.25,-.25,Rotation2d.fromDegrees(55)))).until(() -> intakeSubsystem.getRollerSensor())
             );
-
-        rightDriveController
-                .getRightBottomMiddle()
-                .whileTrue(shooterSubsystem.shootCommand(new ShooterState(.05,.2,Rotation2d.fromDegrees(55)))
-            );
+        
+        (rightDriveController
+            .getLeftThumb().and(rightDriveController.getTrigger())).whileTrue(mlIntakeStraightCommand())
+                .whileTrue(intakeSubsystem.intakeCommand());
+        
         
             
 
@@ -262,9 +256,6 @@ public class RobotContainer {
                 .getLeftBumper().and(rightDriveController.getTrigger()).whileTrue(intakeSubsystem.ampCommand());
 
         rightDriveController
-                .getRightBottomMiddle().and(rightDriveController.getTrigger()).whileTrue(intakeSubsystem.ampCommand());
-
-        rightDriveController
             .getRightTopRight().whileTrue(
                 swerveDriveSubsystem.directionCommand(() -> {
                     Optional<LimelightRawAngles> direction = visionSubsystem.getDetectorInfo();
@@ -275,6 +266,16 @@ public class RobotContainer {
                     }
                 }, this::getDriveForwardAxis, this::getDriveStrafeAxis, new ProfiledPIDController(1, 0, .5, new TrapezoidProfile.Constraints(4, 4)))
             );
+
+        rightDriveController
+                .getRightTopLeft().whileTrue(
+                    mlIntakeCommand()
+                );
+        
+        rightDriveController
+                .getRightTopMiddle().whileTrue(
+                    mlIntakeStraightCommand()
+                );
 
         /*Set left joystic bindings */
         
@@ -339,6 +340,9 @@ public class RobotContainer {
 
         leftDriveController.getRightTopMiddle().onTrue(runOnce(() -> visionSubsystem.usingVision = false));
         leftDriveController.getRightTopRight().onTrue(runOnce(() -> visionSubsystem.usingVision = true));
+        
+        leftDriveController.getRightBottomMiddle().onTrue(runOnce(() -> shooterSubsystem.inPositionDisableMode = true));
+        leftDriveController.getRightBottomRight().onTrue(runOnce(() -> shooterSubsystem.inPositionDisableMode = false));
 
         // Trap Command
         operatorController.getY().whileTrue(trapSubsystem.shootCommand(new TrapState(0,0,34)));
@@ -393,15 +397,6 @@ public class RobotContainer {
             )
         );
 
-        swerveDriveSubsystem.directionCommandAuto(() -> {
-            Optional<LimelightRawAngles> direction = visionSubsystem.getDetectorInfo();
-            if (direction.isPresent()) {
-                return swerveDriveSubsystem.getRotation().plus(Rotation2d.fromDegrees(-direction.get().ty() * 0.7));
-            } else {
-                return swerveDriveSubsystem.getRotation();
-            }
-        }).until(() -> intakeSubsystem.hasPieceSmoothed());
-
         //operatorController.getA().onTrue(shooterSubsystem.adjustPitchCorrectionCommand(Rotation2d.fromDegrees(0.5)));
         //operatorController.getB().onTrue(shooterSubsystem.adjustPitchCorrectionCommand(Rotation2d.fromDegrees(0.5)));
 
@@ -451,8 +446,8 @@ public class RobotContainer {
         return autonomousManager.getAutonomousCommand();
     }
 
-    public Command autoIntakeCommand() {
-        final double aimingFactor = 1; //up to 1 the pose converges. reduces overshoot chance if less than 1;
+    public Command mlIntakeCommand() {
+        final double aimingFactor = .6; //up to 1 the pose converges. reduces overshoot chance if less than 1;
         final double speed = 1;
         final LinearFilter myFilter = LinearFilter.singlePoleIIR(0.1,0.02);
         Supplier<Rotation2d> angleOfGamepiece = () -> {if(visionSubsystem.getDetectorInfo().isPresent())
@@ -462,7 +457,7 @@ public class RobotContainer {
 
         Supplier<Rotation2d> absoluteTargetAngle = () -> Rotation2d.fromRotations(myFilter.calculate(angleOfGamepiece.get().plus(swerveDriveSubsystem.getRotation()).getRotations()));
         ProfiledPIDController omegaController = 
-            new ProfiledPIDController(1, 0, .5, new TrapezoidProfile.Constraints(4, 4));
+            new ProfiledPIDController(2, 0, 1, new TrapezoidProfile.Constraints(4, 4));
         DoubleSupplier forward = () -> {if(visionSubsystem.getDetectorInfo().isPresent()) 
                                             return absoluteTargetAngle.get().getCos() * speed;
                                         else
@@ -472,10 +467,10 @@ public class RobotContainer {
                                         else
                                             return 0;};
 
-        return swerveDriveSubsystem.directionCommand(angleOfGamepiece, forward, strafe, omegaController);
+        return swerveDriveSubsystem.directionCommand(absoluteTargetAngle, forward, strafe, omegaController);
     }
 
-    public Command autoIntakeTurnCommand() {
+    public Command autoMLIntakeTurnCommand() {
         return swerveDriveSubsystem.directionCommandAuto(() -> {
             Optional<LimelightRawAngles> direction = visionSubsystem.getDetectorInfo();
             if (direction.isPresent()) {
@@ -486,9 +481,11 @@ public class RobotContainer {
         }).until(() -> intakeSubsystem.hasPieceSmoothed());
     }
 
-    public Command autoIntakeStraightCommand() {
-        final double aimingFactor = 1; //up to 1 the pose converges. reduces overshoot chance if less than 1;
-        final double speed = 1;
+    public Command mlIntakeStraightCommand() {
+        SlewRateLimiter forwardSlewer = new SlewRateLimiter(8);
+        SlewRateLimiter strafeSlewer = new SlewRateLimiter(8);
+        final double aimingFactor = 0.8; //up to 1 the pose converges. reduces overshoot chance if less than 1;
+        DoubleSupplier speed = () -> intakeSubsystem.hasPieceSmoothed() ? 0 : 3;
         final LinearFilter myFilter = LinearFilter.singlePoleIIR(0.1,0.02);
         Supplier<Rotation2d> angleOfGamepiece = () -> {if(visionSubsystem.getDetectorInfo().isPresent())
                                                             return Rotation2d.fromDegrees(-visionSubsystem.getDetectorInfo().get().ty() * aimingFactor);
@@ -497,11 +494,15 @@ public class RobotContainer {
 
         Supplier<Rotation2d> absoluteTargetAngle = () -> Rotation2d.fromRotations(myFilter.calculate(angleOfGamepiece.get().plus(swerveDriveSubsystem.getRotation()).getRotations()));
         ProfiledPIDController omegaController = 
-            new ProfiledPIDController(1, 0, .5, new TrapezoidProfile.Constraints(4, 4));
-        DoubleSupplier forward = () -> -swerveDriveSubsystem.getRotation().getCos() * speed;
-        DoubleSupplier strafe = () -> -swerveDriveSubsystem.getRotation().getSin() * speed;
+            new ProfiledPIDController(4, 0, 1, new TrapezoidProfile.Constraints(6, 6));
+        DoubleSupplier forward = () -> forwardSlewer.calculate(swerveDriveSubsystem.getRotation().getCos() * speed.getAsDouble());
+        DoubleSupplier strafe = () -> strafeSlewer.calculate(swerveDriveSubsystem.getRotation().getSin() * speed.getAsDouble());
 
-        return swerveDriveSubsystem.directionCommand(absoluteTargetAngle, forward, strafe, omegaController);
+        return swerveDriveSubsystem.directionCommand(absoluteTargetAngle, forward, strafe, omegaController).alongWith(runOnce(() -> {
+            ChassisSpeeds speeds = swerveDriveSubsystem.getFieldRelativeChassisSpeeds();
+            forwardSlewer.calculate(speeds.vxMetersPerSecond);
+            strafeSlewer.calculate(speeds.vyMetersPerSecond);
+        }));
     }
 
     public double getDriveForwardAxis() {

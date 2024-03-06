@@ -27,7 +27,8 @@ public class IntakeSubsystem extends SubsystemBase {
         this.hasPieceLowDebounce = new Trigger(() -> getRollerSensor()).debounce(0.1, DebounceType.kFalling);
 
         setDefaultCommand(Commands.either(
-            moveCommand().withTimeout(0.08)
+            moveCommand().withTimeout(0.2)
+                .andThen(reverseMoveCommand().withTimeout(0.04))
                 //.andThen(reverseMoveCommand().until(() -> getRollerSensor()).withTimeout(2)),
                 .andThen(reverseMoveCommand().until(() -> getRollerSensor())).withTimeout(2),
                 //.andThen(moveCommand().withTimeout(0.0))), 
@@ -69,8 +70,8 @@ public class IntakeSubsystem extends SubsystemBase {
                 setRoller(.25);
                 break;
             case MOVING:
-                setChamber(1.0/2.5);
-                setRoller(.25/2.5);
+                setChamber(1.0/4);
+                setRoller(.25/4);
                 break;
             case MOVING_REVERSE:
                 setChamber(-.20);

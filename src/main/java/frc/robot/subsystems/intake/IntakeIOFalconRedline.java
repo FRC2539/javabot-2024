@@ -12,7 +12,7 @@ public class IntakeIOFalconRedline implements IntakeIO{
     private boolean hasSeenChamber = false;
     private boolean hasSeenRoller = false;
 
-    private final boolean isThreading = true;
+    private final boolean isThreading = false;
 
     private final double percentMaxOutput = 1;
 
