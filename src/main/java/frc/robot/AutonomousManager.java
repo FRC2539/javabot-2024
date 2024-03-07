@@ -143,10 +143,10 @@ public class AutonomousManager {
     }
 
     private enum AutonomousOption {
-        EASY4(
+        EASYAMP4(
                 "Amp",
                 4,
-                "Easy4",
+                "EasyAmp4",
                 "Near Line (Amp)",
                 true,
                 "Shoots in the starting piece and then picks up and shoots the near row."
@@ -159,7 +159,14 @@ public class AutonomousManager {
                 true,
                 "Shoots in the starting piece and then picks up and shoots the near row."
                 ),
-
+        EASYCENTER4(
+            "Center",
+            4,
+            "EasyCenter4",
+            "Near Line (Center)",
+            true,
+            "Shoots in the starting piece and then picks up and shoots the near row."
+        ),
         SOURCE4(
                 "Source",
                 4,
