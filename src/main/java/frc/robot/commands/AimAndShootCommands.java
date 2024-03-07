@@ -51,7 +51,7 @@ public class AimAndShootCommands {
     
             Command aimAtTag = swerveDriveSubsystem.directionCommand(() -> {
                 Rotation2d output = visionSubsystem.getSpeakerAngle(getPose.get()).plus(new Rotation2d(Math.PI));
-                System.out.println(output);
+                //System.out.println(output);
                 Logger.log("/ShooterSubsystem/targetRotationForShooting", output.getRadians());
                 return output;
             }, 

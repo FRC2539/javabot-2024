@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import frc.lib.logging.LoggedReceiver;
 import frc.lib.logging.Logger;
 import frc.lib.vision.LimelightRawAngles;
+import frc.robot.Constants.FieldConstants;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.lights.LightsSubsystemB;
 import frc.robot.subsystems.shooter.ShooterState;
@@ -24,6 +25,7 @@ import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveDriveSubsystem;
 import frc.robot.subsystems.vision.VisionSubsystem;
 
+import java.lang.reflect.Field;
 import java.util.Optional;
 
 public class AutonomousManager {
@@ -61,6 +63,12 @@ public class AutonomousManager {
                         return swerveDriveSubsystem.getRotation();
                     }
                 }).until(() -> intakeSubsystem.hasPieceSmoothed()));
+        NamedCommands.registerCommand("mlintakedrive", container.mlIntakeStraightCommand().until(() -> {
+            boolean hasPiece =  intakeSubsystem.hasPieceSmoothed();
+            boolean pastLine = FieldConstants.isBlue() == (swerveDriveSubsystem.getPose().getX() > (FieldConstants.fieldLength / 2));
+            //System.out.println("" + swerveDriveSubsystem.getPose().getX() + " test " + (FieldConstants.fieldLength / 2));
+            return hasPiece || pastLine;
+        }));
         NamedCommands.registerCommand("amp", parallel());
         NamedCommands.registerCommand("aim", container.getAimAndShootCommands().movingAimCommandAuto());
         NamedCommands.registerCommand("spinup", container.getAimAndShootCommands().spinupCommand());
@@ -111,8 +119,8 @@ public class AutonomousManager {
     }
 
     private void registerConditionalPaths() {
-        registerShootConditionalPath("1b-1s-2b","-1s","-2b","1b-2b");
-        registerShootConditionalPath("2b-1s-3b","-1s","1s-3b","2b-3b");
+        registerShootConditionalPath("1b-1s-2b","1b-1s","1b-2bml","1b-2bml");
+        registerShootConditionalPath("2b-1s-3b","2b-1s","1s-3bml","2b-3bml");
         
         NamedCommands.registerCommand("3b-2s-3b", Commands.either(
             Commands.sequence(pathFromFile("3b-2s"), NamedCommands.getCommand("shoot"), pathFromFile("2s-3b")),
@@ -126,8 +134,8 @@ public class AutonomousManager {
 
     private void registerShootConditionalPath(String commandName, String path1, String path2, String altPath) {
         NamedCommands.registerCommand(commandName, Commands.either(
-            Commands.sequence(pathFromFile(path1), NamedCommands.getCommand("shoot"), pathFromFile(path2)),
-            pathFromFile(altPath), 
+            Commands.sequence(pathFromFile(path1), NamedCommands.getCommand("shoot"), pathFromFile(path2), NamedCommands.getCommand("mlintakedrive")),
+            Commands.sequence(pathFromFile(altPath), NamedCommands.getCommand("mlintakedrive")), 
             () -> intakeSubsystem.hasPieceSmoothed()));
     }
 
