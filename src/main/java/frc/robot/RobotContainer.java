@@ -108,7 +108,10 @@ public class RobotContainer {
                 var camera = new PhotonCamera("LeftCamera");
                 if (VisionConstants.usingPinholeModel) {
                     leftCamera = new AprilTagIOPhotonVisionPinhole(
-                    camera, Constants.VisionConstants.robotToLeftCamera, () -> swerveDriveSubsystem.getRotation());
+                    camera, Constants.VisionConstants.robotToLeftCamera.getZ(),
+                    new Transform2d(Constants.VisionConstants.robotToLeftCamera.getX(),
+                    Constants.VisionConstants.robotToLeftCamera.getY(),
+                    Rotation2d.fromDegrees(19 + 180)), () -> swerveDriveSubsystem.getRotation());
                 } else {
                     leftCamera = new AprilTagIOPhotonVision(
                         camera, Constants.VisionConstants.robotToLeftCamera);
@@ -121,7 +124,10 @@ public class RobotContainer {
                 var camera = new PhotonCamera("RightCamera");
                 if (VisionConstants.usingPinholeModel) {
                     rightCamera = new AprilTagIOPhotonVisionPinhole(
-                    camera, Constants.VisionConstants.robotToLeftCamera, () -> swerveDriveSubsystem.getRotation());
+                    camera, Constants.VisionConstants.robotToRightCamera.getZ(),
+                    new Transform2d(Constants.VisionConstants.robotToRightCamera.getX(),
+                    Constants.VisionConstants.robotToRightCamera.getY(),
+                    Rotation2d.fromDegrees(-19 + 180)), () -> swerveDriveSubsystem.getRotation());
                 } else {
                     rightCamera = new AprilTagIOPhotonVision(
                         camera, Constants.VisionConstants.robotToRightCamera);
@@ -348,14 +354,13 @@ public class RobotContainer {
         operatorController.getY().whileTrue(trapSubsystem.shootCommand(new TrapState(0,0,34)));
 
         // Trap Amp Command
-        operatorController.getX().whileTrue(trapSubsystem.shootCommand(new TrapState(0,0,24.0)));
+        operatorController.getX().whileTrue(trapSubsystem.shootCommand(new TrapState(0,0,10.2)));
 
         // Trap Source Command
-        operatorController.getB().whileTrue(trapSubsystem.shootCommand(new TrapState(6,6,24.0)));
+        operatorController.getB().whileTrue(trapSubsystem.shootCommand(new TrapState(6,6,10.2)));
 
         //Trap Bottom Command (this is not zero to reduce banging. it will slowly glide down if it is below 2.5 instead of stalling)
         operatorController.getA().whileTrue(trapSubsystem.shootCommand(new TrapState(0,0,0)));
-
 
         // Trap Eject Comand
         //operatorController.getDPadLeft().whileTrue(trapSubsystem.runIntakeCommand(-12.0, -12.0));
@@ -366,13 +371,13 @@ public class RobotContainer {
                 .whileTrue(trapSubsystem.shootCommand(() -> TrapState.fromVoltages(traptopRollerSpeedTunable.getDouble(), trapbottomRollerSpeedTunable.getDouble(), trapSubsystem.holdingVoltage)));
 
         // Trap Intake Command
-        operatorController.getDPadRight().whileTrue(trapSubsystem.runIntakeCommand(9.0, -9.0));
+        operatorController.getDPadDown().whileTrue(trapSubsystem.runIntakeCommand(6.0, -6.0));
 
         // Trap Rotate Note Up
         operatorController.getDPadUp().and(operatorController.getRightBumper().negate()).whileTrue(trapSubsystem.runIntakeCommand(-3.5, 3.5));
 
         // Trap Rotate Note Down
-        operatorController.getDPadDown().and(operatorController.getRightBumper().negate()).whileTrue(trapSubsystem.runIntakeCommand(-1.0, 3.0));
+        //operatorController.getDPadDown().and(operatorController.getRightBumper().negate()).whileTrue(trapSubsystem.runIntakeCommand(-1.0, 3.0));
 
         // Shooter Adjustment Up
         operatorController.getDPadUp().and(operatorController.getRightBumper()).onTrue(shooterSubsystem.adjustPitchCorrectionCommand(Rotation2d.fromDegrees(.25)));

@@ -168,10 +168,10 @@ public class VisionSubsystem extends SubsystemBase {
 
     public boolean hasTag = false;
     private static boolean usingCameraDirectly = true;
-    private Rotation2d lastSpeakerAngle = new Rotation2d(Math.PI);
+    public Rotation2d lastSpeakerAngle = new Rotation2d(Math.PI);
     public Rotation2d getSpeakerAngle(Pose2d currentPose) {
         Optional<PhotonTrackedTarget> speakerTag  = VisionSubsystem.getTagInfo(rightTargets, FieldConstants.getSpeakerTag());
-        lastSpeakerAngle = FieldConstants.getSpeakerPose().getTranslation().minus(currentPose.getTranslation()).getAngle();
+        //lastSpeakerAngle = FieldConstants.getSpeakerPose().getTranslation().minus(currentPose.getTranslation()).getAngle();
         Logger.log("/VisionSubsystem/LastSpeakerAngle", lastSpeakerAngle.getRadians());
         if (speakerTag.isPresent() && usingCameraDirectly) {
             hasTag = true;
@@ -198,18 +198,19 @@ public class VisionSubsystem extends SubsystemBase {
         return lastSpeakerAngle;
     }
 
+    public double lastDistance = 3;
+
     public double getSpeakerDistance(Pose2d currentPose) {
         Optional<PhotonTrackedTarget> speakerTag  = VisionSubsystem.getTagInfo(leftTargets, FieldConstants.getSpeakerTag());
-        double distance;
-        distance = FieldConstants.getSpeakerPose().getTranslation().minus(currentPose.getTranslation()).getNorm();
-        Logger.log("/VisionSubsystem/LastSpeakerDistance", distance);
+        //lastDistance = FieldConstants.getSpeakerPose().getTranslation().minus(currentPose.getTranslation()).getNorm();
+        Logger.log("/VisionSubsystem/LastSpeakerDistance", lastDistance);
         if (speakerTag.isPresent() && usingCameraDirectly) {
             // TODO: This is not right
-            distance = PhotonUtils.calculateDistanceToTargetMeters(
+            lastDistance = PhotonUtils.calculateDistanceToTargetMeters(
                 VisionConstants.robotToLeftCamera.getZ(), Units.inchesToMeters(57.75), 
                 Units.degreesToRadians(19), Units.degreesToRadians(speakerTag.get().getPitch()));
-                Logger.log("/VisionSubsystem/LastSpeakerDistanceDirect", distance);
+                Logger.log("/VisionSubsystem/LastSpeakerDistanceDirect", lastDistance);
         }
-        return distance;
+        return lastDistance;
     }
 }

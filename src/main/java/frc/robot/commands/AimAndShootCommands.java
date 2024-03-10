@@ -83,7 +83,9 @@ public class AimAndShootCommands {
         final double angularTolerance = 0.1;
         final double velocityTolerance = 0.04;
 
-        BooleanSupplier readyToFire = () -> swerveDriveSubsystem.isAtDirectionCommand(angularTolerance, velocityTolerance);
+        BooleanSupplier isAimed = () -> swerveDriveSubsystem.isAtDirectionCommand(angularTolerance, velocityTolerance);
+
+        BooleanSupplier isSpunUp = () -> shooterSubsystem.isShooterAtPosition();
 
         ProfiledPIDController controller = new ProfiledPIDController(5, 0, .5, new TrapezoidProfile.Constraints(4.5, 8));
 
@@ -96,15 +98,22 @@ public class AimAndShootCommands {
                 if (visionSubsystem.hasTag == false) {
                     LightsSubsystemB.LEDSegment.MainStrip.setStrobeAnimation(LightsSubsystemB.red, 0.3);
                 } else {
-                    if (readyToFire.getAsBoolean()) {
-                        LightsSubsystemB.LEDSegment.MainStrip.setColor(LightsSubsystemB.green);
+                    if (isAimed.getAsBoolean()) {
+                        if (isSpunUp.getAsBoolean()) {
+                            LightsSubsystemB.LEDSegment.MainStrip.setColor(LightsSubsystemB.blue);
+                        } else {
+                            LightsSubsystemB.LEDSegment.MainStrip.setColor(LightsSubsystemB.green);
+                        }
                     } else {
                         LightsSubsystemB.LEDSegment.MainStrip.setStrobeAnimation(LightsSubsystemB.yellow, 0.3);
                     }
                 }
             }, lightsSubsystem).asProxy();
 
-        return parallel(aimAtTag, spinUpCommand, lightsCommand, run(() -> {readyToFire.getAsBoolean();}));
+        return parallel(aimAtTag, spinUpCommand, lightsCommand, run(() -> {isAimed.getAsBoolean();})).beforeStarting(() -> {
+            visionSubsystem.lastDistance = 3;
+            visionSubsystem.lastSpeakerAngle = swerveDriveSubsystem.getRotation();
+        });
     }
 
     public Command turnToTagCommand(DoubleSupplier forward, DoubleSupplier strafe, DoubleSupplier rotate, LightsSubsystemB lightsSubsystem) {

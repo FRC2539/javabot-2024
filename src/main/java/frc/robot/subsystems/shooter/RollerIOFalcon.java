@@ -14,7 +14,7 @@ public class RollerIOFalcon implements RollerIO {
 
     public RollerIOFalcon(int port) {
         talonFX = new TalonFX(port, "CANivore");
-        //talonFX.setInverted(true);
+        talonFX.setInverted(false);
 
         Slot0Configs slot0Configs = new Slot0Configs();
 

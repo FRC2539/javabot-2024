@@ -64,10 +64,10 @@ public class AutonomousManager {
                     }
                 }).until(() -> intakeSubsystem.hasPieceSmoothed()));
         NamedCommands.registerCommand("mlintakedrive", container.mlIntakeStraightCommand().until(() -> {
-            boolean hasPiece =  intakeSubsystem.hasPieceSmoothed();
-            boolean pastLine = FieldConstants.isBlue() == (swerveDriveSubsystem.getPose().getX() > (FieldConstants.fieldLength / 2));
-            //System.out.println("" + swerveDriveSubsystem.getPose().getX() + " test " + (FieldConstants.fieldLength / 2));
-            return hasPiece || pastLine;
+             boolean hasPiece =  intakeSubsystem.hasPieceSmoothed();
+        //     boolean pastLine = FieldConstants.isBlue() == (swerveDriveSubsystem.getPose().getX() > (FieldConstants.fieldLength / 2));
+        //     //System.out.println("" + swerveDriveSubsystem.getPose().getX() + " test " + (FieldConstants.fieldLength / 2));
+             return hasPiece; // || pastLine;
         }));
         NamedCommands.registerCommand("amp", parallel());
         NamedCommands.registerCommand("aim", container.getAimAndShootCommands().movingAimCommandAuto());
