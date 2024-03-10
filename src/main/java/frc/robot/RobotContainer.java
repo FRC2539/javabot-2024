@@ -360,16 +360,16 @@ public class RobotContainer {
         // Trap Eject Comand
         //operatorController.getDPadLeft().whileTrue(trapSubsystem.runIntakeCommand(-12.0, -12.0));
 
-        LoggedReceiver traptopRollerSpeedTunable = Logger.tunable("/TrapSubsystem/topTunable", -3.5d);
+        LoggedReceiver traptopRollerSpeedTunable = Logger.tunable("/TrapSubsystem/topTunable", 3.5d);
         LoggedReceiver trapbottomRollerSpeedTunable = Logger.tunable("/TrapSubsystem/bottomTunable", -3.5d);
         operatorController.getDPadLeft()
                 .whileTrue(trapSubsystem.shootCommand(() -> TrapState.fromVoltages(traptopRollerSpeedTunable.getDouble(), trapbottomRollerSpeedTunable.getDouble(), trapSubsystem.holdingVoltage)));
 
         // Trap Intake Command
-        operatorController.getDPadRight().whileTrue(trapSubsystem.runIntakeCommand(6.0, 6.0));
+        operatorController.getDPadRight().whileTrue(trapSubsystem.runIntakeCommand(9.0, -9.0));
 
         // Trap Rotate Note Up
-        operatorController.getDPadUp().and(operatorController.getRightBumper().negate()).whileTrue(trapSubsystem.runIntakeCommand(5, -2));
+        operatorController.getDPadUp().and(operatorController.getRightBumper().negate()).whileTrue(trapSubsystem.runIntakeCommand(-3.5, 3.5));
 
         // Trap Rotate Note Down
         operatorController.getDPadDown().and(operatorController.getRightBumper().negate()).whileTrue(trapSubsystem.runIntakeCommand(-1.0, 3.0));
@@ -507,12 +507,12 @@ public class RobotContainer {
 
     public double getDriveForwardAxis() {
         return (FieldConstants.isBlue() ? 1 : -1) *
-        -square(deadband(leftDriveController.getYAxis().getRaw(), 0.05)) * Constants.SwerveConstants.maxSpeed; // );
+        -square(deadband(leftDriveController.getYAxis().getRaw(), .15)) * Constants.SwerveConstants.maxSpeed; // );
     }
 
     public double getDriveStrafeAxis() {
         return (FieldConstants.isBlue() ? 1 : -1) *
-        -square(deadband(leftDriveController.getXAxis().getRaw(), 0.05)) * Constants.SwerveConstants.maxSpeed; // );
+        -square(deadband(leftDriveController.getXAxis().getRaw(), .15)) * Constants.SwerveConstants.maxSpeed; // );
     }
 
     public double getDriveRotationAxis() {

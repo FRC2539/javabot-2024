@@ -52,8 +52,8 @@ public class AutonomousManager {
 
         //It appears that for any default commands to run, the commands need to be registered as proxies. Howevery, anything that uses swerve cannot have the swerve proxied out.
         NamedCommands.registerCommand("stop", runOnce(() -> swerveDriveSubsystem.setControl(new SwerveRequest.Idle()), swerveDriveSubsystem).asProxy());
-        NamedCommands.registerCommand("shoot", container.getAimAndShootCommands().stoppedShootAndAimCommand(Optional.of(0.25d), lightsSubsystem).withTimeout(3.5));//.onlyIf(() -> intakeSubsystem.hasPiece()));
-        NamedCommands.registerCommand("subshoot", Commands.parallel(shooterSubsystem.shootCommand(new ShooterState(.4,.7,Rotation2d.fromDegrees(55))).asProxy(), Commands.waitSeconds(1).andThen(intakeSubsystem.shootCommand().asProxy())).withTimeout(1.25));
+        NamedCommands.registerCommand("shoot", container.getAimAndShootCommands().stoppedShootAndAimCommand(Optional.of(0.25d), lightsSubsystem).withTimeout(2.5));//.onlyIf(() -> intakeSubsystem.hasPiece()));
+        NamedCommands.registerCommand("subshoot", Commands.parallel(shooterSubsystem.shootCommand(new ShooterState(.4,.7,Rotation2d.fromDegrees(55))).asProxy(), Commands.waitSeconds(.75).andThen(intakeSubsystem.shootCommand().asProxy())).withTimeout(1.25));
         NamedCommands.registerCommand("intake", intakeSubsystem.intakeCommand().withTimeout(3).asProxy());
         NamedCommands.registerCommand("mlintake", swerveDriveSubsystem.directionCommandAuto(() -> {
                     Optional<LimelightRawAngles> direction = visionSubsystem.getDetectorInfo();
