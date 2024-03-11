@@ -108,10 +108,8 @@ public class RobotContainer {
                 var camera = new PhotonCamera("LeftCamera");
                 if (VisionConstants.usingPinholeModel) {
                     leftCamera = new AprilTagIOPhotonVisionPinhole(
-                    camera, Constants.VisionConstants.robotToLeftCamera.getZ(),
-                    new Transform2d(Constants.VisionConstants.robotToLeftCamera.getX(),
-                    Constants.VisionConstants.robotToLeftCamera.getY(),
-                    Rotation2d.fromDegrees(19 + 180)), () -> swerveDriveSubsystem.getRotation());
+                    camera, 
+                    Constants.VisionConstants.robotToLeftCamera, () -> swerveDriveSubsystem.getRotation());
                 } else {
                     leftCamera = new AprilTagIOPhotonVision(
                         camera, Constants.VisionConstants.robotToLeftCamera);
@@ -124,10 +122,8 @@ public class RobotContainer {
                 var camera = new PhotonCamera("RightCamera");
                 if (VisionConstants.usingPinholeModel) {
                     rightCamera = new AprilTagIOPhotonVisionPinhole(
-                    camera, Constants.VisionConstants.robotToRightCamera.getZ(),
-                    new Transform2d(Constants.VisionConstants.robotToRightCamera.getX(),
-                    Constants.VisionConstants.robotToRightCamera.getY(),
-                    Rotation2d.fromDegrees(-19 + 180)), () -> swerveDriveSubsystem.getRotation());
+                    camera,
+                    Constants.VisionConstants.robotToRightCamera, () -> swerveDriveSubsystem.getRotation());
                 } else {
                     rightCamera = new AprilTagIOPhotonVision(
                         camera, Constants.VisionConstants.robotToRightCamera);
