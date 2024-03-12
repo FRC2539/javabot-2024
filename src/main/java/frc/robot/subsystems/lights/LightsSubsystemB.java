@@ -56,7 +56,7 @@ public class LightsSubsystemB extends SubsystemBase {
         setDefaultCommand(defaultCommand());
     }
 
-    public void setBrightness(double percent) {
+    public static void setBrightness(double percent) {
         candle.configBrightnessScalar(percent, 100);
     }
 
@@ -177,5 +177,13 @@ public class LightsSubsystemB extends SubsystemBase {
 
             return new Color(newRed, newGreen, newBlue);
         }
+    }
+
+    public static void disableLEDs() {
+        setBrightness(0);
+    }
+
+     public static void enableLEDs() {
+        setBrightness(1);
     }
 }

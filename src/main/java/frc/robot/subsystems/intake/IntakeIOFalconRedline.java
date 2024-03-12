@@ -51,7 +51,7 @@ public class IntakeIOFalconRedline implements IntakeIO{
     }
 
     private boolean hasChamberPiece() {
-        return false; //chamberSensor.getValue() > 50;
+        return chamberSensor.getValue() < 50;
     }
 
     public void setRollerSpeed(double speed) {

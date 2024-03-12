@@ -171,7 +171,7 @@ public class VisionSubsystem extends SubsystemBase {
     public Rotation2d lastSpeakerAngle = new Rotation2d(Math.PI);
     public Rotation2d getSpeakerAngle(Pose2d currentPose) {
         Optional<PhotonTrackedTarget> speakerTag  = VisionSubsystem.getTagInfo(rightTargets, FieldConstants.getSpeakerTag());
-        //lastSpeakerAngle = FieldConstants.getSpeakerPose().getTranslation().minus(currentPose.getTranslation()).getAngle();
+        lastSpeakerAngle = FieldConstants.getSpeakerPose().getTranslation().minus(currentPose.getTranslation()).getAngle();
         Logger.log("/VisionSubsystem/LastSpeakerAngle", lastSpeakerAngle.getRadians());
         if (speakerTag.isPresent() && usingCameraDirectly) {
             hasTag = true;
@@ -202,7 +202,7 @@ public class VisionSubsystem extends SubsystemBase {
 
     public double getSpeakerDistance(Pose2d currentPose) {
         Optional<PhotonTrackedTarget> speakerTag  = VisionSubsystem.getTagInfo(leftTargets, FieldConstants.getSpeakerTag());
-        //lastDistance = FieldConstants.getSpeakerPose().getTranslation().minus(currentPose.getTranslation()).getNorm();
+        lastDistance = FieldConstants.getSpeakerPose().getTranslation().minus(currentPose.getTranslation()).getNorm();
         Logger.log("/VisionSubsystem/LastSpeakerDistance", lastDistance);
         if (speakerTag.isPresent() && usingCameraDirectly) {
             // TODO: This is not right

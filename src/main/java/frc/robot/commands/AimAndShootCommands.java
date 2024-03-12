@@ -112,7 +112,7 @@ public class AimAndShootCommands {
 
         return parallel(aimAtTag, spinUpCommand, lightsCommand, run(() -> {isAimed.getAsBoolean();})).beforeStarting(() -> {
             visionSubsystem.lastDistance = 3;
-            visionSubsystem.lastSpeakerAngle = swerveDriveSubsystem.getRotation();
+            visionSubsystem.lastSpeakerAngle = swerveDriveSubsystem.getRotation().plus(new Rotation2d(Math.PI));
         });
     }
 

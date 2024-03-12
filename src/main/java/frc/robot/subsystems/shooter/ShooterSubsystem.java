@@ -5,8 +5,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
-import javax.sound.sampled.Line;
-
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
@@ -44,7 +42,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     private ShooterState currentShooterState = defaultState;
 
-    private Rotation2d pitchCorrection = Rotation2d.fromDegrees(-1.25);
+    private Rotation2d pitchCorrection = Rotation2d.fromDegrees(0.0);
 
     private boolean isShooterAtPosition = false;
 
@@ -91,7 +89,7 @@ public class ShooterSubsystem extends SubsystemBase {
         if (currentShooterState.isAngleVoltageBased) {
             pivotIO.setVoltage(currentShooterState.pivotAngle.getRotations());
         } else if (!inPositionDisableMode) {
-            pivotIO.setAngle(Rotation2d.fromDegrees(MathUtils.ensureRange(currentShooterState.pivotAngle.plus(pitchCorrection).getDegrees(), 20, 60)));
+            pivotIO.setAngle(Rotation2d.fromDegrees(MathUtils.ensureRange(currentShooterState.pivotAngle.plus(pitchCorrection).getDegrees(), 20, 55)));
         }
 
         isShooterAtPosition = calculateIsShooterAtPosition();

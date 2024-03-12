@@ -227,7 +227,7 @@ public class RobotContainer {
 
         rightDriveController
                 .getBottomThumb()
-                .whileTrue(shooterSubsystem.shootCommand(new ShooterState(.65,.65,Rotation2d.fromDegrees(35))));
+                .whileTrue(shooterSubsystem.shootCommand(new ShooterState(.60,.60,Rotation2d.fromDegrees(36.75))));
 
         rightDriveController.getBottomThumb().and(rightDriveController.getTrigger())
             .whileTrue(intakeSubsystem.shootCommand());
@@ -238,7 +238,7 @@ public class RobotContainer {
 
         (rightDriveController
                 .getRightThumb().and(rightDriveController.getTrigger())).debounce(0.2, DebounceType.kFalling)
-                .whileTrue(parallel(intakeSubsystem.shooterIntakeCommand(), shooterSubsystem.shootCommand(ShooterState.fromVoltages(-.25,-.25,Rotation2d.fromDegrees(55)))).until(() -> intakeSubsystem.getRollerSensor())
+                .whileTrue(parallel(intakeSubsystem.shooterIntakeCommand(), shooterSubsystem.shootCommand(ShooterState.fromVoltages(-.25,-.25,Rotation2d.fromDegrees(55))))
             );
         
         (rightDriveController
@@ -252,7 +252,7 @@ public class RobotContainer {
                 .getRightBottomLeft().whileTrue(ampScoreCommand());
         
         operatorController
-                .getLeftBumper().whileTrue(shooterSubsystem.shootCommand(new ShooterState(.05,.2,Rotation2d.fromDegrees(55))));
+                .getLeftBumper().and(operatorController.getRightBumper().negate()).whileTrue(shooterSubsystem.shootCommand(new ShooterState(.05,.2,Rotation2d.fromDegrees(55))));
             
         operatorController
                 .getLeftBumper().and(rightDriveController.getTrigger()).whileTrue(intakeSubsystem.ampCommand());
@@ -309,9 +309,9 @@ public class RobotContainer {
                 .whileTrue(climberSubsystem.setVoltage(12));
     
         
-        LoggedReceiver topRollerSpeedTunable = Logger.tunable("/ShooterSubsystem/topTunable", .4d);
-        LoggedReceiver bottomRollerSpeedTunable = Logger.tunable("/ShooterSubsystem/bottomTunable", .7d);
-        LoggedReceiver pivotAngleTunable = Logger.tunable("/ShooterSubsystem/pivotTunable", 56d);
+        LoggedReceiver topRollerSpeedTunable = Logger.tunable("/ShooterSubsystem/topTunable", .1d);
+        LoggedReceiver bottomRollerSpeedTunable = Logger.tunable("/ShooterSubsystem/bottomTunable", .9d);
+        LoggedReceiver pivotAngleTunable = Logger.tunable("/ShooterSubsystem/pivotTunable", 55d);
         LoggedReceiver isVoltageBasedTunable = Logger.tunable("/ShooterSubsystem/voltageTunable", false);
         
         leftDriveController
@@ -350,10 +350,10 @@ public class RobotContainer {
         operatorController.getY().whileTrue(trapSubsystem.shootCommand(new TrapState(0,0,34)));
 
         // Trap Amp Command
-        operatorController.getX().whileTrue(trapSubsystem.shootCommand(new TrapState(0,0,10.2)));
+        operatorController.getX().whileTrue(trapSubsystem.shootCommand(new TrapState(0,0,16.357)));
 
         // Trap Source Command
-        operatorController.getB().whileTrue(trapSubsystem.shootCommand(new TrapState(6,6,10.2)));
+        operatorController.getB().whileTrue(trapSubsystem.shootCommand(new TrapState(6,-6,16.357)));
 
         //Trap Bottom Command (this is not zero to reduce banging. it will slowly glide down if it is below 2.5 instead of stalling)
         operatorController.getA().whileTrue(trapSubsystem.shootCommand(new TrapState(0,0,0)));
@@ -397,6 +397,13 @@ public class RobotContainer {
                 run(() -> LightsSubsystemB.LEDSegment.MainStrip.setColor(LightsSubsystemB.yellow), lightsSubsystem).withTimeout(.1)
             )
         );
+
+        //feeder shot
+        operatorController.getLeftBumper().and(operatorController.getRightBumper()).whileTrue(shooterSubsystem.shootCommand(ShooterState.fromVoltages(.46,.46,Rotation2d.fromDegrees(40)))).whileTrue(
+            Commands.either(swerveDriveSubsystem.cardinalCommand(new Rotation2d(-0.57), this::getDriveForwardAxis, this::getDriveStrafeAxis),
+            swerveDriveSubsystem.cardinalCommand(new Rotation2d(Math.PI + 0.57), this::getDriveForwardAxis, this::getDriveStrafeAxis),
+            FieldConstants::isBlue
+        ));
 
         //operatorController.getA().onTrue(shooterSubsystem.adjustPitchCorrectionCommand(Rotation2d.fromDegrees(0.5)));
         //operatorController.getB().onTrue(shooterSubsystem.adjustPitchCorrectionCommand(Rotation2d.fromDegrees(0.5)));

@@ -23,14 +23,14 @@ public class IntakeSubsystem extends SubsystemBase {
     public IntakeSubsystem(IntakeIO intakeIO) {
         this.intakeIO = intakeIO;
 
-        this.hasPieceHighDebounce = new Trigger(() -> getRollerSensor()).debounce(1, DebounceType.kFalling);
-        this.hasPieceLowDebounce = new Trigger(() -> getRollerSensor()).debounce(0.1, DebounceType.kFalling);
+        this.hasPieceHighDebounce = new Trigger(() -> hasPieceRaw()).debounce(1, DebounceType.kFalling);
+        this.hasPieceLowDebounce = new Trigger(() -> hasPieceRaw()).debounce(0.1, DebounceType.kFalling);
 
         setDefaultCommand(Commands.either(
             moveCommand().withTimeout(0.2)
                 .andThen(reverseMoveCommand().withTimeout(0.04))
                 //.andThen(reverseMoveCommand().until(() -> getRollerSensor()).withTimeout(2)),
-                .andThen(reverseMoveCommand().until(() -> getRollerSensor())).withTimeout(2),
+                .andThen(reverseMoveCommand().until(() -> hasPieceRaw())).withTimeout(2),
                 //.andThen(moveCommand().withTimeout(0.0))), 
             disabledCommand(), 
             () -> state == IntakeState.INTAKING || state == IntakeState.INTAKING_REVERSE));
@@ -122,7 +122,7 @@ public class IntakeSubsystem extends SubsystemBase {
     public Command intakeCommand() {
         Command intakeCommand = runEnd(() -> {
             setIntakeState(IntakeState.INTAKING);
-        }, () -> {}).until(() -> getRollerSensor());
+        }, () -> {}).until(() -> hasPieceRaw());
 
         return intakeCommand;
     }
@@ -130,7 +130,7 @@ public class IntakeSubsystem extends SubsystemBase {
     public Command shooterIntakeCommand() {
         return runEnd(() -> {
             setIntakeState(IntakeState.INTAKING_REVERSE);
-        }, () -> {}).until(() -> getRollerSensor());
+        }, () -> {}).until(() -> hasPieceRaw());
     }
 
     public Command moveCommand() {

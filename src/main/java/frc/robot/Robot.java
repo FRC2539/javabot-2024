@@ -47,6 +47,8 @@ public class Robot extends TimedRobot {
 
         autonomousCommand = robotContainer.getAutonomousCommand();
 
+        LightsSubsystemB.disableLEDs();
+
         // Schedule the chosen autonomous command
         if (autonomousCommand != null) autonomousCommand.schedule();
     }
@@ -58,6 +60,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopInit() {
+        LightsSubsystemB.enableLEDs();
 
         // Prevent any autonomous code from overrunning into teleop
         if (autonomousCommand != null) autonomousCommand.cancel();
@@ -67,7 +70,9 @@ public class Robot extends TimedRobot {
     public void teleopPeriodic() {}
 
     @Override
-    public void disabledInit() {}
+    public void disabledInit() {
+        LightsSubsystemB.enableLEDs();
+    }
 
     @Override
     public void disabledPeriodic() {
