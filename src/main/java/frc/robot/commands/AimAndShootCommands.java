@@ -17,6 +17,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib.logging.Logger;
+import frc.robot.Constants.FieldConstants;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.lights.LightsSubsystemB;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
@@ -76,7 +77,65 @@ public class AimAndShootCommands {
                 }
             }, lightsSubsystem).asProxy();
     
-            return deadline(waitUntil(readyToFire).andThen(runBeltCommand.asProxy()), aimAtTag, spinUpCommand.asProxy(), lightsCommand);
+            return deadline(waitUntil(readyToFire).withTimeout(2.5).andThen(runBeltCommand.asProxy()), aimAtTag, spinUpCommand.asProxy(), lightsCommand).beforeStarting(() -> {
+            visionSubsystem.lastDistance = 3;
+            visionSubsystem.lastSpeakerAngle = FieldConstants.getSpeakerPose().getTranslation().minus(swerveDriveSubsystem.getPose().getTranslation()).getAngle();
+        });
+        }
+
+    public Command stoppedAimCommand(Optional<Double> timeout, LightsSubsystemB lightsSubsystem) {
+            final double angularTolerance = 0.120;
+            final double velocityTolerance = 0.1;
+    
+            Supplier<Pose2d> getPose = () -> swerveDriveSubsystem.getPose();
+    
+            BooleanSupplier readyToFire = () -> (swerveDriveSubsystem.isAtDirectionCommand(angularTolerance, velocityTolerance) && shooterSubsystem.isShooterAtPosition());
+    
+            ProfiledPIDController controller = new ProfiledPIDController(5, 0, .1, new TrapezoidProfile.Constraints(4.5, 0));
+    
+            Command aimAtTag = swerveDriveSubsystem.directionCommand(() -> {
+                Rotation2d output = visionSubsystem.getSpeakerAngle(getPose.get()).plus(new Rotation2d(Math.PI));
+                //System.out.println(output);
+                Logger.log("/ShooterSubsystem/targetRotationForShooting", output.getRadians());
+                return output;
+            }, 
+                () -> 0, () -> 0, controller, true);
+    
+        
+            Command spinUpCommand = shooterSubsystem.shootCommand(() -> visionSubsystem.getSpeakerDistance(getPose.get()));
+    
+            // Command runBeltCommand;
+
+            // if (timeout.isEmpty()) {
+            //     runBeltCommand = intakeSubsystem.shootCommand();
+            // } else {
+            //     runBeltCommand = intakeSubsystem.shootCommand().withTimeout(timeout.get());
+            // }
+
+            BooleanSupplier isAimed = () -> swerveDriveSubsystem.isAtDirectionCommand(angularTolerance, velocityTolerance);
+
+            BooleanSupplier isSpunUp = () -> shooterSubsystem.isShooterAtPosition();
+
+            Command lightsCommand = run(() -> {
+                if (visionSubsystem.hasTag == false) {
+                    LightsSubsystemB.LEDSegment.MainStrip.setStrobeAnimation(LightsSubsystemB.red, 0.3);
+                } else {
+                    if (isAimed.getAsBoolean()) {
+                        if (isSpunUp.getAsBoolean()) {
+                            LightsSubsystemB.LEDSegment.MainStrip.setColor(LightsSubsystemB.blue);
+                        } else {
+                            LightsSubsystemB.LEDSegment.MainStrip.setColor(LightsSubsystemB.green);
+                        }
+                    } else {
+                        LightsSubsystemB.LEDSegment.MainStrip.setStrobeAnimation(LightsSubsystemB.yellow, 0.3);
+                    }
+                }
+            }, lightsSubsystem).asProxy();
+    
+            return parallel(waitUntil(readyToFire), aimAtTag, spinUpCommand.asProxy(), lightsCommand).beforeStarting(() -> {
+            visionSubsystem.lastDistance = 3;
+            visionSubsystem.lastSpeakerAngle = swerveDriveSubsystem.getRotation().plus(new Rotation2d(Math.PI));
+        });
         }
 
     public Command movingAimCommand(DoubleSupplier forward, DoubleSupplier strafe, DoubleSupplier rotate, LightsSubsystemB lightsSubsystem) {
@@ -87,8 +146,8 @@ public class AimAndShootCommands {
 
         BooleanSupplier isSpunUp = () -> shooterSubsystem.isShooterAtPosition();
 
-        ProfiledPIDController controller = new ProfiledPIDController(2, 0, 0.2
-        , new TrapezoidProfile.Constraints(4.5, 8));
+        ProfiledPIDController controller = new ProfiledPIDController(2, 0, 0.0
+        , new TrapezoidProfile.Constraints(2.5, 3));
 
         Command aimAtTag = swerveDriveSubsystem.directionCommand(() -> visionSubsystem.getSpeakerAngle(swerveDriveSubsystem.getPose()).plus(new Rotation2d(Math.PI)), 
             forward, strafe, controller);

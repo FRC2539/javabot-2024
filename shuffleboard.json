@@ -25,21 +25,6 @@
               "Layout/Number of rows": 1,
               "Layout/Label position": "BOTTOM",
               "_children": {
-                "1,0": {
-                  "_type": "Camera Stream",
-                  "_source0": "camera_server://photonvision_Port_1184_Output_MJPEG_Server",
-                  "_title": "Right",
-                  "_glyph": 148,
-                  "_showGlyph": false,
-                  "Crosshair/Show crosshair": false,
-                  "Crosshair/Crosshair color": "#FFFFFFFF",
-                  "Controls/Show controls": false,
-                  "Controls/Rotation": "NONE",
-                  "compression": -1.0,
-                  "fps": -1,
-                  "imageWidth": 0,
-                  "imageHeight": 0
-                },
                 "0,0": {
                   "_type": "Camera Stream",
                   "_source0": "camera_server://limelight-intake",
@@ -54,6 +39,21 @@
                   "fps": -1,
                   "imageWidth": -1,
                   "imageHeight": -1
+                },
+                "1,0": {
+                  "_type": "Camera Stream",
+                  "_source0": "camera_server://photonvision_Port_1184_Output_MJPEG_Server",
+                  "_title": "Right",
+                  "_glyph": 148,
+                  "_showGlyph": false,
+                  "Crosshair/Show crosshair": false,
+                  "Crosshair/Crosshair color": "#FFFFFFFF",
+                  "Controls/Show controls": false,
+                  "Controls/Rotation": "NONE",
+                  "compression": -1.0,
+                  "fps": -1,
+                  "imageWidth": 0,
+                  "imageHeight": 0
                 }
               }
             }

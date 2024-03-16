@@ -1,5 +1,6 @@
 package frc.robot.commands;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -15,17 +16,23 @@ import frc.robot.subsystems.lights.LightsSubsystemB;
 import frc.robot.subsystems.lights.LightsSubsystem;
 
 import java.util.function.DoubleSupplier;
-import java.util.function.Supplier;
 
 public class IntakeAssistCommand extends Command {
     private final SwerveDriveSubsystem swerveDriveSubsystem;
     private final VisionSubsystem visionSubsystem;
 
-    Joystick leftJoystick = new Joystick(0);
+    DoubleSupplier strafeJoystick;
+    DoubleSupplier forwardJoystick;
+    DoubleSupplier rotationJoystick;
+
+    PIDController intakingController = new PIDController(1, 0, 0.1);
 
     public IntakeAssistCommand(SwerveDriveSubsystem swerveDriveSubsystem, VisionSubsystem visionSubsystem, DoubleSupplier forward, DoubleSupplier strafe, DoubleSupplier rotation) {
         this.swerveDriveSubsystem = swerveDriveSubsystem;
         this.visionSubsystem = visionSubsystem;
+        forwardJoystick = forward;
+        strafeJoystick = strafe;
+        rotationJoystick = rotation;
 
         addRequirements(swerveDriveSubsystem);
     }
@@ -35,29 +42,30 @@ public class IntakeAssistCommand extends Command {
 
     @Override
     public void execute() {
-        double speed = 1;
 
-        double joystickX = leftJoystick.getX();
-        double joystickY = leftJoystick.getY();
+        double joystickX = forwardJoystick.getAsDouble();
+        double joystickY = strafeJoystick.getAsDouble();
         double joystickVectorMagnitude = Math.sqrt((Math.pow(joystickX, 2)) + (Math.pow(joystickY, 2)));
 
-        Supplier<Rotation2d> angleOfGamepiece = () -> {if(visionSubsystem.getDetectorInfo().isPresent())
-            return Rotation2d.fromDegrees(visionSubsystem.getDetectorInfo().get().tx());
-        else
-            return new Rotation2d();};
+        double pieceAngle;
 
-        Rotation2d absoluteTargetAngle = angleOfGamepiece.get();
+        if(visionSubsystem.getDetectorInfo().isPresent()) {
+            pieceAngle = visionSubsystem.getDetectorInfo().get().tx();
+        } else {
+            pieceAngle = 0.0;
+        };
 
-        double driveJoystickVectorDirection = Math.atan(joystickY / joystickX);
+        Rotation2d rotation = swerveDriveSubsystem.getRotation();
+
+        double forwardComponent = joystickX * rotation.getCos() + joystickY * rotation.getSin();
         
-        DoubleSupplier strafeRobotRelative = () -> {return Math.cos(driveJoystickVectorDirection) * joystickVectorMagnitude;};
-
-        DoubleSupplier forwardRobotRelative = () -> 0;
+        double strafeRobotRelative = intakingController.calculate(pieceAngle);
+        DoubleSupplier forwardRobotRelative = () -> forwardComponent;
             
         swerveDriveSubsystem.setControl(swerveDriveSubsystem.openLoopRobotCentric
             .withVelocityX(forwardRobotRelative.getAsDouble())
-            .withVelocityY(strafeRobotRelative.getAsDouble())
-            .withRotationalRate(speed));
+            .withVelocityY(strafeRobotRelative)
+            .withRotationalRate(rotationJoystick.getAsDouble()));
     }
 
     @Override

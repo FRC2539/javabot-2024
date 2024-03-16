@@ -42,7 +42,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     private ShooterState currentShooterState = defaultState;
 
-    private Rotation2d pitchCorrection = Rotation2d.fromDegrees(0.0);
+    private Rotation2d pitchCorrection = Rotation2d.fromDegrees(-2);
 
     private boolean isShooterAtPosition = false;
 
@@ -64,7 +64,7 @@ public class ShooterSubsystem extends SubsystemBase {
         return new ShooterState(
             topRollerMap.getInterpolated(distance).get().value,
             bottomRollerMap.getInterpolated(distance).get().value,
-            Rotation2d.fromDegrees(pivotAngleMap.getInterpolated(distance).get().value)
+            Rotation2d.fromDegrees(pivotAngleMap.getInterpolated(distance).get().value).plus(getPitchCorrection())
         );
     }
 
@@ -89,7 +89,7 @@ public class ShooterSubsystem extends SubsystemBase {
         if (currentShooterState.isAngleVoltageBased) {
             pivotIO.setVoltage(currentShooterState.pivotAngle.getRotations());
         } else if (!inPositionDisableMode) {
-            pivotIO.setAngle(Rotation2d.fromDegrees(MathUtils.ensureRange(currentShooterState.pivotAngle.plus(pitchCorrection).getDegrees(), 20, 55)));
+            pivotIO.setAngle(Rotation2d.fromDegrees(MathUtils.ensureRange(currentShooterState.pivotAngle.getDegrees(), 15, 60)));
         }
 
         isShooterAtPosition = calculateIsShooterAtPosition();
@@ -121,6 +121,10 @@ public class ShooterSubsystem extends SubsystemBase {
         return runOnce(() -> pivotIO.updateAngle(pivotInputs.currentAngle));
     }
 
+    public boolean isEncoderConnected() {
+        return pivotInputs.isEncoderConnected;
+    }
+
     /** NOTE: This does not work with voltage requests as there is no "SPEED" */
     private Debouncer debouncer = new Debouncer(.1, DebounceType.kRising);
     private LinearFilter movingAverageTop = LinearFilter.movingAverage(10);
@@ -133,7 +137,7 @@ public class ShooterSubsystem extends SubsystemBase {
             MathUtils.equalsWithinError(
                 bottomSpeed, movingAverageBottom.calculate(bottomRollerInputs.speed), shooterSpeedTolerance * bottomSpeed) &&
             inPositionDisableMode || MathUtils.equalsWithinError(
-                currentShooterState.pivotAngle.plus(pitchCorrection).getDegrees() - 0.25, pivotInputs.currentAngle.getDegrees(), shooterAngleTolerance.getDegrees()));
+                currentShooterState.pivotAngle.getDegrees() - 0.25, pivotInputs.currentAngle.getDegrees(), shooterAngleTolerance.getDegrees()));
     }
 
     public boolean isShooterAtPosition() {

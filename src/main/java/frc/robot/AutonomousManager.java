@@ -52,7 +52,7 @@ public class AutonomousManager {
 
         //It appears that for any default commands to run, the commands need to be registered as proxies. Howevery, anything that uses swerve cannot have the swerve proxied out.
         NamedCommands.registerCommand("stop", runOnce(() -> swerveDriveSubsystem.setControl(new SwerveRequest.Idle()), swerveDriveSubsystem).asProxy());
-        NamedCommands.registerCommand("shoot", container.getAimAndShootCommands().stoppedShootAndAimCommand(Optional.of(0.25d), lightsSubsystem).withTimeout(2.5));//.onlyIf(() -> intakeSubsystem.hasPiece()));
+        NamedCommands.registerCommand("shoot", container.getAimAndShootCommands().stoppedShootAndAimCommand(Optional.of(0.25d), lightsSubsystem).withTimeout(3));//.onlyIf(() -> intakeSubsystem.hasPiece()));
         NamedCommands.registerCommand("subshoot", Commands.parallel(shooterSubsystem.shootCommand(new ShooterState(.1,.9,Rotation2d.fromDegrees(55))).asProxy(), Commands.waitSeconds(.75).andThen(intakeSubsystem.shootCommand().asProxy())).withTimeout(1.25));
         NamedCommands.registerCommand("intake", intakeSubsystem.intakeCommand().withTimeout(2).asProxy());
         NamedCommands.registerCommand("mlintake", swerveDriveSubsystem.directionCommandAuto(() -> {
@@ -63,9 +63,9 @@ public class AutonomousManager {
                         return swerveDriveSubsystem.getRotation();
                     }
                 }).until(() -> intakeSubsystem.hasPieceSmoothed()));
-        NamedCommands.registerCommand("mlintakedrive", container.mlAimCommand().until(() -> {
+        NamedCommands.registerCommand("mlintakedrive", container.mlIntakeStraightCommand().until(() -> {
              boolean hasPiece =  intakeSubsystem.hasPieceSmoothed();
-             boolean pastLine = FieldConstants.isBlue() == (swerveDriveSubsystem.getPose().getX() > ((FieldConstants.fieldLength / 2) - 0));
+             boolean pastLine = false; //FieldConstants.isBlue() == (swerveDriveSubsystem.getPose().getX() > ((FieldConstants.fieldLength / 2) - 0));
              Logger.log("Auto/pastLine", pastLine);
              System.out.println("" + swerveDriveSubsystem.getPose().getX() + " test " + (FieldConstants.fieldLength / 2));
              return hasPiece || pastLine;
@@ -179,7 +179,7 @@ public class AutonomousManager {
         SOURCE4(
                 "Source",
                 4,
-                "Source4",
+                "Source4SCH",
                 "Source Side",
                 true,
                 "Shoots the starting piece and then shoots the three near the source on the centerline."

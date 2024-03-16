@@ -37,6 +37,7 @@ import frc.robot.Constants.TrapConstants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.commands.AimAndShootCommands;
 import frc.robot.commands.DriveToPositionCommand;
+import frc.robot.commands.IntakeAssistCommand;
 import frc.robot.subsystems.climber.ClimberIOFalcon;
 import frc.robot.subsystems.climber.ClimberIOSim;
 import frc.robot.subsystems.climber.ClimberSubsystem;
@@ -45,6 +46,7 @@ import frc.robot.subsystems.intake.IntakeIOSim;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.lights.LightsSubsystemB;
 import frc.robot.subsystems.shooter.PivotIOFalcon;
+import frc.robot.subsystems.shooter.PivotIOFalconTwo;
 import frc.robot.subsystems.shooter.PivotIOSim;
 import frc.robot.subsystems.shooter.RollerIOFalcon;
 import frc.robot.subsystems.shooter.RollerIOSim;
@@ -94,7 +96,7 @@ public class RobotContainer {
         if (Robot.isReal()) {
             swerveDriveSubsystem = TunerConstants.DriveTrain;
             lightsSubsystem = new LightsSubsystemB(); //new LightsSubsystem(new LightsIOBlinkin(0));
-            shooterSubsystem = new ShooterSubsystem(new RollerIOFalcon(ShooterConstants.topShooterPort), new RollerIOFalcon(ShooterConstants.bottomShooterPort), new PivotIOFalcon(), Constants.ShooterConstants.topRollerMap(), Constants.ShooterConstants.bottomRollerMap(), Constants.ShooterConstants.shooterAngleMap());
+            shooterSubsystem = new ShooterSubsystem(new RollerIOFalcon(ShooterConstants.topShooterPort), new RollerIOFalcon(ShooterConstants.bottomShooterPort), new PivotIOFalconTwo(), Constants.ShooterConstants.topRollerMap(), Constants.ShooterConstants.bottomRollerMap(), Constants.ShooterConstants.shooterAngleMap());
             trapSubsystem = new TrapSubsystem(new TrapRollerIONeo550(TrapConstants.topRollerPort), new TrapRollerIONeo550(TrapConstants.bottomRollerPort), new RackIONeo550());
             climberSubsystem = new ClimberSubsystem(new ClimberIOFalcon());
 
@@ -227,7 +229,7 @@ public class RobotContainer {
 
         rightDriveController
                 .getBottomThumb()
-                .whileTrue(shooterSubsystem.shootCommand(new ShooterState(.60,.60,Rotation2d.fromDegrees(36.75))));
+                .whileTrue(shooterSubsystem.shootCommand(() -> new ShooterState(.60,.60,Rotation2d.fromDegrees(36.75))));
 
         rightDriveController.getBottomThumb().and(rightDriveController.getTrigger())
             .whileTrue(intakeSubsystem.shootCommand());
@@ -242,7 +244,7 @@ public class RobotContainer {
             );
         
         (rightDriveController
-            .getLeftThumb().and(rightDriveController.getTrigger())).whileTrue(mlIntakeStraightCommand())
+            .getLeftThumb().and(rightDriveController.getTrigger())).whileTrue(new IntakeAssistCommand(swerveDriveSubsystem, visionSubsystem, this::getDriveForwardAxis, this::getDriveStrafeAxis, this::getDriveRotationAxis))
                 .whileTrue(intakeSubsystem.intakeCommand());
         
         
@@ -252,7 +254,7 @@ public class RobotContainer {
                 .getRightBottomLeft().whileTrue(ampScoreCommand());
         
         operatorController
-                .getLeftBumper().and(operatorController.getRightBumper().negate()).whileTrue(shooterSubsystem.shootCommand(new ShooterState(.05,.2,Rotation2d.fromDegrees(55))));
+                .getLeftBumper().and(operatorController.getRightBumper().negate()).whileTrue(shooterSubsystem.shootCommand(new ShooterState(.05,.2,Rotation2d.fromDegrees(60))));
             
         operatorController
                 .getLeftBumper().and(rightDriveController.getTrigger()).whileTrue(intakeSubsystem.ampCommand());
@@ -289,8 +291,12 @@ public class RobotContainer {
                 .getTrigger()
                 .whileTrue(aimAndShootCommands.movingAimCommand(
                     this::getDriveForwardAxis, this::getDriveStrafeAxis, this::getDriveRotationAxis, lightsSubsystem));
+
         leftDriveController
-                .nameTrigger("Aim");
+        .getTrigger()
+        .whileTrue(aimAndShootCommands.stoppedAimCommand(Optional.of(0.25d), lightsSubsystem));
+        // leftDriveController
+        //         .nameTrigger("Aim");
 
         // leftDriveController
         //         .getTrigger().and(operatorController.getLeftBumper())
@@ -313,9 +319,9 @@ public class RobotContainer {
                 .whileTrue(climberSubsystem.setVoltage(12));
     
         
-        LoggedReceiver topRollerSpeedTunable = Logger.tunable("/ShooterSubsystem/topTunable", .1d);
-        LoggedReceiver bottomRollerSpeedTunable = Logger.tunable("/ShooterSubsystem/bottomTunable", .9d);
-        LoggedReceiver pivotAngleTunable = Logger.tunable("/ShooterSubsystem/pivotTunable", 55d);
+        LoggedReceiver topRollerSpeedTunable = Logger.tunable("/ShooterSubsystem/topTunable", .6d);
+        LoggedReceiver bottomRollerSpeedTunable = Logger.tunable("/ShooterSubsystem/bottomTunable", .6d);
+        LoggedReceiver pivotAngleTunable = Logger.tunable("/ShooterSubsystem/pivotTunable", 60d);
         LoggedReceiver isVoltageBasedTunable = Logger.tunable("/ShooterSubsystem/voltageTunable", false);
         
         leftDriveController
@@ -404,8 +410,15 @@ public class RobotContainer {
 
         //feeder shot
         operatorController.getLeftBumper().and(operatorController.getRightBumper()).whileTrue(
-            Commands.either(parallel(swerveDriveSubsystem.cardinalCommand(new Rotation2d(-0.57), this::getDriveForwardAxis, this::getDriveStrafeAxis), shooterSubsystem.shootCommand(new ShooterState(.40,.40,Rotation2d.fromDegrees(55)))),
-            parallel(swerveDriveSubsystem.cardinalCommand(new Rotation2d(Math.PI + 0.57), this::getDriveForwardAxis, this::getDriveStrafeAxis), shooterSubsystem.shootCommand(new ShooterState(.40,40,Rotation2d.fromDegrees(55)))),
+            Commands.either(parallel(swerveDriveSubsystem.cardinalCommand(new Rotation2d(-0.57), this::getDriveForwardAxis, this::getDriveStrafeAxis), shooterSubsystem.shootCommand(new ShooterState(.44,.44,Rotation2d.fromDegrees(40)))),
+            parallel(swerveDriveSubsystem.cardinalCommand(new Rotation2d(Math.PI + 0.57), this::getDriveForwardAxis, this::getDriveStrafeAxis), shooterSubsystem.shootCommand(new ShooterState(.44,.44,Rotation2d.fromDegrees(40)))),
+            //shooterSubsystem.shootCommand(new ShooterState(.05,.2,Rotation2d.fromDegrees(55)),
+            FieldConstants::isBlue
+         ));
+
+        rightDriveController.getBottomThumb().whileTrue(
+            Commands.either(swerveDriveSubsystem.cardinalCommand(new Rotation2d(-0.461), this::getDriveForwardAxis, this::getDriveStrafeAxis),
+            swerveDriveSubsystem.cardinalCommand(new Rotation2d(Math.PI + 0.461), this::getDriveForwardAxis, this::getDriveStrafeAxis),
             //shooterSubsystem.shootCommand(new ShooterState(.05,.2,Rotation2d.fromDegrees(55)),
             FieldConstants::isBlue
          ));
@@ -512,7 +525,7 @@ public class RobotContainer {
         SlewRateLimiter forwardSlewer = new SlewRateLimiter(8);
         SlewRateLimiter strafeSlewer = new SlewRateLimiter(8);
         final double aimingFactor = 0.8; //up to 1 the pose converges. reduces overshoot chance if less than 1;
-        DoubleSupplier speed = () -> intakeSubsystem.hasPieceSmoothed() ? 0 : 3;
+        DoubleSupplier speed = () -> intakeSubsystem.hasPieceSmoothed() ? 0 : 1.5;
         final LinearFilter myFilter = LinearFilter.singlePoleIIR(0.1,0.02);
         Supplier<Rotation2d> angleOfGamepiece = () -> {if(visionSubsystem.getDetectorInfo().isPresent())
                                                             return Rotation2d.fromDegrees(-visionSubsystem.getDetectorInfo().get().ty() * aimingFactor);
