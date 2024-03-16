@@ -32,7 +32,7 @@ public class AprilTagIOPhotonVision implements AprilTagIO {
         try {
             Optional<EstimatedRobotPose> myPose = poseEstimator.update();
             Optional<EstimatedRobotPose> myPoseHeight = poseEstimatorHeight.update();
-
+            
             return myPose.map((stuff) -> {
                 var outputs = new AprilTagIOInputs();
                 outputs.poseEstimate3d = stuff.estimatedPose;

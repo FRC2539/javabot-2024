@@ -80,14 +80,15 @@ public class AimAndShootCommands {
         }
 
     public Command movingAimCommand(DoubleSupplier forward, DoubleSupplier strafe, DoubleSupplier rotate, LightsSubsystemB lightsSubsystem) {
-        final double angularTolerance = 0.1;
-        final double velocityTolerance = 0.04;
+        final double angularTolerance = 0.06;
+        final double velocityTolerance = 0.02;
 
         BooleanSupplier isAimed = () -> swerveDriveSubsystem.isAtDirectionCommand(angularTolerance, velocityTolerance);
 
         BooleanSupplier isSpunUp = () -> shooterSubsystem.isShooterAtPosition();
 
-        ProfiledPIDController controller = new ProfiledPIDController(5, 0, .5, new TrapezoidProfile.Constraints(4.5, 8));
+        ProfiledPIDController controller = new ProfiledPIDController(2, 0, 0.2
+        , new TrapezoidProfile.Constraints(4.5, 8));
 
         Command aimAtTag = swerveDriveSubsystem.directionCommand(() -> visionSubsystem.getSpeakerAngle(swerveDriveSubsystem.getPose()).plus(new Rotation2d(Math.PI)), 
             forward, strafe, controller);

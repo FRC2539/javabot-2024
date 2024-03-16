@@ -14,6 +14,7 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
@@ -176,21 +177,21 @@ public class VisionSubsystem extends SubsystemBase {
         if (speakerTag.isPresent() && usingCameraDirectly) {
             hasTag = true;
 
-            // // TODO: This is not right
-            // double distance = getSpeakerDistance(currentPose);
-            // Transform2d transformRobotToCamera = new Transform2d(
-            //     VisionConstants.robotToLeftCamera.getTranslation().toTranslation2d(), 
-            //     Rotation2d.fromDegrees(19));
-            // Transform2d transformCameraToGoal = 
-            //         new Transform2d(0,0,Rotation2d.fromDegrees(-speakerTag.get().getYaw()))
-            //         .plus(new Transform2d(distance, 0, new Rotation2d()));
+            // TODO: This is not right but at least it mihgt works
+            double distance = getSpeakerDistance(currentPose);
+            Transform2d transformRobotToCamera = new Transform2d(
+                VisionConstants.robotToLeftCamera.getTranslation().toTranslation2d(), 
+                Rotation2d.fromDegrees(19));
+            Transform2d transformCameraToGoal = 
+                    new Transform2d(0,0,Rotation2d.fromDegrees(-speakerTag.get().getYaw()))
+                    .plus(new Transform2d(distance, 0, new Rotation2d()));
 
-            // Transform2d transformRobotToGoal = transformRobotToCamera.plus(transformCameraToGoal);
+            Transform2d transformRobotToGoal = transformRobotToCamera.plus(transformCameraToGoal);
 
-            // // Gets that final translation to goal and
-            //lastSpeakerAngle = currentPose.getRotation().plus(transformRobotToGoal.getTranslation().getAngle());
-            lastSpeakerAngle = currentPose.getRotation().plus(Rotation2d.fromDegrees(-speakerTag.get().getYaw()).plus(Rotation2d.fromDegrees(180+19)
-            ));
+            // Gets that final translation to goal and
+            lastSpeakerAngle = currentPose.getRotation().plus(transformRobotToGoal.getTranslation().getAngle());
+            // lastSpeakerAngle = currentPose.getRotation().plus(Rotation2d.fromDegrees(-speakerTag.get().getYaw()).plus(Rotation2d.fromDegrees(180+19)
+            // ));
             Logger.log("/VisionSubsystem/LastSpeakerAngleDirect", lastSpeakerAngle.getRadians());
         } else {
             hasTag = false;

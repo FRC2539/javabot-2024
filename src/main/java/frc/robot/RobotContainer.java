@@ -271,7 +271,11 @@ public class RobotContainer {
 
         rightDriveController
                 .getRightTopLeft().whileTrue(
-                    mlIntakeCommand()
+                    //mlIntakeCommand()
+                    // operatorController.getStart().toggleOnTrue(run(() -> LightsSubsystemB.LEDSegment.MainStrip.setRainbowAnimation(1), lightsSubsystem));
+
+                    // run(() -> LightsSubsystemB.LEDSegment.MainStrip.setRainbowAnimation(1), lightsSubsystem)
+                    mlAimCommand()
                 );
         
         rightDriveController
@@ -399,11 +403,12 @@ public class RobotContainer {
         );
 
         //feeder shot
-        operatorController.getLeftBumper().and(operatorController.getRightBumper()).whileTrue(shooterSubsystem.shootCommand(ShooterState.fromVoltages(.46,.46,Rotation2d.fromDegrees(40)))).whileTrue(
-            Commands.either(swerveDriveSubsystem.cardinalCommand(new Rotation2d(-0.57), this::getDriveForwardAxis, this::getDriveStrafeAxis),
-            swerveDriveSubsystem.cardinalCommand(new Rotation2d(Math.PI + 0.57), this::getDriveForwardAxis, this::getDriveStrafeAxis),
+        operatorController.getLeftBumper().and(operatorController.getRightBumper()).whileTrue(
+            Commands.either(parallel(swerveDriveSubsystem.cardinalCommand(new Rotation2d(-0.57), this::getDriveForwardAxis, this::getDriveStrafeAxis), shooterSubsystem.shootCommand(new ShooterState(.40,.40,Rotation2d.fromDegrees(55)))),
+            parallel(swerveDriveSubsystem.cardinalCommand(new Rotation2d(Math.PI + 0.57), this::getDriveForwardAxis, this::getDriveStrafeAxis), shooterSubsystem.shootCommand(new ShooterState(.40,40,Rotation2d.fromDegrees(55)))),
+            //shooterSubsystem.shootCommand(new ShooterState(.05,.2,Rotation2d.fromDegrees(55)),
             FieldConstants::isBlue
-        ));
+         ));
 
         //operatorController.getA().onTrue(shooterSubsystem.adjustPitchCorrectionCommand(Rotation2d.fromDegrees(0.5)));
         //operatorController.getB().onTrue(shooterSubsystem.adjustPitchCorrectionCommand(Rotation2d.fromDegrees(0.5)));
@@ -476,6 +481,20 @@ public class RobotContainer {
                                             return 0;};
 
         return swerveDriveSubsystem.directionCommand(absoluteTargetAngle, forward, strafe, omegaController);
+    }
+
+
+    public Command mlAimCommand() {
+        final double aimingFactor = .6; //up to 1 the pose converges. reduces overshoot chance if less than 1;
+        final LinearFilter myFilter = LinearFilter.singlePoleIIR(0.1,0.02);
+        Supplier<Rotation2d> angleOfGamepiece = () -> {if(visionSubsystem.getDetectorInfo().isPresent())
+                                                            return Rotation2d.fromDegrees(-visionSubsystem.getDetectorInfo().get().ty() * aimingFactor);
+                                                        else
+                                                            return new Rotation2d();};
+
+        Supplier<Rotation2d> absoluteTargetAngle = () -> Rotation2d.fromRotations(myFilter.calculate(angleOfGamepiece.get().plus(swerveDriveSubsystem.getRotation()).getRotations()));
+
+        return swerveDriveSubsystem.directionCommandAuto(absoluteTargetAngle);
     }
 
     public Command autoMLIntakeTurnCommand() {

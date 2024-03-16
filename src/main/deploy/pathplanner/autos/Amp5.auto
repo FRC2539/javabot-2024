@@ -26,6 +26,12 @@
         {
           "type": "named",
           "data": {
+            "name": "intake"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
             "name": "shoot"
           }
         },
@@ -38,7 +44,7 @@
         {
           "type": "named",
           "data": {
-            "name": "mlintakedrive"
+            "name": "intake"
           }
         },
         {
@@ -62,7 +68,7 @@
         {
           "type": "named",
           "data": {
-            "name": "mlintakedrive"
+            "name": "intake"
           }
         },
         {
@@ -81,12 +87,6 @@
           "type": "path",
           "data": {
             "pathName": "1s-3bml"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "mlintakedrive"
           }
         },
         {
