@@ -20,6 +20,7 @@ import edu.wpi.first.math.geometry.Translation3d;
 import frc.lib.logging.Logger;
 import frc.lib.vision.LimelightHelpers;
 import frc.lib.vision.LimelightHelpers.LimelightResults;
+import frc.lib.vision.LimelightHelpers.Results;
 import frc.robot.Constants.FieldConstants;
 
 public class AprilTagIOLimelight3G implements AprilTagIO {
@@ -66,7 +67,14 @@ public class AprilTagIOLimelight3G implements AprilTagIO {
     public List<PhotonTrackedTarget> updateTagsInfo() {
         try {
             if (true) throw new Exception();
-            return null;
+            Results results = LimelightHelpers.getLatestResults(camera).targetingResults;
+            ArrayList<PhotonTrackedTarget> list = new ArrayList<PhotonTrackedTarget>();
+            for (LimelightHelpers.LimelightTarget_Fiducial target : results.targets_Fiducials) {
+                list.add(new PhotonTrackedTarget(
+                    target.tx, target.ty
+                    , target.ta, target.ts, (int) target.fiducialID, target.getTargetPose_CameraSpace().minus(new Pose3d()), target.getTargetPose_CameraSpace().minus(new Pose3d()), 0, null, null));
+            }
+            return list;
         } catch (Exception e) {
             System.out.print(e);
             return new ArrayList<PhotonTrackedTarget>();
