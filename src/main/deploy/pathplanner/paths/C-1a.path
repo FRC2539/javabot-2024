@@ -8,20 +8,20 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.4733924503512332,
-        "y": 6.780574360007493
+        "x": 1.9060784275414722,
+        "y": 6.3345772845391854
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 3.152620970006561,
-        "y": 7.003080254377342
+        "x": 2.9026396514331507,
+        "y": 6.9956624528633675
       },
       "prevControl": {
-        "x": 2.2117692161242335,
-        "y": 6.485570916588124
+        "x": 1.9617878975508232,
+        "y": 6.478153115074149
       },
       "nextControl": null,
       "isLocked": false,
@@ -31,12 +31,12 @@
   "rotationTargets": [
     {
       "waypointRelativePos": 0.35,
-      "rotationDegrees": 32.16,
+      "rotationDegrees": 25.453136236565523,
       "rotateFast": true
     },
     {
       "waypointRelativePos": 0.1,
-      "rotationDegrees": -2.136356442713271,
+      "rotationDegrees": 2.3709808390048743,
       "rotateFast": false
     }
   ],
@@ -55,25 +55,8 @@
   ],
   "eventMarkers": [
     {
-      "name": "intake",
-      "waypointRelativePos": 0.55,
-      "command": {
-        "type": "parallel",
-        "data": {
-          "commands": [
-            {
-              "type": "named",
-              "data": {
-                "name": "intake"
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
       "name": "spinup",
-      "waypointRelativePos": 0.4,
+      "waypointRelativePos": 0.0,
       "command": {
         "type": "parallel",
         "data": {
@@ -82,6 +65,29 @@
               "type": "named",
               "data": {
                 "name": "spinup"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "spinupshoot",
+      "waypointRelativePos": 0.35,
+      "command": {
+        "type": "sequential",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "spinupshoot"
+              }
+            },
+            {
+              "type": "named",
+              "data": {
+                "name": "intake"
               }
             }
           ]
@@ -97,7 +103,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 32.155565008931696,
+    "rotation": 26.090000000000003,
     "rotateFast": true
   },
   "reversed": false,

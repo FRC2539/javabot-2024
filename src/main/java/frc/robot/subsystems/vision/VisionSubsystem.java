@@ -1,24 +1,15 @@
 package frc.robot.subsystems.vision;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
-import org.photonvision.PhotonUtils;
-import org.photonvision.targeting.PhotonTrackedTarget;
-
-import frc.lib.logging.Logger;
-
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.lib.logging.Logger;
 import frc.lib.math.MathUtils;
 import frc.lib.vision.LimelightRawAngles;
 import frc.robot.Constants.FieldConstants;
@@ -26,6 +17,11 @@ import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.swervedrive.SwerveDriveSubsystem;
 import frc.robot.subsystems.vision.AprilTagIO.AprilTagIOInputs;
 import frc.robot.subsystems.vision.PositionTargetIO.PositionTargetIOInputs;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import org.photonvision.PhotonUtils;
+import org.photonvision.targeting.PhotonTrackedTarget;
 
 public class VisionSubsystem extends SubsystemBase {
     public static double translationStdDevCoefficient = 1;
@@ -51,7 +47,12 @@ public class VisionSubsystem extends SubsystemBase {
 
     public boolean usingVision = false;
 
-    public VisionSubsystem(SwerveDriveSubsystem consumer, AprilTagIO left, AprilTagIO right, PositionTargetIO limelight, PositionTargetIO limelightApriltag) {
+    public VisionSubsystem(
+            SwerveDriveSubsystem consumer,
+            AprilTagIO left,
+            AprilTagIO right,
+            PositionTargetIO limelight,
+            PositionTargetIO limelightApriltag) {
         this.left = left;
         this.right = right;
         this.limelight = limelight;
@@ -66,13 +67,16 @@ public class VisionSubsystem extends SubsystemBase {
         limelightInputs = limelight.updateInputs();
         limelightApriltagInputs = limelightApriltag.updateInputs();
 
-        leftTargets = left.updateTagsInfo();
-        rightTargets = right.updateTagsInfo();
+        leftTargets = leftInputs.orElse(new AprilTagIOInputs()).targets;
+        rightTargets = rightInputs.orElse(new AprilTagIOInputs()).targets;
 
         if (usingVision) {
             addVisionPoseEstimate(leftInputs);
             addVisionPoseEstimate(rightInputs);
         }
+
+        logVisionPoseEstimateInfo(leftInputs);
+        logVisionPoseEstimateInfo(rightInputs);
 
         Logger.log("/VisionSubsystem/isUsingVision", usingVision);
     }
@@ -94,12 +98,24 @@ public class VisionSubsystem extends SubsystemBase {
         return limelightApriltagInputs.map((inputs) -> new LimelightRawAngles(inputs.yaw, inputs.pitch, inputs.area));
     }
 
+    private void logVisionPoseEstimateInfo(Optional<AprilTagIOInputs> inputs) {
+        inputs.ifPresent((t) -> {
+            Logger.log("/VisionSubsystem/" + t.name + "/pose", t.poseEstimate3d, true);
+            Logger.log("/VisionSubsystem/" + t.name + "/alternate", t.alternatePoseEstimate3d, true);
+            Logger.log("/VisionSubsystem/" + t.name + "/targetNumber", t.numberOfTags);
+            Logger.log("/VisionSubsystem/" + t.name + "/targetNumber", t.numberOfTags);
+        });
+    }
+
     private void addVisionPoseEstimate(Optional<AprilTagIOInputs> inputs) {
         inputs.ifPresent((t) -> {
-            if (t.multitag) {
-                addVisionPoseEstimateWithBackupMultitag(t.poseEstimate3d, t.alternatePoseEstimate3d, t.targetDistance, t.timestamp);
-            } {
-                addVisionPoseEstimateWithBackup(t.poseEstimate3d, t.alternatePoseEstimate3d, t.targetDistance, t.timestamp);
+            if (t.numberOfTags >= 2) {
+                addVisionPoseEstimateWithBackupMultitag(
+                        t.poseEstimate3d, t.alternatePoseEstimate3d, t.targetDistance, t.timestamp);
+            }
+            {
+                addVisionPoseEstimateWithBackup(
+                        t.poseEstimate3d, t.alternatePoseEstimate3d, t.targetDistance, t.timestamp);
             }
         });
     }
@@ -109,8 +125,7 @@ public class VisionSubsystem extends SubsystemBase {
 
         // TODO: acutlally calculate
 
-        consumer.addVisionMeasurement(
-            estimate.toPose2d(), timestamp, calculateVisionStdDevs(distance));
+        consumer.addVisionMeasurement(estimate.toPose2d(), timestamp, calculateVisionStdDevs(distance));
     }
 
     private void addVisionPoseEstimateTwoTags(Pose3d estimate, double distance, double timestamp) {
@@ -118,8 +133,7 @@ public class VisionSubsystem extends SubsystemBase {
 
         // TODO: acutlally calculate
 
-        consumer.addVisionMeasurement(
-            estimate.toPose2d(), timestamp, calculateMultitagVisionStdDevs(distance));
+        consumer.addVisionMeasurement(estimate.toPose2d(), timestamp, calculateMultitagVisionStdDevs(distance));
     }
 
     private void addVisionPoseEstimateWithBackup(Pose3d estimate, Pose3d backup, double distance, double timestamp) {
@@ -130,7 +144,8 @@ public class VisionSubsystem extends SubsystemBase {
         }
     }
 
-    private void addVisionPoseEstimateWithBackupMultitag(Pose3d estimate, Pose3d backup, double distance, double timestamp) {
+    private void addVisionPoseEstimateWithBackupMultitag(
+            Pose3d estimate, Pose3d backup, double distance, double timestamp) {
         if (!isWithinField(estimate)) {
             addVisionPoseEstimateTwoTags(backup, distance, timestamp);
         } else {
@@ -147,11 +162,10 @@ public class VisionSubsystem extends SubsystemBase {
         //                 .getPose()
         //                 .getTranslation()
         //                 .getDistance(pose.getTranslation().toTranslation2d())
-                // < 1.4;
+        // < 1.4;
 
-        return isWithinField;// && isNearRobot;
+        return isWithinField; // && isNearRobot;
     }
-
 
     public Matrix<N3, N1> calculateVisionStdDevs(double distance) {
         var translationStdDev = translationStdDevCoefficient * distance;
@@ -170,9 +184,23 @@ public class VisionSubsystem extends SubsystemBase {
     public boolean hasTag = false;
     private static boolean usingCameraDirectly = true;
     public Rotation2d lastSpeakerAngle = new Rotation2d(Math.PI);
+
     public Rotation2d getSpeakerAngle(Pose2d currentPose) {
-        Optional<PhotonTrackedTarget> speakerTag  = VisionSubsystem.getTagInfo(leftTargets, FieldConstants.getSpeakerTag());
-        //lastSpeakerAngle = FieldConstants.getSpeakerPose().getTranslation().minus(currentPose.getTranslation()).getAngle();
+        return getSpeakerAngle(currentPose, true);
+    }
+
+    public Rotation2d getSpeakerAngle(Pose2d currentPose, boolean useVision) {
+        if (!useVision) {
+            return FieldConstants.getSpeakerPose()
+                    .getTranslation()
+                    .minus(currentPose.getTranslation())
+                    .getAngle();
+        }
+
+        Optional<PhotonTrackedTarget> speakerTag =
+                VisionSubsystem.getTagInfo(leftTargets, FieldConstants.getSpeakerTag());
+        // lastSpeakerAngle =
+        // FieldConstants.getSpeakerPose().getTranslation().minus(currentPose.getTranslation()).getAngle();
         Logger.log("/VisionSubsystem/LastSpeakerAngle", lastSpeakerAngle.getRadians());
         if (speakerTag.isPresent() && usingCameraDirectly) {
             hasTag = true;
@@ -180,9 +208,9 @@ public class VisionSubsystem extends SubsystemBase {
             // TODO: This is not right but at least it mihgt works
             // double distance = getSpeakerDistance(currentPose);
             // Transform2d transformRobotToCamera = new Transform2d(
-            //     VisionConstants.robotToLeftCamera.getTranslation().toTranslation2d(), 
+            //     VisionConstants.robotToLeftCamera.getTranslation().toTranslation2d(),
             //     Rotation2d.fromDegrees(19));
-            // Transform2d transformCameraToGoal = 
+            // Transform2d transformCameraToGoal =
             //         new Transform2d(0,0,Rotation2d.fromDegrees(-speakerTag.get().getYaw()))
             //         .plus(new Transform2d(distance, 0, new Rotation2d()));
 
@@ -190,26 +218,32 @@ public class VisionSubsystem extends SubsystemBase {
 
             // Gets that final translation to goal and
             // lastSpeakerAngle = currentPose.getRotation().plus(transformRobotToGoal.getTranslation().getAngle());
-            lastSpeakerAngle = currentPose.getRotation().plus(Rotation2d.fromDegrees(-speakerTag.get().getYaw()).plus(Rotation2d.fromDegrees(180-16)));
+            lastSpeakerAngle = currentPose
+                    .getRotation()
+                    .plus(Rotation2d.fromDegrees(-speakerTag.get().getYaw()).plus(Rotation2d.fromDegrees(180 - 16)));
             Logger.log("/VisionSubsystem/LastSpeakerAngleDirect", lastSpeakerAngle.getRadians());
         } else {
-            Optional<PhotonTrackedTarget> altSpeakerTag  = VisionSubsystem.getTagInfo(rightTargets, FieldConstants.getSpeakerTag());
+            Optional<PhotonTrackedTarget> altSpeakerTag =
+                    VisionSubsystem.getTagInfo(rightTargets, FieldConstants.getSpeakerTag());
             if (altSpeakerTag.isPresent() && usingCameraDirectly) {
 
-            // TODO: This is not right but at least it mihgt works
-            // double distance = getSpeakerDistance(currentPose);
-            // Transform2d transformRobotToCamera = new Transform2d(
-            //     VisionConstants.robotToLeftCamera.getTranslation().toTranslation2d(), 
-            //     Rotation2d.fromDegrees(19));
-            // Transform2d transformCameraToGoal = 
-            //         new Transform2d(0,0,Rotation2d.fromDegrees(-speakerTag.get().getYaw()))
-            //         .plus(new Transform2d(distance, 0, new Rotation2d()));
+                // TODO: This is not right but at least it mihgt works
+                // double distance = getSpeakerDistance(currentPose);
+                // Transform2d transformRobotToCamera = new Transform2d(
+                //     VisionConstants.robotToLeftCamera.getTranslation().toTranslation2d(),
+                //     Rotation2d.fromDegrees(19));
+                // Transform2d transformCameraToGoal =
+                //         new Transform2d(0,0,Rotation2d.fromDegrees(-speakerTag.get().getYaw()))
+                //         .plus(new Transform2d(distance, 0, new Rotation2d()));
 
-            // Transform2d transformRobotToGoal = transformRobotToCamera.plus(transformCameraToGoal);
+                // Transform2d transformRobotToGoal = transformRobotToCamera.plus(transformCameraToGoal);
 
-            // Gets that final translation to goal and
-            // lastSpeakerAngle = currentPose.getRotation().plus(transformRobotToGoal.getTranslation().getAngle());
-                lastSpeakerAngle = currentPose.getRotation().plus(Rotation2d.fromDegrees(-altSpeakerTag.get().getYaw()).plus(Rotation2d.fromDegrees(180+19)));
+                // Gets that final translation to goal and
+                // lastSpeakerAngle = currentPose.getRotation().plus(transformRobotToGoal.getTranslation().getAngle());
+                lastSpeakerAngle = currentPose
+                        .getRotation()
+                        .plus(Rotation2d.fromDegrees(-altSpeakerTag.get().getYaw())
+                                .plus(Rotation2d.fromDegrees(180 + 19)));
                 Logger.log("/VisionSubsystem/LastSpeakerAngleDirect", lastSpeakerAngle.getRadians());
             }
             hasTag = false;
@@ -220,15 +254,29 @@ public class VisionSubsystem extends SubsystemBase {
     public double lastDistance = 3;
 
     public double getSpeakerDistance(Pose2d currentPose) {
-        Optional<PhotonTrackedTarget> speakerTag  = VisionSubsystem.getTagInfo(leftTargets, FieldConstants.getSpeakerTag());
-        //lastDistance = FieldConstants.getSpeakerPose().getTranslation().minus(currentPose.getTranslation()).getNorm();
+        return getSpeakerDistance(currentPose, true);
+    }
+
+    public double getSpeakerDistance(Pose2d currentPose, boolean useVision) {
+        if (!useVision) {
+            return FieldConstants.getSpeakerPose()
+                    .getTranslation()
+                    .minus(currentPose.getTranslation())
+                    .getNorm();
+        }
+
+        Optional<PhotonTrackedTarget> speakerTag =
+                VisionSubsystem.getTagInfo(leftTargets, FieldConstants.getSpeakerTag());
+        // lastDistance =
+        // FieldConstants.getSpeakerPose().getTranslation().minus(currentPose.getTranslation()).getNorm();
         Logger.log("/VisionSubsystem/LastSpeakerDistance", lastDistance);
         if (speakerTag.isPresent() && usingCameraDirectly) {
             // TODO: This is not right
             lastDistance = PhotonUtils.calculateDistanceToTargetMeters(
-                VisionConstants.robotToLeftCamera.getZ(), Units.inchesToMeters(57.75), 
-                Units.degreesToRadians(19), Units.degreesToRadians(speakerTag.get().getPitch()));
-                Logger.log("/VisionSubsystem/LastSpeakerDistanceDirect", lastDistance);
+                    VisionConstants.robotToLeftCamera.getZ(), Units.inchesToMeters(57.75),
+                    Units.degreesToRadians(19),
+                            Units.degreesToRadians(speakerTag.get().getPitch()));
+            Logger.log("/VisionSubsystem/LastSpeakerDistanceDirect", lastDistance);
         }
         return lastDistance;
     }

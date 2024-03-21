@@ -3,61 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.0589342776403092,
-        "y": 5.562647359246215
+        "x": 2.9026396514331507,
+        "y": 5.545221859674489
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.640680427283963,
-        "y": 5.525168479700742
+        "x": 2.4843858010768045,
+        "y": 5.507742980129016
       },
       "isLocked": false,
       "linkedName": "2a"
     },
     {
       "anchor": {
-        "x": 2.098645680886225,
-        "y": 4.567226252854788
+        "x": 2.60221165235483,
+        "y": 4.286166175756032
       },
       "prevControl": {
-        "x": 1.712188074875436,
-        "y": 4.778021310678856
-      },
-      "nextControl": {
-        "x": 2.1864352381776637,
-        "y": 4.51934103978673
-      },
-      "isLocked": false,
-      "linkedName": "3a"
-    },
-    {
-      "anchor": {
-        "x": 3.0589342776403092,
-        "y": 3.993395262111494
-      },
-      "prevControl": {
-        "x": 2.8924077840043774,
-        "y": 4.097735280337876
-      },
-      "nextControl": {
-        "x": 3.225460771276241,
-        "y": 3.889055243885112
-      },
-      "isLocked": false,
-      "linkedName": null
-    },
-    {
-      "anchor": {
-        "x": 2.578789979263267,
-        "y": 4.2978770123018135
-      },
-      "prevControl": {
-        "x": 2.332862411801855,
-        "y": 4.426696214305405
+        "x": 1.7635215134360904,
+        "y": 4.769646373485658
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "3a"
     }
   ],
   "rotationTargets": [],
@@ -65,7 +33,7 @@
   "eventMarkers": [
     {
       "name": "intake",
-      "waypointRelativePos": 0.45,
+      "waypointRelativePos": 0.25,
       "command": {
         "type": "parallel",
         "data": {
@@ -82,7 +50,7 @@
     },
     {
       "name": "spinup",
-      "waypointRelativePos": 0.65,
+      "waypointRelativePos": 0.0,
       "command": {
         "type": "parallel",
         "data": {
@@ -91,23 +59,6 @@
               "type": "named",
               "data": {
                 "name": "spinup"
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
-      "name": "mlintake",
-      "waypointRelativePos": 0.85,
-      "command": {
-        "type": "parallel",
-        "data": {
-          "commands": [
-            {
-              "type": "named",
-              "data": {
-                "name": "mlintake"
               }
             }
           ]
@@ -123,7 +74,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -31.504266719204185,
+    "rotation": -27.69999999999999,
     "rotateFast": true
   },
   "reversed": false,

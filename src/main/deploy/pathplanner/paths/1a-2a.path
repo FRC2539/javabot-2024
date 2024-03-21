@@ -3,29 +3,45 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.152620970006561,
-        "y": 7.003080254377342
+        "x": 2.9026396514331507,
+        "y": 6.9956624528633675
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.8878506230621577,
-        "y": 6.803996033099056
+        "x": 1.7876751138117675,
+        "y": 6.877259139133662
       },
       "isLocked": false,
       "linkedName": "1a"
     },
     {
       "anchor": {
-        "x": 3.234596825827032,
-        "y": 5.293298118693241
+        "x": 2.1922197690549243,
+        "y": 5.545221859674489
       },
       "prevControl": {
-        "x": 2.195668638544266,
-        "y": 5.796864090161846
+        "x": 1.7284734569469153,
+        "y": 5.555088802485298
+      },
+      "nextControl": {
+        "x": 2.4291782399666824,
+        "y": 5.540180190080621
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 2.9026396514331507,
+        "y": 5.545221859674489
+      },
+      "prevControl": {
+        "x": 2.5474297102440375,
+        "y": 5.555088802485298
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "2a"
     }
   ],
   "rotationTargets": [],
@@ -33,7 +49,7 @@
   "eventMarkers": [
     {
       "name": "intake",
-      "waypointRelativePos": 0.5,
+      "waypointRelativePos": 1.0,
       "command": {
         "type": "parallel",
         "data": {
@@ -50,7 +66,7 @@
     },
     {
       "name": "spinup",
-      "waypointRelativePos": 0.45,
+      "waypointRelativePos": 0.0,
       "command": {
         "type": "parallel",
         "data": {
@@ -59,23 +75,6 @@
               "type": "named",
               "data": {
                 "name": "spinup"
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
-      "name": "New Event Marker",
-      "waypointRelativePos": 0.65,
-      "command": {
-        "type": "parallel",
-        "data": {
-          "commands": [
-            {
-              "type": "named",
-              "data": {
-                "name": "mlintake"
               }
             }
           ]
@@ -91,7 +90,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -34.33097097907321,
+    "rotation": 0.32554069865929797,
     "rotateFast": true
   },
   "reversed": false,
