@@ -1,0 +1,103 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 0.7518994781213513,
+      "y": 4.403274541213847
+    },
+    "rotation": -60.2551187030578
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "subshoot"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "S-5b"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "mlintake"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "5b-3s"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "shoot"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "3s-4b"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "mlintake"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "4b-3s"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "shoot"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "3s-3b"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "mlintake"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "3b-3s"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "shoot"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "3s-5b"
+          }
+        }
+      ]
+    }
+  },
+  "folder": "The Square Autos",
+  "choreoAuto": false
+}
