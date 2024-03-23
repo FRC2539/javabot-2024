@@ -48,18 +48,18 @@ public class Robot extends TimedRobot {
         autonomousCommand = robotContainer.getAutonomousCommand();
 
         LightsSubsystemB.disableLEDs();
+        robotContainer.getVisionSubsystem().usingVision = false;
 
         // Schedule the chosen autonomous command
         if (autonomousCommand != null) autonomousCommand.schedule();
     }
 
     @Override
-    public void autonomousPeriodic() {
-        
-    }
+    public void autonomousPeriodic() {}
 
     @Override
     public void teleopInit() {
+        robotContainer.getVisionSubsystem().usingVision = true;
         LightsSubsystemB.enableLEDs();
 
         // Prevent any autonomous code from overrunning into teleop
@@ -71,6 +71,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void disabledInit() {
+        robotContainer.getVisionSubsystem().usingVision = true;
         LightsSubsystemB.enableLEDs();
     }
 
@@ -82,7 +83,7 @@ public class Robot extends TimedRobot {
         if (RobotController.getBatteryVoltage() > 12.3) {
             LEDSegment.BatteryIndicator.setColor(LightsSubsystemB.green.dim(.25));
         } else {
-            LEDSegment.BatteryIndicator.setFadeAnimation(LightsSubsystemB.green.dim(.25),1);
+            LEDSegment.BatteryIndicator.setFadeAnimation(LightsSubsystemB.green.dim(.25), 1);
         }
 
         // if (robotContainer.getShooterSubsystem().) {

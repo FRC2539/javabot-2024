@@ -69,7 +69,7 @@ public class AutonomousManager {
                 "subshoot",
                 Commands.parallel(
                                 shooterSubsystem
-                                        .shootCommand(new ShooterState(.1, .9, Rotation2d.fromDegrees(55)))
+                                        .shootCommand(new ShooterState(.6, .6, Rotation2d.fromDegrees(60)))
                                         .asProxy(),
                                 Commands.waitSeconds(.75)
                                         .andThen(intakeSubsystem.shootCommand().asProxy()))

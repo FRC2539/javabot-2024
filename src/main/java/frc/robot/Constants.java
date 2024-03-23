@@ -3,7 +3,6 @@ package frc.robot;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.pathplanner.lib.util.GeometryUtil;
-
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -15,7 +14,6 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import frc.lib.interpolation.InterpolatableDouble;
 import frc.lib.interpolation.InterpolatingMap;
-
 import java.util.Arrays;
 
 public final class Constants {
@@ -49,8 +47,8 @@ public final class Constants {
     public static final class IntakeConstants {
         public static final int chamberMotorPort = 15;
         public static final int rollerMotorPort = 14;
-        public static final int chamberSensorPort = 1; 
-        public static final int rollerSensorPort = 0; 
+        public static final int chamberSensorPort = 1;
+        public static final int rollerSensorPort = 0;
     }
 
     public static final class ShooterConstants {
@@ -70,8 +68,8 @@ public final class Constants {
 
         public static final InterpolatingMap<InterpolatableDouble> topRollerMap() {
             var map = new InterpolatingMap<InterpolatableDouble>();
-            map.put(0, new InterpolatableDouble(0.1));
-            map.put(1.539, new InterpolatableDouble(0.1));
+            map.put(0, new InterpolatableDouble(0.6));
+            map.put(1.539, new InterpolatableDouble(0.6));
             map.put(2.095, new InterpolatableDouble(0.6));
             map.put(2.458, new InterpolatableDouble(0.6));
             map.put(2.9, new InterpolatableDouble(0.6));
@@ -88,8 +86,8 @@ public final class Constants {
 
         public static final InterpolatingMap<InterpolatableDouble> bottomRollerMap() {
             var map = new InterpolatingMap<InterpolatableDouble>();
-            map.put(0, new InterpolatableDouble(0.9));
-            map.put(1.539, new InterpolatableDouble(0.9));
+            map.put(0, new InterpolatableDouble(0.6));
+            map.put(1.539, new InterpolatableDouble(0.6));
             map.put(2.095, new InterpolatableDouble(0.6));
             map.put(2.458, new InterpolatableDouble(0.6));
             map.put(2.9, new InterpolatableDouble(0.6));
@@ -123,18 +121,18 @@ public final class Constants {
         // }
         public static final InterpolatingMap<InterpolatableDouble> shooterAngleMap() {
             var map = new InterpolatingMap<InterpolatableDouble>();
-            map.put(0, new InterpolatableDouble(55));
-            map.put(1.539, new InterpolatableDouble(55));
-            map.put(2.095, new InterpolatableDouble(48 + .5));
-            map.put(2.458, new InterpolatableDouble(44 + .5));
-            map.put(2.9, new InterpolatableDouble(39 + .5));
-            map.put(3.376, new InterpolatableDouble(34 + .5));
-            map.put(3.98, new InterpolatableDouble(31.5 + .5));
-            map.put(4.417, new InterpolatableDouble(29 + .5));
-            map.put(4.862, new InterpolatableDouble(27 + .5));
-            map.put(5.406, new InterpolatableDouble(26.25 + .5));
-            map.put(5.9, new InterpolatableDouble(23.5 + .5));
-            map.put(1000, new InterpolatableDouble(23.5 + .5));
+            map.put(0, new InterpolatableDouble(60));
+            map.put(1.539, new InterpolatableDouble(60));
+            map.put(2.095, new InterpolatableDouble(48 + .5 - 2));
+            map.put(2.458, new InterpolatableDouble(44 + .5 - 2));
+            map.put(2.9, new InterpolatableDouble(39 + .5 - 2));
+            map.put(3.376, new InterpolatableDouble(34 + .5 - 2));
+            map.put(3.98, new InterpolatableDouble(31.5 - 2));
+            map.put(4.417, new InterpolatableDouble(29 - 2 - 2));
+            map.put(4.862, new InterpolatableDouble(27 - 2 - 2));
+            map.put(5.406, new InterpolatableDouble(26.25 - 2 - 2));
+            map.put(5.9, new InterpolatableDouble(23.5 - 2 - 2));
+            map.put(1000, new InterpolatableDouble(23.5 - 2 - 2));
 
             return map;
         }
@@ -286,7 +284,8 @@ public final class Constants {
 
         /* Module Specific Constants */
 
-        // To tune the angle offset, simply align the wheels so that if they spun, the robot would drive directly forward. 
+        // To tune the angle offset, simply align the wheels so that if they spun, the robot would drive directly
+        // forward.
         // Make sure that if you are looking at the front of the robot, the bevels are on the left.
 
         /* Front Left Module - Module 0 */
@@ -300,12 +299,12 @@ public final class Constants {
         public static AprilTagFieldLayout aprilTagFieldLayout = getFieldLayout();
 
         private static AprilTagFieldLayout getFieldLayout() {
-                try {
-                        return AprilTagFieldLayout.loadFromResource(AprilTagFields.k2024Crescendo.m_resourceFile);
-                } catch (Exception e) {
-                        // TODO: Fix this trash
-                        return null;
-                }
+            try {
+                return AprilTagFieldLayout.loadFromResource(AprilTagFields.k2024Crescendo.m_resourceFile);
+            } catch (Exception e) {
+                // TODO: Fix this trash
+                return null;
+            }
         }
 
         public static Pose2d getSpeakerPose() {
@@ -315,7 +314,7 @@ public final class Constants {
         public static int getSpeakerTag() {
             return isBlue() ? 7 : 4;
         }
-        
+
         public static Pose2d getAmpPose() {
             return aprilTagFieldLayout.getTagPose(getAmpTag()).get().toPose2d();
         }
@@ -324,15 +323,22 @@ public final class Constants {
             return isBlue() ? 6 : 5;
         }
 
-        public static Pose2d getPoseFromTag(int tag){
+        public static Pose2d getPoseFromTag(int tag) {
             return aprilTagFieldLayout.getTagPose(tag).get().toPose2d();
         }
-        
+
         public static Pose2d getSourcePose() {
-            //returns the position immedialey between the two tags
-            return aprilTagFieldLayout.getTagPose(getRightSourceTag()).get().toPose2d()
-                .interpolate(aprilTagFieldLayout.getTagPose(getLeftSourceTag()).get().toPose2d(),
-                0.5);
+            // returns the position immedialey between the two tags
+            return aprilTagFieldLayout
+                    .getTagPose(getRightSourceTag())
+                    .get()
+                    .toPose2d()
+                    .interpolate(
+                            aprilTagFieldLayout
+                                    .getTagPose(getLeftSourceTag())
+                                    .get()
+                                    .toPose2d(),
+                            0.5);
         }
 
         public static int getLeftSourceTag() {
@@ -344,18 +350,16 @@ public final class Constants {
         }
 
         public static Pose2d getTrapPose() {
-            if(aprilTagFieldLayout.getTagPose(getTrap1Tag()).get().toPose2d() == null){
+            if (aprilTagFieldLayout.getTagPose(getTrap1Tag()).get().toPose2d() == null) {
 
-                if(aprilTagFieldLayout.getTagPose(getTrap2Tag()).get().toPose2d() == null){
-                    
+                if (aprilTagFieldLayout.getTagPose(getTrap2Tag()).get().toPose2d() == null) {
+
                     return aprilTagFieldLayout.getTagPose(getTrap3Tag()).get().toPose2d();
-                }
-                else{
-                    
+                } else {
+
                     return aprilTagFieldLayout.getTagPose(getTrap2Tag()).get().toPose2d();
                 }
-            }
-            else{
+            } else {
                 return aprilTagFieldLayout.getTagPose(getTrap1Tag()).get().toPose2d();
             }
         }
@@ -381,24 +385,19 @@ public final class Constants {
         }
     }
 
-
     public static final class VisionConstants {
 
         public static final boolean usingPinholeModel = false;
 
         // Currently working, not sure
-        public static final Transform3d robotToRightCamera = new Transform3d(0,0,0, new Rotation3d(0,0,0)).plus(new Transform3d(Units.inchesToMeters(-54),0, Units.inchesToMeters(57.75), new Rotation3d(0,0,0)).plus(new Transform3d(
-            1.539,
-            -0.293,
-            0.299,
-            new Rotation3d(0.082,-0.325,2.755)
-        ).inverse()));
-        public static final Transform3d robotToLeftCamera = new Transform3d(0,0,0, new Rotation3d(0,0,0)).plus(new Transform3d(Units.inchesToMeters(-54),0, Units.inchesToMeters(57.75), new Rotation3d(0,0,0)).plus(new Transform3d(
-            1.523,
-            0.395,
-            0.294,
-            new Rotation3d(-0.036,-0.340,-2.819)
-        ).inverse()));
+        public static final Transform3d robotToRightCamera = new Transform3d(0, 0, 0, new Rotation3d(0, 0, 0))
+                .plus(new Transform3d(
+                                Units.inchesToMeters(-54), 0, Units.inchesToMeters(57.75), new Rotation3d(0, 0, 0))
+                        .plus(new Transform3d(1.539, -0.293, 0.299, new Rotation3d(0.082, -0.325, 2.755)).inverse()));
+        public static final Transform3d robotToLeftCamera = new Transform3d(0, 0, 0, new Rotation3d(0, 0, 0))
+                .plus(new Transform3d(
+                                Units.inchesToMeters(-54), 0, Units.inchesToMeters(57.75), new Rotation3d(0, 0, 0))
+                        .plus(new Transform3d(1.523, 0.395, 0.294, new Rotation3d(-0.036, -0.340, -2.819)).inverse()));
 
         public static final Transform3d limelightRobotToCamera = new Transform3d(
                 new Translation3d(Units.inchesToMeters(-5), Units.inchesToMeters(0), Units.inchesToMeters(34.25)),

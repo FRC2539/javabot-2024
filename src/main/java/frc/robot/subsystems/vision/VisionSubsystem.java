@@ -1,6 +1,8 @@
 package frc.robot.subsystems.vision;
 
+import edu.wpi.first.math.MatBuilder;
 import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -45,7 +47,7 @@ public class VisionSubsystem extends SubsystemBase {
 
     private SwerveDriveSubsystem consumer;
 
-    public boolean usingVision = false;
+    public boolean usingVision = true;
 
     public VisionSubsystem(
             SwerveDriveSubsystem consumer,
@@ -108,14 +110,46 @@ public class VisionSubsystem extends SubsystemBase {
     }
 
     private void addVisionPoseEstimate(Optional<AprilTagIOInputs> inputs) {
+
         inputs.ifPresent((t) -> {
-            if (t.numberOfTags >= 2) {
-                addVisionPoseEstimateWithBackupMultitag(
-                        t.poseEstimate3d, t.alternatePoseEstimate3d, t.targetDistance, t.timestamp);
-            }
-            {
-                addVisionPoseEstimateWithBackup(
-                        t.poseEstimate3d, t.alternatePoseEstimate3d, t.targetDistance, t.timestamp);
+
+            // distance from current pose to vision estimated pose
+            double poseDifference = consumer.getPose()
+                    .getTranslation()
+                    .getDistance(t.poseEstimate3d.toPose2d().getTranslation());
+
+            if (true) {
+                double xyStds;
+                double degStds;
+                // multiple targets detected
+                if (t.numberOfTags >= 2 && t.targetArea > 0.8) {
+                    xyStds = 1;
+                    degStds = 6;
+                }
+
+                if (t.numberOfTags >= 2 && t.targetArea > 0.1) {
+                    xyStds = 2;
+                    degStds = 12;
+                }
+                // 1 target with large area and close to estimated pose
+                else if (t.targetArea > 0.8 && poseDifference < 0.5) {
+                    xyStds = 2;
+                    degStds = 12;
+                }
+                // 1 target farther away and estimated pose is close
+                else if (t.targetArea > 0.1 && poseDifference < 0.3) {
+                    xyStds = 4;
+                    degStds = 30;
+                }
+                // conditions don't match to add a vision measurement
+                else {
+                    return;
+                }
+
+                consumer.addVisionMeasurement(
+                        t.poseEstimate3d.toPose2d(),
+                        t.timestamp,
+                        MatBuilder.fill(Nat.N3(), Nat.N1(), xyStds, xyStds, Units.degreesToRadians(degStds)));
             }
         });
     }
@@ -186,15 +220,16 @@ public class VisionSubsystem extends SubsystemBase {
     public Rotation2d lastSpeakerAngle = new Rotation2d(Math.PI);
 
     public Rotation2d getSpeakerAngle(Pose2d currentPose) {
-        return getSpeakerAngle(currentPose, true);
+        return getSpeakerAngle(currentPose, false);
     }
 
     public Rotation2d getSpeakerAngle(Pose2d currentPose, boolean useVision) {
         if (!useVision) {
-            return FieldConstants.getSpeakerPose()
+            lastSpeakerAngle = FieldConstants.getSpeakerPose()
                     .getTranslation()
                     .minus(currentPose.getTranslation())
                     .getAngle();
+            return lastSpeakerAngle;
         }
 
         Optional<PhotonTrackedTarget> speakerTag =
@@ -254,15 +289,17 @@ public class VisionSubsystem extends SubsystemBase {
     public double lastDistance = 3;
 
     public double getSpeakerDistance(Pose2d currentPose) {
-        return getSpeakerDistance(currentPose, true);
+        return getSpeakerDistance(currentPose, false);
     }
 
     public double getSpeakerDistance(Pose2d currentPose, boolean useVision) {
         if (!useVision) {
-            return FieldConstants.getSpeakerPose()
+            lastDistance = FieldConstants.getSpeakerPose()
                     .getTranslation()
                     .minus(currentPose.getTranslation())
                     .getNorm();
+            Logger.log("/VisionSubsystem/LastSpeakerDistance", lastDistance);
+            return lastDistance;
         }
 
         Optional<PhotonTrackedTarget> speakerTag =

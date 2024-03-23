@@ -53,12 +53,13 @@ public class AprilTagIOLimelight3G implements AprilTagIO {
                         new Transform3d(),
                         new Transform3d(),
                         target.ambiguity,
-                        null,
-                        null));
+                        new ArrayList<>(),
+                        new ArrayList<>()));
             }
 
             return Optional.of(outputs);
         } catch (Exception e) {
+            System.err.print(e);
             return Optional.empty();
         }
     }

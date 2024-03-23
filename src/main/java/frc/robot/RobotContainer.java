@@ -49,6 +49,7 @@ import frc.robot.subsystems.trap.TrapRollerIOSim;
 import frc.robot.subsystems.trap.TrapState;
 import frc.robot.subsystems.trap.TrapSubsystem;
 import frc.robot.subsystems.vision.AprilTagIO;
+import frc.robot.subsystems.vision.AprilTagIOLimelight3G;
 import frc.robot.subsystems.vision.AprilTagIOPhotonVision;
 import frc.robot.subsystems.vision.AprilTagIOPhotonVisionPinhole;
 import frc.robot.subsystems.vision.AprilTagIOSim;
@@ -113,14 +114,16 @@ public class RobotContainer {
             // This silly thing is so that if a camera doesn't connect, the robot still runs. It
             // basically tries to connect and if it cant, creates a simulation camera.
             try {
-                var camera = new PhotonCamera("LeftCamera");
                 if (VisionConstants.usingPinholeModel) {
-                    leftCamera = new AprilTagIOPhotonVisionPinhole(
-                            camera,
+                    leftCamera = new AprilTagIOLimelight3G(
+                            "limelight-april",
                             Constants.VisionConstants.robotToLeftCamera,
                             () -> swerveDriveSubsystem.getRotation());
                 } else {
-                    leftCamera = new AprilTagIOPhotonVision(camera, Constants.VisionConstants.robotToLeftCamera);
+                    leftCamera = new AprilTagIOLimelight3G(
+                            "limelight-april",
+                            Constants.VisionConstants.robotToLeftCamera,
+                            () -> swerveDriveSubsystem.getRotation());
                 }
             } catch (Exception e) {
                 System.err.print(e);
@@ -283,6 +286,7 @@ public class RobotContainer {
                 .whileTrue(new IntakeAssistCommand(
                         swerveDriveSubsystem,
                         visionSubsystem,
+                        lightsSubsystem,
                         this::getDriveForwardAxis,
                         this::getDriveStrafeAxis,
                         this::getDriveRotationAxis))
