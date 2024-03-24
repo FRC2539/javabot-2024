@@ -33,52 +33,35 @@ public class VisionSubsystem extends SubsystemBase {
     private final double multitagRotationStdDevCoefficient = 0.5;
 
     private AprilTagIO left;
-    private AprilTagIO right;
     private PositionTargetIO limelight;
-    private PositionTargetIO limelightApriltag;
 
     private Optional<AprilTagIOInputs> leftInputs = Optional.empty();
-    private Optional<AprilTagIOInputs> rightInputs = Optional.empty();
     private Optional<PositionTargetIOInputs> limelightInputs = Optional.empty();
-    private Optional<PositionTargetIOInputs> limelightApriltagInputs = Optional.empty();
 
     public List<PhotonTrackedTarget> leftTargets = new ArrayList<>();
-    public List<PhotonTrackedTarget> rightTargets = new ArrayList<>();
 
     private SwerveDriveSubsystem consumer;
 
     public boolean usingVision = true;
 
-    public VisionSubsystem(
-            SwerveDriveSubsystem consumer,
-            AprilTagIO left,
-            AprilTagIO right,
-            PositionTargetIO limelight,
-            PositionTargetIO limelightApriltag) {
+    public VisionSubsystem(SwerveDriveSubsystem consumer, AprilTagIO left, PositionTargetIO limelight) {
         this.left = left;
-        this.right = right;
         this.limelight = limelight;
-        this.limelightApriltag = limelightApriltag;
 
         this.consumer = consumer;
     }
 
     public void periodic() {
         leftInputs = left.updateInputs();
-        rightInputs = right.updateInputs();
         limelightInputs = limelight.updateInputs();
-        limelightApriltagInputs = limelightApriltag.updateInputs();
 
         leftTargets = leftInputs.orElse(new AprilTagIOInputs()).targets;
-        rightTargets = rightInputs.orElse(new AprilTagIOInputs()).targets;
 
         if (usingVision) {
             addVisionPoseEstimate(leftInputs);
-            addVisionPoseEstimate(rightInputs);
         }
 
         logVisionPoseEstimateInfo(leftInputs);
-        logVisionPoseEstimateInfo(rightInputs);
 
         Logger.log("/VisionSubsystem/isUsingVision", usingVision);
     }
@@ -94,10 +77,6 @@ public class VisionSubsystem extends SubsystemBase {
 
     public Optional<LimelightRawAngles> getDetectorInfo() {
         return limelightInputs.map((inputs) -> new LimelightRawAngles(inputs.yaw, inputs.pitch, inputs.area));
-    }
-
-    public Optional<LimelightRawAngles> getTagAngleInfo() {
-        return limelightApriltagInputs.map((inputs) -> new LimelightRawAngles(inputs.yaw, inputs.pitch, inputs.area));
     }
 
     private void logVisionPoseEstimateInfo(Optional<AprilTagIOInputs> inputs) {
@@ -259,7 +238,7 @@ public class VisionSubsystem extends SubsystemBase {
             Logger.log("/VisionSubsystem/LastSpeakerAngleDirect", lastSpeakerAngle.getRadians());
         } else {
             Optional<PhotonTrackedTarget> altSpeakerTag =
-                    VisionSubsystem.getTagInfo(rightTargets, FieldConstants.getSpeakerTag());
+                    VisionSubsystem.getTagInfo(leftTargets, FieldConstants.getSpeakerTag());
             if (altSpeakerTag.isPresent() && usingCameraDirectly) {
 
                 // TODO: This is not right but at least it mihgt works

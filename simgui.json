@@ -19,7 +19,8 @@
   "NTProvider": {
     "types": {
       "/FMSInfo": "FMSInfo",
-      "/SmartDashboard/AutoChooser": "String Chooser"
+      "/SmartDashboard/AutoChooser": "String Chooser",
+      "/SmartDashboard/VisionSystemSim-main/Sim Field": "Field2d"
     },
     "windows": {
       "/SmartDashboard/AutoChooser": {

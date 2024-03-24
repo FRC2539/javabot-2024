@@ -40,6 +40,8 @@ public class Robot extends TimedRobot {
         Logger.log("/Robot/Battery Voltage", RobotController.getBatteryVoltage());
 
         Logger.update();
+
+        robotContainer.visionSim.update(robotContainer.getSwerveDriveSubsystem().getPose());
     }
 
     @Override

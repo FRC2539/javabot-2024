@@ -8,7 +8,9 @@ import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -51,7 +53,6 @@ import frc.robot.subsystems.trap.TrapSubsystem;
 import frc.robot.subsystems.vision.AprilTagIO;
 import frc.robot.subsystems.vision.AprilTagIOLimelight3G;
 import frc.robot.subsystems.vision.AprilTagIOPhotonVision;
-import frc.robot.subsystems.vision.AprilTagIOPhotonVisionPinhole;
 import frc.robot.subsystems.vision.AprilTagIOSim;
 import frc.robot.subsystems.vision.PositionTargetIO;
 import frc.robot.subsystems.vision.PositionTargetIOLimelight;
@@ -62,6 +63,9 @@ import java.util.Optional;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 import org.photonvision.PhotonCamera;
+import org.photonvision.simulation.PhotonCameraSim;
+import org.photonvision.simulation.SimCameraProperties;
+import org.photonvision.simulation.VisionSystemSim;
 
 public class RobotContainer {
 
@@ -87,9 +91,12 @@ public class RobotContainer {
 
     public AutonomousManager autonomousManager;
 
+    public VisionSystemSim visionSim;
+
     public RobotContainer(TimedRobot robot) {
         // This is where all the robot subsystems are initialized.
         // If the robot is real it creates these:
+        visionSim = new VisionSystemSim("main");
         if (Robot.isReal()) {
             swerveDriveSubsystem = TunerConstants.DriveTrain;
             lightsSubsystem = new LightsSubsystemB(); // new LightsSubsystem(new LightsIOBlinkin(0));
@@ -130,21 +137,6 @@ public class RobotContainer {
                 leftCamera = new AprilTagIOSim();
             }
             try {
-                var camera = new PhotonCamera("RightCamera");
-                if (VisionConstants.usingPinholeModel) {
-                    rightCamera = new AprilTagIOPhotonVisionPinhole(
-                            camera,
-                            Constants.VisionConstants.robotToRightCamera,
-                            () -> swerveDriveSubsystem.getRotation());
-                } else {
-                    rightCamera = new AprilTagIOPhotonVision(camera, Constants.VisionConstants.robotToRightCamera);
-                }
-            } catch (Exception e) {
-                System.err.print(e);
-                rightCamera = new AprilTagIOSim();
-            }
-
-            try {
                 limelight = new PositionTargetIOLimelight("limelight-intake");
             } catch (Exception e) {
                 System.err.print(e);
@@ -158,8 +150,7 @@ public class RobotContainer {
                 System.err.print(e);
                 limelightApriltag = new PositionTargetIOSim();
             }
-            visionSubsystem =
-                    new VisionSubsystem(swerveDriveSubsystem, leftCamera, rightCamera, limelight, limelightApriltag);
+            visionSubsystem = new VisionSubsystem(swerveDriveSubsystem, leftCamera, limelight);
             intakeSubsystem = new IntakeSubsystem(new IntakeIOFalconRedline());
 
         } else {
@@ -173,11 +164,30 @@ public class RobotContainer {
                     Constants.ShooterConstants.topRollerMap(),
                     Constants.ShooterConstants.bottomRollerMap(),
                     Constants.ShooterConstants.shooterAngleMap());
+            SimCameraProperties cameraProp = new SimCameraProperties();
+            cameraProp.setCalibration(1280, 800, Rotation2d.fromDegrees(97.65));
+            cameraProp.setCalibError(0.25, 0.08);
+            cameraProp.setFPS(14);
+            cameraProp.setAvgLatencyMs(10);
+            PhotonCamera camera_april = new PhotonCamera("limelight-april");
+            PhotonCameraSim cameraSim = new PhotonCameraSim(camera_april, cameraProp);
+
+            visionSim.addAprilTags(Constants.FieldConstants.aprilTagFieldLayout);
+            visionSim.addCamera(
+                    cameraSim, new Transform3d(0, 0, .56, new Rotation3d(0, Math.toRadians(-36), Math.toRadians(180))));
+
+            cameraSim.enableRawStream(true);
+            cameraSim.enableProcessedStream(true);
+
+            // Enable drawing a wireframe visualization of the field to the camera streams.
+            // This is extremely resource-intensive and is disabled by default.
+            cameraSim.enableDrawWireframe(true);
+
             visionSubsystem = new VisionSubsystem(
                     swerveDriveSubsystem,
-                    new AprilTagIOSim(),
-                    new AprilTagIOSim(),
-                    new PositionTargetIOSim(),
+                    new AprilTagIOPhotonVision(
+                            camera_april,
+                            new Transform3d(0, 0, .56, new Rotation3d(0, Math.toRadians(-36), Math.toRadians(180)))),
                     new PositionTargetIOSim());
             intakeSubsystem = new IntakeSubsystem(new IntakeIOSim());
             trapSubsystem = new TrapSubsystem(new TrapRollerIOSim(), new TrapRollerIOSim(), new RackIOSim());
