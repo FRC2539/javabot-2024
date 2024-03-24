@@ -1,16 +1,14 @@
 package frc.robot.subsystems.trap;
 
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
 import static edu.wpi.first.wpilibj2.command.Commands.waitSeconds;
 
-import java.util.function.Supplier;
-
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.logging.Logger;
 import frc.lib.math.MathUtils;
 import frc.robot.subsystems.trap.RackIO.RackIOInputs;
 import frc.robot.subsystems.trap.TrapRollerIO.RollerIOInputs;
+import java.util.function.Supplier;
 
 public class TrapSubsystem extends SubsystemBase {
     private final double trapSpeedTolerance = 0.1;
@@ -26,8 +24,8 @@ public class TrapSubsystem extends SubsystemBase {
     private RollerIOInputs bottomRollerInputs = new RollerIOInputs();
     private RackIOInputs rackInputs = new RackIOInputs();
 
-    private final TrapState defaultState = new TrapState(0,0,0,true);
-    private final TrapState defaultStateHolding = new TrapState(0,0,holdingVoltage,true);
+    private final TrapState defaultState = new TrapState(0, 0, 0, true);
+    private final TrapState defaultStateHolding = new TrapState(0, 0, holdingVoltage, true);
 
     private TrapState currentTrapState = defaultState;
 
@@ -35,7 +33,6 @@ public class TrapSubsystem extends SubsystemBase {
         this.topRollerIO = topRollerIO;
         this.bottomRollerIO = bottomRollerIO;
         this.rackIO = rackIO;
-
 
         setDefaultCommand(disabledCommand());
     }
@@ -53,18 +50,16 @@ public class TrapSubsystem extends SubsystemBase {
         if (currentTrapState.isVoltageBased) {
             rackIO.setVoltage(currentTrapState.rack);
         } else {
-            rackIO.setPosition(MathUtils.ensureRange(currentTrapState.rack, 0.0,34.0));
+            rackIO.setPosition(MathUtils.ensureRange(currentTrapState.rack, 0.0, 34.0));
         }
     }
 
     /** NOTE: This does not work with voltage requests as there is no "SPEED" */
     public boolean isTrapAtPosition() {
-        return MathUtils.equalsWithinError(
-                currentTrapState.topVoltage, topRollerInputs.speed, trapSpeedTolerance) &&
-            MathUtils.equalsWithinError(
-                currentTrapState.bottomVoltage, bottomRollerInputs.speed, trapSpeedTolerance) &&
-            MathUtils.equalsWithinError(
-                currentTrapState.rack, rackInputs.position, trapAngleTolerance);
+        return MathUtils.equalsWithinError(currentTrapState.topVoltage, topRollerInputs.speed, trapSpeedTolerance)
+                && MathUtils.equalsWithinError(
+                        currentTrapState.bottomVoltage, bottomRollerInputs.speed, trapSpeedTolerance)
+                && MathUtils.equalsWithinError(currentTrapState.rack, rackInputs.position, trapAngleTolerance);
     }
 
     public Command disabledCommand() {
@@ -77,25 +72,25 @@ public class TrapSubsystem extends SubsystemBase {
         });
     }
 
-    public Command shootCommand(double topRollerRPM, double bottomRollerRPM, double trapAngle) {
+    public Command trapStateCommand(double topRollerRPM, double bottomRollerRPM, double trapAngle) {
         return run(() -> {
             currentTrapState = new TrapState(topRollerRPM, bottomRollerRPM, trapAngle);
         });
     }
 
-    public Command shootCommand(TrapState trapState) {
+    public Command trapStateCommand(TrapState trapState) {
         return run(() -> {
             currentTrapState = trapState;
         });
     }
 
-    public Command shootCommand(Supplier<TrapState> trapState) {
+    public Command trapStateCommand(Supplier<TrapState> trapState) {
         return run(() -> {
             currentTrapState = trapState.get();
         });
     }
 
-    public Command manuallyMoveRackCommand(double voltage){
+    public Command manuallyMoveRackCommand(double voltage) {
         return run(() -> {
             rackIO.setVoltage(voltage);
         });
@@ -108,11 +103,14 @@ public class TrapSubsystem extends SubsystemBase {
     }
 
     public Command bringRackDownCommand() {
-        return shootCommand(0,0,2).until(() -> rackInputs.position < 3).andThen(waitSeconds(0.2)).andThen(shootCommand(0,0,0));
+        return trapStateCommand(0, 0, 2)
+                .until(() -> rackInputs.position < 3)
+                .andThen(waitSeconds(0.2))
+                .andThen(trapStateCommand(0, 0, 0));
     }
 
     public Command runIntakeCommand(double topVoltage, double bottomVoltage) {
-        return shootCommand(TrapState.fromVoltages(topVoltage, bottomVoltage, holdingVoltage));
+        return trapStateCommand(TrapState.fromVoltages(topVoltage, bottomVoltage, holdingVoltage));
     }
 
     public void logTrapInformation() {

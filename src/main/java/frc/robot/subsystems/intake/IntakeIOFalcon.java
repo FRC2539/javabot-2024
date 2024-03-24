@@ -1,11 +1,10 @@
 package frc.robot.subsystems.intake;
 
 import com.ctre.phoenix6.hardware.TalonFX;
-
 import edu.wpi.first.wpilibj.AnalogInput;
 import frc.robot.Constants.IntakeConstants;
 
-public class IntakeIOFalconRedline implements IntakeIO{
+public class IntakeIOFalcon implements IntakeIO {
     private double chamberSpeed;
     private double rollerSpeed;
 
@@ -22,7 +21,7 @@ public class IntakeIOFalconRedline implements IntakeIO{
     private AnalogInput rollerSensor = new AnalogInput(IntakeConstants.rollerSensorPort);
     private AnalogInput chamberSensor = new AnalogInput(IntakeConstants.chamberSensorPort);
 
-    public IntakeIOFalconRedline() {
+    public IntakeIOFalcon() {
         if (isThreading) {
             Thread updatingThread = new Thread(new SubRunner());
 
@@ -76,7 +75,7 @@ public class IntakeIOFalconRedline implements IntakeIO{
                         hasSeenChamber = true;
                     }
                 } catch (Exception e) {
-                    
+
                 }
             }
         }

@@ -21,6 +21,9 @@ public class ShooterSubsystem extends SubsystemBase {
     private final double shooterSpeedTolerance = 0.02;
     private final Rotation2d shooterAngleTolerance = Rotation2d.fromDegrees(0.5);
 
+    private double topRollerAverage;
+    private double bottomRollerAverage;
+
     private RollerIO topRollerIO;
     private RollerIO bottomRollerIO;
     private PivotIO pivotIO;
@@ -70,6 +73,10 @@ public class ShooterSubsystem extends SubsystemBase {
                 bottomRollerMap.getInterpolated(distance).get().value,
                 Rotation2d.fromDegrees(pivotAngleMap.getInterpolated(distance).get().value)
                         .plus(getPitchCorrection()));
+    }
+
+    public void setShooterState(ShooterState shooterState) {
+        currentShooterState = shooterState;
     }
 
     public void periodic() {
@@ -142,6 +149,10 @@ public class ShooterSubsystem extends SubsystemBase {
     private boolean calculateIsShooterAtPosition() {
         double topSpeed = exampleMotor.getSpeed(0, currentShooterState.topRollerRPM * 12);
         double bottomSpeed = exampleMotor.getSpeed(0, currentShooterState.bottomRollerRPM * 12);
+
+        topRollerAverage = movingAverageTop.calculate(topRollerInputs.speed);
+        bottomRollerAverage = movingAverageBottom.calculate(bottomRollerInputs.speed);
+
         return debouncer.calculate(MathUtils.equalsWithinError(
                                 topSpeed,
                                 movingAverageTop.calculate(topRollerInputs.speed),
@@ -152,13 +163,25 @@ public class ShooterSubsystem extends SubsystemBase {
                                 shooterSpeedTolerance * bottomSpeed)
                         && inPositionDisableMode
                 || MathUtils.equalsWithinError(
-                        currentShooterState.pivotAngle.getDegrees() - 0.25,
+                        currentShooterState.pivotAngle.getDegrees(),
                         pivotInputs.currentAngle.getDegrees(),
                         shooterAngleTolerance.getDegrees()));
     }
 
     public boolean isShooterAtPosition() {
         return isShooterAtPosition;
+    }
+
+    public double topRollerError() {
+        return topRollerAverage - exampleMotor.getSpeed(0, currentShooterState.topRollerRPM * 12);
+    }
+
+    public double bottomRollerError() {
+        return bottomRollerAverage - exampleMotor.getSpeed(0, currentShooterState.bottomRollerRPM * 12);
+    }
+
+    public Rotation2d pivotAngleError() {
+        return pivotInputs.currentAngle.minus(currentShooterState.pivotAngle).plus(new Rotation2d());
     }
 
     public Command disabledCommand() {

@@ -17,6 +17,7 @@ import frc.lib.logging.LoggedReceiver;
 import frc.lib.logging.Logger;
 import frc.lib.vision.LimelightRawAngles;
 import frc.robot.Constants.FieldConstants;
+import frc.robot.commands.AimAndSpinupCommand;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.lights.LightsSubsystemB;
 import frc.robot.subsystems.shooter.ShooterState;
@@ -53,17 +54,32 @@ public class AutonomousManager {
                 "stop",
                 runOnce(() -> swerveDriveSubsystem.setControl(new SwerveRequest.Idle()), swerveDriveSubsystem)
                         .asProxy());
-        NamedCommands.registerCommand(
-                "shoot",
-                container
-                        .getAimAndShootCommands()
-                        .stoppedShootAndAimCommand(Optional.of(0.25d), lightsSubsystem)
-                        .withTimeout(3));
+
+        Command autoShootingCommand;
+        {
+            AimAndSpinupCommand aimAndSpinupCommand = new AimAndSpinupCommand(
+                    swerveDriveSubsystem,
+                    shooterSubsystem,
+                    lightsSubsystem,
+                    visionSubsystem,
+                    () -> 0,
+                    () -> 0,
+                    () -> 0,
+                    false,
+                    0,
+                    true,
+                    true,
+                    true);
+            autoShootingCommand = Commands.parallel(
+                    aimAndSpinupCommand,
+                    waitUntil(() -> aimAndSpinupCommand.isAtAngleAndSpunUp())
+                            .withTimeout(2)
+                            .andThen(intakeSubsystem.shootCommand().withTimeout(0.5)));
+        }
+        NamedCommands.registerCommand("shoot", autoShootingCommand.asProxy());
         NamedCommands.registerCommand(
                 "spinupshoot",
-                container
-                        .getAimAndShootCommands()
-                        .spinupShootCommand()
+                parallel(container.getSpinupCommand(), intakeSubsystem.shootCommand())
                         .withTimeout(.5)); // .onlyIf(() -> intakeSubsystem.hasPiece()));
         NamedCommands.registerCommand(
                 "subshoot",
@@ -109,9 +125,25 @@ public class AutonomousManager {
                         .withTimeout(1)
                         .alongWith(intakeSubsystem.intakeCommand().asProxy()));
         NamedCommands.registerCommand("amp", parallel());
-        NamedCommands.registerCommand("aim", container.getAimAndShootCommands().movingAimCommandAuto());
-        NamedCommands.registerCommand(
-                "spinup", container.getAimAndShootCommands().spinupCommand());
+        Command autoAimCommand;
+        {
+            AimAndSpinupCommand aimAndSpinupCommand = new AimAndSpinupCommand(
+                    swerveDriveSubsystem,
+                    shooterSubsystem,
+                    lightsSubsystem,
+                    visionSubsystem,
+                    () -> 0,
+                    () -> 0,
+                    () -> 0,
+                    true,
+                    0,
+                    true,
+                    true,
+                    true);
+            autoAimCommand = Commands.parallel(aimAndSpinupCommand);
+        }
+        NamedCommands.registerCommand("aim", autoAimCommand);
+        NamedCommands.registerCommand("spinup", container.getSpinupCommand());
         NamedCommands.registerCommand("coast", parallel());
         NamedCommands.registerCommand(
                 "eject", intakeSubsystem.ejectCommand().withTimeout(2).asProxy());

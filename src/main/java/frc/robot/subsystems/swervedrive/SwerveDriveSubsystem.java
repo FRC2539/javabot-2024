@@ -1,23 +1,18 @@
 package frc.robot.subsystems.swervedrive;
 
-import java.util.Optional;
-import java.util.function.DoubleSupplier;
-import java.util.function.Supplier;
-
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrain;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrainConstants;
-import com.ctre.phoenix6.mechanisms.swerve.SwerveModuleConstants;
-import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.SteerRequestType;
+import com.ctre.phoenix6.mechanisms.swerve.SwerveModuleConstants;
+import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
-
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -35,8 +30,10 @@ import frc.lib.logging.Logger;
 import frc.lib.math.MathUtils;
 import frc.lib.math.MathUtils.AnyContainer;
 import frc.robot.Constants;
-import frc.robot.Constants.FieldConstants;
 import frc.robot.commands.DriveToPositionCommand;
+import java.util.Optional;
+import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
 
 /**
  * Class that extends the Phoenix SwerveDrivetrain class and implements subsystem
@@ -52,26 +49,29 @@ public class SwerveDriveSubsystem extends SwerveDrivetrain implements Subsystem 
     private Optional<Rotation2d> autoRotationOverride = Optional.empty();
 
     public final SwerveRequest.RobotCentric closedLoopRobotCentric = new SwerveRequest.RobotCentric()
-                    .withDriveRequestType(DriveRequestType.Velocity)
-                    .withSteerRequestType(SteerRequestType.MotionMagicExpo);
+            .withDriveRequestType(DriveRequestType.Velocity)
+            .withSteerRequestType(SteerRequestType.MotionMagicExpo);
 
     public final SwerveRequest.FieldCentric closedLoop = new SwerveRequest.FieldCentric()
-                    .withDriveRequestType(DriveRequestType.Velocity)
-                    .withSteerRequestType(SteerRequestType.MotionMagicExpo);
+            .withDriveRequestType(DriveRequestType.Velocity)
+            .withSteerRequestType(SteerRequestType.MotionMagicExpo);
 
     public final SwerveRequest.FieldCentric openLoop = new SwerveRequest.FieldCentric()
-                    .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
-                    .withSteerRequestType(SteerRequestType.MotionMagicExpo);
-    
+            .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
+            .withSteerRequestType(SteerRequestType.MotionMagicExpo);
+
     public final SwerveRequest.RobotCentric openLoopRobotCentric = new SwerveRequest.RobotCentric()
-                    .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
-                    .withSteerRequestType(SteerRequestType.MotionMagicExpo);
+            .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
+            .withSteerRequestType(SteerRequestType.MotionMagicExpo);
 
     public final SwerveRequest.ApplyChassisSpeeds stopped = new SwerveRequest.ApplyChassisSpeeds()
-                    .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
-                    .withSteerRequestType(SteerRequestType.MotionMagicExpo);
+            .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
+            .withSteerRequestType(SteerRequestType.MotionMagicExpo);
 
-    public SwerveDriveSubsystem(SwerveDrivetrainConstants driveTrainConstants, double OdometryUpdateFrequency, SwerveModuleConstants... modules) {
+    public SwerveDriveSubsystem(
+            SwerveDrivetrainConstants driveTrainConstants,
+            double OdometryUpdateFrequency,
+            SwerveModuleConstants... modules) {
         super(driveTrainConstants, OdometryUpdateFrequency, modules);
         applyConfigs();
         if (Utils.isSimulation()) {
@@ -109,29 +109,33 @@ public class SwerveDriveSubsystem extends SwerveDrivetrain implements Subsystem 
     }
 
     public Rotation2d getTilt() {
-        return new Rotation2d(Math.acos(getRotation3d().getAxis().get(2,0)));
+        return new Rotation2d(Math.acos(getRotation3d().getAxis().get(2, 0)));
     }
 
     private void applyConfigs() {
-         AutoBuilder.configureHolonomic(
+        AutoBuilder.configureHolonomic(
                 this::getPose, // Robot pose supplier
                 this::seedFieldRelative, // Method to res.et odometry (will be called if your auto has a starting pose)
                 this::getRobotRelativeChassisSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
                 (velocity) -> {
-                    //var correctedVelocity = ChassisSpeeds.fromFieldRelativeSpeeds(velocity, new Rotation2d(getRobotRelativeChassisSpeeds().omegaRadiansPerSecond * SwerveConstants.angularVelocityCoefficient));
-                    this.setControl(
-                    closedLoopRobotCentric
-                    .withVelocityX(velocity.vxMetersPerSecond)
-                    .withVelocityY(velocity.vyMetersPerSecond)
-                    .withRotationalRate(velocity.omegaRadiansPerSecond));
+                    // var correctedVelocity = ChassisSpeeds.fromFieldRelativeSpeeds(velocity, new
+                    // Rotation2d(getRobotRelativeChassisSpeeds().omegaRadiansPerSecond *
+                    // SwerveConstants.angularVelocityCoefficient));
+                    this.setControl(closedLoopRobotCentric
+                            .withVelocityX(velocity.vxMetersPerSecond)
+                            .withVelocityY(velocity.vyMetersPerSecond)
+                            .withRotationalRate(velocity.omegaRadiansPerSecond));
                 }, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
-                new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should likely live in your Constants class
+                new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should likely live in your
+                        // Constants class
                         new PIDConstants(3, 0.0, 0.05), // Translation PID constants
                         new PIDConstants(2, 0.0, 0.05), // Rotation PID constants
                         Constants.SwerveConstants.maxSpeed, // Max module speed, in m/s
-                        Constants.SwerveConstants.moduleTranslations[0].getNorm(), // Drive base radius in meters. Distance from robot center to furthest module.
+                        Constants.SwerveConstants.moduleTranslations[0]
+                                .getNorm(), // Drive base radius in meters. Distance from robot center to furthest
+                        // module.
                         new ReplanningConfig() // Default path replanning config. See the API for the options here
-                ),
+                        ),
                 () -> {
                     // Boolean supplier that controls when the path will be mirrored for the red alliance
                     // This will flip the path being followed to the red side of the field.
@@ -144,7 +148,7 @@ public class SwerveDriveSubsystem extends SwerveDrivetrain implements Subsystem 
                     return false;
                 },
                 this // Reference to this subsystem to set requirements
-        );
+                );
 
         PPHolonomicDriveController.setRotationTargetOverride(this::getRotationOverride);
 
@@ -159,40 +163,57 @@ public class SwerveDriveSubsystem extends SwerveDrivetrain implements Subsystem 
         return run(() -> this.setControl(requestSupplier.get()));
     }
 
-    public Command driveCommand(
-            DoubleSupplier forward, DoubleSupplier strafe, DoubleSupplier rotation) {
-        //var correctedVelocity = ChassisSpeeds.fromFieldRelativeSpeeds(new ChassisSpeeds(forward.getAsDouble(),strafe.getAsDouble(),rotation.getAsDouble()), new Rotation2d(getRobotRelativeChassisSpeeds().omegaRadiansPerSecond * SwerveConstants.angularVelocityCoefficient));
-        return applyRequest(
-                    () -> {
-                        return openLoop.withDeadband(0.0).withRotationalDeadband(0.0)
-                        .withVelocityX(forward.getAsDouble())
-                        .withVelocityY(strafe.getAsDouble())
-                        .withRotationalRate(rotation.getAsDouble());
-                    }
-        );
+    public Command driveCommand(DoubleSupplier forward, DoubleSupplier strafe, DoubleSupplier rotation) {
+        // var correctedVelocity = ChassisSpeeds.fromFieldRelativeSpeeds(new
+        // ChassisSpeeds(forward.getAsDouble(),strafe.getAsDouble(),rotation.getAsDouble()), new
+        // Rotation2d(getRobotRelativeChassisSpeeds().omegaRadiansPerSecond *
+        // SwerveConstants.angularVelocityCoefficient));
+        return applyRequest(() -> {
+            return openLoop.withDeadband(0.0)
+                    .withRotationalDeadband(0.0)
+                    .withVelocityX(forward.getAsDouble())
+                    .withVelocityY(strafe.getAsDouble())
+                    .withRotationalRate(rotation.getAsDouble());
+        });
     }
 
     public Command aimAtPoseCommand(Supplier<Pose2d> targetPose, DoubleSupplier forward, DoubleSupplier strafes) {
-        return directionCommand(() -> targetPose.get().getTranslation().minus(getPose().getTranslation()).getAngle(), forward, strafes,
-        new ProfiledPIDController(5, 0, 1, new TrapezoidProfile.Constraints(3.0, 8)));
+        return directionCommand(
+                () -> targetPose
+                        .get()
+                        .getTranslation()
+                        .minus(getPose().getTranslation())
+                        .getAngle(),
+                forward,
+                strafes,
+                new ProfiledPIDController(5, 0, 1, new TrapezoidProfile.Constraints(3.0, 8)));
     }
 
     public Command cardinalCommand(Rotation2d targetAngle, DoubleSupplier forward, DoubleSupplier strafe) {
-        final ProfiledPIDController omegaController = 
-            new ProfiledPIDController(5, 0, 0, new TrapezoidProfile.Constraints(3.0, 8));
-        
+        final ProfiledPIDController omegaController =
+                new ProfiledPIDController(5, 0, 0, new TrapezoidProfile.Constraints(3.0, 8));
+
         return directionCommand(() -> targetAngle, forward, strafe, omegaController);
     }
 
     private double directionCommandErrorRadiansRotation = 0;
     private double directionCommandErrorRaidansVelocity = 0;
-    private boolean directionCommandIsRunning = false; 
+    private boolean directionCommandIsRunning = false;
 
-    public Command directionCommand(Supplier<Rotation2d> targetAngle, DoubleSupplier forward, DoubleSupplier strafe, final ProfiledPIDController omegaController) {
-        return directionCommand(targetAngle, forward, strafe, omegaController,false);
+    public Command directionCommand(
+            Supplier<Rotation2d> targetAngle,
+            DoubleSupplier forward,
+            DoubleSupplier strafe,
+            final ProfiledPIDController omegaController) {
+        return directionCommand(targetAngle, forward, strafe, omegaController, false);
     }
 
-    public Command directionCommand(Supplier<Rotation2d> targetAngle, DoubleSupplier forward, DoubleSupplier strafe, final ProfiledPIDController omegaController, boolean closedLoop) {
+    public Command directionCommand(
+            Supplier<Rotation2d> targetAngle,
+            DoubleSupplier forward,
+            DoubleSupplier strafe,
+            final ProfiledPIDController omegaController,
+            boolean closedLoop) {
         final double maxCardinalVelocity = omegaController.getConstraints().maxVelocity;
 
         omegaController.enableContinuousInput(-Math.PI, Math.PI);
@@ -202,24 +223,23 @@ public class SwerveDriveSubsystem extends SwerveDrivetrain implements Subsystem 
                     var currentTarget = targetAngle.get().getRadians();
                     var currentVelocity = getRobotRelativeChassisSpeeds().omegaRadiansPerSecond;
 
-                    var rotationCorrection =
-                            omegaController.calculate(currentRotation, currentTarget);
+                    var rotationCorrection = omegaController.calculate(currentRotation, currentTarget);
 
                     setControl(
-                            closedLoop ?
-                            closedLoopRobotCentric
-                                .withVelocityX(forward.getAsDouble())
-                                .withVelocityY(strafe.getAsDouble())
-                                .withRotationalRate(
-                                    MathUtils.ensureRange(
-                                            rotationCorrection + omegaController.getSetpoint().velocity, -maxCardinalVelocity, maxCardinalVelocity)) :
-                            openLoop
-                                .withVelocityX(forward.getAsDouble())
-                                .withVelocityY(strafe.getAsDouble())
-                                .withRotationalRate(
-                                    MathUtils.ensureRange(
-                                            rotationCorrection + omegaController.getSetpoint().velocity, -maxCardinalVelocity, maxCardinalVelocity)
-                            ));
+                            closedLoop
+                                    ? closedLoopRobotCentric
+                                            .withVelocityX(forward.getAsDouble())
+                                            .withVelocityY(strafe.getAsDouble())
+                                            .withRotationalRate(MathUtils.ensureRange(
+                                                    rotationCorrection + omegaController.getSetpoint().velocity,
+                                                    -maxCardinalVelocity,
+                                                    maxCardinalVelocity))
+                                    : openLoop.withVelocityX(forward.getAsDouble())
+                                            .withVelocityY(strafe.getAsDouble())
+                                            .withRotationalRate(MathUtils.ensureRange(
+                                                    rotationCorrection + omegaController.getSetpoint().velocity,
+                                                    -maxCardinalVelocity,
+                                                    maxCardinalVelocity)));
 
                     directionCommandErrorRadiansRotation = currentRotation - currentTarget;
                     directionCommandErrorRaidansVelocity = currentVelocity - 0;
@@ -228,7 +248,8 @@ public class SwerveDriveSubsystem extends SwerveDrivetrain implements Subsystem 
                 .beforeStarting(() -> {
                     omegaController.reset(new TrapezoidProfile.State(
                             getRotation().getRadians(), getFieldRelativeChassisSpeeds().omegaRadiansPerSecond));
-                }).finallyDo(() -> {
+                })
+                .finallyDo(() -> {
                     directionCommandIsRunning = false;
                 });
     }
@@ -241,21 +262,30 @@ public class SwerveDriveSubsystem extends SwerveDrivetrain implements Subsystem 
                     var currentVelocity = getRobotRelativeChassisSpeeds().omegaRadiansPerSecond;
 
                     autoRotationOverride = Optional.of(targetAngle.get());
-                    
+
                     directionCommandErrorRadiansRotation = currentRotation - currentTarget;
                     directionCommandErrorRaidansVelocity = currentVelocity - 0;
                     directionCommandIsRunning = true;
-                }).finallyDo(() -> {
+                })
+                .finallyDo(() -> {
                     directionCommandIsRunning = false;
                     autoRotationOverride = Optional.empty();
                 });
     }
 
+    public void setAutoRotationOverride(Rotation2d override) {
+        autoRotationOverride = Optional.of(override);
+    }
+
+    public void clearAutoRotationOverride() {
+        autoRotationOverride = Optional.empty();
+    }
+
     public boolean isAtDirectionCommand(double angularTolerance, double velocityTolerance) {
         // the acos(cos(x)) bascially figures out the net error accounting for looping
         boolean result = Math.acos(Math.cos(directionCommandErrorRadiansRotation)) <= angularTolerance
-            && Math.abs(directionCommandErrorRaidansVelocity) <= velocityTolerance
-            && directionCommandIsRunning;
+                && Math.abs(directionCommandErrorRaidansVelocity) <= velocityTolerance
+                && directionCommandIsRunning;
 
         Logger.log("/SwerveDriveSubsystem/DirectionCommand/AtAngle", result);
 
@@ -263,59 +293,60 @@ public class SwerveDriveSubsystem extends SwerveDrivetrain implements Subsystem 
     }
 
     public Command drivePredictionCommand(DoubleSupplier forward, DoubleSupplier strafe, DoubleSupplier rotation) {
-        
+
         Supplier<Command> test = () -> {
             final double aheadPlanningDistance = 2;
 
-        Translation2d direction = new Translation2d(forward.getAsDouble(), strafe.getAsDouble());
+            Translation2d direction = new Translation2d(forward.getAsDouble(), strafe.getAsDouble());
 
-        Translation2d normDirection = direction.div(direction.getNorm()).times(aheadPlanningDistance);
+            Translation2d normDirection = direction.div(direction.getNorm()).times(aheadPlanningDistance);
 
-        Pose2d targetPose = new Pose2d(getPose().getTranslation().plus(normDirection), getRotation().plus(new Rotation2d(rotation.getAsDouble() * 1)));
+            Pose2d targetPose = new Pose2d(
+                    getPose().getTranslation().plus(normDirection),
+                    getRotation().plus(new Rotation2d(rotation.getAsDouble() * 1)));
 
-        PathConstraints constraints = new PathConstraints(
-        5, 5.0,
-        Math.PI * 3, Math.PI * 4);
+            PathConstraints constraints = new PathConstraints(5, 5.0, Math.PI * 3, Math.PI * 4);
 
+            Command pathfindingCommand = AutoBuilder.pathfindToPose(
+                    targetPose,
+                    constraints,
+                    0, // Goal end velocity in meters/sec
+                    0.0 // Rotation delay distance in meters. This is how far the robot should travel before attempting
+                    // to rotate.
+                    );
 
-        Command pathfindingCommand = AutoBuilder.pathfindToPose(
-            targetPose,
-            constraints,
-        0, // Goal end velocity in meters/sec
-        0.0 // Rotation delay distance in meters. This is how far the robot should travel before attempting to rotate.
-        );
-
-        return Commands.either(
-            new DriveToPositionCommand(this, targetPose), 
-            pathfindingCommand.andThen(new DriveToPositionCommand(this, targetPose)), 
-            () -> targetPose.getTranslation().getDistance(getPose().getTranslation()) < .5);
+            return Commands.either(
+                    new DriveToPositionCommand(this, targetPose),
+                    pathfindingCommand.andThen(new DriveToPositionCommand(this, targetPose)),
+                    () -> targetPose.getTranslation().getDistance(getPose().getTranslation()) < .5);
         };
 
         AnyContainer<Command> runnableComand = new AnyContainer<Command>(run(() -> {}));
 
         return Commands.runOnce(() -> {
-            runnableComand.thing = test.get();
-            runnableComand.thing.schedule();
-        }).andThen(Commands.waitSeconds(.25)).repeatedly().finallyDo(() -> runnableComand.thing.cancel());
+                    runnableComand.thing = test.get();
+                    runnableComand.thing.schedule();
+                })
+                .andThen(Commands.waitSeconds(.25))
+                .repeatedly()
+                .finallyDo(() -> runnableComand.thing.cancel());
     }
 
     public Command pathfindToPoseCommand(Pose2d targetPose) {
-        PathConstraints constraints = new PathConstraints(
-        3, 3.0,
-        Math.PI * 3, Math.PI * 4);
-
+        PathConstraints constraints = new PathConstraints(3, 3.0, Math.PI * 3, Math.PI * 4);
 
         Command pathfindingCommand = AutoBuilder.pathfindToPose(
-            targetPose,
-            constraints,
-        0, // Goal end velocity in meters/sec
-        0.0 // Rotation delay distance in meters. This is how far the robot should travel before attempting to rotate.
-        );
+                targetPose,
+                constraints,
+                0, // Goal end velocity in meters/sec
+                0.0 // Rotation delay distance in meters. This is how far the robot should travel before attempting to
+                // rotate.
+                );
 
         return Commands.either(
-            new DriveToPositionCommand(this, targetPose), 
-            pathfindingCommand.andThen(new DriveToPositionCommand(this, targetPose)), 
-            () -> targetPose.getTranslation().getDistance(getPose().getTranslation()) < .5);
+                new DriveToPositionCommand(this, targetPose),
+                pathfindingCommand.andThen(new DriveToPositionCommand(this, targetPose)),
+                () -> targetPose.getTranslation().getDistance(getPose().getTranslation()) < .5);
     }
 
     public Command driveToPoseCommand(Pose2d targetPose) {
@@ -353,7 +384,9 @@ public class SwerveDriveSubsystem extends SwerveDrivetrain implements Subsystem 
             Logger.log("/SwerveDriveSubsystem/Acceleration Commanded", 0);
 
             Logger.log("/SwerveDriveSubsystem/Wheel Zero Speed", state.ModuleStates[0].speedMetersPerSecond);
-            Logger.log("/SwerveDriveSubsystem/Wheel Zero Voltage", getModule(0).getDriveMotor().getMotorVoltage().getValue());
+            Logger.log(
+                    "/SwerveDriveSubsystem/Wheel Zero Voltage",
+                    getModule(0).getDriveMotor().getMotorVoltage().getValue());
 
             Rotation3d currentRotation = getRotation3d();
 
@@ -411,13 +444,13 @@ public class SwerveDriveSubsystem extends SwerveDrivetrain implements Subsystem 
             //     modules[3].getAngleVoltage()
             // });
 
-            Logger.log("/SwerveDriveSubsystem/Drive Temperatures", new double[] {          
+            Logger.log("/SwerveDriveSubsystem/Drive Temperatures", new double[] {
                 getModule(0).getDriveMotor().getDeviceTemp().getValue(),
                 getModule(1).getDriveMotor().getDeviceTemp().getValue(),
                 getModule(2).getDriveMotor().getDeviceTemp().getValue(),
                 getModule(3).getDriveMotor().getDeviceTemp().getValue()
             });
-            Logger.log("/SwerveDriveSubsystem/Angle Temperatures", new double[] {          
+            Logger.log("/SwerveDriveSubsystem/Angle Temperatures", new double[] {
                 getModule(0).getSteerMotor().getDeviceTemp().getValue(),
                 getModule(1).getSteerMotor().getDeviceTemp().getValue(),
                 getModule(2).getSteerMotor().getDeviceTemp().getValue(),
@@ -427,7 +460,9 @@ public class SwerveDriveSubsystem extends SwerveDrivetrain implements Subsystem 
             System.err.print(e);
         }
 
-        Logger.log("/SwerveDriveSubsystem/DirectionCommand/DirectionError", Math.acos(Math.cos(directionCommandErrorRadiansRotation)));
+        Logger.log(
+                "/SwerveDriveSubsystem/DirectionCommand/DirectionError",
+                Math.acos(Math.cos(directionCommandErrorRadiansRotation)));
         Logger.log("/SwerveDriveSubsystem/DirectionCommand/VelocityError", directionCommandErrorRaidansVelocity);
         Logger.log("/SwerveDriveSubsystem/DirectionCommand/IsRunning", directionCommandIsRunning);
     }

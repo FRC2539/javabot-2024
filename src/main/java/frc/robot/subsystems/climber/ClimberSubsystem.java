@@ -1,10 +1,8 @@
 package frc.robot.subsystems.climber;
 
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
-import frc.lib.logging.Logger;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.lib.logging.Logger;
 import frc.robot.subsystems.climber.ClimberIO.ClimberIOInputs;
 
 public class ClimberSubsystem extends SubsystemBase {
@@ -16,7 +14,7 @@ public class ClimberSubsystem extends SubsystemBase {
     private boolean overrideMode = false;
 
     private final double lowerLimit = 0;
-    private final double upperLimit = 190; //315
+    private final double upperLimit = 190; // 315
     private final double operatorLimit = 200;
 
     public ClimberSubsystem(ClimberIO pivotIO) {
@@ -24,7 +22,6 @@ public class ClimberSubsystem extends SubsystemBase {
 
         setDefaultCommand(disabledCommand());
     }
-    
 
     public void periodic() {
         logClimberInformation();
@@ -35,7 +32,7 @@ public class ClimberSubsystem extends SubsystemBase {
         if (voltage < 0 && climberVoltage.currentPosition < lowerLimit && !overrideMode) {
             tempVoltage = 0;
         }
-        
+
         if (voltage > 0 && climberVoltage.currentPosition > upperLimit) {
             tempVoltage = 0;
         }
@@ -50,15 +47,18 @@ public class ClimberSubsystem extends SubsystemBase {
     }
 
     public Command setVoltage(double voltage) {
-        return run(() -> {this.voltage = voltage;});
+        return run(() -> {
+            this.voltage = voltage;
+        });
     }
 
     public Command overrideVoltageCommand() {
-        return runEnd(() -> {
-            voltage = -2;
-            overrideMode = true;
-        }, () -> overrideMode = false
-            );
+        return runEnd(
+                () -> {
+                    voltage = -2;
+                    overrideMode = true;
+                },
+                () -> overrideMode = false);
     }
 
     public Command zeroClimberCommand() {
@@ -68,7 +68,7 @@ public class ClimberSubsystem extends SubsystemBase {
     public Command moveClimberUpOperator() {
         return setVoltage(12).until(() -> climberVoltage.currentPosition >= operatorLimit);
     }
-    
+
     public void logClimberInformation() {
         Logger.log("/ClimberSubsystem/position", climberVoltage.currentPosition);
         Logger.log("/ClimberSubsystem/voltageCommanded", voltage);
