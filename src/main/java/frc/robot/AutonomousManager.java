@@ -8,6 +8,9 @@ import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.PathPlannerLogging;
+
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -57,8 +60,8 @@ public class AutonomousManager {
                 "shoot",
                 container
                         .getAimAndShootCommands()
-                        .stoppedShootAndAimCommand(Optional.of(0.25d), lightsSubsystem)
-                        .withTimeout(3));
+                        .stoppedShootAndAimCommand(Optional.of(0.5d), lightsSubsystem)
+                        .withTimeout(3).finallyDo(() -> visionSubsystem.usingVision = false).beforeStarting(() -> visionSubsystem.usingVision = false));
         NamedCommands.registerCommand(
                 "spinupshoot",
                 container
@@ -76,20 +79,21 @@ public class AutonomousManager {
                         .withTimeout(1.25));
         NamedCommands.registerCommand(
                 "intake", intakeSubsystem.intakeCommand().withTimeout(2).asProxy());
+        LinearFilter lowPassIQR = LinearFilter.movingAverage(20);
         NamedCommands.registerCommand(
                 "mlintake",
                 swerveDriveSubsystem
-                        .directionCommandAuto(() -> {
+                        .directionCommandAutoVelocity(() -> {
                             Optional<LimelightRawAngles> direction = visionSubsystem.getDetectorInfo();
                             if (direction.isPresent()) {
-                                return swerveDriveSubsystem
+                                return new Rotation2d(swerveDriveSubsystem
                                         .getRotation()
                                         .plus(Rotation2d.fromDegrees(
-                                                -direction.get().ty() * 0.7));
+                                                -direction.get().ty())).getRadians());
                             } else {
                                 return swerveDriveSubsystem.getRotation();
                             }
-                        })
+                        }, new PIDController(5,0,0.1))
                         .until(() -> intakeSubsystem.hasPieceSmoothed()));
         NamedCommands.registerCommand(
                 "mlintakedrive",
@@ -110,6 +114,7 @@ public class AutonomousManager {
                         .alongWith(intakeSubsystem.intakeCommand().asProxy()));
         NamedCommands.registerCommand("amp", parallel());
         NamedCommands.registerCommand("aim", container.getAimAndShootCommands().movingAimCommandAuto());
+
         NamedCommands.registerCommand(
                 "spinup", container.getAimAndShootCommands().spinupCommand());
         NamedCommands.registerCommand("coast", parallel());
@@ -224,7 +229,7 @@ public class AutonomousManager {
         SOURCE4(
                 "Source",
                 4,
-                "Source4SCH",
+                "NewSource4",
                 "Source Side",
                 true,
                 "Shoots the starting piece and then shoots the three near the source on the centerline."),

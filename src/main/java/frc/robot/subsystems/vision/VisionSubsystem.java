@@ -10,6 +10,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.logging.Logger;
 import frc.lib.math.MathUtils;
@@ -76,7 +77,7 @@ public class VisionSubsystem extends SubsystemBase {
     }
 
     public Optional<LimelightRawAngles> getDetectorInfo() {
-        return limelightInputs.map((inputs) -> new LimelightRawAngles(inputs.yaw, inputs.pitch, inputs.area));
+        return limelightInputs.map((inputs) -> new LimelightRawAngles(inputs.yaw, inputs.pitch, inputs.area, inputs.timestamp - Timer.getFPGATimestamp()));
     }
 
     private void logVisionPoseEstimateInfo(Optional<AprilTagIOInputs> inputs) {
@@ -203,13 +204,13 @@ public class VisionSubsystem extends SubsystemBase {
     }
 
     public Rotation2d getSpeakerAngle(Pose2d currentPose, boolean useVision) {
-        if (!useVision) {
+        
             lastSpeakerAngle = FieldConstants.getSpeakerPose()
                     .getTranslation()
                     .minus(currentPose.getTranslation())
                     .getAngle();
-            return lastSpeakerAngle;
-        }
+                    if (!useVision) {
+            return lastSpeakerAngle;}
 
         Optional<PhotonTrackedTarget> speakerTag =
                 VisionSubsystem.getTagInfo(leftTargets, FieldConstants.getSpeakerTag());
@@ -234,7 +235,7 @@ public class VisionSubsystem extends SubsystemBase {
             // lastSpeakerAngle = currentPose.getRotation().plus(transformRobotToGoal.getTranslation().getAngle());
             lastSpeakerAngle = currentPose
                     .getRotation()
-                    .plus(Rotation2d.fromDegrees(-speakerTag.get().getYaw()).plus(Rotation2d.fromDegrees(180 - 16)));
+                    .plus(Rotation2d.fromDegrees(-speakerTag.get().getYaw()).plus(Rotation2d.fromDegrees(180)));
             Logger.log("/VisionSubsystem/LastSpeakerAngleDirect", lastSpeakerAngle.getRadians());
         } else {
             Optional<PhotonTrackedTarget> altSpeakerTag =
@@ -257,7 +258,7 @@ public class VisionSubsystem extends SubsystemBase {
                 lastSpeakerAngle = currentPose
                         .getRotation()
                         .plus(Rotation2d.fromDegrees(-altSpeakerTag.get().getYaw())
-                                .plus(Rotation2d.fromDegrees(180 + 19)));
+                                .plus(Rotation2d.fromDegrees(180)));
                 Logger.log("/VisionSubsystem/LastSpeakerAngleDirect", lastSpeakerAngle.getRadians());
             }
             hasTag = false;
@@ -272,12 +273,14 @@ public class VisionSubsystem extends SubsystemBase {
     }
 
     public double getSpeakerDistance(Pose2d currentPose, boolean useVision) {
-        if (!useVision) {
+        
             lastDistance = FieldConstants.getSpeakerPose()
                     .getTranslation()
                     .minus(currentPose.getTranslation())
                     .getNorm();
             Logger.log("/VisionSubsystem/LastSpeakerDistance", lastDistance);
+        
+        if (!useVision) {
             return lastDistance;
         }
 
@@ -289,8 +292,8 @@ public class VisionSubsystem extends SubsystemBase {
         if (speakerTag.isPresent() && usingCameraDirectly) {
             // TODO: This is not right
             lastDistance = PhotonUtils.calculateDistanceToTargetMeters(
-                    VisionConstants.robotToLeftCamera.getZ(), Units.inchesToMeters(57.75),
-                    Units.degreesToRadians(19),
+                    .56, Units.inchesToMeters(57.75),
+                    Units.degreesToRadians(34),
                             Units.degreesToRadians(speakerTag.get().getPitch()));
             Logger.log("/VisionSubsystem/LastSpeakerDistanceDirect", lastDistance);
         }

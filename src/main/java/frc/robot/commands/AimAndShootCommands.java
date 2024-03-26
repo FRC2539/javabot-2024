@@ -5,6 +5,7 @@ import static edu.wpi.first.wpilibj2.command.Commands.parallel;
 import static edu.wpi.first.wpilibj2.command.Commands.run;
 import static edu.wpi.first.wpilibj2.command.Commands.waitUntil;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -115,13 +116,13 @@ public class AimAndShootCommands {
                 () -> (swerveDriveSubsystem.isAtDirectionCommand(angularTolerance, velocityTolerance)
                         && shooterSubsystem.isShooterAtPosition());
 
-        ProfiledPIDController controller =
-                new ProfiledPIDController(5, 0, .1, new TrapezoidProfile.Constraints(4.5, 0));
+        PIDController controller =
+                new PIDController(4, 0, .2);
 
         Command aimAtTag = swerveDriveSubsystem.directionCommand(
                 () -> {
                     Rotation2d output =
-                            visionSubsystem.getSpeakerAngle(getPose.get()).plus(new Rotation2d(Math.PI));
+                            visionSubsystem.getSpeakerAngle(getPose.get(), true).plus(new Rotation2d(Math.PI));
                     // System.out.println(output);
                     Logger.log("/ShooterSubsystem/targetRotationForShooting", output.getRadians());
                     return output;
@@ -131,7 +132,7 @@ public class AimAndShootCommands {
                 controller,
                 true);
 
-        Command spinUpCommand = shooterSubsystem.shootCommand(() -> visionSubsystem.getSpeakerDistance(getPose.get()));
+        Command spinUpCommand = shooterSubsystem.shootCommand(() -> visionSubsystem.getSpeakerDistance(getPose.get(), true));
 
         // Command runBeltCommand;
 

@@ -24,12 +24,6 @@
           }
         },
         {
-          "type": "named",
-          "data": {
-            "name": "mlintake"
-          }
-        },
-        {
           "type": "path",
           "data": {
             "pathName": "5b-3s"
@@ -48,12 +42,6 @@
           }
         },
         {
-          "type": "named",
-          "data": {
-            "name": "mlintake"
-          }
-        },
-        {
           "type": "path",
           "data": {
             "pathName": "4b-3s"
@@ -69,30 +57,6 @@
           "type": "path",
           "data": {
             "pathName": "3s-3b"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "mlintake"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "3b-3s"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "shoot"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "3s-5b"
           }
         }
       ]
