@@ -1,5 +1,7 @@
 package frc.robot.subsystems.lights;
 
+import java.util.function.BooleanSupplier;
+
 import com.ctre.phoenix.led.Animation;
 import com.ctre.phoenix.led.CANdle;
 import com.ctre.phoenix.led.CANdle.LEDStripType;
@@ -12,16 +14,15 @@ import com.ctre.phoenix.led.LarsonAnimation.BounceMode;
 import com.ctre.phoenix.led.RainbowAnimation;
 import com.ctre.phoenix.led.SingleFadeAnimation;
 import com.ctre.phoenix.led.StrobeAnimation;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.lib.math.MathUtils;
-import java.util.function.BooleanSupplier;
 
 public class LightsSubsystemB extends SubsystemBase {
     public static final class LightsConstants {
         public static final int CANDLE_PORT = 12;
-
+        
         public static final int SENSOR_PORT = 0;
     }
 
@@ -66,17 +67,11 @@ public class LightsSubsystemB extends SubsystemBase {
             LEDSegment.MastEncoderIndicator.fullClear();
             LEDSegment.BoomEncoderIndicator.fullClear();
             LEDSegment.WristEncoderIndicator.fullClear();
-            LEDSegment.QOne.fullClear();
-            LEDSegment.QTwo.fullClear();
-            LEDSegment.QThree.fullClear();
-            LEDSegment.QFour.fullClear();
 
             if (hasPiece.getAsBoolean()) {
                 LightsSubsystemB.LEDSegment.MainStrip.setStrobeAnimation(LightsSubsystemB.white, 0.3);
             } else {
                 LEDSegment.MainStrip.setColor(orange);
-                LEDSegment.FirstLED.setColor(red);
-                LEDSegment.FirstLED.setColor(green);
             }
         });
     }
@@ -92,32 +87,6 @@ public class LightsSubsystemB extends SubsystemBase {
         });
     }
 
-    public Command loopCommand(
-            LEDSegment seg1, LEDSegment seg2, LEDSegment seg3, LEDSegment seg4, LEDSegment mainStrip, Color color1, Color color2) {
-        return (runOnce(() -> {
-                            mainStrip.fullClear();
-                            seg1.setFlowAnimation(color1, 0.1);
-                            seg3.setFlowAnimation(color2, 0.1);
-                        })
-                        .andThen(new WaitCommand((long) (1.0 / 32.0 * 75.0)))
-                        .andThen(runOnce(() -> {
-                            seg2.setFlowAnimation(color1, 0.1);
-                            seg4.setFlowAnimation(color2, 0.1);
-                        }))
-                        .andThen(new WaitCommand((long) (1.0 / 32.0 * 75.0)))
-                        .andThen(runOnce(() -> {
-                            seg3.setFlowAnimation(color1, 0.1);
-                            seg1.setFlowAnimation(color2, 0.1);
-                        }))
-                        .andThen(new WaitCommand((long) (1.0 / 32.0 * 75.0)))
-                        .andThen(runOnce(() -> {
-                            seg4.setFlowAnimation(color1, 0.1);
-                            seg2.setFlowAnimation(color2, 0.1);
-                        }))
-                        .andThen(new WaitCommand((long) (1.0 / 32.0 * 75.0))))
-                .repeatedly();
-    }
-
     public static enum LEDSegment {
         BatteryIndicator(0, 2, 0),
         PressureIndicator(2, 2, 1),
@@ -125,13 +94,7 @@ public class LightsSubsystemB extends SubsystemBase {
         BoomEncoderIndicator(5, 1, -1),
         WristEncoderIndicator(6, 1, -1),
         DriverStationIndicator(7, 1, -1),
-        MainStrip(9, 298, 2),
-        FirstLED(8, 1, 10),
-        EndLED(307, 1, 11),
-        QOne(8, 75, 3),
-        QTwo(83, 75, 4),
-        QThree(158, 75, 5),
-        QFour(233, 75, 6);
+        MainStrip(8, 300, 2);
 
         public final int startIndex;
         public final int segmentSize;
@@ -220,7 +183,7 @@ public class LightsSubsystemB extends SubsystemBase {
         setBrightness(0);
     }
 
-    public static void enableLEDs() {
+     public static void enableLEDs() {
         setBrightness(1);
     }
 }
