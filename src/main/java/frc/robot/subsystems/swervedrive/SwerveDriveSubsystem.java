@@ -13,6 +13,7 @@ import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -47,6 +48,8 @@ public class SwerveDriveSubsystem extends SwerveDrivetrain implements Subsystem 
     private SwerveDriveState currentState = new SwerveDriveState();
 
     private Optional<Rotation2d> autoRotationOverride = Optional.empty();
+
+    public Optional<Double> autoRotationVelocityOverride = Optional.empty();
 
     public final SwerveRequest.RobotCentric closedLoopRobotCentric = new SwerveRequest.RobotCentric()
             .withDriveRequestType(DriveRequestType.Velocity)
@@ -118,13 +121,12 @@ public class SwerveDriveSubsystem extends SwerveDrivetrain implements Subsystem 
                 this::seedFieldRelative, // Method to res.et odometry (will be called if your auto has a starting pose)
                 this::getRobotRelativeChassisSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
                 (velocity) -> {
-                    // var correctedVelocity = ChassisSpeeds.fromFieldRelativeSpeeds(velocity, new
-                    // Rotation2d(getRobotRelativeChassisSpeeds().omegaRadiansPerSecond *
-                    // SwerveConstants.angularVelocityCoefficient));
-                    this.setControl(closedLoopRobotCentric
-                            .withVelocityX(velocity.vxMetersPerSecond)
-                            .withVelocityY(velocity.vyMetersPerSecond)
-                            .withRotationalRate(velocity.omegaRadiansPerSecond));
+                    //var correctedVelocity = ChassisSpeeds.fromFieldRelativeSpeeds(velocity, new Rotation2d(getRobotRelativeChassisSpeeds().omegaRadiansPerSecond * SwerveConstants.angularVelocityCoefficient));
+                    this.setControl(
+                    closedLoopRobotCentric
+                    .withVelocityX(velocity.vxMetersPerSecond)
+                    .withVelocityY(velocity.vyMetersPerSecond)
+                    .withRotationalRate(autoRotationVelocityOverride.isEmpty() ? velocity.omegaRadiansPerSecond : autoRotationVelocityOverride.get()));
                 }, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
                 new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should likely live in your
                         // Constants class
@@ -251,6 +253,67 @@ public class SwerveDriveSubsystem extends SwerveDrivetrain implements Subsystem 
                 })
                 .finallyDo(() -> {
                     directionCommandIsRunning = false;
+                });
+    }
+
+    public Command directionCommand(Supplier<Rotation2d> targetAngle, DoubleSupplier forward, DoubleSupplier strafe, final PIDController omegaController, boolean closedLoop) {
+        final double maxCardinalVelocity = 4.5;
+
+        omegaController.enableContinuousInput(-Math.PI, Math.PI);
+
+        return run(() -> {
+                    var currentRotation = getPose().getRotation().getRadians();
+                    var currentTarget = targetAngle.get().getRadians();
+                    var currentVelocity = getRobotRelativeChassisSpeeds().omegaRadiansPerSecond;
+
+                    var rotationCorrection =
+                            omegaController.calculate(currentRotation, currentTarget);
+
+                    setControl(
+                            closedLoop ?
+                            closedLoopRobotCentric
+                                .withVelocityX(forward.getAsDouble())
+                                .withVelocityY(strafe.getAsDouble())
+                                .withRotationalRate(
+                                    MathUtils.ensureRange(
+                                            rotationCorrection, -maxCardinalVelocity, maxCardinalVelocity)) :
+                            openLoop
+                                .withVelocityX(forward.getAsDouble())
+                                .withVelocityY(strafe.getAsDouble())
+                                .withRotationalRate(
+                                    MathUtils.ensureRange(
+                                            rotationCorrection, -maxCardinalVelocity, maxCardinalVelocity)
+                            ));
+
+                    directionCommandErrorRadiansRotation = currentRotation - currentTarget;
+                    directionCommandErrorRaidansVelocity = currentVelocity - 0;
+                    directionCommandIsRunning = true;
+                })
+                .beforeStarting(() -> {
+                    
+                }).finallyDo(() -> {
+                    directionCommandIsRunning = false;
+                });
+    }
+
+
+    public Command directionCommandAutoVelocity(Supplier<Rotation2d> targetAngle, PIDController pidController) {
+        // Uses Commands because technically this command has no requirements.
+        return Commands.run(() -> {
+                    var currentRotation = getPose().getRotation().getRadians();
+                    var currentTarget = targetAngle.get().getRadians();
+                    var currentVelocity = getRobotRelativeChassisSpeeds().omegaRadiansPerSecond;
+
+                    var output = pidController.calculate(currentRotation, currentTarget);
+
+                    autoRotationVelocityOverride = Optional.of(output);
+                    
+                    directionCommandErrorRadiansRotation = currentRotation - currentTarget;
+                    directionCommandErrorRaidansVelocity = currentVelocity - 0;
+                    directionCommandIsRunning = true;
+                }).finallyDo(() -> {
+                    directionCommandIsRunning = false;
+                    autoRotationVelocityOverride = Optional.empty();
                 });
     }
 
