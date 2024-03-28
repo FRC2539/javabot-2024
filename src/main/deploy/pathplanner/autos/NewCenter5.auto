@@ -89,12 +89,6 @@
           "data": {
             "name": "shoot"
           }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "2s-3b"
-          }
         }
       ]
     }

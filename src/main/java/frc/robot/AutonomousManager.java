@@ -63,6 +63,12 @@ public class AutonomousManager {
                         .stoppedShootAndAimCommand(Optional.of(0.5d), lightsSubsystem)
                         .withTimeout(3).finallyDo(() -> visionSubsystem.usingVision = false).beforeStarting(() -> visionSubsystem.usingVision = false));
         NamedCommands.registerCommand(
+                "aimedshoot",
+                container
+                        .getAimAndShootCommands()
+                        .stoppedShootAndAimCommand(Optional.of(0.4d), lightsSubsystem)
+                        .withTimeout(3).finallyDo(() -> visionSubsystem.usingVision = true).beforeStarting(() -> visionSubsystem.usingVision = true));
+        NamedCommands.registerCommand(
                 "spinupshoot",
                 container
                         .getAimAndShootCommands()
@@ -245,7 +251,7 @@ public class AutonomousManager {
         AMP5(
                 "Amp",
                 5,
-                "Amp5",
+                "NewAmp5",
                 "Amp Side",
                 true,
                 "Scores the starting piece, the amp side near line piece, and the three pieces on the amp side centerline."),

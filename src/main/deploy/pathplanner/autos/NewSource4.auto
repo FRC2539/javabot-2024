@@ -32,7 +32,7 @@
         {
           "type": "named",
           "data": {
-            "name": "shoot"
+            "name": "aimedshoot"
           }
         },
         {
@@ -50,7 +50,7 @@
         {
           "type": "named",
           "data": {
-            "name": "shoot"
+            "name": "aimedshoot"
           }
         },
         {

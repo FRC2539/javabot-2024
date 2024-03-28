@@ -343,9 +343,9 @@ public class RobotContainer {
                 .getBottomThumb()
                 .whileTrue(Commands.either(
                         swerveDriveSubsystem.cardinalCommand(
-                                new Rotation2d(-0.461), this::getDriveForwardAxis, this::getDriveStrafeAxis),
+                                new Rotation2d(-0.301), this::getDriveForwardAxis, this::getDriveStrafeAxis),
                         swerveDriveSubsystem.cardinalCommand(
-                                new Rotation2d(Math.PI + 0.461), this::getDriveForwardAxis, this::getDriveStrafeAxis),
+                                new Rotation2d(Math.PI + 0.301), this::getDriveForwardAxis, this::getDriveStrafeAxis),
                         // shooterSubsystem.shootCommand(new ShooterState(.05,.2,Rotation2d.fromDegrees(55)),
                         FieldConstants::isBlue));
 

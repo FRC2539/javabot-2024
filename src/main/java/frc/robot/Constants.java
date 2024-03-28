@@ -74,10 +74,13 @@ public final class Constants {
             map.put(2.458, new InterpolatableDouble(0.6));
             map.put(2.9, new InterpolatableDouble(0.6));
             map.put(3.376, new InterpolatableDouble(0.6));
+            map.put(3.651, new InterpolatableDouble(0.625));
             map.put(3.98, new InterpolatableDouble(0.625));
             map.put(4.417, new InterpolatableDouble(0.625));
             map.put(4.862, new InterpolatableDouble(0.675));
+            map.put(5.158, new InterpolatableDouble(0.675));
             map.put(5.406, new InterpolatableDouble(0.675));
+            map.put(5.541, new InterpolatableDouble(0.8));
             map.put(5.9, new InterpolatableDouble(0.725));
             map.put(1000, new InterpolatableDouble(0.725));
 
@@ -92,10 +95,13 @@ public final class Constants {
             map.put(2.458, new InterpolatableDouble(0.6));
             map.put(2.9, new InterpolatableDouble(0.6));
             map.put(3.376, new InterpolatableDouble(0.6));
+            map.put(3.651, new InterpolatableDouble(0.6));
             map.put(3.98, new InterpolatableDouble(0.6));
             map.put(4.417, new InterpolatableDouble(0.6));
             map.put(4.862, new InterpolatableDouble(0.65));
+            map.put(5.158, new InterpolatableDouble(0.65));
             map.put(5.406, new InterpolatableDouble(0.65));
+            map.put(5.541, new InterpolatableDouble(0.7));
             map.put(5.9, new InterpolatableDouble(0.7));
             map.put(1000, new InterpolatableDouble(0.7));
 
@@ -127,10 +133,13 @@ public final class Constants {
             map.put(2.458, new InterpolatableDouble(44 + .5 - 2));
             map.put(2.9, new InterpolatableDouble(39 + .5 - 1));
             map.put(3.376, new InterpolatableDouble(34 + .5 - 1));
+            map.put(3.651, new InterpolatableDouble(32.5));
             map.put(3.98, new InterpolatableDouble(31.5 ));
             map.put(4.417, new InterpolatableDouble(29 - 2 ));
-            map.put(4.862, new InterpolatableDouble(27 - 2 ));
+            map.put(4.862, new InterpolatableDouble(29 - 2 ));
+            map.put(5.158, new InterpolatableDouble(29 - 2));
             map.put(5.406, new InterpolatableDouble(26.25 - 2 ));
+            map.put(5.541, new InterpolatableDouble(27.25 - 2));
             map.put(5.9, new InterpolatableDouble(23.5 - 2 ));
             map.put(1000, new InterpolatableDouble(23.5 - 2 ));
 

@@ -42,8 +42,8 @@
                 },
                 "1,0": {
                   "_type": "Camera Stream",
-                  "_source0": "camera_server://photonvision_Port_1184_Output_MJPEG_Server",
-                  "_title": "Right",
+                  "_source0": "camera_server://limelight-april",
+                  "_title": "limelight-april",
                   "_glyph": 148,
                   "_showGlyph": false,
                   "Crosshair/Show crosshair": false,
@@ -52,8 +52,8 @@
                   "Controls/Rotation": "NONE",
                   "compression": -1.0,
                   "fps": -1,
-                  "imageWidth": 0,
-                  "imageHeight": 0
+                  "imageWidth": -1,
+                  "imageHeight": -1
                 }
               }
             }
