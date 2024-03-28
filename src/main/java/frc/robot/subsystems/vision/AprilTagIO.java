@@ -1,13 +1,14 @@
 package frc.robot.subsystems.vision;
 
+import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Pose3d;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
-public interface AprilTagIO extends CameraIO<AprilTagIO.AprilTagIOInputs> {
-    public Optional<AprilTagIOInputs> updateInputs();
+public interface AprilTagIO {
+    public Pair<Optional<AprilTagIOInputs>, List<PhotonTrackedTarget>> updateInputs();
 
     public static class AprilTagIOInputs {
         Pose3d poseEstimate3d = new Pose3d();

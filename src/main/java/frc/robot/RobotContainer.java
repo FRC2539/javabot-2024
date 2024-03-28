@@ -16,7 +16,6 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.controller.LogitechController;
 import frc.lib.controller.ThrustmasterJoystick;
 import frc.lib.logging.LoggedReceiver;
@@ -27,17 +26,17 @@ import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.Constants.TrapConstants;
 import frc.robot.Constants.VisionConstants;
-import frc.robot.commands.AimAndShootCommands;
+import frc.robot.commands.AimAndSpinupCommand;
 import frc.robot.commands.DriveToPositionCommand;
 import frc.robot.commands.IntakeAssistCommand;
 import frc.robot.subsystems.climber.ClimberIOFalcon;
 import frc.robot.subsystems.climber.ClimberIOSim;
 import frc.robot.subsystems.climber.ClimberSubsystem;
-import frc.robot.subsystems.intake.IntakeIOFalconRedline;
+import frc.robot.subsystems.intake.IntakeIOFalcon;
 import frc.robot.subsystems.intake.IntakeIOSim;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.lights.LightsSubsystemB;
-import frc.robot.subsystems.shooter.PivotIOFalconTwo;
+import frc.robot.subsystems.shooter.PivotIOFalcon;
 import frc.robot.subsystems.shooter.PivotIOSim;
 import frc.robot.subsystems.shooter.RollerIOFalcon;
 import frc.robot.subsystems.shooter.RollerIOSim;
@@ -87,8 +86,6 @@ public class RobotContainer {
     private TrapSubsystem trapSubsystem;
     private ClimberSubsystem climberSubsystem;
 
-    private AimAndShootCommands aimAndShootCommands;
-
     public AutonomousManager autonomousManager;
 
     public VisionSystemSim visionSim;
@@ -96,14 +93,13 @@ public class RobotContainer {
     public RobotContainer(TimedRobot robot) {
         // This is where all the robot subsystems are initialized.
         // If the robot is real it creates these:
-        visionSim = new VisionSystemSim("main");
         if (Robot.isReal()) {
             swerveDriveSubsystem = TunerConstants.DriveTrain;
             lightsSubsystem = new LightsSubsystemB(); // new LightsSubsystem(new LightsIOBlinkin(0));
             shooterSubsystem = new ShooterSubsystem(
                     new RollerIOFalcon(ShooterConstants.topShooterPort),
                     new RollerIOFalcon(ShooterConstants.bottomShooterPort),
-                    new PivotIOFalconTwo(),
+                    new PivotIOFalcon(),
                     Constants.ShooterConstants.topRollerMap(),
                     Constants.ShooterConstants.bottomRollerMap(),
                     Constants.ShooterConstants.shooterAngleMap());
@@ -113,47 +109,41 @@ public class RobotContainer {
                     new RackIONeo550());
             climberSubsystem = new ClimberSubsystem(new ClimberIOFalcon());
 
-            AprilTagIO leftCamera;
-            AprilTagIO rightCamera;
-            PositionTargetIO limelight;
-            PositionTargetIO limelightApriltag;
+            AprilTagIO limelightAprilTag;
+
+            PositionTargetIO limelightIntake;
 
             // This silly thing is so that if a camera doesn't connect, the robot still runs. It
             // basically tries to connect and if it cant, creates a simulation camera.
             try {
                 if (VisionConstants.usingPinholeModel) {
-                    leftCamera = new AprilTagIOLimelight3G(
+                    limelightAprilTag = new AprilTagIOLimelight3G(
                             "limelight-april",
                             Constants.VisionConstants.robotToLeftCamera,
                             () -> swerveDriveSubsystem.getRotation());
                 } else {
-                    leftCamera = new AprilTagIOLimelight3G(
+                    limelightAprilTag = new AprilTagIOLimelight3G(
                             "limelight-april",
                             Constants.VisionConstants.robotToLeftCamera,
                             () -> swerveDriveSubsystem.getRotation());
                 }
             } catch (Exception e) {
                 System.err.print(e);
-                leftCamera = new AprilTagIOSim();
-            }
-            try {
-                limelight = new PositionTargetIOLimelight("limelight-intake");
-            } catch (Exception e) {
-                System.err.print(e);
-                limelight = new PositionTargetIOSim();
+                limelightAprilTag = new AprilTagIOSim();
             }
 
             try {
-                limelightApriltag = new PositionTargetIOLimelight("limelight-shooter");
-
+                limelightIntake = new PositionTargetIOLimelight("limelight-intake");
             } catch (Exception e) {
                 System.err.print(e);
-                limelightApriltag = new PositionTargetIOSim();
+                limelightIntake = new PositionTargetIOSim();
             }
-            visionSubsystem = new VisionSubsystem(swerveDriveSubsystem, leftCamera, limelight);
-            intakeSubsystem = new IntakeSubsystem(new IntakeIOFalconRedline());
+
+            visionSubsystem = new VisionSubsystem(swerveDriveSubsystem, limelightAprilTag, limelightIntake);
+            intakeSubsystem = new IntakeSubsystem(new IntakeIOFalcon());
 
         } else {
+            visionSim = new VisionSystemSim("main");
             // If the robot is in simulation it uses these.
             swerveDriveSubsystem = TunerConstants.DriveTrain;
             lightsSubsystem = new LightsSubsystemB();
@@ -164,39 +154,36 @@ public class RobotContainer {
                     Constants.ShooterConstants.topRollerMap(),
                     Constants.ShooterConstants.bottomRollerMap(),
                     Constants.ShooterConstants.shooterAngleMap());
+
+            // Setup vision subsystem simulations
             SimCameraProperties cameraProp = new SimCameraProperties();
             cameraProp.setCalibration(1280, 800, Rotation2d.fromDegrees(97.65));
-            cameraProp.setCalibError(0.25, 0.08);
-            cameraProp.setFPS(14);
-            cameraProp.setAvgLatencyMs(10);
+            cameraProp.setCalibError(0.4, 0.2);
+            cameraProp.setFPS(30);
+            cameraProp.setAvgLatencyMs(20);
             PhotonCamera camera_april = new PhotonCamera("limelight-april");
             PhotonCameraSim cameraSim = new PhotonCameraSim(camera_april, cameraProp);
 
             visionSim.addAprilTags(Constants.FieldConstants.aprilTagFieldLayout);
             visionSim.addCamera(
-                    cameraSim, new Transform3d(0, 0, .56, new Rotation3d(0, Math.toRadians(-36), Math.toRadians(180))));
+                    cameraSim, new Transform3d(0, 0, .56, new Rotation3d(0, Math.toRadians(-34), Math.toRadians(180))));
 
             cameraSim.enableRawStream(true);
             cameraSim.enableProcessedStream(true);
-
-            // Enable drawing a wireframe visualization of the field to the camera streams.
-            // This is extremely resource-intensive and is disabled by default.
             cameraSim.enableDrawWireframe(true);
 
             visionSubsystem = new VisionSubsystem(
                     swerveDriveSubsystem,
                     new AprilTagIOPhotonVision(
                             camera_april,
-                            new Transform3d(0, 0, .56, new Rotation3d(0, Math.toRadians(-36), Math.toRadians(180)))),
+                            new Transform3d(0, 0, .56, new Rotation3d(0, Math.toRadians(-34), Math.toRadians(180))),
+                            true),
                     new PositionTargetIOSim());
+
             intakeSubsystem = new IntakeSubsystem(new IntakeIOSim());
             trapSubsystem = new TrapSubsystem(new TrapRollerIOSim(), new TrapRollerIOSim(), new RackIOSim());
             climberSubsystem = new ClimberSubsystem(new ClimberIOSim());
         }
-
-        // This creates the aim and shoot command container, which contains any aiming commands.
-        aimAndShootCommands =
-                new AimAndShootCommands(swerveDriveSubsystem, visionSubsystem, shooterSubsystem, intakeSubsystem);
 
         autonomousManager = new AutonomousManager(this);
 
@@ -211,11 +198,6 @@ public class RobotContainer {
                 this::getDriveForwardAxis, this::getDriveStrafeAxis, this::getDriveRotationAxis));
 
         /*Set non-button, multi-subsystem triggers */
-
-        Trigger hasPieceTrigger = new Trigger(() -> intakeSubsystem.hasPieceRaw());
-        hasPieceTrigger.onTrue(runOnce(() -> Logger.log("/Robot/Has Game Piece", true)));
-        hasPieceTrigger.onFalse(runOnce(() -> Logger.log("/Robot/Has Game Piece", false)));
-
         // the negates are in place so it debounces falling edges only. the .debounce decorator only debonces rising
         // edges by default
         // (the oppositie of what we want if it keeps randomly flickering off)
@@ -240,9 +222,6 @@ public class RobotContainer {
                             swerveDriveSubsystem.seedFieldRelative(nextPose);
                         },
                         swerveDriveSubsystem));
-        rightDriveController.nameLeftTopLeft("Reset Gyro Angle");
-
-        rightDriveController.nameTrigger("Shoot");
 
         // Cardinal Angle Drive Commands
         rightDriveController
@@ -360,11 +339,20 @@ public class RobotContainer {
         //                 lightsSubsystem));
 
         // Aim and Spinup Using Vision
-        leftDriveController
-                .getTrigger()
-                .whileTrue(aimAndShootCommands.stoppedAimCommand(Optional.of(0.25d), lightsSubsystem));
-        // leftDriveController
-        //         .nameTrigger("Aim");
+        AimAndSpinupCommand stoppedShootAimAndSpinup = new AimAndSpinupCommand(
+                swerveDriveSubsystem,
+                shooterSubsystem,
+                lightsSubsystem,
+                visionSubsystem,
+                () -> getDriveForwardAxis(),
+                () -> getDriveStrafeAxis(),
+                () -> 0,
+                false,
+                1.0 / 16.0,
+                true,
+                true,
+                true);
+        leftDriveController.getTrigger().whileTrue(stoppedShootAimAndSpinup);
 
         // leftDriveController
         //         .getTrigger().and(operatorController.getLeftBumper())
@@ -376,6 +364,7 @@ public class RobotContainer {
         leftDriveController
                 .getTrigger()
                 .and(rightDriveController.getTrigger())
+                .and(() -> stoppedShootAimAndSpinup.isAtAngleAndSpunUp())
                 .whileTrue(intakeSubsystem.shootCommand());
         // .whileTrue(waitUntil(() -> shooterSubsystem.isShooterAtPosition() &&
         // swerveDriveSubsystem.isAtDirectionCommand(0.06, 0.02)).andThen(intakeSubsystem.shootCommand()))
@@ -420,12 +409,11 @@ public class RobotContainer {
 
         leftDriveController
                 .getLeftBottomMiddle()
-                .whileTrue(trapSubsystem.shootCommand(TrapState.fromVoltages(0, 0, 0.0)));
-        leftDriveController.getLeftTopMiddle().whileTrue(trapSubsystem.shootCommand(TrapState.fromVoltages(0, 0, 2.4)));
-
+                .whileTrue(trapSubsystem.trapStateCommand(TrapState.fromVoltages(0, 0, 0.0)));
         leftDriveController
-                .getLeftTopRight()
-                .onTrue(shooterSubsystem.zeroShooterAngleCommand(Rotation2d.fromDegrees(46)));
+                .getLeftTopMiddle()
+                .whileTrue(trapSubsystem.trapStateCommand(TrapState.fromVoltages(0, 0, 2.4)));
+
         leftDriveController.getLeftBottomRight().onTrue(trapSubsystem.zeroRackPositionCommand());
 
         leftDriveController.getRightTopMiddle().onTrue(runOnce(() -> visionSubsystem.usingVision = false));
@@ -445,26 +433,23 @@ public class RobotContainer {
                 .whileTrue(intakeSubsystem.ampCommand());
 
         // Trap Command
-        operatorController.getY().whileTrue(trapSubsystem.shootCommand(new TrapState(0, 0, 34)));
+        operatorController.getY().whileTrue(trapSubsystem.trapStateCommand(new TrapState(0, 0, 34)));
 
         // Trap Amp Command
-        operatorController.getX().whileTrue(trapSubsystem.shootCommand(new TrapState(0, 0, 16.357)));
+        operatorController.getX().whileTrue(trapSubsystem.trapStateCommand(new TrapState(0, 0, 16.357)));
 
         // Trap Source Command
-        operatorController.getB().whileTrue(trapSubsystem.shootCommand(new TrapState(6, -6, 16.357)));
+        operatorController.getB().whileTrue(trapSubsystem.trapStateCommand(new TrapState(6, -6, 16.357)));
 
         // Trap Bottom Command (this is not zero to reduce banging. it will slowly glide down if it is below 2.5 instead
         // of stalling)
-        operatorController.getA().whileTrue(trapSubsystem.shootCommand(new TrapState(0, 0, 0)));
-
-        // Trap Eject Comand
-        // operatorController.getDPadLeft().whileTrue(trapSubsystem.runIntakeCommand(-12.0, -12.0));
+        operatorController.getA().whileTrue(trapSubsystem.trapStateCommand(new TrapState(0, 0, 0)));
 
         LoggedReceiver traptopRollerSpeedTunable = Logger.tunable("/TrapSubsystem/topTunable", 3.5d);
         LoggedReceiver trapbottomRollerSpeedTunable = Logger.tunable("/TrapSubsystem/bottomTunable", -3.5d);
         operatorController
                 .getDPadLeft()
-                .whileTrue(trapSubsystem.shootCommand(() -> TrapState.fromVoltages(
+                .whileTrue(trapSubsystem.trapStateCommand(() -> TrapState.fromVoltages(
                         traptopRollerSpeedTunable.getDouble(),
                         trapbottomRollerSpeedTunable.getDouble(),
                         trapSubsystem.holdingVoltage)));
@@ -477,9 +462,6 @@ public class RobotContainer {
                 .getDPadUp()
                 .and(operatorController.getRightBumper().negate())
                 .whileTrue(trapSubsystem.runIntakeCommand(-3.5, 3.5));
-
-        // Trap Rotate Note Down
-        // operatorController.getDPadDown().and(operatorController.getRightBumper().negate()).whileTrue(trapSubsystem.runIntakeCommand(-1.0, 3.0));
 
         // Shooter Adjustment Up
         operatorController
@@ -542,21 +524,13 @@ public class RobotContainer {
                                         this::getDriveForwardAxis,
                                         this::getDriveStrafeAxis),
                                 shooterSubsystem.shootCommand(new ShooterState(.44, .44, Rotation2d.fromDegrees(40)))),
-                        // shooterSubsystem.shootCommand(new ShooterState(.05,.2,Rotation2d.fromDegrees(55)),
                         FieldConstants::isBlue));
-
-        // operatorController.getA().onTrue(shooterSubsystem.adjustPitchCorrectionCommand(Rotation2d.fromDegrees(0.5)));
-        // operatorController.getB().onTrue(shooterSubsystem.adjustPitchCorrectionCommand(Rotation2d.fromDegrees(0.5)));
 
         operatorController.getBack().whileTrue(climberSubsystem.moveClimberUpOperator());
 
         operatorController
                 .getStart()
                 .toggleOnTrue(run(() -> LightsSubsystemB.LEDSegment.MainStrip.setRainbowAnimation(1), lightsSubsystem));
-
-        // operatorController
-        //         .getBack()
-        //         .whileTrue(climberSubsystem.setposi(12));
 
         rightDriveController.sendButtonNamesToNT();
         leftDriveController.sendButtonNamesToNT();
@@ -568,8 +542,7 @@ public class RobotContainer {
                 swerveDriveSubsystem,
                 () -> FieldConstants.getAmpPose().plus(new Transform2d(.7, -.1, new Rotation2d())),
                 false);
-        return Commands.parallel(driveToPosition); // , shooterSubsystem.ampCommand(), Commands.waitUntil(() ->
-        // debouncer.calculate(driveToPosition.atGoal())).andThen(intakeSubsystem.shootCommand()));
+        return Commands.parallel(driveToPosition);
     }
 
     public Command sourceIntakeCommand() {
@@ -748,7 +721,24 @@ public class RobotContainer {
         return shooterSubsystem;
     }
 
-    public AimAndShootCommands getAimAndShootCommands() {
-        return aimAndShootCommands;
+    /**
+     * Get the spinup command primarily used in auto.
+     *
+     * @return         	the spinup command
+     */
+    public Command getSpinupCommand() {
+        return new AimAndSpinupCommand(
+                swerveDriveSubsystem,
+                shooterSubsystem,
+                lightsSubsystem,
+                visionSubsystem,
+                null,
+                null,
+                null,
+                false,
+                0,
+                true,
+                false,
+                false);
     }
 }

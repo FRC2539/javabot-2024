@@ -41,7 +41,10 @@ public class Robot extends TimedRobot {
 
         Logger.update();
 
-        robotContainer.visionSim.update(robotContainer.getSwerveDriveSubsystem().getPose());
+        if (isSimulation()) {
+            robotContainer.visionSim.update(
+                    robotContainer.getSwerveDriveSubsystem().getPose());
+        }
     }
 
     @Override

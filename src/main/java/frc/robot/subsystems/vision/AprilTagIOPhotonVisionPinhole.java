@@ -1,5 +1,6 @@
 package frc.robot.subsystems.vision;
 
+import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -31,13 +32,13 @@ public class AprilTagIOPhotonVisionPinhole implements AprilTagIO {
         this.gyro = gyro;
     }
 
-    public Optional<AprilTagIOInputs> updateInputs() {
+    public Pair<Optional<AprilTagIOInputs>, List<PhotonTrackedTarget>> updateInputs() {
         try {
             PhotonPipelineResult results = camera.getLatestResult();
 
             PhotonTrackedTarget target = results.getBestTarget();
             if (target == null) {
-                return Optional.empty();
+                return new Pair<>(Optional.empty(), new ArrayList<>());
             }
 
             var outputs = new AprilTagIOInputs();
@@ -62,9 +63,9 @@ public class AprilTagIOPhotonVisionPinhole implements AprilTagIO {
 
             outputs.timestamp = results.getTimestampSeconds();
 
-            return Optional.of(outputs);
+            return new Pair<>(Optional.of(outputs), updateTagsInfo());
         } catch (Exception e) {
-            return Optional.empty();
+            return new Pair<>(Optional.empty(), updateTagsInfo());
         }
     }
 

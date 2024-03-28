@@ -1,12 +1,10 @@
 package frc.robot.subsystems.intake;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
-
 import frc.robot.Constants.IntakeConstants;
 
-
-//Dupe file for testing purposes.
-public class IntakeIOFalconRedlineDupe implements IntakeIO{
+// Dupe file for testing purposes.
+public class IntakeIOFalconPractice implements IntakeIO {
     private double chamberSpeed;
     private double rollerSpeed;
 
@@ -38,5 +36,4 @@ public class IntakeIOFalconRedlineDupe implements IntakeIO{
         chamberSpeed = speed;
         chamberMotor.set(speed);
     }
-
 }
