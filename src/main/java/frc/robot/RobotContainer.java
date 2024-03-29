@@ -528,6 +528,14 @@ public class RobotContainer {
                                 shooterSubsystem.shootCommand(new ShooterState(.44, .44, Rotation2d.fromDegrees(40)))),
                         FieldConstants::isBlue));
 
+        // lowfeeder shot
+        operatorController
+                .getLeftTrigger()
+                .and(operatorController.getRightTrigger())
+                .whileTrue(
+                        shooterSubsystem.shootCommand(new ShooterState(.24, .54, Rotation2d.fromDegrees(20)))
+                );
+
         operatorController.getBack().whileTrue(climberSubsystem.moveClimberUpOperator());
 
         operatorController
