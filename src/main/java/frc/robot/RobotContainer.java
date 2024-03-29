@@ -16,6 +16,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.controller.LogitechController;
 import frc.lib.controller.ThrustmasterJoystick;
 import frc.lib.logging.LoggedReceiver;
@@ -351,8 +352,9 @@ public class RobotContainer {
                 1.0 / 16.0,
                 true,
                 true,
-                true);
-        leftDriveController.getTrigger().whileTrue(stoppedShootAimAndSpinup);
+                true,
+                false);
+        leftDriveController.getTrigger().whileTrue(deadline(stoppedShootAimAndSpinup, run(() -> {}, lightsSubsystem).asProxy()));
 
         // leftDriveController
         //         .getTrigger().and(operatorController.getLeftBumper())
@@ -364,8 +366,7 @@ public class RobotContainer {
         leftDriveController
                 .getTrigger()
                 .and(rightDriveController.getTrigger())
-                .and(() -> stoppedShootAimAndSpinup.isAtAngleAndSpunUp())
-                .whileTrue(intakeSubsystem.shootCommand());
+                .whileTrue(Commands.waitUntil(()->stoppedShootAimAndSpinup.isAtAngleAndSpunUp()).andThen(intakeSubsystem.shootCommand()));
         // .whileTrue(waitUntil(() -> shooterSubsystem.isShooterAtPosition() &&
         // swerveDriveSubsystem.isAtDirectionCommand(0.06, 0.02)).andThen(intakeSubsystem.shootCommand()))
         ; // stoppedShootAndAimCommand());
@@ -416,8 +417,8 @@ public class RobotContainer {
 
         leftDriveController.getLeftBottomRight().onTrue(trapSubsystem.zeroRackPositionCommand());
 
-        leftDriveController.getRightTopMiddle().onTrue(runOnce(() -> visionSubsystem.usingVision = false));
-        leftDriveController.getRightTopRight().onTrue(runOnce(() -> visionSubsystem.usingVision = true));
+        leftDriveController.getRightTopMiddle().onTrue(runOnce(() -> visionSubsystem.updatingPoseUsingVision = false));
+        leftDriveController.getRightTopRight().onTrue(runOnce(() -> visionSubsystem.updatingPoseUsingVision = true));
 
         leftDriveController.getRightBottomMiddle().onTrue(runOnce(() -> shooterSubsystem.inPositionDisableMode = true));
         leftDriveController.getRightBottomRight().onTrue(runOnce(() -> shooterSubsystem.inPositionDisableMode = false));
@@ -494,6 +495,7 @@ public class RobotContainer {
                                         () -> LightsSubsystemB.LEDSegment.MainStrip.setColor(LightsSubsystemB.green),
                                         lightsSubsystem)
                                 .withTimeout(.1)));
+                                
 
         // Shooter Intaking Indicator (Flash Blue and Yellow)
         operatorController
@@ -738,6 +740,7 @@ public class RobotContainer {
                 false,
                 0,
                 true,
+                false,
                 false,
                 false);
     }

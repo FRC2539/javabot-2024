@@ -8,7 +8,6 @@ import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.PathPlannerLogging;
-
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -72,23 +71,44 @@ public class AutonomousManager {
                     0,
                     true,
                     true,
+                    true,
                     true);
-            autoShootingCommand = Commands.parallel(
-                    aimAndSpinupCommand,
+            autoShootingCommand = Commands.deadline(
                     waitUntil(() -> aimAndSpinupCommand.isAtAngleAndSpunUp())
-                            .withTimeout(2)
-                            .andThen(intakeSubsystem.shootCommand().withTimeout(0.5)));
+                            .withTimeout(2.5)
+                            .andThen(intakeSubsystem.shootCommand().asProxy().withTimeout(0.4)), aimAndSpinupCommand,
+                            run(()->{}, swerveDriveSubsystem),
+                            run(()->{}, shooterSubsystem).asProxy()
+                            );
         }
-        NamedCommands.registerCommand("shoot", autoShootingCommand.asProxy());
-        NamedCommands.registerCommand(
-                "aimedshoot",
-                container
-                        .getAimAndShootCommands()
-                        .stoppedShootAndAimCommand(Optional.of(0.4d), lightsSubsystem)
-                        .withTimeout(3).finallyDo(() -> visionSubsystem.usingVision = true).beforeStarting(() -> visionSubsystem.usingVision = true));
+        NamedCommands.registerCommand("shoot", autoShootingCommand);
+        Command aimedShootCommand;
+        {
+            AimAndSpinupCommand aimAndSpinupCommand = new AimAndSpinupCommand(
+                    swerveDriveSubsystem,
+                    shooterSubsystem,
+                    lightsSubsystem,
+                    visionSubsystem,
+                    () -> 0,
+                    () -> 0,
+                    () -> 0,
+                    false,
+                    0,
+                    true,
+                    true,
+                    true,
+                    true);
+            aimedShootCommand = Commands.deadline( waitUntil(() -> aimAndSpinupCommand.isAtAngleAndSpunUp())
+                                    .withTimeout(2.5)
+                                    .andThen(intakeSubsystem.shootCommand().withTimeout(0.4).asProxy()),
+                            aimAndSpinupCommand, run(()->{}, swerveDriveSubsystem), run(()->{}, shooterSubsystem).asProxy())
+                    .finallyDo(() -> visionSubsystem.updatingPoseUsingVision = true)
+                    .beforeStarting(() -> visionSubsystem.updatingPoseUsingVision = true);
+        }
+        NamedCommands.registerCommand("aimedshoot", aimedShootCommand);
         NamedCommands.registerCommand(
                 "spinupshoot",
-                parallel(container.getSpinupCommand(), intakeSubsystem.shootCommand())
+                parallel(container.getSpinupCommand().asProxy(), intakeSubsystem.shootCommand().asProxy())
                         .withTimeout(.5)); // .onlyIf(() -> intakeSubsystem.hasPiece()));
         NamedCommands.registerCommand(
                 "subshoot",
@@ -105,17 +125,20 @@ public class AutonomousManager {
         NamedCommands.registerCommand(
                 "mlintake",
                 swerveDriveSubsystem
-                        .directionCommandAutoVelocity(() -> {
-                            Optional<LimelightRawAngles> direction = visionSubsystem.getDetectorInfo();
-                            if (direction.isPresent()) {
-                                return new Rotation2d(swerveDriveSubsystem
-                                        .getRotation()
-                                        .plus(Rotation2d.fromDegrees(
-                                                -direction.get().ty())).getRadians());
-                            } else {
-                                return swerveDriveSubsystem.getRotation();
-                            }
-                        }, new PIDController(5,0,0.1))
+                        .directionCommandAutoVelocity(
+                                () -> {
+                                    Optional<LimelightRawAngles> direction = visionSubsystem.getDetectorInfo();
+                                    if (direction.isPresent()) {
+                                        return new Rotation2d(swerveDriveSubsystem
+                                                .getRotation()
+                                                .plus(Rotation2d.fromDegrees(
+                                                        -direction.get().ty()))
+                                                .getRadians());
+                                    } else {
+                                        return swerveDriveSubsystem.getRotation();
+                                    }
+                                },
+                                new PIDController(5, 0, 0.1))
                         .until(() -> intakeSubsystem.hasPieceSmoothed()));
         NamedCommands.registerCommand(
                 "mlintakedrive",
@@ -149,11 +172,12 @@ public class AutonomousManager {
                     0,
                     true,
                     true,
-                    true);
-            autoAimCommand = Commands.parallel(aimAndSpinupCommand);
+                    true,
+                    false);
+            autoAimCommand = aimAndSpinupCommand.asProxy();
         }
         NamedCommands.registerCommand("aim", autoAimCommand);
-        NamedCommands.registerCommand("spinup", container.getSpinupCommand());
+        NamedCommands.registerCommand("spinup", container.getSpinupCommand().asProxy());
         NamedCommands.registerCommand("coast", parallel());
         NamedCommands.registerCommand(
                 "eject", intakeSubsystem.ejectCommand().withTimeout(2).asProxy());

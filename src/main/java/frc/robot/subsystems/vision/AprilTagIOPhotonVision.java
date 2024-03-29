@@ -88,7 +88,7 @@ public class AprilTagIOPhotonVision implements AprilTagIO {
             for (var target : results.getTargets()) {
                 outputList.add(new PhotonTrackedTarget(
                         target.getYaw() * (invertPitchAndYaw ? -1 : 1),
-                        target.getPitch() * (invertPitchAndYaw ? -1 : 1),
+                        target.getPitch(),// * (invertPitchAndYaw ? -1 : 1),
                         target.getArea(),
                         target.getSkew(),
                         target.getFiducialId(),

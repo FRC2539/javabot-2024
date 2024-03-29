@@ -69,22 +69,13 @@
               "_glyph": 149,
               "_showGlyph": false,
               "Layout/Number of columns": 2,
-              "Layout/Number of rows": 2,
+              "Layout/Number of rows": 3,
               "Layout/Label position": "BOTTOM",
               "_children": {
                 "1,0": {
                   "_type": "Boolean Box",
                   "_source0": "network_table:///VisionSubsystem/isUsingVision",
                   "_title": "Using Vision",
-                  "_glyph": 148,
-                  "_showGlyph": false,
-                  "Colors/Color when true": "#7CFC00FF",
-                  "Colors/Color when false": "#FF0000FF"
-                },
-                "0,0": {
-                  "_type": "Boolean Box",
-                  "_source0": "network_table:///IntakeSubsystem/HasPiece",
-                  "_title": "Has Piece",
                   "_glyph": 148,
                   "_showGlyph": false,
                   "Colors/Color when true": "#7CFC00FF",
@@ -115,6 +106,15 @@
                   "Visuals/Num tick marks": 5,
                   "Visuals/Show text": true,
                   "Visuals/Orientation": "HORIZONTAL"
+                },
+                "0,0": {
+                  "_type": "Boolean Box",
+                  "_source0": "network_table:///IntakeSubsystem/HasPieceSmoothed",
+                  "_title": "Has Piece",
+                  "_glyph": 148,
+                  "_showGlyph": false,
+                  "Colors/Color when true": "#7CFC00FF",
+                  "Colors/Color when false": "#8B0000FF"
                 }
               }
             }

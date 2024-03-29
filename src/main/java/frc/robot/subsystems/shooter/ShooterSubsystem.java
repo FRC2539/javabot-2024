@@ -6,6 +6,7 @@ import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.interpolation.InterpolatableDouble;
 import frc.lib.interpolation.InterpolatingMap;
@@ -39,7 +40,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     private static final DCMotor exampleMotor = DCMotor.getFalcon500(1).withReduction(ShooterConstants.gearRatioRoller);
 
-    private final ShooterState defaultState = new ShooterState(0, 0, new Rotation2d(), true, true);
+    private final ShooterState defaultState = new ShooterState(0,0, Rotation2d.fromDegrees(58), true, false); //new ShooterState(0, 0, new Rotation2d(), true, true);
 
     private ShooterState currentShooterState = defaultState;
 
@@ -185,9 +186,9 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public Command disabledCommand() {
-        return run(() -> {
+        return Commands.waitSeconds(0.2).andThen(run(() -> {
             currentShooterState = defaultState;
-        });
+        }));
     }
 
     public Command shootCommand(double topRollerRPM, double bottomRollerRPM, Rotation2d shooterAngle) {

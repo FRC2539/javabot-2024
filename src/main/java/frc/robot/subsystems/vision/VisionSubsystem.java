@@ -43,7 +43,7 @@ public class VisionSubsystem extends SubsystemBase {
 
     private SwerveDriveSubsystem consumer;
 
-    public boolean usingVision = true;
+    public boolean updatingPoseUsingVision = true;
 
     public VisionSubsystem(SwerveDriveSubsystem consumer, AprilTagIO left, PositionTargetIO limelight) {
         this.left = left;
@@ -59,13 +59,13 @@ public class VisionSubsystem extends SubsystemBase {
 
         leftTargets = tempInputs.getSecond();
 
-        if (usingVision) {
+        if (updatingPoseUsingVision) {
             addVisionPoseEstimate(leftInputs);
         }
 
         logVisionPoseEstimateInfo(leftInputs);
 
-        Logger.log("/VisionSubsystem/isUsingVision", usingVision);
+        Logger.log("/VisionSubsystem/isUsingVision", updatingPoseUsingVision);
     }
 
     public static Optional<PhotonTrackedTarget> getTagInfo(List<PhotonTrackedTarget> targets, int tagID) {
@@ -78,7 +78,8 @@ public class VisionSubsystem extends SubsystemBase {
     }
 
     public Optional<LimelightRawAngles> getDetectorInfo() {
-        return limelightInputs.map((inputs) -> new LimelightRawAngles(inputs.yaw, inputs.pitch, inputs.area, inputs.timestamp - Timer.getFPGATimestamp()));
+        return limelightInputs.map((inputs) -> new LimelightRawAngles(
+                inputs.yaw, inputs.pitch, inputs.area, inputs.timestamp - Timer.getFPGATimestamp()));
     }
 
     private void logVisionPoseEstimateInfo(Optional<AprilTagIOInputs> inputs) {
@@ -209,8 +210,8 @@ public class VisionSubsystem extends SubsystemBase {
         if (speakerTag.isPresent()) {
             System.out.println(speakerTag.get().getYaw());
             return Optional.of(currentPose
-                    .getRotation()
-                    .plus(Rotation2d.fromDegrees(-speakerTag.get().getYaw()).plus(Rotation2d.fromDegrees(180))));
+                    .getRotation() //this is 182 not 180 because the camera is off by 2 ish degrees
+                    .plus(Rotation2d.fromDegrees(-speakerTag.get().getYaw()).plus(Rotation2d.fromDegrees(182))));
         } else {
             return Optional.empty();
         }

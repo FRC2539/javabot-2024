@@ -24,7 +24,7 @@ public class AimAndSpinupCommand extends Command {
     private final double pivotToleranceMin = Math.toRadians(.5);
     private final double timeSeenTagMinimum = 0.25;
     private final double maxSpeedPID = 4;
-    private final double rollerSpeedTolerance = 50;
+    private final double rollerSpeedTolerance = 20;
 
     private final PIDController visionPIDController = new PIDController(4, 0, .2);
     // private final ProfiledPIDController nonVisionPIDController = new ProfiledPIDController(1, 0, .1, new
@@ -88,7 +88,8 @@ public class AimAndSpinupCommand extends Command {
             double motionForwardPrediction,
             boolean doSpinup,
             boolean doAiming,
-            boolean usingTarget) {
+            boolean usingTarget,
+            boolean dropRequirements) {
         super();
 
         // Assign Configs
@@ -115,11 +116,13 @@ public class AimAndSpinupCommand extends Command {
 
         // Add Requirements (vision and lights are not included as vision is read only, and lights shouldnt cancel the
         // command)
-        if (doAiming && !useAutoMode) {
-            addRequirements(swerveDriveSubsystem);
-        }
-        if (doSpinup) {
-            addRequirements(shooterSubsystem);
+        if (!dropRequirements) {
+            if (doAiming && !useAutoMode) {
+                addRequirements(swerveDriveSubsystem);
+            }
+            if (doSpinup) {
+                addRequirements(shooterSubsystem);
+            }
         }
     }
 
@@ -160,8 +163,10 @@ public class AimAndSpinupCommand extends Command {
         }
 
         // Supply the default distance and rotations
-        calculatedRotation = visionSubsystem.getSpeakerAngleFromPose(predictedPose);
-        calculatedDistance = visionSubsystem.getSpeakerDistanceFromPose(predictedPose);
+        if (!hasSeenTarget) {
+            calculatedRotation = visionSubsystem.getSpeakerAngleFromPose(predictedPose);
+            calculatedDistance = visionSubsystem.getSpeakerDistanceFromPose(predictedPose);
+        }
 
         // keeps track of wether this cycle we used a target
         boolean usedATarget = false;
@@ -230,9 +235,9 @@ public class AimAndSpinupCommand extends Command {
             double pivotAngleErrorRadians = shooterSubsystem.pivotAngleError().getRadians();
             double pivotAngleToleranceRadians = Math.max(pivotToleranceMeters / calculatedDistance, pivotToleranceMin);
 
-            isSpunUp = (topRollerError < rollerSpeedTolerance
-                    && bottomRollerError < rollerSpeedTolerance
-                    && pivotAngleErrorRadians < pivotAngleToleranceRadians);
+            isSpunUp = (Math.abs(topRollerError) < rollerSpeedTolerance
+                    && Math.abs(bottomRollerError) < rollerSpeedTolerance
+                    && Math.abs(pivotAngleErrorRadians) < pivotAngleToleranceRadians);
 
             Logger.log("/ShootingCommand/topRollerError", topRollerError);
             Logger.log("/ShootingCommand/bottomRollerError", bottomRollerError);
@@ -244,7 +249,7 @@ public class AimAndSpinupCommand extends Command {
     }
 
     private void updateLights() {
-        if (hasTarget()) {
+        if (!hasTarget()) {
             LightsSubsystemB.LEDSegment.MainStrip.setStrobeAnimation(LightsSubsystemB.red, 0.3);
         } else {
             if (isAtAngle()) {
