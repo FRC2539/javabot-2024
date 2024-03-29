@@ -7,6 +7,7 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
@@ -15,6 +16,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.logging.Logger;
 import frc.lib.math.MathUtils;
 import frc.lib.vision.LimelightRawAngles;
+import frc.lib.vision.PinholeModel3D;
+import frc.robot.Constants;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.subsystems.swervedrive.SwerveDriveSubsystem;
 import frc.robot.subsystems.vision.AprilTagIO.AprilTagIOInputs;
@@ -23,7 +26,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalDouble;
-import org.photonvision.PhotonUtils;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
 public class VisionSubsystem extends SubsystemBase {
@@ -41,6 +43,8 @@ public class VisionSubsystem extends SubsystemBase {
 
     public List<PhotonTrackedTarget> leftTargets = new ArrayList<>();
 
+    public double leftInputsTimestamp = 0;
+
     private SwerveDriveSubsystem consumer;
 
     public boolean updatingPoseUsingVision = true;
@@ -55,6 +59,10 @@ public class VisionSubsystem extends SubsystemBase {
     public void periodic() {
         var tempInputs = left.updateInputs();
         leftInputs = tempInputs.getFirst();
+
+        if (leftInputs.isPresent()) {
+            leftInputsTimestamp = leftInputs.get().timestamp;
+        }
         limelightInputs = limelight.updateInputs();
 
         leftTargets = tempInputs.getSecond();
@@ -205,13 +213,33 @@ public class VisionSubsystem extends SubsystemBase {
     }
 
     public Optional<Rotation2d> getSpeakerAngleFromVision(Pose2d currentPose) {
+        return getSpeakerAngleFromVision(currentPose, true);
+    }
+
+    public Optional<Rotation2d> getSpeakerAngleFromVision(Pose2d currentPose, boolean timestampAdjust) {
+        if (timestampAdjust) {
+            currentPose = consumer.getPoseAtTimestamp(leftInputsTimestamp);
+        }
+
         Optional<PhotonTrackedTarget> speakerTag =
                 VisionSubsystem.getTagInfo(leftTargets, FieldConstants.getSpeakerTag());
         if (speakerTag.isPresent()) {
-            System.out.println(speakerTag.get().getYaw());
             return Optional.of(currentPose
-                    .getRotation() //this is 182 not 180 because the camera is off by 2 ish degrees
-                    .plus(Rotation2d.fromDegrees(-speakerTag.get().getYaw()).plus(Rotation2d.fromDegrees(182))));
+                    .getRotation()
+                    .plus(PinholeModel3D.getTranslationToTarget(
+                                    new Translation3d(
+                                            1,
+                                            Math.tan(Math.toRadians(
+                                                    -speakerTag.get().getYaw())),
+                                            Math.tan(Math.toRadians(
+                                                    speakerTag.get().getPitch()))),
+                                    Constants.VisionConstants.robotToApriltagCamera,
+                                    Units.inchesToMeters(57.75))
+                            .getAngle()));
+            // System.out.println(speakerTag.get().getYaw());
+            // return Optional.of(currentPose
+            //         .getRotation() // this is 182 not 180 because the camera is off by 2 ish degrees
+            //         .plus(Rotation2d.fromDegrees(-speakerTag.get().getYaw()).plus(Rotation2d.fromDegrees(182))));
         } else {
             return Optional.empty();
         }
@@ -228,11 +256,19 @@ public class VisionSubsystem extends SubsystemBase {
         Optional<PhotonTrackedTarget> speakerTag =
                 VisionSubsystem.getTagInfo(leftTargets, FieldConstants.getSpeakerTag());
         if (speakerTag.isPresent()) {
-            return OptionalDouble.of(PhotonUtils.calculateDistanceToTargetMeters(
-                    .56,
-                    Units.inchesToMeters(57.75),
-                    Units.degreesToRadians(34),
-                    Units.degreesToRadians(speakerTag.get().getPitch())));
+            return OptionalDouble.of(PinholeModel3D.getTranslationToTarget(
+                            new Translation3d(
+                                    1,
+                                    Math.tan(Math.toRadians(-speakerTag.get().getYaw())),
+                                    Math.tan(Math.toRadians(speakerTag.get().getPitch()))),
+                            Constants.VisionConstants.robotToApriltagCamera,
+                            Units.inchesToMeters(57.75))
+                    .getNorm());
+            // return OptionalDouble.of(PhotonUtils.calculateDistanceToTargetMeters(
+            //         .56,
+            //         Units.inchesToMeters(57.75),
+            //         Units.degreesToRadians(34),
+            //         Units.degreesToRadians(speakerTag.get().getPitch())));
         } else {
             return OptionalDouble.empty();
         }

@@ -8,15 +8,12 @@ import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.controller.LogitechController;
 import frc.lib.controller.ThrustmasterJoystick;
 import frc.lib.logging.LoggedReceiver;
@@ -120,12 +117,12 @@ public class RobotContainer {
                 if (VisionConstants.usingPinholeModel) {
                     limelightAprilTag = new AprilTagIOLimelight3G(
                             "limelight-april",
-                            Constants.VisionConstants.robotToLeftCamera,
+                            Constants.VisionConstants.robotToApriltagCamera,
                             () -> swerveDriveSubsystem.getRotation());
                 } else {
                     limelightAprilTag = new AprilTagIOLimelight3G(
                             "limelight-april",
-                            Constants.VisionConstants.robotToLeftCamera,
+                            Constants.VisionConstants.robotToApriltagCamera,
                             () -> swerveDriveSubsystem.getRotation());
                 }
             } catch (Exception e) {
@@ -160,14 +157,13 @@ public class RobotContainer {
             SimCameraProperties cameraProp = new SimCameraProperties();
             cameraProp.setCalibration(1280, 800, Rotation2d.fromDegrees(97.65));
             cameraProp.setCalibError(0.4, 0.2);
-            cameraProp.setFPS(30);
+            cameraProp.setFPS(5);
             cameraProp.setAvgLatencyMs(20);
             PhotonCamera camera_april = new PhotonCamera("limelight-april");
             PhotonCameraSim cameraSim = new PhotonCameraSim(camera_april, cameraProp);
 
             visionSim.addAprilTags(Constants.FieldConstants.aprilTagFieldLayout);
-            visionSim.addCamera(
-                    cameraSim, new Transform3d(0, 0, .56, new Rotation3d(0, Math.toRadians(-34), Math.toRadians(180))));
+            visionSim.addCamera(cameraSim, Constants.VisionConstants.robotToApriltagCamera);
 
             cameraSim.enableRawStream(true);
             cameraSim.enableProcessedStream(true);
@@ -175,10 +171,7 @@ public class RobotContainer {
 
             visionSubsystem = new VisionSubsystem(
                     swerveDriveSubsystem,
-                    new AprilTagIOPhotonVision(
-                            camera_april,
-                            new Transform3d(0, 0, .56, new Rotation3d(0, Math.toRadians(-34), Math.toRadians(180))),
-                            true),
+                    new AprilTagIOPhotonVision(camera_april, Constants.VisionConstants.robotToApriltagCamera, true),
                     new PositionTargetIOSim());
 
             intakeSubsystem = new IntakeSubsystem(new IntakeIOSim());
@@ -354,7 +347,10 @@ public class RobotContainer {
                 true,
                 true,
                 false);
-        leftDriveController.getTrigger().whileTrue(deadline(stoppedShootAimAndSpinup, run(() -> {}, lightsSubsystem).asProxy()));
+        leftDriveController
+                .getTrigger()
+                .whileTrue(deadline(
+                        stoppedShootAimAndSpinup, run(() -> {}, lightsSubsystem).asProxy()));
 
         // leftDriveController
         //         .getTrigger().and(operatorController.getLeftBumper())
@@ -366,7 +362,8 @@ public class RobotContainer {
         leftDriveController
                 .getTrigger()
                 .and(rightDriveController.getTrigger())
-                .whileTrue(Commands.waitUntil(()->stoppedShootAimAndSpinup.isAtAngleAndSpunUp()).andThen(intakeSubsystem.shootCommand()));
+                .whileTrue(Commands.waitUntil(() -> stoppedShootAimAndSpinup.isAtAngleAndSpunUp())
+                        .andThen(intakeSubsystem.shootCommand()));
         // .whileTrue(waitUntil(() -> shooterSubsystem.isShooterAtPosition() &&
         // swerveDriveSubsystem.isAtDirectionCommand(0.06, 0.02)).andThen(intakeSubsystem.shootCommand()))
         ; // stoppedShootAndAimCommand());
@@ -495,7 +492,6 @@ public class RobotContainer {
                                         () -> LightsSubsystemB.LEDSegment.MainStrip.setColor(LightsSubsystemB.green),
                                         lightsSubsystem)
                                 .withTimeout(.1)));
-                                
 
         // Shooter Intaking Indicator (Flash Blue and Yellow)
         operatorController
@@ -532,9 +528,7 @@ public class RobotContainer {
         operatorController
                 .getLeftTrigger()
                 .and(operatorController.getRightTrigger())
-                .whileTrue(
-                        shooterSubsystem.shootCommand(new ShooterState(.24, .54, Rotation2d.fromDegrees(20)))
-                );
+                .whileTrue(shooterSubsystem.shootCommand(new ShooterState(.24, .54, Rotation2d.fromDegrees(20))));
 
         operatorController.getBack().whileTrue(climberSubsystem.moveClimberUpOperator());
 

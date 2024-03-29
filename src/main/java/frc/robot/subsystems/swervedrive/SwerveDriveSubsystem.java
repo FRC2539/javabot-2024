@@ -21,9 +21,11 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.util.CircularBuffer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
@@ -121,12 +123,16 @@ public class SwerveDriveSubsystem extends SwerveDrivetrain implements Subsystem 
                 this::seedFieldRelative, // Method to res.et odometry (will be called if your auto has a starting pose)
                 this::getRobotRelativeChassisSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
                 (velocity) -> {
-                    //var correctedVelocity = ChassisSpeeds.fromFieldRelativeSpeeds(velocity, new Rotation2d(getRobotRelativeChassisSpeeds().omegaRadiansPerSecond * SwerveConstants.angularVelocityCoefficient));
-                    this.setControl(
-                    closedLoopRobotCentric
-                    .withVelocityX(velocity.vxMetersPerSecond)
-                    .withVelocityY(velocity.vyMetersPerSecond)
-                    .withRotationalRate(autoRotationVelocityOverride.isEmpty() ? velocity.omegaRadiansPerSecond : autoRotationVelocityOverride.get()));
+                    // var correctedVelocity = ChassisSpeeds.fromFieldRelativeSpeeds(velocity, new
+                    // Rotation2d(getRobotRelativeChassisSpeeds().omegaRadiansPerSecond *
+                    // SwerveConstants.angularVelocityCoefficient));
+                    this.setControl(closedLoopRobotCentric
+                            .withVelocityX(velocity.vxMetersPerSecond)
+                            .withVelocityY(velocity.vyMetersPerSecond)
+                            .withRotationalRate(
+                                    autoRotationVelocityOverride.isEmpty()
+                                            ? velocity.omegaRadiansPerSecond
+                                            : autoRotationVelocityOverride.get()));
                 }, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
                 new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should likely live in your
                         // Constants class
@@ -256,7 +262,12 @@ public class SwerveDriveSubsystem extends SwerveDrivetrain implements Subsystem 
                 });
     }
 
-    public Command directionCommand(Supplier<Rotation2d> targetAngle, DoubleSupplier forward, DoubleSupplier strafe, final PIDController omegaController, boolean closedLoop) {
+    public Command directionCommand(
+            Supplier<Rotation2d> targetAngle,
+            DoubleSupplier forward,
+            DoubleSupplier strafe,
+            final PIDController omegaController,
+            boolean closedLoop) {
         final double maxCardinalVelocity = 4.5;
 
         omegaController.enableContinuousInput(-Math.PI, Math.PI);
@@ -266,36 +277,29 @@ public class SwerveDriveSubsystem extends SwerveDrivetrain implements Subsystem 
                     var currentTarget = targetAngle.get().getRadians();
                     var currentVelocity = getRobotRelativeChassisSpeeds().omegaRadiansPerSecond;
 
-                    var rotationCorrection =
-                            omegaController.calculate(currentRotation, currentTarget);
+                    var rotationCorrection = omegaController.calculate(currentRotation, currentTarget);
 
                     setControl(
-                            closedLoop ?
-                            closedLoopRobotCentric
-                                .withVelocityX(forward.getAsDouble())
-                                .withVelocityY(strafe.getAsDouble())
-                                .withRotationalRate(
-                                    MathUtils.ensureRange(
-                                            rotationCorrection, -maxCardinalVelocity, maxCardinalVelocity)) :
-                            openLoop
-                                .withVelocityX(forward.getAsDouble())
-                                .withVelocityY(strafe.getAsDouble())
-                                .withRotationalRate(
-                                    MathUtils.ensureRange(
-                                            rotationCorrection, -maxCardinalVelocity, maxCardinalVelocity)
-                            ));
+                            closedLoop
+                                    ? closedLoopRobotCentric
+                                            .withVelocityX(forward.getAsDouble())
+                                            .withVelocityY(strafe.getAsDouble())
+                                            .withRotationalRate(MathUtils.ensureRange(
+                                                    rotationCorrection, -maxCardinalVelocity, maxCardinalVelocity))
+                                    : openLoop.withVelocityX(forward.getAsDouble())
+                                            .withVelocityY(strafe.getAsDouble())
+                                            .withRotationalRate(MathUtils.ensureRange(
+                                                    rotationCorrection, -maxCardinalVelocity, maxCardinalVelocity)));
 
                     directionCommandErrorRadiansRotation = currentRotation - currentTarget;
                     directionCommandErrorRaidansVelocity = currentVelocity - 0;
                     directionCommandIsRunning = true;
                 })
-                .beforeStarting(() -> {
-                    
-                }).finallyDo(() -> {
+                .beforeStarting(() -> {})
+                .finallyDo(() -> {
                     directionCommandIsRunning = false;
                 });
     }
-
 
     public Command directionCommandAutoVelocity(Supplier<Rotation2d> targetAngle, PIDController pidController) {
         // Uses Commands because technically this command has no requirements.
@@ -307,11 +311,12 @@ public class SwerveDriveSubsystem extends SwerveDrivetrain implements Subsystem 
                     var output = pidController.calculate(currentRotation, currentTarget);
 
                     autoRotationVelocityOverride = Optional.of(output);
-                    
+
                     directionCommandErrorRadiansRotation = currentRotation - currentTarget;
                     directionCommandErrorRaidansVelocity = currentVelocity - 0;
                     directionCommandIsRunning = true;
-                }).finallyDo(() -> {
+                })
+                .finallyDo(() -> {
                     directionCommandIsRunning = false;
                     autoRotationVelocityOverride = Optional.empty();
                 });
@@ -431,14 +436,31 @@ public class SwerveDriveSubsystem extends SwerveDrivetrain implements Subsystem 
         m_simNotifier.startPeriodic(kSimLoopPeriod);
     }
 
+    private CircularBuffer<Pose2d> previousSwervePoses = new CircularBuffer<Pose2d>(50);
+    private CircularBuffer<Double> previousSwervePosesTimestamps = new CircularBuffer<Double>(50);
+
+    public Pose2d getPoseAtTimestamp(double timestamp) {
+        for (int i = 0; i < previousSwervePosesTimestamps.size(); i++) {
+            if (previousSwervePosesTimestamps.get(i) <= timestamp) {
+                return previousSwervePoses.get(i);
+            }
+        }
+        return previousSwervePoses.getLast();
+    }
+
     @Override
     public void periodic() {
+        previousSwervePoses.addFirst(currentState.Pose);
+        previousSwervePosesTimestamps.addFirst(Timer.getFPGATimestamp());
         logTelemetry(currentState);
     }
 
     private void logTelemetry(SwerveDriveState state) {
         try {
             Logger.log("/SwerveDriveSubsystem/Pose", state.Pose);
+            Logger.log("/SwerveDriveSubsystem/DelayedPose", getPoseAtTimestamp(Timer.getFPGATimestamp() - .5));
+            Logger.log("/SwerveDriveSubsystem/DelayedTimestamp", previousSwervePosesTimestamps.getLast());
+            Logger.log("/SwerveDriveSubsystem/Timestamp", Timer.getFPGATimestamp());
             // Logger.log("/SwerveDriveSubsystem/Velocity", velocity);
             // Logger.log("/SwerveDriveSubsystem/Desired Velocity", (ChassisSpeeds) driveSignal);
 

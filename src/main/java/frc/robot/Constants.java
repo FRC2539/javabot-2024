@@ -134,14 +134,14 @@ public final class Constants {
             map.put(2.9, new InterpolatableDouble(39 + .5 - 1));
             map.put(3.376, new InterpolatableDouble(34 + .5 - 1));
             map.put(3.651, new InterpolatableDouble(32.5));
-            map.put(3.98, new InterpolatableDouble(31.5 -0.5));
-            map.put(4.417, new InterpolatableDouble(29 -0.75));
-            map.put(4.862, new InterpolatableDouble(29 - 1 -1));
-            map.put(5.158, new InterpolatableDouble(29 - 2-1));
-            map.put(5.406, new InterpolatableDouble(26.25 - 2 -1));
-            map.put(5.541, new InterpolatableDouble(27.25 - 2-1));
-            map.put(5.9, new InterpolatableDouble(23.5 - 2-1));
-            map.put(1000, new InterpolatableDouble(23.5 - 2 -1));
+            map.put(3.98, new InterpolatableDouble(31.5 - 0.5));
+            map.put(4.417, new InterpolatableDouble(29 - 0.75));
+            map.put(4.862, new InterpolatableDouble(29 - 1 - 1));
+            map.put(5.158, new InterpolatableDouble(29 - 2 - 1));
+            map.put(5.406, new InterpolatableDouble(26.25 - 2 - 1));
+            map.put(5.541, new InterpolatableDouble(27.25 - 2 - 1));
+            map.put(5.9, new InterpolatableDouble(23.5 - 2 - 1));
+            map.put(1000, new InterpolatableDouble(23.5 - 2 - 1));
 
             return map;
         }
@@ -398,15 +398,20 @@ public final class Constants {
 
         public static final boolean usingPinholeModel = false;
 
+        public static final Transform3d robotToApriltagCamera =
+                new Transform3d(0, 0, .56, new Rotation3d(0, Math.toRadians(-34), Math.toRadians(180)));
+
         // Currently working, not sure
-        public static final Transform3d robotToRightCamera = new Transform3d(0, 0, 0, new Rotation3d(0, 0, 0))
-                .plus(new Transform3d(
-                                Units.inchesToMeters(-54), 0, Units.inchesToMeters(57.75), new Rotation3d(0, 0, 0))
-                        .plus(new Transform3d(1.539, -0.293, 0.299, new Rotation3d(0.082, -0.325, 2.755)).inverse()));
-        public static final Transform3d robotToLeftCamera = new Transform3d(0, 0, 0, new Rotation3d(0, 0, 0))
-                .plus(new Transform3d(
-                                Units.inchesToMeters(-54), 0, Units.inchesToMeters(57.75), new Rotation3d(0, 0, 0))
-                        .plus(new Transform3d(1.523, 0.395, 0.294, new Rotation3d(-0.036, -0.340, -2.819)).inverse()));
+        // public static final Transform3d robotToRightCamera = new Transform3d(0, 0, 0, new Rotation3d(0, 0, 0))
+        //         .plus(new Transform3d(
+        //                         Units.inchesToMeters(-54), 0, Units.inchesToMeters(57.75), new Rotation3d(0, 0, 0))
+        //                 .plus(new Transform3d(1.539, -0.293, 0.299, new Rotation3d(0.082, -0.325,
+        // 2.755)).inverse()));
+        // public static final Transform3d robotToLeftCamera = new Transform3d(0, 0, 0, new Rotation3d(0, 0, 0))
+        //         .plus(new Transform3d(
+        //                         Units.inchesToMeters(-54), 0, Units.inchesToMeters(57.75), new Rotation3d(0, 0, 0))
+        //                 .plus(new Transform3d(1.523, 0.395, 0.294, new Rotation3d(-0.036, -0.340,
+        // -2.819)).inverse()));
 
         public static final Transform3d limelightRobotToCamera = new Transform3d(
                 new Translation3d(Units.inchesToMeters(-5), Units.inchesToMeters(0), Units.inchesToMeters(34.25)),
