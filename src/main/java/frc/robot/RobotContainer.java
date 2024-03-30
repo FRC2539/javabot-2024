@@ -240,9 +240,11 @@ public class RobotContainer {
 
         // Podium Shot Spinup
         rightDriveController
-                .getBottomThumb()
-                .whileTrue(
-                        shooterSubsystem.shootCommand(() -> new ShooterState(.60, .60, Rotation2d.fromDegrees(36.75))));
+                .getBottomThumb().and(leftDriveController.getBottomThumb().negate())
+                .onTrue(
+                        shooterSubsystem.shootCommand(() -> new ShooterState(.60, .60, Rotation2d.fromDegrees(36.75))).until(rightDriveController.getBottomThumb().or(leftDriveController.getBottomThumb()).negate()));
+
+        rightDriveController.getBottomThumb().and(leftDriveController.getBottomThumb()).whileTrue(shooterSubsystem.shootCommand(() -> new ShooterState(1, -1, Rotation2d.fromDegrees(15))));
 
         // Shoot for Podium Shot
         rightDriveController
@@ -276,6 +278,7 @@ public class RobotContainer {
                 .whileTrue(intakeSubsystem.intakeCommand());
 
         // Score In Amp (Shooter)
+
         rightDriveController.getRightBottomLeft().whileTrue(ampScoreCommand());
 
         // Turn To Note (Limelight)
@@ -381,7 +384,7 @@ public class RobotContainer {
         LoggedReceiver isVoltageBasedTunable = Logger.tunable("/ShooterSubsystem/voltageTunable", false);
 
         leftDriveController
-                .getBottomThumb()
+                .getBottomThumb().and(rightDriveController.getBottomThumb().negate())
                 .whileTrue(shooterSubsystem.shootCommand(() -> new ShooterState(
                         topRollerSpeedTunable.getDouble(),
                         bottomRollerSpeedTunable.getDouble(),
@@ -528,7 +531,11 @@ public class RobotContainer {
         operatorController
                 .getLeftTrigger()
                 .and(operatorController.getRightTrigger())
-                .whileTrue(shooterSubsystem.shootCommand(new ShooterState(.24, .54, Rotation2d.fromDegrees(20))));
+                .whileTrue(shooterSubsystem.shootCommand(new ShooterState(.7, .4, Rotation2d.fromDegrees(9))));
+
+        operatorController
+                .getLeftTrigger()
+                .and(operatorController.getRightTrigger()).and(rightDriveController.getTrigger()).whileTrue(intakeSubsystem.shootCommand());
 
         operatorController.getBack().whileTrue(climberSubsystem.moveClimberUpOperator());
 
