@@ -16,16 +16,32 @@
     },
     {
       "anchor": {
-        "x": 2.858093950441265,
-        "y": 7.6775496230720455
+        "x": 2.072354686019913,
+        "y": 7.85
       },
       "prevControl": {
-        "x": 2.486599613841234,
-        "y": 7.662981217715181
+        "x": 1.700860349419882,
+        "y": 7.8354315946431345
       },
       "nextControl": {
-        "x": 3.5307649342909886,
-        "y": 7.703928877340663
+        "x": 2.745025669869637,
+        "y": 7.876379254268615
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 4.013584323464943,
+        "y": 7.86
+      },
+      "prevControl": {
+        "x": 3.4054882924580667,
+        "y": 7.87169415444244
+      },
+      "nextControl": {
+        "x": 4.970171823774334,
+        "y": 7.841604086532512
       },
       "isLocked": false,
       "linkedName": null
@@ -36,8 +52,8 @@
         "y": 7.436381206571257
       },
       "prevControl": {
-        "x": 7.143780827661505,
-        "y": 7.436381206571257
+        "x": 5.720930872061174,
+        "y": 7.390705607622041
       },
       "nextControl": null,
       "isLocked": false,
@@ -54,13 +70,18 @@
       "waypointRelativePos": 0.15,
       "rotationDegrees": 60.671104091136556,
       "rotateFast": false
+    },
+    {
+      "waypointRelativePos": 2,
+      "rotationDegrees": 0,
+      "rotateFast": false
     }
   ],
   "constraintZones": [
     {
       "name": "New Constraints Zone",
       "minWaypointRelativePos": 0.55,
-      "maxWaypointRelativePos": 1.2,
+      "maxWaypointRelativePos": 1.4,
       "constraints": {
         "maxVelocity": 3.0,
         "maxAcceleration": 3.5,
@@ -72,7 +93,7 @@
   "eventMarkers": [
     {
       "name": "Intake",
-      "waypointRelativePos": 1.45,
+      "waypointRelativePos": 2.4000000000000004,
       "command": {
         "type": "parallel",
         "data": {
@@ -102,11 +123,11 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0.45692975296244875,
-    "rotateFast": false
+    "rotation": -2.4826939062668716,
+    "rotateFast": true
   },
   "reversed": false,
-  "folder": null,
+  "folder": "The Square Convention",
   "previewStartingState": {
     "rotation": 59.57421619803878,
     "velocity": 0

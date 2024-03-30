@@ -18,21 +18,9 @@
           }
         },
         {
-          "type": "named",
-          "data": {
-            "name": "intake"
-          }
-        },
-        {
           "type": "path",
           "data": {
             "pathName": "A-1b"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "intake"
           }
         },
         {
@@ -54,12 +42,6 @@
           }
         },
         {
-          "type": "named",
-          "data": {
-            "name": "intake"
-          }
-        },
-        {
           "type": "path",
           "data": {
             "pathName": "2b-1s"
@@ -75,24 +57,6 @@
           "type": "path",
           "data": {
             "pathName": "1s-3b"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "3b-2s"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "aimedshoot"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "2s-3b"
           }
         }
       ]

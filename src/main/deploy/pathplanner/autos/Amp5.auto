@@ -88,24 +88,6 @@
           "data": {
             "pathName": "1s-3bml"
           }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "3b-2s"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "shoot"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "2s-3b"
-          }
         }
       ]
     }

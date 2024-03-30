@@ -40,7 +40,8 @@ public class ShooterSubsystem extends SubsystemBase {
 
     private static final DCMotor exampleMotor = DCMotor.getFalcon500(1).withReduction(ShooterConstants.gearRatioRoller);
 
-    private final ShooterState defaultState = new ShooterState(0, 0, new Rotation2d(), true, true); //new ShooterState(0,0, Rotation2d.fromDegrees(58), true, false);
+    private final ShooterState defaultState = new ShooterState(
+            0, 0, new Rotation2d(), true, true); // new ShooterState(0,0, Rotation2d.fromDegrees(58), true, false);
 
     private ShooterState currentShooterState = defaultState;
 

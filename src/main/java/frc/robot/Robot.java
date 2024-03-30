@@ -106,7 +106,8 @@ public class Robot extends TimedRobot {
 
         LEDSegment.MainStrip.setFadeAnimation(LightsSubsystemB.orange, .5);
 
-        FieldConstants.isBlue = DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Blue;
+        FieldConstants.isBlue =
+                DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Blue;
     }
 
     @Override

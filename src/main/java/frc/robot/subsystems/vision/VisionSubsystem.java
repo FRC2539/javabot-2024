@@ -11,7 +11,6 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.logging.Logger;
 import frc.lib.math.MathUtils;
@@ -86,8 +85,8 @@ public class VisionSubsystem extends SubsystemBase {
     }
 
     public Optional<LimelightRawAngles> getDetectorInfo() {
-        return limelightInputs.map((inputs) -> new LimelightRawAngles(
-                inputs.yaw, inputs.pitch, inputs.area, inputs.timestamp - Timer.getFPGATimestamp()));
+        return limelightInputs.map(
+                (inputs) -> new LimelightRawAngles(inputs.yaw, inputs.pitch, inputs.area, inputs.timestamp));
     }
 
     private void logVisionPoseEstimateInfo(Optional<AprilTagIOInputs> inputs) {

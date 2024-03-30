@@ -76,10 +76,10 @@ public class AutonomousManager {
             autoShootingCommand = Commands.deadline(
                     waitUntil(() -> aimAndSpinupCommand.isAtAngleAndSpunUp())
                             .withTimeout(2.5)
-                            .andThen(intakeSubsystem.shootCommand().asProxy().withTimeout(0.4)), aimAndSpinupCommand,
-                            run(()->{}, swerveDriveSubsystem),
-                            run(()->{}, shooterSubsystem).asProxy()
-                            );
+                            .andThen(intakeSubsystem.shootCommand().asProxy().withTimeout(0.4)),
+                    aimAndSpinupCommand,
+                    run(() -> {}, swerveDriveSubsystem),
+                    run(() -> {}, shooterSubsystem).asProxy());
         }
         NamedCommands.registerCommand("shoot", autoShootingCommand);
         Command aimedShootCommand;
@@ -98,17 +98,25 @@ public class AutonomousManager {
                     true,
                     true,
                     true);
-            aimedShootCommand = Commands.deadline( waitUntil(() -> aimAndSpinupCommand.isAtAngleAndSpunUp())
+            aimedShootCommand = Commands.deadline(
+                            waitUntil(() -> aimAndSpinupCommand.isAtAngleAndSpunUp())
                                     .withTimeout(2.5)
-                                    .andThen(intakeSubsystem.shootCommand().withTimeout(0.4).asProxy()),
-                            aimAndSpinupCommand, run(()->{}, swerveDriveSubsystem), run(()->{}, shooterSubsystem).asProxy())
-                    .finallyDo(() -> visionSubsystem.updatingPoseUsingVision = true)
-                    .beforeStarting(() -> visionSubsystem.updatingPoseUsingVision = true);
+                                    .andThen(intakeSubsystem
+                                            .shootCommand()
+                                            .withTimeout(0.4)
+                                            .asProxy()),
+                            aimAndSpinupCommand,
+                            run(() -> {}, swerveDriveSubsystem),
+                            run(() -> {}, shooterSubsystem).asProxy())
+                    .finallyDo(() -> visionSubsystem.updatingPoseUsingVision = false)
+                    .beforeStarting(() -> visionSubsystem.updatingPoseUsingVision = false);
         }
         NamedCommands.registerCommand("aimedshoot", aimedShootCommand);
         NamedCommands.registerCommand(
                 "spinupshoot",
-                parallel(container.getSpinupCommand().asProxy(), intakeSubsystem.shootCommand().asProxy())
+                parallel(
+                                container.getSpinupCommand().asProxy(),
+                                intakeSubsystem.shootCommand().asProxy())
                         .withTimeout(.5)); // .onlyIf(() -> intakeSubsystem.hasPiece()));
         NamedCommands.registerCommand(
                 "subshoot",
@@ -130,6 +138,8 @@ public class AutonomousManager {
                                     Optional<LimelightRawAngles> direction = visionSubsystem.getDetectorInfo();
                                     if (direction.isPresent()) {
                                         return new Rotation2d(swerveDriveSubsystem
+                                                .getPoseAtTimestamp(
+                                                        direction.get().timestamp())
                                                 .getRotation()
                                                 .plus(Rotation2d.fromDegrees(
                                                         -direction.get().ty()))

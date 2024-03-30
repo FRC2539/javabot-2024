@@ -1,6 +1,7 @@
 package frc.robot.commands;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.lights.LightsSubsystemB;
@@ -17,6 +18,8 @@ public class IntakeAssistCommand extends Command {
     DoubleSupplier rotationJoystick;
 
     PIDController intakingController = new PIDController(0.1, 0, 0.05);
+
+    SlewRateLimiter slewwweerrr = new SlewRateLimiter(40);
 
     public IntakeAssistCommand(
             SwerveDriveSubsystem swerveDriveSubsystem,
@@ -35,7 +38,9 @@ public class IntakeAssistCommand extends Command {
     }
 
     @Override
-    public void initialize() {}
+    public void initialize() {
+        slewwweerrr.reset(0);
+    }
 
     @Override
     public void execute() {
@@ -50,7 +55,6 @@ public class IntakeAssistCommand extends Command {
         if (visionSubsystem.getDetectorInfo().isPresent()) {
             pieceAngle = visionSubsystem.getDetectorInfo().get().ty();
             seesPiece = true;
-
         } else {
             pieceAngle = 0.0;
             seesPiece = false;
@@ -67,7 +71,7 @@ public class IntakeAssistCommand extends Command {
             swerveDriveSubsystem.setControl(swerveDriveSubsystem
                     .openLoopRobotCentric
                     .withVelocityX(forwardRobotRelative.getAsDouble())
-                    .withVelocityY(strafeRobotRelative)
+                    .withVelocityY(slewwweerrr.calculate(strafeRobotRelative))
                     .withRotationalRate(rotationJoystick.getAsDouble()));
             LightsSubsystemB.LEDSegment.MainStrip.setColor(LightsSubsystemB.green);
         } else {

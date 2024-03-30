@@ -26,7 +26,7 @@ import frc.robot.Constants.TrapConstants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.commands.AimAndSpinupCommand;
 import frc.robot.commands.DriveToPositionCommand;
-import frc.robot.commands.IntakeAssistCommand;
+import frc.robot.commands.IntakeAssistCommandComplex;
 import frc.robot.subsystems.climber.ClimberIOFalcon;
 import frc.robot.subsystems.climber.ClimberIOSim;
 import frc.robot.subsystems.climber.ClimberSubsystem;
@@ -240,11 +240,19 @@ public class RobotContainer {
 
         // Podium Shot Spinup
         rightDriveController
-                .getBottomThumb().and(leftDriveController.getBottomThumb().negate())
-                .onTrue(
-                        shooterSubsystem.shootCommand(() -> new ShooterState(.60, .60, Rotation2d.fromDegrees(36.75))).until(rightDriveController.getBottomThumb().or(leftDriveController.getBottomThumb()).negate()));
+                .getBottomThumb()
+                .and(leftDriveController.getBottomThumb().negate())
+                .onTrue(shooterSubsystem
+                        .shootCommand(() -> new ShooterState(.60, .60, Rotation2d.fromDegrees(36.75)))
+                        .until(rightDriveController
+                                .getBottomThumb()
+                                .or(leftDriveController.getBottomThumb())
+                                .negate()));
 
-        rightDriveController.getBottomThumb().and(leftDriveController.getBottomThumb()).whileTrue(shooterSubsystem.shootCommand(() -> new ShooterState(1, -1, Rotation2d.fromDegrees(15))));
+        rightDriveController
+                .getBottomThumb()
+                .and(leftDriveController.getBottomThumb())
+                .whileTrue(shooterSubsystem.shootCommand(() -> new ShooterState(1, -1, Rotation2d.fromDegrees(15))));
 
         // Shoot for Podium Shot
         rightDriveController
@@ -268,7 +276,7 @@ public class RobotContainer {
 
         // Intake Assist Command
         (rightDriveController.getLeftThumb().and(rightDriveController.getTrigger()))
-                .whileTrue(new IntakeAssistCommand(
+                .whileTrue(new IntakeAssistCommandComplex(
                         swerveDriveSubsystem,
                         visionSubsystem,
                         lightsSubsystem,
@@ -384,7 +392,8 @@ public class RobotContainer {
         LoggedReceiver isVoltageBasedTunable = Logger.tunable("/ShooterSubsystem/voltageTunable", false);
 
         leftDriveController
-                .getBottomThumb().and(rightDriveController.getBottomThumb().negate())
+                .getBottomThumb()
+                .and(rightDriveController.getBottomThumb().negate())
                 .whileTrue(shooterSubsystem.shootCommand(() -> new ShooterState(
                         topRollerSpeedTunable.getDouble(),
                         bottomRollerSpeedTunable.getDouble(),
@@ -535,7 +544,9 @@ public class RobotContainer {
 
         operatorController
                 .getLeftTrigger()
-                .and(operatorController.getRightTrigger()).and(rightDriveController.getTrigger()).whileTrue(intakeSubsystem.shootCommand());
+                .and(operatorController.getRightTrigger())
+                .and(rightDriveController.getTrigger())
+                .whileTrue(intakeSubsystem.shootCommand());
 
         operatorController.getBack().whileTrue(climberSubsystem.moveClimberUpOperator());
 
