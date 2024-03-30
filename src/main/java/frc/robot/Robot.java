@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.lib.logging.Logger;
+import frc.robot.Constants.FieldConstants;
 import frc.robot.subsystems.lights.LightsSubsystemB;
 import frc.robot.subsystems.lights.LightsSubsystemB.LEDSegment;
 
@@ -104,6 +105,8 @@ public class Robot extends TimedRobot {
         }
 
         LEDSegment.MainStrip.setFadeAnimation(LightsSubsystemB.orange, .5);
+
+        FieldConstants.isBlue = DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Blue;
     }
 
     @Override

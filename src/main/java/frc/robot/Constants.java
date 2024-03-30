@@ -385,8 +385,10 @@ public final class Constants {
             return isBlue() ? 11 : 16;
         }
 
+        public static boolean isBlue = false;
+
         public static boolean isBlue() {
-            return DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Blue;
+            return isBlue;
         }
 
         public static Pose2d conditionallyFlipPose(Pose2d pose) {
