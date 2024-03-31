@@ -7,7 +7,9 @@ import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -53,6 +55,7 @@ import frc.robot.subsystems.vision.AprilTagIOPhotonVision;
 import frc.robot.subsystems.vision.AprilTagIOSim;
 import frc.robot.subsystems.vision.PositionTargetIO;
 import frc.robot.subsystems.vision.PositionTargetIOLimelight;
+import frc.robot.subsystems.vision.PositionTargetIOPhotonVision;
 import frc.robot.subsystems.vision.PositionTargetIOSim;
 import frc.robot.subsystems.vision.VisionSubsystem;
 import java.util.ArrayList;
@@ -60,9 +63,11 @@ import java.util.Optional;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 import org.photonvision.PhotonCamera;
+import org.photonvision.estimation.TargetModel;
 import org.photonvision.simulation.PhotonCameraSim;
 import org.photonvision.simulation.SimCameraProperties;
 import org.photonvision.simulation.VisionSystemSim;
+import org.photonvision.simulation.VisionTargetSim;
 
 public class RobotContainer {
 
@@ -155,24 +160,47 @@ public class RobotContainer {
 
             // Setup vision subsystem simulations
             SimCameraProperties cameraProp = new SimCameraProperties();
-            cameraProp.setCalibration(1280, 800, Rotation2d.fromDegrees(97.65));
+            cameraProp.setCalibration(1280, 720, Rotation2d.fromDegrees(97.65));
             cameraProp.setCalibError(0.4, 0.2);
             cameraProp.setFPS(5);
             cameraProp.setAvgLatencyMs(20);
+
+            // Setup vision subsystem simulations
+            SimCameraProperties cameraProp_intake = new SimCameraProperties();
+            cameraProp_intake.setCalibration(1280, 800, Rotation2d.fromDegrees(80.46));
+            cameraProp_intake.setCalibError(0.4, 0.2);
+            cameraProp_intake.setFPS(15);
+            cameraProp_intake.setAvgLatencyMs(20);
+
             PhotonCamera camera_april = new PhotonCamera("limelight-april");
-            PhotonCameraSim cameraSim = new PhotonCameraSim(camera_april, cameraProp);
+            PhotonCameraSim camera_aprilSim = new PhotonCameraSim(camera_april, cameraProp);
+
+            PhotonCamera camera_intake = new PhotonCamera("limelight-intake");
+            PhotonCameraSim camera_intakeSim = new PhotonCameraSim(camera_intake, cameraProp_intake);
 
             visionSim.addAprilTags(Constants.FieldConstants.aprilTagFieldLayout);
-            visionSim.addCamera(cameraSim, Constants.VisionConstants.robotToApriltagCamera);
 
-            cameraSim.enableRawStream(true);
-            cameraSim.enableProcessedStream(true);
-            cameraSim.enableDrawWireframe(true);
+            TargetModel note = new TargetModel(0.3556,0.3556, 0.0508);
+
+            for (double x = FieldConstants.fieldWidth / 10; x < FieldConstants.fieldWidth; x += FieldConstants.fieldWidth / 5) {
+                visionSim.addVisionTargets(new VisionTargetSim(new Pose3d(FieldConstants.fieldLength / 2, x, 0.0254, new Rotation3d()), note));
+            }
+
+            visionSim.addCamera(camera_aprilSim, Constants.VisionConstants.robotToApriltagCamera);
+            visionSim.addCamera(camera_intakeSim, Constants.VisionConstants.limelightRobotToCamera);
+
+            camera_aprilSim.enableRawStream(true);
+            camera_aprilSim.enableProcessedStream(true);
+            camera_aprilSim.enableDrawWireframe(true);
+
+            camera_intakeSim.enableRawStream(true);
+            camera_intakeSim.enableProcessedStream(true);
+            camera_intakeSim.enableDrawWireframe(true);
 
             visionSubsystem = new VisionSubsystem(
                     swerveDriveSubsystem,
                     new AprilTagIOPhotonVision(camera_april, Constants.VisionConstants.robotToApriltagCamera, true),
-                    new PositionTargetIOSim());
+                    new PositionTargetIOPhotonVision(camera_intake, true));
 
             intakeSubsystem = new IntakeSubsystem(new IntakeIOSim());
             trapSubsystem = new TrapSubsystem(new TrapRollerIOSim(), new TrapRollerIOSim(), new RackIOSim());
