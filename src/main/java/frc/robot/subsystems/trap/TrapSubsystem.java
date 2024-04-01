@@ -2,6 +2,8 @@ package frc.robot.subsystems.trap;
 
 import static edu.wpi.first.wpilibj2.command.Commands.waitSeconds;
 
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.logging.Logger;
@@ -29,10 +31,14 @@ public class TrapSubsystem extends SubsystemBase {
 
     private TrapState currentTrapState = defaultState;
 
-    public TrapSubsystem(TrapRollerIO topRollerIO, TrapRollerIO bottomRollerIO, RackIO rackIO) {
+    private MechanismLigament2d trap;
+
+    public TrapSubsystem(TrapRollerIO topRollerIO, TrapRollerIO bottomRollerIO, RackIO rackIO, MechanismLigament2d trap) {
         this.topRollerIO = topRollerIO;
         this.bottomRollerIO = bottomRollerIO;
         this.rackIO = rackIO;
+
+        this.trap = trap;
 
         setDefaultCommand(disabledCommand());
     }
@@ -114,6 +120,8 @@ public class TrapSubsystem extends SubsystemBase {
     }
 
     public void logTrapInformation() {
+        trap.setLength(Units.inchesToMeters(22.5) + rackInputs.position / 34 * Units.inchesToMeters(19));
+
         Logger.log("/TrapSubsystem/topRollerSpeedSetpoint", currentTrapState.topVoltage);
         Logger.log("/TrapSubsystem/bottomRollerSpeedSetpoint", currentTrapState.bottomVoltage);
         Logger.log("/TrapSubsystem/trapPositionSetpoint", currentTrapState.rack);

@@ -5,6 +5,7 @@ import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -30,6 +31,8 @@ public class ShooterSubsystem extends SubsystemBase {
     private PivotIO pivotIO;
 
     private double currentDistance;
+
+    private MechanismLigament2d shooter;
 
     private final InterpolatingMap<InterpolatableDouble> topRollerMap;
     private final InterpolatingMap<InterpolatableDouble> bottomRollerMap;
@@ -57,7 +60,7 @@ public class ShooterSubsystem extends SubsystemBase {
             PivotIO pivotIO,
             InterpolatingMap<InterpolatableDouble> topRollerMap,
             InterpolatingMap<InterpolatableDouble> bottomRollerMap,
-            InterpolatingMap<InterpolatableDouble> pivotAngleMap) {
+            InterpolatingMap<InterpolatableDouble> pivotAngleMap, MechanismLigament2d shooter) {
         this.topRollerIO = topRollerIO;
         this.bottomRollerIO = bottomRollerIO;
         this.pivotIO = pivotIO;
@@ -65,6 +68,8 @@ public class ShooterSubsystem extends SubsystemBase {
         this.topRollerMap = topRollerMap;
         this.bottomRollerMap = bottomRollerMap;
         this.pivotAngleMap = pivotAngleMap;
+
+        this.shooter = shooter;
 
         setDefaultCommand(disabledCommand());
     }
@@ -227,6 +232,8 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public void logShooterInformation() {
+        shooter.setAngle(180 - pivotInputs.currentAngle.getDegrees());
+
         Logger.log("/ShooterSubsystem/topRollerSpeedSetpoint", currentShooterState.topRollerRPM);
         Logger.log("/ShooterSubsystem/bottomRollerSpeedSetpoint", currentShooterState.bottomRollerRPM);
         Logger.log("/ShooterSubsystem/shooterPositionSetpoint", currentShooterState.pivotAngle.getDegrees());

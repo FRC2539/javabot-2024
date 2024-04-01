@@ -6,7 +6,7 @@ public class ClimberIOSim implements ClimberIO {
 
     public void updateInputs(ClimberIOInputs inputs) {
         inputs.currentPosition = position;
-        position += voltage * 0.02;
+        position += voltage * 0.08;
         inputs.currentVoltage = voltage;
     }
 

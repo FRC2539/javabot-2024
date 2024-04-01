@@ -13,7 +13,14 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.util.Color;
+import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.lib.controller.LogitechController;
@@ -96,6 +103,15 @@ public class RobotContainer {
     public RobotContainer(TimedRobot robot) {
         // This is where all the robot subsystems are initialized.
         // If the robot is real it creates these:
+        Mechanism2d mech = new Mechanism2d(0, 0);
+        MechanismRoot2d shooterMechRoot = mech.getRoot("shooterRoot", Units.inchesToMeters(-2), Units.inchesToMeters(5));
+        MechanismRoot2d climberMechRoot = mech.getRoot("climberRoot", Units.inchesToMeters(0), Units.inchesToMeters(5));
+        MechanismRoot2d trapMechRoot = mech.getRoot("trapRoot", Units.inchesToMeters(8), Units.inchesToMeters(5));
+
+        MechanismLigament2d shooterMech = shooterMechRoot.append(new MechanismLigament2d("shooter", 0.4, 180, 15, new Color8Bit(Color.kBlack)));
+        MechanismLigament2d climberMech = climberMechRoot.append(new MechanismLigament2d("climber", 0.0, 90, 4, new Color8Bit(Color.kOrange)));
+        MechanismLigament2d trapMech = trapMechRoot.append(new MechanismLigament2d("trap", 0.4, 70, 4, new Color8Bit(Color.kBlue)));
+        
         if (Robot.isReal()) {
             swerveDriveSubsystem = TunerConstants.DriveTrain;
             lightsSubsystem = new LightsSubsystemB(); // new LightsSubsystem(new LightsIOBlinkin(0));
@@ -105,12 +121,12 @@ public class RobotContainer {
                     new PivotIOFalcon(),
                     Constants.ShooterConstants.topRollerMap(),
                     Constants.ShooterConstants.bottomRollerMap(),
-                    Constants.ShooterConstants.shooterAngleMap());
+                    Constants.ShooterConstants.shooterAngleMap(), shooterMech);
             trapSubsystem = new TrapSubsystem(
                     new TrapRollerIONeo550(TrapConstants.topRollerPort),
                     new TrapRollerIONeo550(TrapConstants.bottomRollerPort),
-                    new RackIONeo550());
-            climberSubsystem = new ClimberSubsystem(new ClimberIOFalcon());
+                    new RackIONeo550(), trapMech);
+            climberSubsystem = new ClimberSubsystem(new ClimberIOFalcon(), climberMech);
 
             AprilTagIO limelightAprilTag;
 
@@ -156,7 +172,7 @@ public class RobotContainer {
                     new PivotIOSim(),
                     Constants.ShooterConstants.topRollerMap(),
                     Constants.ShooterConstants.bottomRollerMap(),
-                    Constants.ShooterConstants.shooterAngleMap());
+                    Constants.ShooterConstants.shooterAngleMap(), shooterMech);
 
             // Setup vision subsystem simulations
             SimCameraProperties cameraProp = new SimCameraProperties();
@@ -203,9 +219,11 @@ public class RobotContainer {
                     new PositionTargetIOPhotonVision(camera_intake, true));
 
             intakeSubsystem = new IntakeSubsystem(new IntakeIOSim());
-            trapSubsystem = new TrapSubsystem(new TrapRollerIOSim(), new TrapRollerIOSim(), new RackIOSim());
-            climberSubsystem = new ClimberSubsystem(new ClimberIOSim());
+            trapSubsystem = new TrapSubsystem(new TrapRollerIOSim(), new TrapRollerIOSim(), new RackIOSim(), trapMech);
+            climberSubsystem = new ClimberSubsystem(new ClimberIOSim(), climberMech);
         }
+
+        SmartDashboard.putData("Mech2d", mech);
 
         autonomousManager = new AutonomousManager(this);
 

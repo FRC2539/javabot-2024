@@ -1,5 +1,7 @@
 package frc.robot.subsystems.climber;
 
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.logging.Logger;
@@ -15,10 +17,14 @@ public class ClimberSubsystem extends SubsystemBase {
 
     private final double lowerLimit = 0;
     private final double upperLimit = 190; // 315
-    private final double operatorLimit = 200;
+    private final double operatorLimit = 190;
 
-    public ClimberSubsystem(ClimberIO pivotIO) {
+    private MechanismLigament2d climber;
+
+    public ClimberSubsystem(ClimberIO pivotIO, MechanismLigament2d climber) {
         this.pivotIO = pivotIO;
+
+        this.climber = climber;
 
         setDefaultCommand(disabledCommand());
     }
@@ -70,6 +76,8 @@ public class ClimberSubsystem extends SubsystemBase {
     }
 
     public void logClimberInformation() {
+        climber.setLength(Units.inchesToMeters(22.5) + climberVoltage.currentPosition / 190 * Units.inchesToMeters(21));
+
         Logger.log("/ClimberSubsystem/position", climberVoltage.currentPosition);
         Logger.log("/ClimberSubsystem/voltageCommanded", voltage);
         Logger.log("/ClimberSubsystem/voltage", climberVoltage.currentVoltage);
