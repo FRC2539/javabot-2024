@@ -104,14 +104,18 @@ public class RobotContainer {
         // This is where all the robot subsystems are initialized.
         // If the robot is real it creates these:
         Mechanism2d mech = new Mechanism2d(0, 0);
-        MechanismRoot2d shooterMechRoot = mech.getRoot("shooterRoot", Units.inchesToMeters(-2), Units.inchesToMeters(5));
+        MechanismRoot2d shooterMechRoot =
+                mech.getRoot("shooterRoot", Units.inchesToMeters(-2), Units.inchesToMeters(5));
         MechanismRoot2d climberMechRoot = mech.getRoot("climberRoot", Units.inchesToMeters(0), Units.inchesToMeters(5));
         MechanismRoot2d trapMechRoot = mech.getRoot("trapRoot", Units.inchesToMeters(8), Units.inchesToMeters(5));
 
-        MechanismLigament2d shooterMech = shooterMechRoot.append(new MechanismLigament2d("shooter", 0.4, 180, 15, new Color8Bit(Color.kBlack)));
-        MechanismLigament2d climberMech = climberMechRoot.append(new MechanismLigament2d("climber", 0.0, 90, 4, new Color8Bit(Color.kOrange)));
-        MechanismLigament2d trapMech = trapMechRoot.append(new MechanismLigament2d("trap", 0.4, 70, 4, new Color8Bit(Color.kBlue)));
-        
+        MechanismLigament2d shooterMech =
+                shooterMechRoot.append(new MechanismLigament2d("shooter", 0.4, 180, 15, new Color8Bit(Color.kBlack)));
+        MechanismLigament2d climberMech =
+                climberMechRoot.append(new MechanismLigament2d("climber", 0.0, 90, 4, new Color8Bit(Color.kOrange)));
+        MechanismLigament2d trapMech =
+                trapMechRoot.append(new MechanismLigament2d("trap", 0.4, 70, 4, new Color8Bit(Color.kBlue)));
+
         if (Robot.isReal()) {
             swerveDriveSubsystem = TunerConstants.DriveTrain;
             lightsSubsystem = new LightsSubsystemB(); // new LightsSubsystem(new LightsIOBlinkin(0));
@@ -121,11 +125,13 @@ public class RobotContainer {
                     new PivotIOFalcon(),
                     Constants.ShooterConstants.topRollerMap(),
                     Constants.ShooterConstants.bottomRollerMap(),
-                    Constants.ShooterConstants.shooterAngleMap(), shooterMech);
+                    Constants.ShooterConstants.shooterAngleMap(),
+                    shooterMech);
             trapSubsystem = new TrapSubsystem(
                     new TrapRollerIONeo550(TrapConstants.topRollerPort),
                     new TrapRollerIONeo550(TrapConstants.bottomRollerPort),
-                    new RackIONeo550(), trapMech);
+                    new RackIONeo550(),
+                    trapMech);
             climberSubsystem = new ClimberSubsystem(new ClimberIOFalcon(), climberMech);
 
             AprilTagIO limelightAprilTag;
@@ -172,7 +178,8 @@ public class RobotContainer {
                     new PivotIOSim(),
                     Constants.ShooterConstants.topRollerMap(),
                     Constants.ShooterConstants.bottomRollerMap(),
-                    Constants.ShooterConstants.shooterAngleMap(), shooterMech);
+                    Constants.ShooterConstants.shooterAngleMap(),
+                    shooterMech);
 
             // Setup vision subsystem simulations
             SimCameraProperties cameraProp = new SimCameraProperties();
@@ -196,10 +203,13 @@ public class RobotContainer {
 
             visionSim.addAprilTags(Constants.FieldConstants.aprilTagFieldLayout);
 
-            TargetModel note = new TargetModel(0.3556,0.3556, 0.0508);
+            TargetModel note = new TargetModel(0.3556, 0.3556, 0.0508);
 
-            for (double x = FieldConstants.fieldWidth / 10; x < FieldConstants.fieldWidth; x += FieldConstants.fieldWidth / 5) {
-                visionSim.addVisionTargets(new VisionTargetSim(new Pose3d(FieldConstants.fieldLength / 2, x, 0.0254, new Rotation3d()), note));
+            for (double x = FieldConstants.fieldWidth / 10;
+                    x < FieldConstants.fieldWidth;
+                    x += FieldConstants.fieldWidth / 5) {
+                visionSim.addVisionTargets(new VisionTargetSim(
+                        new Pose3d(FieldConstants.fieldLength / 2, x, 0.0254, new Rotation3d()), note));
             }
 
             visionSim.addCamera(camera_aprilSim, Constants.VisionConstants.robotToApriltagCamera);
@@ -287,7 +297,7 @@ public class RobotContainer {
         // Podium Shot Spinup
         rightDriveController
                 .getBottomThumb()
-                .and(leftDriveController.getBottomThumb().negate())
+                //.and(leftDriveController.getBottomThumb().negate())
                 .onTrue(shooterSubsystem
                         .shootCommand(() -> new ShooterState(.60, .60, Rotation2d.fromDegrees(36.75)))
                         .until(rightDriveController
@@ -295,10 +305,10 @@ public class RobotContainer {
                                 .or(leftDriveController.getBottomThumb())
                                 .negate()));
 
-        rightDriveController
-                .getBottomThumb()
-                .and(leftDriveController.getBottomThumb())
-                .whileTrue(shooterSubsystem.shootCommand(() -> new ShooterState(1, -1, Rotation2d.fromDegrees(15))));
+        // rightDriveController
+        //         .getBottomThumb()
+        //         .and(leftDriveController.getBottomThumb())
+        //         .whileTrue(shooterSubsystem.shootCommand(() -> new ShooterState(1, -1, Rotation2d.fromDegrees(15))));
 
         // Shoot for Podium Shot
         rightDriveController
@@ -313,8 +323,7 @@ public class RobotContainer {
                 .whileTrue(intakeSubsystem.intakeCommand());
 
         // Run Shooter Intake
-        (rightDriveController.getRightThumb().and(rightDriveController.getTrigger()))
-                .debounce(0.2, DebounceType.kFalling)
+        rightDriveController.getRightThumb().and(rightDriveController.getTrigger())
                 .whileTrue(parallel(
                         intakeSubsystem.shooterIntakeCommand(),
                         shooterSubsystem.shootCommand(
@@ -372,22 +381,24 @@ public class RobotContainer {
         rightDriveController
                 .getBottomThumb()
                 .whileTrue(Commands.either(
-                        swerveDriveSubsystem.cardinalCommand(
-                                new Rotation2d(-0.301), this::getDriveForwardAxis, this::getDriveStrafeAxis),
-                        swerveDriveSubsystem.cardinalCommand(
-                                new Rotation2d(Math.PI + 0.301), this::getDriveForwardAxis, this::getDriveStrafeAxis),
-                        // shooterSubsystem.shootCommand(new ShooterState(.05,.2,Rotation2d.fromDegrees(55)),
-                        FieldConstants::isBlue));
+                                swerveDriveSubsystem.cardinalCommand(
+                                        new Rotation2d(-0.301), this::getDriveForwardAxis, this::getDriveStrafeAxis),
+                                swerveDriveSubsystem.cardinalCommand(
+                                        new Rotation2d(Math.PI + 0.301),
+                                        this::getDriveForwardAxis,
+                                        this::getDriveStrafeAxis),
+                                // shooterSubsystem.shootCommand(new ShooterState(.05,.2,Rotation2d.fromDegrees(55)),
+                                FieldConstants::isBlue)
+                        .alongWith(Commands.either(
+                                run(
+                                        () -> {
+                                            LightsSubsystemB.LEDSegment.MainStrip.setColor(LightsSubsystemB.green);
+                                        },
+                                        lightsSubsystem).asProxy(),
+                                run(() -> {}),
+                                () -> swerveDriveSubsystem.isAtDirectionCommand(0.1, 0.2))));
 
         /*Set left joystic bindings */
-
-        // leftDriveController
-        //         .getTrigger()
-        //         .whileTrue(aimAndShootCommands.movingAimCommand(
-        //                 this::getDriveForwardAxis,
-        //                 this::getDriveStrafeAxis,
-        //                 this::getDriveRotationAxis,
-        //                 lightsSubsystem));
 
         // Aim and Spinup Using Vision
         AimAndSpinupCommand stoppedShootAimAndSpinup = new AimAndSpinupCommand(
@@ -399,32 +410,52 @@ public class RobotContainer {
                 () -> getDriveStrafeAxis(),
                 () -> 0,
                 false,
-                1.0 / 16.0,
+                0,
+                0,
                 true,
                 true,
                 true,
                 false);
         leftDriveController
-                .getTrigger()
+                .getTrigger().and(leftDriveController.getBottomThumb().negate())
                 .whileTrue(deadline(
                         stoppedShootAimAndSpinup, run(() -> {}, lightsSubsystem).asProxy()));
 
-        // leftDriveController
-        //         .getTrigger().and(operatorController.getLeftBumper())
-        //         .whileTrue(aimAndShootCommands.adaptiveMovingAimCommand(
-        //             this::getDriveForwardAxis, this::getDriveStrafeAxis, this::getDriveRotationAxis, lightsSubsystem
-        //         ));
+        // Shoot for Vision Based Spinup and Aim
+        leftDriveController
+                .getTrigger().and(leftDriveController.getBottomThumb().negate())
+                .and(rightDriveController.getTrigger())
+                .whileTrue(Commands.waitUntil(() -> stoppedShootAimAndSpinup.isAtAngleAndSpunUpAndTarget())
+                        .andThen(intakeSubsystem.shootCommand()));
+
+        // Aim and Spinup Using Vision
+        AimAndSpinupCommand movingShootAimAndSpinup = new AimAndSpinupCommand(
+                swerveDriveSubsystem,
+                shooterSubsystem,
+                lightsSubsystem,
+                visionSubsystem,
+                () -> getDriveForwardAxis(),
+                () -> getDriveStrafeAxis(),
+                () -> 0,
+                false,
+                4.0/16.0,
+                0.25,
+                true,
+                true,
+                false,
+                false);
+        leftDriveController
+                .getTrigger().and(leftDriveController.getBottomThumb())
+                .whileTrue(Commands.waitUntil(() -> stoppedShootAimAndSpinup.isAtAngleAndSpunUpAndTarget())
+                        .andThen(deadline(
+                        movingShootAimAndSpinup, run(() -> {}, lightsSubsystem).asProxy())));
 
         // Shoot for Vision Based Spinup and Aim
         leftDriveController
-                .getTrigger()
+                .getTrigger().and(leftDriveController.getBottomThumb())
                 .and(rightDriveController.getTrigger())
-                .whileTrue(Commands.waitUntil(() -> stoppedShootAimAndSpinup.isAtAngleAndSpunUp())
-                        .andThen(intakeSubsystem.shootCommand()));
-        // .whileTrue(waitUntil(() -> shooterSubsystem.isShooterAtPosition() &&
-        // swerveDriveSubsystem.isAtDirectionCommand(0.06, 0.02)).andThen(intakeSubsystem.shootCommand()))
-        ; // stoppedShootAndAimCommand());
-
+                .whileTrue(intakeSubsystem.shootCommand());
+        
         // Climber Down
         leftDriveController.getLeftThumb().whileTrue(climberSubsystem.setVoltage(-12));
 
@@ -438,8 +469,8 @@ public class RobotContainer {
         LoggedReceiver isVoltageBasedTunable = Logger.tunable("/ShooterSubsystem/voltageTunable", false);
 
         leftDriveController
-                .getBottomThumb()
-                .and(rightDriveController.getBottomThumb().negate())
+                .getBottomThumb().and(leftDriveController.getTrigger().negate())
+                //.and(rightDriveController.getBottomThumb().negate())
                 .whileTrue(shooterSubsystem.shootCommand(() -> new ShooterState(
                         topRollerSpeedTunable.getDouble(),
                         bottomRollerSpeedTunable.getDouble(),
@@ -449,7 +480,7 @@ public class RobotContainer {
 
         // Shoot for the Adjustable Shot
         leftDriveController
-                .getBottomThumb()
+                .getBottomThumb().and(leftDriveController.getTrigger().negate())
                 .and(rightDriveController.getTrigger())
                 .whileTrue(intakeSubsystem.shootCommand());
 
@@ -501,8 +532,8 @@ public class RobotContainer {
         // of stalling)
         operatorController.getA().whileTrue(trapSubsystem.trapStateCommand(new TrapState(0, 0, 0)));
 
-        LoggedReceiver traptopRollerSpeedTunable = Logger.tunable("/TrapSubsystem/topTunable", 3.5d);
-        LoggedReceiver trapbottomRollerSpeedTunable = Logger.tunable("/TrapSubsystem/bottomTunable", -3.5d);
+        LoggedReceiver traptopRollerSpeedTunable = Logger.tunable("/TrapSubsystem/topTunable", 2d);
+        LoggedReceiver trapbottomRollerSpeedTunable = Logger.tunable("/TrapSubsystem/bottomTunable", -2d);
         operatorController
                 .getDPadLeft()
                 .whileTrue(trapSubsystem.trapStateCommand(() -> TrapState.fromVoltages(
@@ -535,6 +566,7 @@ public class RobotContainer {
         operatorController
                 .getRightTrigger()
                 .and(operatorController.getLeftTrigger().negate())
+                .and(() -> !intakeSubsystem.hasPieceSmoothed())
                 .whileTrue(run(
                         () -> LightsSubsystemB.LEDSegment.MainStrip.setStrobeAnimation(LightsSubsystemB.purple, 0.3),
                         lightsSubsystem));
@@ -552,18 +584,19 @@ public class RobotContainer {
                                 .withTimeout(.1)));
 
         // Shooter Intaking Indicator (Flash Blue and Yellow)
-        operatorController
-                .getLeftTrigger()
-                .and(operatorController.getRightTrigger())
-                .whileTrue(repeatingSequence(
-                        run(
-                                        () -> LightsSubsystemB.LEDSegment.MainStrip.setColor(LightsSubsystemB.blue),
-                                        lightsSubsystem)
-                                .withTimeout(.1),
-                        run(
-                                        () -> LightsSubsystemB.LEDSegment.MainStrip.setColor(LightsSubsystemB.yellow),
-                                        lightsSubsystem)
-                                .withTimeout(.1)));
+        // operatorController
+        //         .getLeftTrigger()
+        //         .and(operatorController.getRightTrigger())
+        //         .whileTrue(repeatingSequence(
+        //                 run(
+        //                                 () -> LightsSubsystemB.LEDSegment.MainStrip.setColor(LightsSubsystemB.blue),
+        //                                 lightsSubsystem)
+        //                         .withTimeout(.1),
+        //                 run(
+        //                                 () ->
+        // LightsSubsystemB.LEDSegment.MainStrip.setColor(LightsSubsystemB.yellow),
+        //                                 lightsSubsystem)
+        //                         .withTimeout(.1)));
 
         // feeder shot
         operatorController
@@ -804,6 +837,7 @@ public class RobotContainer {
                 null,
                 null,
                 false,
+                0,
                 0,
                 true,
                 false,

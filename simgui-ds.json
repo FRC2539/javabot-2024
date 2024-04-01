@@ -1,24 +1,21 @@
 {
-  "System Joysticks": {
-    "window": {
-      "visible": false
-    }
-  },
   "keyboardJoysticks": [
     {
       "axisConfig": [
         {
-          "decKey": 87,
-          "incKey": 83
+          "decKey": 328,
+          "incKey": 325,
+          "maxAbsValue": 0.5
         },
         {
-          "decKey": 68,
-          "incKey": 65
+          "decKey": 326,
+          "incKey": 324,
+          "maxAbsValue": 0.5
         },
         {
-          "decKey": 69,
+          "decKey": 327,
           "decayRate": 0.0,
-          "incKey": 82,
+          "incKey": 329,
           "keyRate": 0.009999999776482582
         }
       ],
@@ -32,14 +29,9 @@
       ],
       "povConfig": [
         {
-          "key0": 328,
           "key135": 323,
           "key180": 322,
-          "key225": 321,
-          "key270": 324,
-          "key315": 327,
-          "key45": 329,
-          "key90": 326
+          "key225": 321
         }
       ],
       "povCount": 1

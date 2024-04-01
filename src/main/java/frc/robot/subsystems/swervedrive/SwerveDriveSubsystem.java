@@ -201,7 +201,8 @@ public class SwerveDriveSubsystem extends SwerveDrivetrain implements Subsystem 
         final ProfiledPIDController omegaController =
                 new ProfiledPIDController(5, 0, 0, new TrapezoidProfile.Constraints(3.0, 8));
 
-        return directionCommand(() -> targetAngle, forward, strafe, omegaController);
+        return directionCommand(
+                () -> targetAngle, forward, strafe, new PIDController(4, 0, .2), false); // omegaController);
     }
 
     private double directionCommandErrorRadiansRotation = 0;

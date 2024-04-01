@@ -69,12 +69,13 @@ public class AutonomousManager {
                     () -> 0,
                     false,
                     0,
+                    0,
                     true,
                     true,
                     true,
                     true);
             autoShootingCommand = Commands.deadline(
-                    waitUntil(() -> aimAndSpinupCommand.isAtAngleAndSpunUp())
+                    waitUntil(() -> aimAndSpinupCommand.isAtAngleAndSpunUpAndTarget())
                             .withTimeout(2.5)
                             .andThen(intakeSubsystem.shootCommand().asProxy().withTimeout(0.4)),
                     aimAndSpinupCommand,
@@ -94,12 +95,13 @@ public class AutonomousManager {
                     () -> 0,
                     false,
                     0,
+                    0,
                     true,
                     true,
                     true,
                     true);
             aimedShootCommand = Commands.deadline(
-                            waitUntil(() -> aimAndSpinupCommand.isAtAngleAndSpunUp())
+                            waitUntil(() -> aimAndSpinupCommand.isAtAngleAndSpunUpAndTarget())
                                     .withTimeout(2.5)
                                     .andThen(intakeSubsystem
                                             .shootCommand()
@@ -179,6 +181,7 @@ public class AutonomousManager {
                     () -> 0,
                     () -> 0,
                     true,
+                    0,
                     0,
                     true,
                     true,
@@ -281,21 +284,21 @@ public class AutonomousManager {
                 4,
                 "EasyAmp4",
                 "Near Line (Amp)",
-                true,
+                false,
                 "Shoots in the starting piece and then picks up and shoots the near row."),
         EASYSOURCE4(
                 "Source",
                 4,
                 "EasySource4",
                 "Near Line (Source)",
-                true,
+                false,
                 "Shoots in the starting piece and then picks up and shoots the near row."),
         EASYCENTER4(
                 "Center",
                 4,
                 "EasyCenter4",
                 "Near Line (Center)",
-                true,
+                false,
                 "Shoots in the starting piece and then picks up and shoots the near row."),
         SOURCE4(
                 "Source",
@@ -310,7 +313,7 @@ public class AutonomousManager {
                 4,
                 "Source4A",
                 "Source Side Conditional",
-                true,
+                false,
                 "Shoots the starting piece and then shoots the three near the source on the centerline."),
 
         AMP5(
@@ -326,7 +329,7 @@ public class AutonomousManager {
                 5,
                 "Amp5A",
                 "Amp Side Conditional",
-                true,
+                false,
                 "Scores the starting piece, the amp side near line piece, and the three pieces on the amp side centerline."),
 
         MOBILITY1(
@@ -334,7 +337,7 @@ public class AutonomousManager {
                 1,
                 "Mobility1",
                 "Mobility",
-                true,
+                false,
                 "Shoots the starting piece and goes off to the side to get mobility."),
 
         CENTER5(
@@ -345,7 +348,7 @@ public class AutonomousManager {
                 true,
                 "Shoots the starting piece, collects the next nearest piece, and scores the two most middle on the centerline."),
 
-        LINE0("Anywhere", 0, "straightLine", "Straight Line", true, "Slowly accelerates in a straight line.");
+        LINE0("Anywhere", 0, "straightLine", "Straight Line", false, "Slowly accelerates in a straight line.");
 
         private String pathName;
         public String startPosition;

@@ -38,6 +38,7 @@ public class AimAndSpinupCommand extends Command {
     private boolean useAutoMode;
     private boolean doSpinup;
     private double motionForwardPrediction;
+    private double motionForwardCompensationBase;
     private boolean usingTarget;
     private boolean doAiming;
 
@@ -53,6 +54,7 @@ public class AimAndSpinupCommand extends Command {
     // Internal Variables
     private double calculatedDistance;
     private Rotation2d calculatedRotation;
+    private double goalCalculatedRotationSpeed;
 
     // Output Variables
     private boolean isAtAngle;
@@ -86,6 +88,7 @@ public class AimAndSpinupCommand extends Command {
             DoubleSupplier rotate,
             boolean useAutoMode,
             double motionForwardPrediction,
+            double motionForwardCompensationBase,
             boolean doSpinup,
             boolean doAiming,
             boolean usingTarget,
@@ -96,6 +99,7 @@ public class AimAndSpinupCommand extends Command {
         this.useAutoMode = useAutoMode;
         this.doSpinup = doSpinup;
         this.motionForwardPrediction = motionForwardPrediction;
+        this.motionForwardCompensationBase = motionForwardCompensationBase;
         this.usingTarget = usingTarget;
         this.doAiming = doAiming;
 
@@ -148,6 +152,7 @@ public class AimAndSpinupCommand extends Command {
 
     private void calculateShootingRotationAndDistance() {
         Pose2d predictedPose;
+        Pose2d futurePose;
         Pose2d currentPose = swerveDriveSubsystem.getPose();
 
         // if the motion Forward Prediction is 0, skip the step (no moving while shooting)
@@ -158,14 +163,25 @@ public class AimAndSpinupCommand extends Command {
                     currentPose.getX() + currentSpeed.vxMetersPerSecond * motionForwardPrediction * distance,
                     currentPose.getY() + currentSpeed.vyMetersPerSecond * motionForwardPrediction * distance,
                     new Rotation2d(currentPose.getRotation().getRadians()));
+            futurePose = new Pose2d(
+                    currentPose.getX() + currentSpeed.vxMetersPerSecond * (motionForwardPrediction * distance + 0.20),
+                    currentPose.getY() + currentSpeed.vyMetersPerSecond * (motionForwardPrediction * distance  + 0.20),
+                    new Rotation2d(currentPose.getRotation().getRadians()));
         } else {
             predictedPose = swerveDriveSubsystem.getPose();
+            futurePose = predictedPose;
         }
+
+        goalCalculatedRotationSpeed = 0;
 
         // Supply the default distance and rotations
         if (!hasSeenTarget) {
             calculatedRotation = visionSubsystem.getSpeakerAngleFromPose(predictedPose);
             calculatedDistance = visionSubsystem.getSpeakerDistanceFromPose(predictedPose);
+            if (motionForwardPrediction != 0) {
+                Rotation2d futureCalculatedRotation = visionSubsystem.getSpeakerAngleFromPose(futurePose);
+                goalCalculatedRotationSpeed = futureCalculatedRotation.minus(calculatedRotation).getRadians() / 0.20;
+            }
         }
 
         // keeps track of wether this cycle we used a target
@@ -198,8 +214,9 @@ public class AimAndSpinupCommand extends Command {
 
         var rotationCorrection =
                 visionPIDController.calculate(currentRotation.getRadians(), calculatedRotation.getRadians());
+                
 
-        visionPIDController.setTolerance(currentTolerance, toleranceVelocity);
+        visionPIDController.setTolerance(currentTolerance, motionForwardPrediction == 0 ? toleranceVelocity : 10);
 
         isAtAngle = visionPIDController.atSetpoint();
 
@@ -213,7 +230,7 @@ public class AimAndSpinupCommand extends Command {
                         .openLoop
                         .withVelocityX(forward.getAsDouble())
                         .withVelocityY(strafe.getAsDouble())
-                        .withRotationalRate(MathUtils.ensureRange(rotationCorrection, -maxSpeedPID, maxSpeedPID)));
+                        .withRotationalRate(goalCalculatedRotationSpeed + MathUtils.ensureRange(rotationCorrection, -maxSpeedPID, maxSpeedPID)));
             }
         } else {
             isAtAngle = false;
@@ -249,7 +266,7 @@ public class AimAndSpinupCommand extends Command {
     }
 
     private void updateLights() {
-        if (!hasTarget()) {
+        if (!hasTarget() && usingTarget) {
             LightsSubsystemB.LEDSegment.MainStrip.setStrobeAnimation(LightsSubsystemB.red, 0.3);
         } else {
             if (isAtAngle()) {
@@ -289,5 +306,9 @@ public class AimAndSpinupCommand extends Command {
 
     public boolean isAtAngleAndSpunUp() {
         return isAtAngle() && isSpunUp();
+    }
+
+    public boolean isAtAngleAndSpunUpAndTarget() {
+        return isAtAngle() && isSpunUp() && hasTarget();
     }
 }
