@@ -36,6 +36,7 @@ import frc.robot.Constants;
 import frc.robot.commands.DriveToPositionCommand;
 import java.util.Optional;
 import java.util.function.DoubleSupplier;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
@@ -52,6 +53,8 @@ public class SwerveDriveSubsystem extends SwerveDrivetrain implements Subsystem 
     private Optional<Rotation2d> autoRotationOverride = Optional.empty();
 
     public Optional<Double> autoRotationVelocityOverride = Optional.empty();
+
+    public Function<Double, Double> autoStrafeOverrideSupplier = (Double x) -> x;
 
     public final SwerveRequest.RobotCentric closedLoopRobotCentric = new SwerveRequest.RobotCentric()
             .withDriveRequestType(DriveRequestType.Velocity)
@@ -128,7 +131,7 @@ public class SwerveDriveSubsystem extends SwerveDrivetrain implements Subsystem 
                     // SwerveConstants.angularVelocityCoefficient));
                     this.setControl(closedLoopRobotCentric
                             .withVelocityX(velocity.vxMetersPerSecond)
-                            .withVelocityY(velocity.vyMetersPerSecond)
+                            .withVelocityY(autoStrafeOverrideSupplier.apply(velocity.vyMetersPerSecond))
                             .withRotationalRate(
                                     autoRotationVelocityOverride.isEmpty()
                                             ? velocity.omegaRadiansPerSecond

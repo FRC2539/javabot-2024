@@ -20,6 +20,7 @@ import frc.lib.logging.Logger;
 import frc.lib.vision.LimelightRawAngles;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.commands.AimAndSpinupCommand;
+import frc.robot.commands.IntakeAssistCommandComplexAuto;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.lights.LightsSubsystemB;
 import frc.robot.subsystems.shooter.ShooterState;
@@ -132,9 +133,12 @@ public class AutonomousManager {
         NamedCommands.registerCommand(
                 "intake", intakeSubsystem.intakeCommand().withTimeout(2).asProxy());
         LinearFilter lowPassIQR = LinearFilter.movingAverage(20);
-        NamedCommands.registerCommand(
-                "mlintake",
-                swerveDriveSubsystem
+        IntakeAssistCommandComplexAuto intakeAssistCommandComplex = new IntakeAssistCommandComplexAuto(
+                swerveDriveSubsystem, visionSubsystem, lightsSubsystem);
+
+        swerveDriveSubsystem.autoStrafeOverrideSupplier = (Double x) -> intakeAssistCommandComplex.transformStrafe(x);
+
+        Command intakeAssistCommandTurn = swerveDriveSubsystem
                         .directionCommandAutoVelocity(
                                 () -> {
                                     Optional<LimelightRawAngles> direction = visionSubsystem.getDetectorInfo();
@@ -150,8 +154,11 @@ public class AutonomousManager {
                                         return swerveDriveSubsystem.getRotation();
                                     }
                                 },
-                                new PIDController(5, 0, 0.1))
-                        .until(() -> intakeSubsystem.hasPieceSmoothed()));
+                                new PIDController(5, 0, 0.1));
+
+        NamedCommands.registerCommand(
+                "mlintake", intakeAssistCommandComplex.until(() -> intakeSubsystem.hasPieceSmoothed()));
+                
         NamedCommands.registerCommand(
                 "mlintakedrive",
                 container
