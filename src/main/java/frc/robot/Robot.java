@@ -92,22 +92,28 @@ public class Robot extends TimedRobot {
             LEDSegment.BatteryIndicator.setFadeAnimation(LightsSubsystemB.green.dim(.25), 1);
         }
 
-        // if (robotContainer.getShooterSubsystem().) {
-        //     LEDSegment.BatteryIndicator.setColor(LightsSubsystemB.green.dim(.25));
-        // } else {
-        //     LEDSegment.BatteryIndicator.setFadeAnimation(LightsSubsystemB.green.dim(.25),1);
-        // }
+        if (robotContainer.getShooterSubsystem().isEncoderConnected()) {
+            LEDSegment.PivotEncoderIndicator.setColor(LightsSubsystemB.purple.dim(.25));
+        } else {
+            LEDSegment.PivotEncoderIndicator.setFadeAnimation(LightsSubsystemB.purple.dim(.25),1);
+        }
 
         if (DriverStation.isDSAttached()) {
-            LEDSegment.DriverStationIndicator.setColor(LightsSubsystemB.orange.dim(.25));
+            LEDSegment.DriverstationIndicator.setColor(LightsSubsystemB.orange.dim(.25));
         } else {
-            LEDSegment.DriverStationIndicator.fullClear();
+            LEDSegment.DriverstationIndicator.fullClear();
         }
 
         LEDSegment.MainStrip.setFadeAnimation(LightsSubsystemB.orange, .5);
 
         FieldConstants.isBlue =
                 DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Blue;
+
+        if (FieldConstants.isBlue()) {
+            LEDSegment.AllianceIndicator.setColor(LightsSubsystemB.blue.dim(.25));
+        } else {
+            LEDSegment.AllianceIndicator.setColor(LightsSubsystemB.red.dim(.25));
+        }
     }
 
     @Override

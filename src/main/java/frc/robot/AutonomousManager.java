@@ -114,13 +114,7 @@ public class AutonomousManager {
                     .finallyDo(() -> visionSubsystem.updatingPoseUsingVision = false)
                     .beforeStarting(() -> visionSubsystem.updatingPoseUsingVision = false);
         }
-        NamedCommands.registerCommand("aimedshoot", aimedShootCommand);
-        NamedCommands.registerCommand(
-                "spinupshoot",
-                parallel(
-                                container.getSpinupCommand().asProxy(),
-                                intakeSubsystem.shootCommand().asProxy())
-                        .withTimeout(.5)); // .onlyIf(() -> intakeSubsystem.hasPiece()));
+        NamedCommands.registerCommand("aimedshoot", aimedShootCommand); // .onlyIf(() -> intakeSubsystem.hasPiece()));
         NamedCommands.registerCommand(
                 "subshoot",
                 Commands.parallel(
@@ -131,7 +125,7 @@ public class AutonomousManager {
                                         .andThen(intakeSubsystem.shootCommand().asProxy()))
                         .withTimeout(1.25));
         NamedCommands.registerCommand(
-                "intake", intakeSubsystem.intakeCommand().withTimeout(2).asProxy());
+                "intake", intakeSubsystem.intakeCommand().asProxy());
         LinearFilter lowPassIQR = LinearFilter.movingAverage(20);
         IntakeAssistCommandComplexAuto intakeAssistCommandComplex = new IntakeAssistCommandComplexAuto(
                 swerveDriveSubsystem, visionSubsystem, lightsSubsystem);
@@ -198,6 +192,19 @@ public class AutonomousManager {
         }
         NamedCommands.registerCommand("aim", autoAimCommand);
         NamedCommands.registerCommand("spinup", container.getSpinupCommand().asProxy());
+        NamedCommands.registerCommand(
+                "spinupshoot",
+                parallel(
+                                container.getSpinupCommand().asProxy(),
+                                intakeSubsystem.shootCommand().asProxy())
+                        .withTimeout(.5));
+        NamedCommands.registerCommand("spinupmov", container.getSpinupMoveCommand().asProxy());
+        NamedCommands.registerCommand(
+                "spinupshootmov",
+                parallel(
+                                container.getSpinupMoveCommand().asProxy(),
+                                intakeSubsystem.shootCommand().asProxy())
+                        .withTimeout(.5));
         NamedCommands.registerCommand("coast", parallel());
         NamedCommands.registerCommand(
                 "eject", intakeSubsystem.ejectCommand().withTimeout(2).asProxy());
@@ -286,6 +293,20 @@ public class AutonomousManager {
     }
 
     private enum AutonomousOption {
+        CENTER5(
+                "Center",
+                5,
+                "NewCenter5 A",
+                "Center",
+                true,
+                "Shoots the starting piece, collects the next nearest piece, and scores the second left most on the centerline."),
+        CENTER5B(
+                "Center",
+                5,
+                "NewCenterCenter5",
+                "Center B",
+                true,
+                "Shoots the starting piece, collects the next nearest piece, and scores the most middle on the centerline."),
         EASYAMP4(
                 "Amp",
                 4,
@@ -346,14 +367,6 @@ public class AutonomousManager {
                 "Mobility",
                 false,
                 "Shoots the starting piece and goes off to the side to get mobility."),
-
-        CENTER5(
-                "Center",
-                5,
-                "NewCenter5",
-                "Center",
-                true,
-                "Shoots the starting piece, collects the next nearest piece, and scores the two most middle on the centerline."),
 
         LINE0("Anywhere", 0, "straightLine", "Straight Line", false, "Slowly accelerates in a straight line.");
 

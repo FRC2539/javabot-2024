@@ -18,9 +18,16 @@
           }
         },
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "S-5b"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "S-5b"
+                }
+              }
+            ]
           }
         },
         {

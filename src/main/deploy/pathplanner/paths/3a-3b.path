@@ -3,34 +3,50 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 6.185727635363972,
-        "y": 7.471513716208602
+        "x": 2.754452527449989,
+        "y": 4.20419031993556
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.185727635363971,
-        "y": 7.471513716208602
+        "x": 2.63367409925703,
+        "y": 5.110345491346254
+      },
+      "isLocked": false,
+      "linkedName": "3a"
+    },
+    {
+      "anchor": {
+        "x": 4.2240791034288625,
+        "y": 4.934933174709655
+      },
+      "prevControl": {
+        "x": 3.396321857693434,
+        "y": 5.45576919449824
+      },
+      "nextControl": {
+        "x": 5.264858848806016,
+        "y": 4.280060525933018
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 8.328727312725281,
-        "y": 7.519341306488881
+        "x": 8.3638097760526,
+        "y": 4.20419031993556
       },
       "prevControl": {
-        "x": 7.328727312725281,
-        "y": 7.519341306488881
+        "x": 6.785098926323208,
+        "y": 4.20419031993556
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "1b"
+      "linkedName": null
     }
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.0,
+      "waypointRelativePos": 1.45,
       "rotationDegrees": 0,
       "rotateFast": false
     }
@@ -39,7 +55,7 @@
   "eventMarkers": [
     {
       "name": "intake",
-      "waypointRelativePos": 0.0,
+      "waypointRelativePos": 1.5,
       "command": {
         "type": "parallel",
         "data": {
@@ -49,18 +65,7 @@
               "data": {
                 "name": "intake"
               }
-            }
-          ]
-        }
-      }
-    },
-    {
-      "name": "mlintake",
-      "waypointRelativePos": 0.3,
-      "command": {
-        "type": "parallel",
-        "data": {
-          "commands": [
+            },
             {
               "type": "named",
               "data": {
@@ -80,13 +85,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0,
+    "rotation": 0.0,
     "rotateFast": false
   },
   "reversed": false,
   "folder": "The Square Convention",
   "previewStartingState": {
-    "rotation": 0,
+    "rotation": -28.88658176691063,
     "velocity": 0
   },
   "useDefaultConstraints": true

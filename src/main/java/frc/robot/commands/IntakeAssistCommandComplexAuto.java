@@ -25,7 +25,7 @@ public class IntakeAssistCommandComplexAuto extends Command {
 
     private OptionalDouble strafeingAmount = OptionalDouble.empty();
 
-    PIDController intakingController = new PIDController(1.5, 0, 0.05);
+    PIDController intakingController = new PIDController(4, 0, 0.00);
 
     Pose2d lastPiecePosition = null;
 

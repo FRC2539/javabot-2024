@@ -63,10 +63,10 @@ public class LightsSubsystemB extends SubsystemBase {
     public Command defaultCommand() {
         return run(() -> {
             LEDSegment.BatteryIndicator.fullClear();
-            LEDSegment.PressureIndicator.fullClear();
-            LEDSegment.MastEncoderIndicator.fullClear();
-            LEDSegment.BoomEncoderIndicator.fullClear();
-            LEDSegment.WristEncoderIndicator.fullClear();
+            LEDSegment.DriverstationIndicator.fullClear();
+            LEDSegment.ExtraAIndicator.fullClear();
+            LEDSegment.ExtraBIndicator.fullClear();
+            LEDSegment.PivotEncoderIndicator.fullClear();
 
             if (hasPiece.getAsBoolean()) {
                 LightsSubsystemB.LEDSegment.MainStrip.setStrobeAnimation(LightsSubsystemB.white, 0.3);
@@ -89,11 +89,11 @@ public class LightsSubsystemB extends SubsystemBase {
 
     public static enum LEDSegment {
         BatteryIndicator(0, 2, 0),
-        PressureIndicator(2, 2, 1),
-        MastEncoderIndicator(4, 1, -1),
-        BoomEncoderIndicator(5, 1, -1),
-        WristEncoderIndicator(6, 1, -1),
-        DriverStationIndicator(7, 1, -1),
+        DriverstationIndicator(2, 2, 1),
+        ExtraAIndicator(4, 1, -1),
+        ExtraBIndicator(5, 1, -1),
+        PivotEncoderIndicator(6, 1, -1),
+        AllianceIndicator(7, 1, -1),
         MainStrip(8, 300, 2);
 
         public final int startIndex;

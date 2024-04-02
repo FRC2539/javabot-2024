@@ -844,4 +844,22 @@ public class RobotContainer {
                 false,
                 false);
     }
+
+    public Command getSpinupMoveCommand() {
+        return new AimAndSpinupCommand(
+                swerveDriveSubsystem,
+                shooterSubsystem,
+                lightsSubsystem,
+                visionSubsystem,
+                null,
+                null,
+                null,
+                false,
+                2.0/16,
+                0,
+                true,
+                false,
+                false,
+                false);
+    }
 }

@@ -25,7 +25,7 @@ public class IntakeAssistCommandComplex extends Command {
     DoubleSupplier forwardJoystick;
     DoubleSupplier rotationJoystick;
 
-    PIDController intakingController = new PIDController(1.5, 0, 0.05);
+    PIDController intakingController = new PIDController(4, 0, 0);
 
     Pose2d lastPiecePosition = null;
 

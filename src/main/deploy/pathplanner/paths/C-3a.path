@@ -3,43 +3,65 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 6.185727635363972,
-        "y": 7.471513716208602
+        "x": 1.325730468864645,
+        "y": 5.539225686154654
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.185727635363971,
-        "y": 7.471513716208602
+        "x": 1.9061161245195108,
+        "y": 4.743901595671246
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 8.328727312725281,
-        "y": 7.519341306488881
+        "x": 2.754452527449989,
+        "y": 4.20419031993556
       },
       "prevControl": {
-        "x": 7.328727312725281,
-        "y": 7.519341306488881
+        "x": 1.8135763449936062,
+        "y": 4.721655243161077
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "1b"
+      "linkedName": "3a"
     }
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.0,
-      "rotationDegrees": 0,
+      "waypointRelativePos": 0.35,
+      "rotationDegrees": -23.430000000000007,
+      "rotateFast": true
+    },
+    {
+      "waypointRelativePos": 0.1,
+      "rotationDegrees": -2.3700000000000045,
       "rotateFast": false
     }
   ],
   "constraintZones": [],
   "eventMarkers": [
     {
-      "name": "intake",
+      "name": "spinup",
       "waypointRelativePos": 0.0,
+      "command": {
+        "type": "parallel",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "spinup"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "intake",
+      "waypointRelativePos": 0.65,
       "command": {
         "type": "parallel",
         "data": {
@@ -48,23 +70,6 @@
               "type": "named",
               "data": {
                 "name": "intake"
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
-      "name": "mlintake",
-      "waypointRelativePos": 0.3,
-      "command": {
-        "type": "parallel",
-        "data": {
-          "commands": [
-            {
-              "type": "named",
-              "data": {
-                "name": "mlintake"
               }
             }
           ]
@@ -80,13 +85,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0,
-    "rotateFast": false
+    "rotation": -26.089999999999975,
+    "rotateFast": true
   },
   "reversed": false,
   "folder": "The Square Convention",
   "previewStartingState": {
-    "rotation": 0,
+    "rotation": 0.0,
     "velocity": 0
   },
   "useDefaultConstraints": true

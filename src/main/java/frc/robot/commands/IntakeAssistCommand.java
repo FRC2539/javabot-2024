@@ -17,7 +17,7 @@ public class IntakeAssistCommand extends Command {
     DoubleSupplier forwardJoystick;
     DoubleSupplier rotationJoystick;
 
-    PIDController intakingController = new PIDController(0.1, 0, 0.05);
+    PIDController intakingController = new PIDController(0.4, 0, 0.05);
 
     SlewRateLimiter slewwweerrr = new SlewRateLimiter(40);
 
