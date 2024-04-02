@@ -3,7 +3,6 @@ package frc.robot;
 import static edu.wpi.first.wpilibj2.command.Commands.*;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -297,7 +296,7 @@ public class RobotContainer {
         // Podium Shot Spinup
         rightDriveController
                 .getBottomThumb()
-                //.and(leftDriveController.getBottomThumb().negate())
+                // .and(leftDriveController.getBottomThumb().negate())
                 .onTrue(shooterSubsystem
                         .shootCommand(() -> new ShooterState(.60, .60, Rotation2d.fromDegrees(36.75)))
                         .until(rightDriveController
@@ -323,7 +322,9 @@ public class RobotContainer {
                 .whileTrue(intakeSubsystem.intakeCommand());
 
         // Run Shooter Intake
-        rightDriveController.getRightThumb().and(rightDriveController.getTrigger())
+        rightDriveController
+                .getRightThumb()
+                .and(rightDriveController.getTrigger())
                 .whileTrue(parallel(
                         intakeSubsystem.shooterIntakeCommand(),
                         shooterSubsystem.shootCommand(
@@ -391,10 +392,12 @@ public class RobotContainer {
                                 FieldConstants::isBlue)
                         .alongWith(Commands.either(
                                 run(
-                                        () -> {
-                                            LightsSubsystemB.LEDSegment.MainStrip.setColor(LightsSubsystemB.green);
-                                        },
-                                        lightsSubsystem).asProxy(),
+                                                () -> {
+                                                    LightsSubsystemB.LEDSegment.MainStrip.setColor(
+                                                            LightsSubsystemB.green);
+                                                },
+                                                lightsSubsystem)
+                                        .asProxy(),
                                 run(() -> {}),
                                 () -> swerveDriveSubsystem.isAtDirectionCommand(0.1, 0.2))));
 
@@ -416,19 +419,7 @@ public class RobotContainer {
                 true,
                 true,
                 false);
-        leftDriveController
-                .getTrigger().and(leftDriveController.getBottomThumb().negate())
-                .whileTrue(deadline(
-                        stoppedShootAimAndSpinup, run(() -> {}, lightsSubsystem).asProxy()));
 
-        // Shoot for Vision Based Spinup and Aim
-        leftDriveController
-                .getTrigger().and(leftDriveController.getBottomThumb().negate())
-                .and(rightDriveController.getTrigger())
-                .whileTrue(Commands.waitUntil(() -> stoppedShootAimAndSpinup.isAtAngleAndSpunUpAndTarget())
-                        .andThen(intakeSubsystem.shootCommand()));
-
-        // Aim and Spinup Using Vision
         AimAndSpinupCommand movingShootAimAndSpinup = new AimAndSpinupCommand(
                 swerveDriveSubsystem,
                 shooterSubsystem,
@@ -438,24 +429,42 @@ public class RobotContainer {
                 () -> getDriveStrafeAxis(),
                 () -> 0,
                 false,
-                4.0/16.0,
+                4.0 / 16.0,
                 0.25,
                 true,
                 true,
                 false,
                 false);
-        leftDriveController
-                .getTrigger().and(leftDriveController.getBottomThumb())
-                .whileTrue(Commands.waitUntil(() -> stoppedShootAimAndSpinup.isAtAngleAndSpunUpAndTarget())
-                        .andThen(deadline(
-                        movingShootAimAndSpinup, run(() -> {}, lightsSubsystem).asProxy())));
 
         // Shoot for Vision Based Spinup and Aim
         leftDriveController
-                .getTrigger().and(leftDriveController.getBottomThumb())
+                .getTrigger()
+                .and(leftDriveController.getBottomThumb().negate())
                 .and(rightDriveController.getTrigger())
-                .whileTrue(intakeSubsystem.shootCommand());
-        
+                .whileTrue(Commands.waitUntil(() -> stoppedShootAimAndSpinup.isAtAngleAndSpunUpAndTarget())
+                        .andThen(intakeSubsystem.shootCommand()));
+
+        leftDriveController
+                .getTrigger()
+                .and(leftDriveController.getBottomThumb().negate())
+                .whileTrue(deadline(
+                        stoppedShootAimAndSpinup, run(() -> {}, lightsSubsystem).asProxy()));
+
+        // Aim and Spinup Using Vision
+        leftDriveController
+                .getTrigger()
+                .and(leftDriveController.getBottomThumb())
+                .whileTrue(deadline(
+                        movingShootAimAndSpinup, run(() -> {}, lightsSubsystem).asProxy()));
+
+        // Shoot for Vision Based Spinup and Aim
+        leftDriveController
+                .getTrigger()
+                .and(leftDriveController.getBottomThumb())
+                .and(rightDriveController.getTrigger())
+                .whileTrue(Commands.waitUntil(() -> movingShootAimAndSpinup.isAtAngleAndSpunUpAndTarget())
+                        .andThen(intakeSubsystem.shootCommand()));
+
         // Climber Down
         leftDriveController.getLeftThumb().whileTrue(climberSubsystem.setVoltage(-12));
 
@@ -469,8 +478,9 @@ public class RobotContainer {
         LoggedReceiver isVoltageBasedTunable = Logger.tunable("/ShooterSubsystem/voltageTunable", false);
 
         leftDriveController
-                .getBottomThumb().and(leftDriveController.getTrigger().negate())
-                //.and(rightDriveController.getBottomThumb().negate())
+                .getBottomThumb()
+                .and(leftDriveController.getTrigger().negate())
+                // .and(rightDriveController.getBottomThumb().negate())
                 .whileTrue(shooterSubsystem.shootCommand(() -> new ShooterState(
                         topRollerSpeedTunable.getDouble(),
                         bottomRollerSpeedTunable.getDouble(),
@@ -480,7 +490,8 @@ public class RobotContainer {
 
         // Shoot for the Adjustable Shot
         leftDriveController
-                .getBottomThumb().and(leftDriveController.getTrigger().negate())
+                .getBottomThumb()
+                .and(leftDriveController.getTrigger().negate())
                 .and(rightDriveController.getTrigger())
                 .whileTrue(intakeSubsystem.shootCommand());
 
@@ -855,7 +866,7 @@ public class RobotContainer {
                 null,
                 null,
                 false,
-                2.0/16,
+                2.0 / 16,
                 0,
                 true,
                 false,
