@@ -76,8 +76,8 @@ public class AutonomousManager {
                     true,
                     true);
             autoShootingCommand = Commands.deadline(
-                    waitUntil(() -> aimAndSpinupCommand.isAtAngleAndSpunUpAndTarget())
-                            .withTimeout(2.5)
+                    Commands.waitSeconds(0.5).andThen(waitUntil(() -> aimAndSpinupCommand.isAtAngleAndSpunUpAndTarget())
+                                    .withTimeout(2.0))
                             .andThen(intakeSubsystem.shootCommand().asProxy().withTimeout(0.4)),
                     aimAndSpinupCommand,
                     run(() -> {}, swerveDriveSubsystem),
@@ -102,8 +102,8 @@ public class AutonomousManager {
                     true,
                     true);
             aimedShootCommand = Commands.deadline(
-                            waitUntil(() -> aimAndSpinupCommand.isAtAngleAndSpunUpAndTarget())
-                                    .withTimeout(2.5)
+                            Commands.waitSeconds(0.5).andThen(waitUntil(() -> aimAndSpinupCommand.isAtAngleAndSpunUpAndTarget())
+                                    .withTimeout(2.0))
                                     .andThen(intakeSubsystem
                                             .shootCommand()
                                             .withTimeout(0.4)
@@ -114,7 +114,7 @@ public class AutonomousManager {
                     .finallyDo(() -> visionSubsystem.updatingPoseUsingVision = false)
                     .beforeStarting(() -> visionSubsystem.updatingPoseUsingVision = false);
         }
-        NamedCommands.registerCommand("aimedshoot", aimedShootCommand); // .onlyIf(() -> intakeSubsystem.hasPiece()));
+        NamedCommands.registerCommand("aimedshoot", autoShootingCommand); // .onlyIf(() -> intakeSubsystem.hasPiece()));
         NamedCommands.registerCommand(
                 "subshoot",
                 Commands.parallel(
@@ -296,8 +296,8 @@ public class AutonomousManager {
         CENTER5(
                 "Center",
                 5,
-                "NewCenter5 A",
-                "Center",
+                "NewCenter5",
+                "Center A",
                 true,
                 "Shoots the starting piece, collects the next nearest piece, and scores the second left most on the centerline."),
         CENTER5B(
@@ -305,6 +305,13 @@ public class AutonomousManager {
                 5,
                 "NewCenterCenter5",
                 "Center B",
+                true,
+                "Shoots the starting piece, collects the next nearest piece, and scores the most middle on the centerline."),
+        CENTER5C(
+                "Center",
+                5,
+                "NewCenterPole5",
+                "Center C",
                 true,
                 "Shoots the starting piece, collects the next nearest piece, and scores the most middle on the centerline."),
         EASYAMP4(

@@ -20,7 +20,7 @@ import java.util.function.DoubleSupplier;
 public class AimAndSpinupCommand extends Command {
     private final double toleranceMeters = .305;
     private final double toleranceVelocity = Math.toRadians(20);
-    private final double pivotToleranceMeters = Math.toRadians(.5); // degrees
+    private final double pivotToleranceMeters = Math.toRadians(2); // degrees
     private final double pivotToleranceMin = Math.toRadians(.5);
     private final double timeSeenTagMinimum = 0.25;
     private final double maxSpeedPID = 4;
@@ -134,6 +134,8 @@ public class AimAndSpinupCommand extends Command {
     public void initialize() {
         hasSeenTargetDebouncer.calculate(false);
         hasSeenTarget = false;
+        isAtAngle = false;
+        isSpunUp = false;
     }
 
     @Override

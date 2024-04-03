@@ -338,7 +338,7 @@ public class RobotContainer {
                         lightsSubsystem,
                         this::getDriveForwardAxis,
                         this::getDriveStrafeAxis,
-                        this::getDriveRotationAxis))
+                        this::getDriveRotationAxis).until(() -> intakeSubsystem.hasPieceRaw()))
                 .whileTrue(intakeSubsystem.intakeCommand());
 
         // Score In Amp (Shooter)
@@ -429,7 +429,7 @@ public class RobotContainer {
                 () -> getDriveStrafeAxis(),
                 () -> 0,
                 false,
-                4.0 / 16.0,
+                .75 / 16.0,
                 0.25,
                 true,
                 true,
@@ -462,7 +462,7 @@ public class RobotContainer {
                 .getTrigger()
                 .and(leftDriveController.getBottomThumb())
                 .and(rightDriveController.getTrigger())
-                .whileTrue(Commands.waitUntil(() -> movingShootAimAndSpinup.isAtAngleAndSpunUpAndTarget())
+                .whileTrue(Commands.waitUntil(() -> movingShootAimAndSpinup.isAtAngleAndSpunUp())
                         .andThen(intakeSubsystem.shootCommand()));
 
         // Climber Down

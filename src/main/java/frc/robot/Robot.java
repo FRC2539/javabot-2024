@@ -1,9 +1,12 @@
 package frc.robot;
 
+import java.util.Optional;
+
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.lib.logging.Logger;
@@ -93,9 +96,9 @@ public class Robot extends TimedRobot {
         }
 
         if (robotContainer.getShooterSubsystem().isEncoderConnected()) {
-            LEDSegment.PivotEncoderIndicator.setColor(LightsSubsystemB.purple.dim(.25));
+            LEDSegment.PivotEncoderIndicator.setColor(LightsSubsystemB.white.dim(.25));
         } else {
-            LEDSegment.PivotEncoderIndicator.setFadeAnimation(LightsSubsystemB.purple.dim(.25),1);
+            LEDSegment.PivotEncoderIndicator.setFadeAnimation(LightsSubsystemB.white.dim(.25),1);
         }
 
         if (DriverStation.isDSAttached()) {
@@ -106,14 +109,21 @@ public class Robot extends TimedRobot {
 
         LEDSegment.MainStrip.setFadeAnimation(LightsSubsystemB.orange, .5);
 
-        FieldConstants.isBlue =
-                DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Blue;
+        Optional<Alliance> alliance = DriverStation.getAlliance();
 
-        if (FieldConstants.isBlue()) {
+        FieldConstants.isBlue =
+                alliance.orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Blue;
+
+        if (alliance.isPresent()) {
+            if (FieldConstants.isBlue()) {
             LEDSegment.AllianceIndicator.setColor(LightsSubsystemB.blue.dim(.25));
+            } else {
+                LEDSegment.AllianceIndicator.setColor(LightsSubsystemB.red.dim(.25));
+            }
         } else {
-            LEDSegment.AllianceIndicator.setColor(LightsSubsystemB.red.dim(.25));
+            LEDSegment.AllianceIndicator.fullClear();
         }
+        
     }
 
     @Override
