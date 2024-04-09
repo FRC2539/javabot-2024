@@ -333,12 +333,13 @@ public class RobotContainer {
         // Intake Assist Command
         (rightDriveController.getLeftThumb().and(rightDriveController.getTrigger()))
                 .whileTrue(new IntakeAssistCommandComplex(
-                        swerveDriveSubsystem,
-                        visionSubsystem,
-                        lightsSubsystem,
-                        this::getDriveForwardAxis,
-                        this::getDriveStrafeAxis,
-                        this::getDriveRotationAxis).until(() -> intakeSubsystem.hasPieceRaw()))
+                                swerveDriveSubsystem,
+                                visionSubsystem,
+                                lightsSubsystem,
+                                this::getDriveForwardAxis,
+                                this::getDriveStrafeAxis,
+                                this::getDriveRotationAxis)
+                        .until(() -> intakeSubsystem.hasPieceRaw()))
                 .whileTrue(intakeSubsystem.intakeCommand());
 
         // Score In Amp (Shooter)
@@ -523,7 +524,8 @@ public class RobotContainer {
         operatorController
                 .getLeftBumper()
                 .and(operatorController.getRightBumper().negate())
-                .whileTrue(shooterSubsystem.shootCommand(new ShooterState(.05, .2, Rotation2d.fromDegrees(60))));
+                .whileTrue(shooterSubsystem.shootCommand(new ShooterState(.1, .25
+                , Rotation2d.fromDegrees(60))));
 
         operatorController
                 .getLeftBumper()
@@ -617,13 +619,19 @@ public class RobotContainer {
                         parallel(
                                 swerveDriveSubsystem.cardinalCommand(
                                         new Rotation2d(-0.57), this::getDriveForwardAxis, this::getDriveStrafeAxis),
-                                shooterSubsystem.shootCommand(new ShooterState(.44, .44, Rotation2d.fromDegrees(40)))),
+                                shooterSubsystem.shootCommand(() -> new ShooterState(
+                                        .55,
+                                        .5,
+                                        Rotation2d.fromDegrees(60).plus(shooterSubsystem.getPitchCorrection())))),
                         parallel(
                                 swerveDriveSubsystem.cardinalCommand(
                                         new Rotation2d(Math.PI + 0.57),
                                         this::getDriveForwardAxis,
                                         this::getDriveStrafeAxis),
-                                shooterSubsystem.shootCommand(new ShooterState(.44, .44, Rotation2d.fromDegrees(40)))),
+                                shooterSubsystem.shootCommand(() -> new ShooterState(
+                                        .55,
+                                        .5,
+                                        Rotation2d.fromDegrees(60).plus(shooterSubsystem.getPitchCorrection())))),
                         FieldConstants::isBlue));
 
         // lowfeeder shot

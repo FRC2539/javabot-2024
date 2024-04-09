@@ -1,5 +1,6 @@
 package frc.robot.subsystems.shooter;
 
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.controls.PositionVoltage;
@@ -32,6 +33,11 @@ public class PivotIOFalcon implements PivotIO {
         slot0Configs.kP = 240;
         slot0Configs.kS = 0.3;
         pivotMotor.getConfigurator().apply(slot0Configs);
+        CurrentLimitsConfigs currentLimitsConfigs = new CurrentLimitsConfigs();
+        pivotMotor.getConfigurator().refresh(currentLimitsConfigs);
+        currentLimitsConfigs.StatorCurrentLimit = 80;
+        currentLimitsConfigs.SupplyCurrentLimit = 90;
+        pivotMotor.getConfigurator().apply(currentLimitsConfigs);
     }
 
     public void updateInputs(PivotIOInputs inputs) {

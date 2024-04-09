@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 0.7509152340242001,
-        "y": 4.432084533684738
+        "x": 0.77430354290908,
+        "y": 4.724438394745736
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.136522740281947,
-        "y": 2.1634185718513894
+        "x": 3.159911049166827,
+        "y": 2.4557724329123873
       },
       "isLocked": false,
       "linkedName": "S"
     },
     {
       "anchor": {
-        "x": 8.39889223937992,
-        "y": 1.029085590934715
+        "x": 8.773105181537998,
+        "y": 0.7367317298737166
       },
       "prevControl": {
-        "x": 5.307231391293602,
-        "y": 1.5326515624033212
+        "x": 5.6814443334516795,
+        "y": 1.2402977013423229
       },
       "nextControl": null,
       "isLocked": false,
@@ -31,12 +31,12 @@
   "rotationTargets": [
     {
       "waypointRelativePos": 0.05,
-      "rotationDegrees": -57.86902885766897,
+      "rotationDegrees": -20.04253425121652,
       "rotateFast": false
     },
     {
       "waypointRelativePos": 0.4,
-      "rotationDegrees": -15.571122736137015,
+      "rotationDegrees": -18.35991456207626,
       "rotateFast": true
     }
   ],
@@ -55,10 +55,10 @@
     {
       "name": "New Constraints Zone",
       "minWaypointRelativePos": 0,
-      "maxWaypointRelativePos": 0.5,
+      "maxWaypointRelativePos": 0.7,
       "constraints": {
-        "maxVelocity": 4.0,
-        "maxAcceleration": 4.0,
+        "maxVelocity": 4.5,
+        "maxAcceleration": 6.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0
       }
@@ -98,7 +98,7 @@
   "goalEndState": {
     "velocity": 0,
     "rotation": -9.832244967845147,
-    "rotateFast": false
+    "rotateFast": true
   },
   "reversed": false,
   "folder": "The Square Convention",

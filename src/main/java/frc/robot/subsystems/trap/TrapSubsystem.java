@@ -33,7 +33,8 @@ public class TrapSubsystem extends SubsystemBase {
 
     private MechanismLigament2d trap;
 
-    public TrapSubsystem(TrapRollerIO topRollerIO, TrapRollerIO bottomRollerIO, RackIO rackIO, MechanismLigament2d trap) {
+    public TrapSubsystem(
+            TrapRollerIO topRollerIO, TrapRollerIO bottomRollerIO, RackIO rackIO, MechanismLigament2d trap) {
         this.topRollerIO = topRollerIO;
         this.bottomRollerIO = bottomRollerIO;
         this.rackIO = rackIO;
@@ -70,7 +71,7 @@ public class TrapSubsystem extends SubsystemBase {
 
     public Command disabledCommand() {
         return run(() -> {
-            if (rackInputs.position < 2.5) {
+            if (rackInputs.position < 10) {
                 currentTrapState = defaultState;
             } else {
                 currentTrapState = defaultStateHolding;

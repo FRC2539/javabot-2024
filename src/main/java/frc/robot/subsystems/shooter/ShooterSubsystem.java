@@ -48,7 +48,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     private ShooterState currentShooterState = defaultState;
 
-    private Rotation2d pitchCorrection = Rotation2d.fromDegrees(0);
+    private Rotation2d pitchCorrection = Rotation2d.fromDegrees(1.6);
 
     private boolean isShooterAtPosition = false;
 
@@ -60,7 +60,8 @@ public class ShooterSubsystem extends SubsystemBase {
             PivotIO pivotIO,
             InterpolatingMap<InterpolatableDouble> topRollerMap,
             InterpolatingMap<InterpolatableDouble> bottomRollerMap,
-            InterpolatingMap<InterpolatableDouble> pivotAngleMap, MechanismLigament2d shooter) {
+            InterpolatingMap<InterpolatableDouble> pivotAngleMap,
+            MechanismLigament2d shooter) {
         this.topRollerIO = topRollerIO;
         this.bottomRollerIO = bottomRollerIO;
         this.pivotIO = pivotIO;

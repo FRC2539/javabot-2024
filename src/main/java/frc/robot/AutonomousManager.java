@@ -76,7 +76,8 @@ public class AutonomousManager {
                     true,
                     true);
             autoShootingCommand = Commands.deadline(
-                    Commands.waitSeconds(0.5).andThen(waitUntil(() -> aimAndSpinupCommand.isAtAngleAndSpunUpAndTarget())
+                    Commands.waitSeconds(0.5)
+                            .andThen(waitUntil(() -> aimAndSpinupCommand.isAtAngleAndSpunUpAndTarget())
                                     .withTimeout(2.0))
                             .andThen(intakeSubsystem.shootCommand().asProxy().withTimeout(0.4)),
                     aimAndSpinupCommand,
@@ -102,8 +103,9 @@ public class AutonomousManager {
                     true,
                     true);
             aimedShootCommand = Commands.deadline(
-                            Commands.waitSeconds(0.5).andThen(waitUntil(() -> aimAndSpinupCommand.isAtAngleAndSpunUpAndTarget())
-                                    .withTimeout(2.0))
+                            Commands.waitSeconds(0.5)
+                                    .andThen(waitUntil(() -> aimAndSpinupCommand.isAtAngleAndSpunUpAndTarget())
+                                            .withTimeout(2.0))
                                     .andThen(intakeSubsystem
                                             .shootCommand()
                                             .withTimeout(0.4)
@@ -124,35 +126,31 @@ public class AutonomousManager {
                                 Commands.waitSeconds(.75)
                                         .andThen(intakeSubsystem.shootCommand().asProxy()))
                         .withTimeout(1.25));
-        NamedCommands.registerCommand(
-                "intake", intakeSubsystem.intakeCommand().asProxy());
+        NamedCommands.registerCommand("intake", intakeSubsystem.intakeCommand().asProxy());
         LinearFilter lowPassIQR = LinearFilter.movingAverage(20);
-        IntakeAssistCommandComplexAuto intakeAssistCommandComplex = new IntakeAssistCommandComplexAuto(
-                swerveDriveSubsystem, visionSubsystem, lightsSubsystem);
+        IntakeAssistCommandComplexAuto intakeAssistCommandComplex =
+                new IntakeAssistCommandComplexAuto(swerveDriveSubsystem, visionSubsystem, lightsSubsystem);
 
         swerveDriveSubsystem.autoStrafeOverrideSupplier = (Double x) -> intakeAssistCommandComplex.transformStrafe(x);
 
-        Command intakeAssistCommandTurn = swerveDriveSubsystem
-                        .directionCommandAutoVelocity(
-                                () -> {
-                                    Optional<LimelightRawAngles> direction = visionSubsystem.getDetectorInfo();
-                                    if (direction.isPresent()) {
-                                        return new Rotation2d(swerveDriveSubsystem
-                                                .getPoseAtTimestamp(
-                                                        direction.get().timestamp())
-                                                .getRotation()
-                                                .plus(Rotation2d.fromDegrees(
-                                                        -direction.get().ty()))
-                                                .getRadians());
-                                    } else {
-                                        return swerveDriveSubsystem.getRotation();
-                                    }
-                                },
-                                new PIDController(5, 0, 0.1));
+        Command intakeAssistCommandTurn = swerveDriveSubsystem.directionCommandAutoVelocity(
+                () -> {
+                    Optional<LimelightRawAngles> direction = visionSubsystem.getDetectorInfo();
+                    if (direction.isPresent()) {
+                        return new Rotation2d(swerveDriveSubsystem
+                                .getPoseAtTimestamp(direction.get().timestamp())
+                                .getRotation()
+                                .plus(Rotation2d.fromDegrees(-direction.get().ty()))
+                                .getRadians());
+                    } else {
+                        return swerveDriveSubsystem.getRotation();
+                    }
+                },
+                new PIDController(5, 0, 0.1));
 
         NamedCommands.registerCommand(
                 "mlintake", intakeAssistCommandComplex.until(() -> intakeSubsystem.hasPieceSmoothed()));
-                
+
         NamedCommands.registerCommand(
                 "mlintakedrive",
                 container
@@ -198,7 +196,8 @@ public class AutonomousManager {
                                 container.getSpinupCommand().asProxy(),
                                 intakeSubsystem.shootCommand().asProxy())
                         .withTimeout(.5));
-        NamedCommands.registerCommand("spinupmov", container.getSpinupMoveCommand().asProxy());
+        NamedCommands.registerCommand(
+                "spinupmov", container.getSpinupMoveCommand().asProxy());
         NamedCommands.registerCommand(
                 "spinupshootmov",
                 parallel(
@@ -297,21 +296,21 @@ public class AutonomousManager {
                 "Center",
                 5,
                 "NewCenter5",
-                "Center A",
+                "Center (Second Note)",
                 true,
                 "Shoots the starting piece, collects the next nearest piece, and scores the second left most on the centerline."),
         CENTER5B(
                 "Center",
                 5,
                 "NewCenterCenter5",
-                "Center B",
+                "Center (Center Note)",
                 true,
                 "Shoots the starting piece, collects the next nearest piece, and scores the most middle on the centerline."),
         CENTER5C(
                 "Center",
                 5,
                 "NewCenterPole5",
-                "Center C",
+                "Center (Pole First) (Second Note)",
                 true,
                 "Shoots the starting piece, collects the next nearest piece, and scores the most middle on the centerline."),
         EASYAMP4(
@@ -340,6 +339,13 @@ public class AutonomousManager {
                 4,
                 "NewSource4",
                 "Source Side",
+                true,
+                "Shoots the starting piece and then shoots the three near the source on the centerline."),
+        SOURCE4B(
+                "Source",
+                4,
+                "NewSourceCenter4",
+                "Source Side (Second Piece)",
                 true,
                 "Shoots the starting piece and then shoots the three near the source on the centerline."),
 

@@ -1,7 +1,5 @@
 package frc.robot.subsystems.intake;
 
-import java.util.function.BooleanSupplier;
-
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -9,6 +7,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.logging.Logger;
 import frc.robot.subsystems.intake.IntakeIO.IntakeIOInputs;
+import java.util.function.BooleanSupplier;
 
 public class IntakeSubsystem extends SubsystemBase {
     private IntakeIO intakeIO;
@@ -27,13 +26,15 @@ public class IntakeSubsystem extends SubsystemBase {
         this.hasPieceLowDebounce = new Trigger(() -> hasPieceRaw()).debounce(0.1, DebounceType.kFalling);
 
         setDefaultCommand(Commands.either(
-            moveCommand().withTimeout(0.2)
-                .andThen(reverseMoveCommand().withTimeout(0.04))
-                //.andThen(reverseMoveCommand().until(() -> getRollerSensor()).withTimeout(2)),
-                .andThen(reverseMoveCommand().until(() -> hasPieceRaw())).withTimeout(2),
-                //.andThen(moveCommand().withTimeout(0.0))), 
-            disabledCommand(), 
-            () -> state == IntakeState.INTAKING || state == IntakeState.INTAKING_REVERSE));
+                moveCommand()
+                        .withTimeout(0.2)
+                        .andThen(reverseMoveCommand().withTimeout(0.04))
+                        // .andThen(reverseMoveCommand().until(() -> getRollerSensor()).withTimeout(2)),
+                        .andThen(reverseMoveCommand().until(() -> hasPieceRaw()))
+                        .withTimeout(2),
+                // .andThen(moveCommand().withTimeout(0.0))),
+                disabledCommand(),
+                () -> state == IntakeState.INTAKING || state == IntakeState.INTAKING_REVERSE));
     }
 
     public enum IntakeState {
@@ -50,7 +51,7 @@ public class IntakeSubsystem extends SubsystemBase {
     public void periodic() {
         intakeIO.updateInputs(inputs);
 
-        //Roller moves 4 times as fast as chamber
+        // Roller moves 4 times as fast as chamber
 
         switch (state) {
             case DISABLED:
@@ -70,80 +71,100 @@ public class IntakeSubsystem extends SubsystemBase {
                 setRoller(.25);
                 break;
             case MOVING:
-                setChamber(1.0/4);
-                setRoller(.25/4);
+                setChamber(1.0 / 4);
+                setRoller(.25 / 4);
                 break;
             case MOVING_REVERSE:
                 setChamber(-.20);
                 setRoller(-.05);
                 break;
             case INTAKING:
-                setChamber(1.0*.85);//.85
-                setRoller(.50*.85);//.85
+                setChamber(1.0 * .85); // .85
+                setRoller(.50 * .85); // .85
                 break;
             case INTAKING_REVERSE:
-                setChamber(-1.0*.85);
-                setRoller(-.50*.85);
+                setChamber(-1.0 * .85);
+                setRoller(-.50 * .85);
         }
 
         logIntakeInformation();
     }
 
     public Command disabledCommand() {
-        return runEnd(() -> {
-            setIntakeState(IntakeState.DISABLED);
-        }, () -> {});
+        return runEnd(
+                () -> {
+                    setIntakeState(IntakeState.DISABLED);
+                },
+                () -> {});
     }
 
     public Command ejectCommand() {
-        return runEnd(() -> {
-            setIntakeState(IntakeState.EJECTING);
-        }, () -> {});
+        return runEnd(
+                () -> {
+                    setIntakeState(IntakeState.EJECTING);
+                },
+                () -> {});
     }
 
     public Command reverseMoveCommand() {
-        return runEnd(() -> {
-            setIntakeState(IntakeState.MOVING_REVERSE);
-        }, () -> {});
+        return runEnd(
+                () -> {
+                    setIntakeState(IntakeState.MOVING_REVERSE);
+                },
+                () -> {});
     }
 
     public Command shootCommand() {
-        return runEnd(() -> {
-            setIntakeState(IntakeState.SHOOTING);
-        }, () -> {});
+        return runEnd(
+                () -> {
+                    setIntakeState(IntakeState.SHOOTING);
+                },
+                () -> {});
     }
 
     public Command ampCommand() {
-        return runEnd(() -> {
-            setIntakeState(IntakeState.AMPING);
-        }, () -> {});
+        return runEnd(
+                () -> {
+                    setIntakeState(IntakeState.AMPING);
+                },
+                () -> {});
     }
 
     public Command intakeCommand() {
-        Command intakeCommand = runEnd(() -> {
-            setIntakeState(IntakeState.INTAKING);
-        }, () -> {}).until(() -> hasPieceRaw());
+        Command intakeCommand = runEnd(
+                        () -> {
+                            setIntakeState(IntakeState.INTAKING);
+                        },
+                        () -> {})
+                .until(() -> hasPieceRaw());
 
         return intakeCommand;
     }
 
     public Command shooterIntakeCommand() {
-        return runEnd(() -> {
-            setIntakeState(IntakeState.INTAKING_REVERSE);
-        }, () -> {}).until(() -> hasPieceRaw());
+        return runEnd(
+                        () -> {
+                            setIntakeState(IntakeState.INTAKING_REVERSE);
+                        },
+                        () -> {})
+                .until(() -> hasPieceRaw());
     }
 
     public Command moveCommand() {
-        return runEnd(() -> {
-            setIntakeState(IntakeState.MOVING);
-        }, () -> {});
-    }
-    public Command manualMoveCommand() {
-        return runEnd(() -> {
-            setIntakeState(IntakeState.MOVING);
-        }, () -> {});
+        return runEnd(
+                () -> {
+                    setIntakeState(IntakeState.MOVING);
+                },
+                () -> {});
     }
 
+    public Command manualMoveCommand() {
+        return runEnd(
+                () -> {
+                    setIntakeState(IntakeState.MOVING);
+                },
+                () -> {});
+    }
 
     private void setChamber(double speed) {
         intakeIO.setChamberSpeed(speed);
@@ -166,8 +187,10 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     public boolean hasPieceSmoothed() {
-        if (state == IntakeState.INTAKING || state == IntakeState.MOVING ||
-            state == IntakeState.INTAKING_REVERSE || state == IntakeState.MOVING_REVERSE) {
+        if (state == IntakeState.INTAKING
+                || state == IntakeState.MOVING
+                || state == IntakeState.INTAKING_REVERSE
+                || state == IntakeState.MOVING_REVERSE) {
             return hasPieceHighDebounce.getAsBoolean();
         } else {
             return hasPieceLowDebounce.getAsBoolean();

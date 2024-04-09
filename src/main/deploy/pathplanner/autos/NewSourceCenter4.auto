@@ -18,34 +18,9 @@
           }
         },
         {
-          "type": "parallel",
-          "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "S-5b"
-                }
-              }
-            ]
-          }
-        },
-        {
           "type": "path",
           "data": {
-            "pathName": "5b-3s"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "aimedshoot"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "3s-4b"
+            "pathName": "S-4b"
           }
         },
         {
@@ -64,6 +39,18 @@
           "type": "path",
           "data": {
             "pathName": "3s-3b"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "3b-3s"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "aimedshoot"
           }
         }
       ]

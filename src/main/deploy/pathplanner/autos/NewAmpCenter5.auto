@@ -26,24 +26,6 @@
         {
           "type": "path",
           "data": {
-            "pathName": "1b-1s"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "aimedshoot"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "1s-2bml"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
             "pathName": "2b-1s"
           }
         },

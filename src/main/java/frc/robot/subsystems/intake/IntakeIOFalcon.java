@@ -1,5 +1,6 @@
 package frc.robot.subsystems.intake;
 
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.wpilibj.AnalogInput;
 import frc.robot.Constants.IntakeConstants;
@@ -27,6 +28,18 @@ public class IntakeIOFalcon implements IntakeIO {
 
             updatingThread.start();
         }
+
+        CurrentLimitsConfigs currentLimitsConfigs = new CurrentLimitsConfigs();
+        chamberMotor.getConfigurator().refresh(currentLimitsConfigs);
+        currentLimitsConfigs.StatorCurrentLimit = 80;
+        currentLimitsConfigs.SupplyCurrentLimit = 90;
+        chamberMotor.getConfigurator().apply(currentLimitsConfigs);
+
+        CurrentLimitsConfigs currentLimitsConfigsOther = new CurrentLimitsConfigs();
+        rollerMotor.getConfigurator().refresh(currentLimitsConfigsOther);
+        currentLimitsConfigsOther.StatorCurrentLimit = 80;
+        currentLimitsConfigsOther.SupplyCurrentLimit = 90;
+        rollerMotor.getConfigurator().apply(currentLimitsConfigsOther);
     }
 
     public void updateInputs(IntakeIOInputs inputs) {

@@ -1,8 +1,14 @@
 package frc.robot.subsystems.swervedrive;
 
 import com.ctre.phoenix6.Utils;
+import com.ctre.phoenix6.configs.ClosedLoopRampsConfigs;
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.configs.OpenLoopRampsConfigs;
+import com.ctre.phoenix6.configs.TorqueCurrentConfigs;
+import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrain;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrainConstants;
+import com.ctre.phoenix6.mechanisms.swerve.SwerveModule;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.SteerRequestType;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModuleConstants;
@@ -164,6 +170,39 @@ public class SwerveDriveSubsystem extends SwerveDrivetrain implements Subsystem 
         PPHolonomicDriveController.setRotationTargetOverride(this::getRotationOverride);
 
         registerTelemetry((state) -> currentState = state);
+
+        for (SwerveModule i : Modules) {
+            TalonFX steerMotor = i.getSteerMotor();
+            TalonFX driveMotor = i.getDriveMotor();
+            CurrentLimitsConfigs currentLimitsConfigs = new CurrentLimitsConfigs();
+            steerMotor.getConfigurator().refresh(currentLimitsConfigs);
+            currentLimitsConfigs.StatorCurrentLimit = 80;
+            currentLimitsConfigs.StatorCurrentLimitEnable = true;
+            currentLimitsConfigs.SupplyCurrentLimit = 90;
+            currentLimitsConfigs.SupplyCurrentLimitEnable = true;
+            steerMotor.getConfigurator().apply(currentLimitsConfigs);
+            TorqueCurrentConfigs torqueCurrentConfigs = new TorqueCurrentConfigs();
+            steerMotor.getConfigurator().refresh(torqueCurrentConfigs);
+            torqueCurrentConfigs.PeakForwardTorqueCurrent = 80;
+            torqueCurrentConfigs.PeakReverseTorqueCurrent = -80;
+            steerMotor.getConfigurator().apply(torqueCurrentConfigs);
+
+            double rampTime = 0.0;
+
+            OpenLoopRampsConfigs openLoopRampsConfigs = new OpenLoopRampsConfigs();
+            openLoopRampsConfigs.VoltageOpenLoopRampPeriod = rampTime;
+            openLoopRampsConfigs.TorqueOpenLoopRampPeriod = rampTime;
+            openLoopRampsConfigs.DutyCycleOpenLoopRampPeriod = rampTime;
+            ClosedLoopRampsConfigs closedLoopRampsConfigs = new ClosedLoopRampsConfigs();
+            closedLoopRampsConfigs.VoltageClosedLoopRampPeriod = rampTime;
+            closedLoopRampsConfigs.TorqueClosedLoopRampPeriod = rampTime;
+            closedLoopRampsConfigs.DutyCycleClosedLoopRampPeriod = rampTime;
+            steerMotor.getConfigurator().apply(closedLoopRampsConfigs);
+            steerMotor.getConfigurator().apply(openLoopRampsConfigs);
+
+            driveMotor.getConfigurator().apply(closedLoopRampsConfigs);
+            driveMotor.getConfigurator().apply(openLoopRampsConfigs);
+        }
     }
 
     public Optional<Rotation2d> getRotationOverride() {
@@ -519,12 +558,12 @@ public class SwerveDriveSubsystem extends SwerveDrivetrain implements Subsystem 
             //     modules[3].getPosition().angle.getDegrees()
             // });
 
-            // Logger.log("/SwerveDriveSubsystem/Angle Wheel Amps", new double[] {
-            //     modules[0].getAngleCurrent(),
-            //     modules[1].getAngleCurrent(),
-            //     modules[2].getAngleCurrent(),
-            //     modules[3].getAngleCurrent()
-            // });
+            Logger.log("/SwerveDriveSubsystem/Drive Wheel Amps", new double[] {
+                getModule(0).getDriveMotor().getStatorCurrent().getValue(),
+                getModule(1).getDriveMotor().getStatorCurrent().getValue(),
+                getModule(2).getDriveMotor().getStatorCurrent().getValue(),
+                getModule(3).getDriveMotor().getStatorCurrent().getValue()
+            });
 
             // Logger.log("/SwerveDriveSubsystem/Angle Wheel Volts", new double[] {
             //     modules[0].getAngleVoltage(),
