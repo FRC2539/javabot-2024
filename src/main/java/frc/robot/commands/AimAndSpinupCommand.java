@@ -247,7 +247,7 @@ public class AimAndSpinupCommand extends Command {
 
     private void spinupShooter() {
         if (doSpinup) {
-            shooterSubsystem.setShooterState(shooterSubsystem.updateShooterStateForDistance(calculatedDistance));
+            shooterSubsystem.setShooterState(shooterSubsystem.calculateShooterStateFromDistance(calculatedDistance));
 
             double topRollerError = shooterSubsystem.topRollerError();
             double bottomRollerError = shooterSubsystem.bottomRollerError();

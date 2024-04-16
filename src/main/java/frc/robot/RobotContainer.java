@@ -467,10 +467,10 @@ public class RobotContainer {
                         .andThen(intakeSubsystem.shootCommand()));
 
         // Climber Down
-        leftDriveController.getLeftThumb().whileTrue(climberSubsystem.setVoltage(-12));
+        leftDriveController.getLeftThumb().whileTrue(climberSubsystem.lowerCommand());
 
         // Climber Up
-        leftDriveController.getRightThumb().whileTrue(climberSubsystem.setVoltage(12));
+        leftDriveController.getRightThumb().whileTrue(climberSubsystem.raiseCommand());
 
         // Adjustable Shot (by default, the subwoofer speaker shot)
         LoggedReceiver topRollerSpeedTunable = Logger.tunable("/ShooterSubsystem/topTunable", .6d);
@@ -503,7 +503,7 @@ public class RobotContainer {
                 .getLeftBottomLeft()
                 .whileTrue(shooterSubsystem.shootCommand(ShooterState.fromVoltages(0, 0, -.6)));
 
-        leftDriveController.getRightTopLeft().whileTrue(climberSubsystem.overrideVoltageCommand());
+        leftDriveController.getRightTopLeft().whileTrue(climberSubsystem.voltageCommand(-2));
         leftDriveController.getRightBottomLeft().onTrue(climberSubsystem.zeroClimberCommand());
 
         leftDriveController
@@ -524,8 +524,7 @@ public class RobotContainer {
         operatorController
                 .getLeftBumper()
                 .and(operatorController.getRightBumper().negate())
-                .whileTrue(shooterSubsystem.shootCommand(new ShooterState(.1, .25
-                , Rotation2d.fromDegrees(60))));
+                .whileTrue(shooterSubsystem.shootCommand(new ShooterState(.1, .25, Rotation2d.fromDegrees(60))));
 
         operatorController
                 .getLeftBumper()
@@ -646,7 +645,7 @@ public class RobotContainer {
                 .and(rightDriveController.getTrigger())
                 .whileTrue(intakeSubsystem.shootCommand());
 
-        operatorController.getBack().whileTrue(climberSubsystem.moveClimberUpOperator());
+        operatorController.getBack().whileTrue(climberSubsystem.primeCommand());
 
         operatorController
                 .getStart()

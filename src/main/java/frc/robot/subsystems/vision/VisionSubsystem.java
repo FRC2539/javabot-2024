@@ -21,6 +21,7 @@ import frc.robot.Constants.FieldConstants;
 import frc.robot.subsystems.swervedrive.SwerveDriveSubsystem;
 import frc.robot.subsystems.vision.AprilTagIO.AprilTagIOInputs;
 import frc.robot.subsystems.vision.PositionTargetIO.PositionTargetIOInputs;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -49,12 +50,14 @@ public class VisionSubsystem extends SubsystemBase {
     public boolean updatingPoseUsingVision = true;
 
     public VisionSubsystem(SwerveDriveSubsystem consumer, AprilTagIO left, PositionTargetIO limelight) {
+        super();
         this.left = left;
         this.limelight = limelight;
 
         this.consumer = consumer;
     }
 
+    @Override
     public void periodic() {
         var tempInputs = left.updateInputs();
         leftInputs = tempInputs.getFirst();

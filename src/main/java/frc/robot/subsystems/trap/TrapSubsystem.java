@@ -35,6 +35,7 @@ public class TrapSubsystem extends SubsystemBase {
 
     public TrapSubsystem(
             TrapRollerIO topRollerIO, TrapRollerIO bottomRollerIO, RackIO rackIO, MechanismLigament2d trap) {
+        super();
         this.topRollerIO = topRollerIO;
         this.bottomRollerIO = bottomRollerIO;
         this.rackIO = rackIO;
