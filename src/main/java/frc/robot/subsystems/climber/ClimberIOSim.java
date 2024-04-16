@@ -14,7 +14,7 @@ public class ClimberIOSim implements ClimberIO {
         this.voltage = voltage;
     }
 
-    public void setPosition(double position) {
+    public void resetPosition(double position) {
         this.position = position;
     }
 }

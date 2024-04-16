@@ -27,7 +27,7 @@ public class ClimberIOFalcon implements ClimberIO {
         climberMotor.setControl(voltageControl.withOutput(voltage));
     }
 
-    public void setPosition(double position) {
+    public void resetPosition(double position) {
         climberMotor.setPosition(position);
     }
 }

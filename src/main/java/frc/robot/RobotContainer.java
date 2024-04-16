@@ -326,7 +326,7 @@ public class RobotContainer {
                 .getRightThumb()
                 .and(rightDriveController.getTrigger())
                 .whileTrue(parallel(
-                        intakeSubsystem.shooterIntakeCommand(),
+                        intakeSubsystem.reverseIntakeCommand(),
                         shooterSubsystem.shootCommand(
                                 ShooterState.fromVoltages(-.25, -.25, Rotation2d.fromDegrees(55)))));
 
