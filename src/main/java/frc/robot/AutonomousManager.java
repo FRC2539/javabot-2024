@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.lib.logging.LoggedReceiver;
 import frc.lib.logging.Logger;
+import frc.lib.math.MathUtils;
 import frc.lib.vision.LimelightRawAngles;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.commands.AimAndSpinupCommand;
@@ -121,11 +122,11 @@ public class AutonomousManager {
                 "subshoot",
                 Commands.parallel(
                                 shooterSubsystem
-                                        .shootCommand(new ShooterState(.6, .6, Rotation2d.fromDegrees(60)))
+                                        .shootCommand(new ShooterState(.6, .6, Rotation2d.fromDegrees(62)))
                                         .asProxy(),
-                                Commands.waitSeconds(.75)
+                                Commands.waitSeconds(.5)
                                         .andThen(intakeSubsystem.shootCommand().asProxy()))
-                        .withTimeout(1.25));
+                        .withTimeout(1.0));
         NamedCommands.registerCommand("intake", intakeSubsystem.intakeCommand().asProxy());
         LinearFilter lowPassIQR = LinearFilter.movingAverage(20);
         IntakeAssistCommandComplexAuto intakeAssistCommandComplex =
@@ -166,7 +167,6 @@ public class AutonomousManager {
                                             + (FieldConstants.fieldLength / 2));
                             return hasPiece || pastLine;
                         })
-                        .withTimeout(1)
                         .alongWith(intakeSubsystem.intakeCommand().asProxy()));
         NamedCommands.registerCommand("amp", parallel());
         Command autoAimCommand;
@@ -188,6 +188,11 @@ public class AutonomousManager {
                     false);
             autoAimCommand = aimAndSpinupCommand.asProxy();
         }
+        NamedCommands.registerCommand("search", Commands.run(() -> swerveDriveSubsystem.setControl(swerveDriveSubsystem
+                        .openLoop
+                        .withVelocityX(0)
+                        .withVelocityY(0)
+                        .withRotationalRate(FieldConstants.isBlue() ? 2 : -2))).withTimeout(1.5).andThen(Commands.waitSeconds(10)).until(() -> visionSubsystem.getDetectorInfo().isPresent()));
         NamedCommands.registerCommand("aim", autoAimCommand);
         NamedCommands.registerCommand("spinup", container.getSpinupCommand().asProxy());
         NamedCommands.registerCommand(
@@ -292,70 +297,78 @@ public class AutonomousManager {
     }
 
     private enum AutonomousOption {
-        CENTER5(
+        // Does 
+        CENTER5A(
                 "Center",
                 5,
                 "NewCenter5",
                 "Center (Second Note)",
                 true,
-                "Shoots the starting piece, collects the next nearest piece, and scores the second left most on the centerline."),
+                "Preload + Nearline + Second Note on Centerline"),
         CENTER5B(
                 "Center",
                 5,
                 "NewCenterCenter5",
                 "Center (Center Note)",
                 true,
-                "Shoots the starting piece, collects the next nearest piece, and scores the most middle on the centerline."),
+                "Preload + Newarline + Center Note on Centerline"),
+        CENTER5BS(
+                "Center",
+                5,
+                "NewCenterCenter5Search",
+                "Center (Center Note Search)",
+                true,
+                "Preload + Newarline + Center Note on Centerline"),
         CENTER5C(
                 "Center",
                 5,
                 "NewCenterPole5",
                 "Center (Pole First) (Second Note)",
                 true,
-                "Shoots the starting piece, collects the next nearest piece, and scores the most middle on the centerline."),
-        EASYAMP4(
-                "Amp",
-                4,
-                "EasyAmp4",
-                "Near Line (Amp)",
-                false,
-                "Shoots in the starting piece and then picks up and shoots the near row."),
-        EASYSOURCE4(
-                "Source",
-                4,
-                "EasySource4",
-                "Near Line (Source)",
-                false,
-                "Shoots in the starting piece and then picks up and shoots the near row."),
-        EASYCENTER4(
-                "Center",
-                4,
-                "EasyCenter4",
-                "Near Line (Center)",
-                false,
-                "Shoots in the starting piece and then picks up and shoots the near row."),
+                "Preload + Nearline + Second Note on Centerline"),
+        // EASYAMP4(
+        //         "Amp",
+        //         4,
+        //         "EasyAmp4",
+        //         "Near Line (Amp)",
+        //         false,
+        //         "Shoots in the starting piece and then picks up and shoots the near row."),
+        // EASYSOURCE4(
+        //         "Source",
+        //         4,
+        //         "EasySource4",
+        //         "Near Line (Source)",
+        //         false,
+        //         "Shoots in the starting piece and then picks up and shoots the near row."),
+        // EASYCENTER4(
+        //         "Center",
+        //         4,
+        //         "EasyCenter4",
+        //         "Near Line (Center)",
+        //         false,
+        //         "Shoots in the starting piece and then picks up and shoots the near row."),
         SOURCE4(
                 "Source",
                 4,
                 "NewSource4",
                 "Source Side",
                 true,
-                "Shoots the starting piece and then shoots the three near the source on the centerline."),
+                "Preload + First on Centerline + Second on Centerline + Grab Third on Centerline."),
         SOURCE4B(
                 "Source",
                 4,
                 "NewSourceCenter4",
                 "Source Side (Second Piece)",
                 true,
-                "Shoots the starting piece and then shoots the three near the source on the centerline."),
+                "Preload + Second on Centerline + Third on Centerline."),
 
-        SOURCE4A(
-                "Source",
-                4,
-                "Source4A",
-                "Source Side Conditional",
-                false,
-                "Shoots the starting piece and then shoots the three near the source on the centerline."),
+        // SOURCE4A(
+        //         "Source",
+        //         4,
+        //         "Source4A",
+        //         "Source Side Conditional",
+        //         false,
+        //         "Shoots the starting piece and then shoots the three near the source on the centerline."),
 
         AMP5(
                 "Amp",
@@ -363,25 +376,31 @@ public class AutonomousManager {
                 "NewAmp5",
                 "Amp Side",
                 true,
-                "Scores the starting piece, the amp side near line piece, and the three pieces on the amp side centerline."),
+                "Preload + First on Centerline + Second on Centerline."),
+        AMP5B(
+                        "Amp",
+                        5,
+                        "NewAmp5Sketch",
+                        "Amp Side (Second)r",
+                        true,
+                        "Preload + First on Centerline + Second on Centerline.");
+        // AMP5A(
+        //         "Amp",
+        //         5,
+        //         "Amp5A",
+        //         "Amp Side Conditional",
+        //         false,
+        //         "Scores the starting piece, the amp side near line piece, and the three pieces on the amp side centerline."),
 
-        AMP5A(
-                "Amp",
-                5,
-                "Amp5A",
-                "Amp Side Conditional",
-                false,
-                "Scores the starting piece, the amp side near line piece, and the three pieces on the amp side centerline."),
+        // MOBILITY1(
+        //         "Source",
+        //         1,
+        //         "Mobility1",
+        //         "Mobility",
+        //         false,
+        //         "Shoots the starting piece and goes off to the side to get mobility."),
 
-        MOBILITY1(
-                "Source",
-                1,
-                "Mobility1",
-                "Mobility",
-                false,
-                "Shoots the starting piece and goes off to the side to get mobility."),
-
-        LINE0("Anywhere", 0, "straightLine", "Straight Line", false, "Slowly accelerates in a straight line.");
+        //LINE0("Anywhere", 0, "straightLine", "Straight Line", false, "Slowly accelerates in a straight line.");
 
         private String pathName;
         public String startPosition;

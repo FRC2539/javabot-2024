@@ -20,7 +20,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "A-1b"
+            "pathName": "A-2b"
           }
         },
         {
@@ -44,6 +44,6 @@
       ]
     }
   },
-  "folder": "The Square Autos",
+  "folder": "WorldsAutos",
   "choreoAuto": false
 }

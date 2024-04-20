@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 8.773105181537998,
-        "y": 0.7367317298737166
+        "x": 8.936823343732158,
+        "y": 0.5730135676795581
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.9110821707587355,
-        "y": 1.1114784993387243
+        "x": 7.074800332952895,
+        "y": 0.9477603371445659
       },
       "isLocked": false,
       "linkedName": "5b"
     },
     {
       "anchor": {
-        "x": 2.7389214892389893,
-        "y": 3.332834016095383
+        "x": 2.69214487146923,
+        "y": 3.1223392361314644
       },
       "prevControl": {
-        "x": 4.2825498756410605,
-        "y": 0.8887557376254349
+        "x": 4.235773257871301,
+        "y": 0.6782609576615166
       },
       "nextControl": null,
       "isLocked": false,
@@ -42,7 +42,25 @@
       }
     }
   ],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "spinup",
+      "waypointRelativePos": 0.5,
+      "command": {
+        "type": "parallel",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "spinup"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
   "globalConstraints": {
     "maxVelocity": 4.5,
     "maxAcceleration": 4.0,

@@ -126,8 +126,8 @@ public final class Constants {
         // }
         public static final InterpolatingMap<InterpolatableDouble> shooterAngleMap() {
             var map = new InterpolatingMap<InterpolatableDouble>();
-            map.put(0, new InterpolatableDouble(60));
-            map.put(1.539, new InterpolatableDouble(60));
+            map.put(0, new InterpolatableDouble(62));
+            map.put(1.539, new InterpolatableDouble(62));
             map.put(2.095, new InterpolatableDouble(48 + .5 - 2 + 2));
             map.put(2.458, new InterpolatableDouble(44 + .5 - 2 + 2));
             map.put(2.9, new InterpolatableDouble(39 + .5 - 1 + 2));
@@ -141,7 +141,7 @@ public final class Constants {
             map.put(5.541, new InterpolatableDouble(27.25 - 2 - 1 + 2));
             map.put(5.9, new InterpolatableDouble(23.5 - 2 - 1 + 2));
             map.put(1000, new InterpolatableDouble(23.5 - 2 - 1 + 2));
-
+;
             return map;
         }
         // public static final InterpolatingMap<InterpolatableDouble> topRollerMap() {

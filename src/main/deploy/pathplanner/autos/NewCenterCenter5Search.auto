@@ -24,7 +24,7 @@
               {
                 "type": "wait",
                 "data": {
-                  "waitTime": 2.5
+                  "waitTime": 1.5
                 }
               }
             ]
@@ -70,6 +70,30 @@
           "type": "named",
           "data": {
             "name": "spinupshoot"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Search Path"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "search"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "mlintakedrive"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "aimedshoot"
           }
         }
       ]

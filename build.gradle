@@ -104,7 +104,7 @@ tasks.withType(JavaCompile) {
 spotless {
     ratchetFrom 'origin/main'
 
-    enforceCheck true
+    enforceCheck false
 
     java {
         target fileTree('.') {

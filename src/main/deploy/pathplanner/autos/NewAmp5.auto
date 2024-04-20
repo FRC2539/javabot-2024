@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 0.77430354290908,
-      "y": 4.724438394745736
+      "x": 0.7456751736959918,
+      "y": 6.657761248091568
     },
-    "rotation": -60.2551187030578
+    "rotation": 58.57043438516145
   },
   "command": {
     "type": "sequential",
@@ -20,13 +20,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "S-4b"
+            "pathName": "A-1b"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "4b-3s"
+            "pathName": "1b-1s"
           }
         },
         {
@@ -38,19 +38,25 @@
         {
           "type": "path",
           "data": {
-            "pathName": "3s-3b"
+            "pathName": "1s-2bml"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "3b-3s"
+            "pathName": "2b-1s"
           }
         },
         {
           "type": "named",
           "data": {
             "name": "aimedshoot"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "1s-3b"
           }
         }
       ]

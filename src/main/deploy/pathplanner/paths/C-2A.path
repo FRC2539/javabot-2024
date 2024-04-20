@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.2942354852523248,
-        "y": 5.55492627078484
+        "x": 1.3473171105886368,
+        "y": 5.507946742389212
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.294235485252326,
-        "y": 5.55492627078484
+        "x": 2.3473171105886372,
+        "y": 5.507946742389212
       },
       "isLocked": false,
       "linkedName": "C"
@@ -50,11 +50,18 @@
     },
     {
       "name": "spinup",
-      "waypointRelativePos": 0.2,
+      "waypointRelativePos": 0,
       "command": {
         "type": "parallel",
         "data": {
-          "commands": []
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "spinup"
+              }
+            }
+          ]
         }
       }
     }

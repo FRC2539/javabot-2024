@@ -22,12 +22,6 @@
           "data": {
             "commands": [
               {
-                "type": "named",
-                "data": {
-                  "name": null
-                }
-              },
-              {
                 "type": "sequential",
                 "data": {
                   "commands": [
@@ -59,12 +53,6 @@
           "type": "race",
           "data": {
             "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": null
-                }
-              },
               {
                 "type": "sequential",
                 "data": {

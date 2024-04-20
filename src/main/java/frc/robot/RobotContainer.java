@@ -298,7 +298,7 @@ public class RobotContainer {
                 .getBottomThumb()
                 // .and(leftDriveController.getBottomThumb().negate())
                 .onTrue(shooterSubsystem
-                        .shootCommand(() -> new ShooterState(.60, .60, Rotation2d.fromDegrees(36.75)))
+                        .shootCommand(() -> new ShooterState(.60, .60, Rotation2d.fromDegrees(37.75)))
                         .until(rightDriveController
                                 .getBottomThumb()
                                 .or(leftDriveController.getBottomThumb())
@@ -475,7 +475,7 @@ public class RobotContainer {
         // Adjustable Shot (by default, the subwoofer speaker shot)
         LoggedReceiver topRollerSpeedTunable = Logger.tunable("/ShooterSubsystem/topTunable", .6d);
         LoggedReceiver bottomRollerSpeedTunable = Logger.tunable("/ShooterSubsystem/bottomTunable", .6d);
-        LoggedReceiver pivotAngleTunable = Logger.tunable("/ShooterSubsystem/pivotTunable", 60d);
+        LoggedReceiver pivotAngleTunable = Logger.tunable("/ShooterSubsystem/pivotTunable", 62d);
         LoggedReceiver isVoltageBasedTunable = Logger.tunable("/ShooterSubsystem/voltageTunable", false);
 
         leftDriveController
@@ -620,18 +620,18 @@ public class RobotContainer {
                                 swerveDriveSubsystem.cardinalCommand(
                                         new Rotation2d(-0.57), this::getDriveForwardAxis, this::getDriveStrafeAxis),
                                 shooterSubsystem.shootCommand(() -> new ShooterState(
-                                        .55,
-                                        .5,
-                                        Rotation2d.fromDegrees(60).plus(shooterSubsystem.getPitchCorrection())))),
+                                        .50,
+                                        .45,
+                                        Rotation2d.fromDegrees(55).plus(shooterSubsystem.getPitchCorrection())))),
                         parallel(
                                 swerveDriveSubsystem.cardinalCommand(
                                         new Rotation2d(Math.PI + 0.57),
                                         this::getDriveForwardAxis,
                                         this::getDriveStrafeAxis),
                                 shooterSubsystem.shootCommand(() -> new ShooterState(
-                                        .55,
-                                        .5,
-                                        Rotation2d.fromDegrees(60).plus(shooterSubsystem.getPitchCorrection())))),
+                                        .50,
+                                        .45,
+                                        Rotation2d.fromDegrees(55).plus(shooterSubsystem.getPitchCorrection())))),
                         FieldConstants::isBlue));
 
         // lowfeeder shot
@@ -860,7 +860,7 @@ public class RobotContainer {
                 0,
                 true,
                 false,
-                false,
+                true,
                 false);
     }
 

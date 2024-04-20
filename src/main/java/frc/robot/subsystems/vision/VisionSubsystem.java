@@ -111,12 +111,12 @@ public class VisionSubsystem extends SubsystemBase {
                 double xyStds;
                 double degStds;
                 // multiple targets detected
-                if (t.numberOfTags >= 2 && t.targetArea > 0.8) {
+                if (t.numberOfTags >= 2 && t.targetArea > 0.65) {
                     xyStds = 1;
                     degStds = 6;
                 }
 
-                if (t.numberOfTags >= 2 && t.targetArea > 0.1) {
+                if (t.numberOfTags >= 2 && t.targetArea > 0.075) {
                     xyStds = 2;
                     degStds = 12;
                 }

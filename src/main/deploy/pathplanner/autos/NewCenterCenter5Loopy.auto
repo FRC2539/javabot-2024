@@ -24,7 +24,7 @@
               {
                 "type": "wait",
                 "data": {
-                  "waitTime": 2.5
+                  "waitTime": 0.5
                 }
               }
             ]
@@ -70,6 +70,24 @@
           "type": "named",
           "data": {
             "name": "spinupshoot"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "3a-3b"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "3b-2s"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "aimedshoot"
           }
         }
       ]
