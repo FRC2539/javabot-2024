@@ -4,13 +4,11 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.lib.framework.motor.MotorIO;
 import frc.lib.logging.Logger;
-import frc.robot.subsystems.climber.ClimberIO.ClimberIOInputs;
 
 public class ClimberSubsystem extends SubsystemBase {
-    private ClimberIO pivotIO;
-
-    private ClimberIOInputs climberVoltage = new ClimberIOInputs();
+    private MotorIO pivotIO;
 
     private MechanismLigament2d climber;
 
@@ -19,7 +17,7 @@ public class ClimberSubsystem extends SubsystemBase {
 
     private final String stateLog = "/ClimberSubsystem/state";
 
-    public ClimberSubsystem(ClimberIO pivotIO, MechanismLigament2d climber) {
+    public ClimberSubsystem(MotorIO pivotIO, MechanismLigament2d climber) {
         super();
         this.pivotIO = pivotIO;
 
@@ -32,7 +30,7 @@ public class ClimberSubsystem extends SubsystemBase {
     public void periodic() {
         logClimberInformation();
 
-        this.pivotIO.updateInputs(climberVoltage);
+        this.pivotIO.update();
     }
 
     private Command defaultCommand() {
@@ -54,25 +52,25 @@ public class ClimberSubsystem extends SubsystemBase {
     }
 
     public Command zeroClimberCommand() {
-        return runOnce(() -> pivotIO.resetPosition(0));
+        return runOnce(() -> pivotIO.zeroPosition(0));
     }
 
     public Command raiseCommand() {
-        return voltageCommand(12).until(() -> climberVoltage.currentPosition >= raisedHeight);
+        return voltageCommand(12).until(() -> pivotIO.getPosition() >= raisedHeight);
     }
 
     public Command primeCommand() {
-        return voltageCommand(12).until(() -> climberVoltage.currentPosition >= raisedHeight);
+        return voltageCommand(12).until(() -> pivotIO.getPosition() >= raisedHeight);
     }
 
     public Command lowerCommand() {
-        return voltageCommand(-12).until(() -> climberVoltage.currentPosition <= loweredHeight);
+        return voltageCommand(-12).until(() -> pivotIO.getPosition() <= loweredHeight);
     }
 
     public void logClimberInformation() {
-        climber.setLength(Units.inchesToMeters(22.5) + climberVoltage.currentPosition / 190 * Units.inchesToMeters(21));
+        climber.setLength(Units.inchesToMeters(22.5) + pivotIO.getPosition() / 190 * Units.inchesToMeters(21));
 
-        Logger.log("/ClimberSubsystem/position", climberVoltage.currentPosition);
-        Logger.log("/ClimberSubsystem/voltage", climberVoltage.currentVoltage);
+        Logger.log("/ClimberSubsystem/position", pivotIO.getPosition());
+        Logger.log("/ClimberSubsystem/voltage", pivotIO.getVoltage());
     }
 }

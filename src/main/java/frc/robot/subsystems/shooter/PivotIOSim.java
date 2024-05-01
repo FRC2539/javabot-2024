@@ -1,23 +1,30 @@
 package frc.robot.subsystems.shooter;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 
-public class PivotIOSim implements PivotIO {
-    private Rotation2d rotation = new Rotation2d();
+public class PivotIOSim extends PivotIOFalconTest {
+    private final DCMotorSim motorSimModel = new DCMotorSim(DCMotor.getFalcon500(1), 1.0, 0.001);
 
-    public void updateInputs(PivotIOInputs inputs) {
-        inputs.atTarget = true;
-        inputs.currentAngle = rotation;
+    public PivotIOSim(int port, int encoderPort) {
+        super(port, encoderPort);
     }
 
-    public void setAngle(Rotation2d currentAngle) {
-        this.rotation = currentAngle;
+    public void update() {
+        super.update();
+        var talonFXSim = motor.getSimState();
+        var motorVoltage = talonFXSim.getMotorVoltage();
+
+        motorSimModel.setInputVoltage(motorVoltage);
+        motorSimModel.update(0.020);
+
+        talonFXSim.setRawRotorPosition(motorSimModel.getAngularPositionRotations());
+        talonFXSim.setRotorVelocity(Units.radiansToRotations(motorSimModel.getAngularVelocityRadPerSec()));
     }
 
-    public void setVoltage(double voltage) {
-    }
-
-    public void updateAngle(Rotation2d currentAngle) {
-        this.rotation = currentAngle;
+    protected Rotation2d getGripperEncoderAngle() {
+        return getPositionAsRotation2d();
     }
 }

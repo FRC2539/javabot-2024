@@ -24,6 +24,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.lib.controller.LogitechController;
 import frc.lib.controller.ThrustmasterJoystick;
+import frc.lib.framework.motor.MotorIOTalonFX;
+import frc.lib.framework.sensor.DigitalSensorIOAnalog;
 import frc.lib.logging.LoggedReceiver;
 import frc.lib.logging.Logger;
 import frc.lib.vision.LimelightRawAngles;
@@ -38,8 +40,6 @@ import frc.robot.commands.IntakeAssistCommandComplex;
 import frc.robot.subsystems.climber.ClimberIOFalcon;
 import frc.robot.subsystems.climber.ClimberIOSim;
 import frc.robot.subsystems.climber.ClimberSubsystem;
-import frc.robot.subsystems.intake.IntakeIOFalcon;
-import frc.robot.subsystems.intake.IntakeIOSim;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.lights.LightsSubsystemB;
 import frc.robot.subsystems.shooter.PivotIOFalcon;
@@ -164,7 +164,11 @@ public class RobotContainer {
             }
 
             visionSubsystem = new VisionSubsystem(swerveDriveSubsystem, limelightAprilTag, limelightIntake);
-            intakeSubsystem = new IntakeSubsystem(new IntakeIOFalcon());
+            intakeSubsystem = new IntakeSubsystem(
+                new MotorIOTalonFX(Constants.IntakeConstants.rollerMotorPort, "rio"),
+                new MotorIOTalonFX(Constants.IntakeConstants.chamberMotorPort, "rio"),
+                new DigitalSensorIOAnalog(Constants.IntakeConstants.rollerMotorPort),
+                new DigitalSensorIOAnalog(Constants.IntakeConstants.chamberMotorPort));
 
         } else {
             visionSim = new VisionSystemSim("main");

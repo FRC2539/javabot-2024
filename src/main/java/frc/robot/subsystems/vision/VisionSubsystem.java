@@ -21,6 +21,7 @@ import frc.robot.Constants.FieldConstants;
 import frc.robot.subsystems.swervedrive.SwerveDriveSubsystem;
 import frc.robot.subsystems.vision.AprilTagIO.AprilTagIOInputs;
 import frc.robot.subsystems.vision.PositionTargetIO.PositionTargetIOInputs;
+import monologue.Logged;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +29,7 @@ import java.util.Optional;
 import java.util.OptionalDouble;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
-public class VisionSubsystem extends SubsystemBase {
+public class VisionSubsystem extends SubsystemBase implements Logged {
     public static double translationStdDevCoefficient = 1;
     public static double rotationStdDevCoefficient = 1.2;
 
@@ -76,6 +77,7 @@ public class VisionSubsystem extends SubsystemBase {
         logVisionPoseEstimateInfo(leftInputs);
 
         Logger.log("/VisionSubsystem/isUsingVision", updatingPoseUsingVision);
+        
     }
 
     public static Optional<PhotonTrackedTarget> getTagInfo(List<PhotonTrackedTarget> targets, int tagID) {
@@ -94,7 +96,7 @@ public class VisionSubsystem extends SubsystemBase {
 
     private void logVisionPoseEstimateInfo(Optional<AprilTagIOInputs> inputs) {
         inputs.ifPresent((t) -> {
-            Logger.log("/VisionSubsystem/" + t.name + "/pose", t.poseEstimate3d, true);
+            log("/VisionSubsystem/" + t.name + "/pose", t.poseEstimate3d);
             Logger.log("/VisionSubsystem/" + t.name + "/alternate", t.alternatePoseEstimate3d, true);
             Logger.log("/VisionSubsystem/" + t.name + "/targetNumber", t.numberOfTags);
             Logger.log("/VisionSubsystem/" + t.name + "/targetNumber", t.numberOfTags);

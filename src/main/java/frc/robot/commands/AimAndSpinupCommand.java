@@ -128,6 +128,8 @@ public class AimAndSpinupCommand extends Command {
                 addRequirements(shooterSubsystem);
             }
         }
+
+        setName("AimAndSpinupCommand");
     }
 
     @Override

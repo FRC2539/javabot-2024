@@ -1,22 +1,26 @@
 package frc.robot.subsystems.shooter;
 
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.simulation.DCMotorSim;
+import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 
-public class RollerIOSim implements RollerIO{
-    private double RPM;
+public class RollerIOSim extends RollerIOFalcon {
+    private final DCMotorSim motorSimModel = new DCMotorSim(DCMotor.getFalcon500(1), 1.0, 0.001);
+    FlywheelSim flywheelSim = new FlywheelSim(DCMotor.getFalcon500(1), 1.0, 0.001);
 
-    public RollerIOSim() {};
-
-    public void updateInputs(RollerIOInputs inputs) {
-        inputs.speed = RPM;
+    public RollerIOSim(int port) {
+        super(port);
     }
 
-    public void setSpeed(double RPM) {
-        this.RPM = RPM;
-    }
+    public void update() {
+        var talonFXSim = motor.getSimState();
+        var motorVoltage = talonFXSim.getMotorVoltage();
 
-    public void setVoltage(double voltage) {
-        this.RPM = DCMotor.getFalcon500(1).getSpeed(0,voltage) / (2 * Math.PI) * 60;
-    }
+        motorSimModel.setInputVoltage(motorVoltage);
+        motorSimModel.update(0.020);
 
+        talonFXSim.setRawRotorPosition(motorSimModel.getAngularPositionRotations());
+        talonFXSim.setRotorVelocity(Units.radiansToRotations(motorSimModel.getAngularVelocityRadPerSec()));
+    }
 }

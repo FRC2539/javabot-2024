@@ -5,13 +5,16 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.lib.framework.motor.MotorIO;
+import frc.lib.framework.sensor.DigitalSensorIO;
 import frc.lib.logging.Logger;
-import frc.robot.subsystems.intake.IntakeIO.IntakeIOInputs;
 
 public class IntakeSubsystem extends SubsystemBase {
-    private IntakeIO intakeIO;
 
-    private IntakeIOInputs inputs = new IntakeIOInputs();
+    private MotorIO rollerIO;
+    private MotorIO chamberIO;
+    private DigitalSensorIO rollerSensorIO;
+    private DigitalSensorIO chamberSensorIO;
 
     private boolean noteNeedsPositioned = false;
 
@@ -22,9 +25,12 @@ public class IntakeSubsystem extends SubsystemBase {
 
     private final String stateLog = "/IntakeSubsystem/state";
 
-    public IntakeSubsystem(IntakeIO intakeIO) {
+    public IntakeSubsystem(MotorIO rollerIO, MotorIO chamberIO, DigitalSensorIO rollerSensor, DigitalSensorIO chamberSensor) {
         super();
-        this.intakeIO = intakeIO;
+        this.rollerIO = rollerIO;
+        this.chamberIO = chamberIO;
+        this.rollerSensorIO = rollerSensor;
+        this.chamberSensorIO = chamberSensor;
 
         this.hasPieceHighDebounce = new Trigger(() -> hasPieceRaw()).debounce(1, DebounceType.kFalling);
         this.hasPieceLowDebounce = new Trigger(() -> hasPieceRaw()).debounce(0.1, DebounceType.kFalling);
@@ -34,7 +40,10 @@ public class IntakeSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-        intakeIO.updateInputs(inputs);
+        rollerIO.update();
+        chamberIO.update();
+        rollerSensorIO.update();
+        chamberSensorIO.update();
 
         logIntakeInformation();
     }
@@ -57,8 +66,8 @@ public class IntakeSubsystem extends SubsystemBase {
 
     private Command speedCommand(double chamber, double roller) {
         return startEnd(() -> {
-            intakeIO.setChamberSpeed(chamber);
-            intakeIO.setRollerSpeed(roller);
+            chamberIO.setVoltage(chamber * 12);
+            rollerIO.setVoltage(roller * 12);
         }, () -> {
             
         });
@@ -101,11 +110,11 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     public boolean getRollerSensor() {
-        return inputs.rollerSensor;
+        return rollerSensorIO.getSensor();
     }
 
     public boolean getChamberSensor() {
-        return inputs.chamberSensor;
+        return chamberSensorIO.getSensor();
     }
 
     public boolean hasPieceRaw() {
@@ -121,21 +130,21 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     public void logIntakeInformation() {
-        Logger.log("/IntakeSubsystem/RollerSpeed", inputs.rollerSpeed);
-        Logger.log("/IntakeSubsystem/BelSpeed", inputs.chamberSpeed);
-        Logger.log("/IntakeSubsystem/RollerHasPiece", inputs.rollerSensor);
-        Logger.log("/IntakeSubsystem/BeltHasPiece", inputs.chamberSensor);
+        Logger.log("/IntakeSubsystem/RollerSpeed", rollerIO.getVelocity());
+        Logger.log("/IntakeSubsystem/BelSpeed", chamberIO.getVelocity());
+        Logger.log("/IntakeSubsystem/RollerHasPiece", rollerSensorIO.getSensor());
+        Logger.log("/IntakeSubsystem/BeltHasPiece", chamberSensorIO.getSensor());
 
         Logger.log("/IntakeSubsystem/HasPieceRaw", hasPieceRaw());
         Logger.log("/IntakeSubsystem/HasPieceSmoothed", hasPieceSmoothed());
 
-        Logger.log("/IntakeSubsystem/RollerVoltage", inputs.rollerVoltage);
-        Logger.log("/IntakeSubsystem/RollerCurrent", inputs.rollerCurrent);
+        Logger.log("/IntakeSubsystem/RollerVoltage", rollerIO.getVoltage());
+        Logger.log("/IntakeSubsystem/RollerCurrent", rollerIO.getCurrent());
 
-        Logger.log("/IntakeSubsystem/BeltVoltage", inputs.chamberVoltage);
-        Logger.log("/IntakeSubsystem/BeltCurrent", inputs.chamberCurrent);
+        Logger.log("/IntakeSubsystem/BeltVoltage", chamberIO.getVoltage());
+        Logger.log("/IntakeSubsystem/BeltCurrent", chamberIO.getVoltage());
 
-        Logger.log("/IntakeSubsystem/RollerTemperature", inputs.rollerTemperature);
-        Logger.log("/IntakeSubsystem/BeltTemperature", inputs.chamberTemperature);
+        Logger.log("/IntakeSubsystem/RollerTemperature", rollerIO.getTemperature());
+        Logger.log("/IntakeSubsystem/BeltTemperature", chamberIO.getTemperature());
     }
 }
