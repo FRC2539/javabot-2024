@@ -229,13 +229,6 @@
               "Layout/Number of rows": 2,
               "Layout/Label position": "TOP",
               "_children": {
-                "0,0": {
-                  "_type": "Text View",
-                  "_source0": "network_table:///ShooterSubsystem/topTunable",
-                  "_title": "Top Speed",
-                  "_glyph": 148,
-                  "_showGlyph": false
-                },
                 "1,0": {
                   "_type": "Text View",
                   "_source0": "network_table:///ShooterSubsystem/pivotTunable",
@@ -254,6 +247,13 @@
                   "_type": "Toggle Switch",
                   "_source0": "network_table:///ShooterSubsystem/voltageTunable",
                   "_title": "Use Voltage over RPM",
+                  "_glyph": 148,
+                  "_showGlyph": false
+                },
+                "0,0": {
+                  "_type": "Text View",
+                  "_source0": "network_table:///ShooterSubsystem/topTunable",
+                  "_title": "Top Speed",
                   "_glyph": 148,
                   "_showGlyph": false
                 }

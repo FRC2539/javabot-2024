@@ -41,6 +41,7 @@ import frc.robot.subsystems.climber.ClimberSubsystem;
 import frc.robot.subsystems.intake.IntakeIOFalcon;
 import frc.robot.subsystems.intake.IntakeIOSim;
 import frc.robot.subsystems.intake.IntakeSubsystem;
+import frc.robot.subsystems.intake.IntakeSubsystem.IntakeState;
 import frc.robot.subsystems.lights.LightsSubsystemB;
 import frc.robot.subsystems.shooter.PivotIOFalcon;
 import frc.robot.subsystems.shooter.PivotIOSim;
@@ -298,7 +299,7 @@ public class RobotContainer {
                 .getBottomThumb()
                 // .and(leftDriveController.getBottomThumb().negate())
                 .onTrue(shooterSubsystem
-                        .shootCommand(() -> new ShooterState(.60, .60, Rotation2d.fromDegrees(37.75)))
+                        .shootCommand(() -> ShooterSubsystem.podiumShot)
                         .until(rightDriveController
                                 .getBottomThumb()
                                 .or(leftDriveController.getBottomThumb())
@@ -473,10 +474,10 @@ public class RobotContainer {
         leftDriveController.getRightThumb().whileTrue(climberSubsystem.setVoltage(12));
 
         // Adjustable Shot (by default, the subwoofer speaker shot)
-        LoggedReceiver topRollerSpeedTunable = Logger.tunable("/ShooterSubsystem/topTunable", .6d);
-        LoggedReceiver bottomRollerSpeedTunable = Logger.tunable("/ShooterSubsystem/bottomTunable", .6d);
-        LoggedReceiver pivotAngleTunable = Logger.tunable("/ShooterSubsystem/pivotTunable", 62d);
-        LoggedReceiver isVoltageBasedTunable = Logger.tunable("/ShooterSubsystem/voltageTunable", false);
+        LoggedReceiver topRollerSpeedTunable = Logger.tunable("/ShooterSubsystem/topTunable", ShooterSubsystem.subwooferShot.topRollerRPM);
+        LoggedReceiver bottomRollerSpeedTunable = Logger.tunable("/ShooterSubsystem/bottomTunable", ShooterSubsystem.subwooferShot.bottomRollerRPM);
+        LoggedReceiver pivotAngleTunable = Logger.tunable("/ShooterSubsystem/pivotTunable", ShooterSubsystem.subwooferShot.pivotAngle.getDegrees());
+        LoggedReceiver isVoltageBasedTunable = Logger.tunable("/ShooterSubsystem/voltageTunable", ShooterSubsystem.subwooferShot.isAngleVoltageBased);
 
         leftDriveController
                 .getBottomThumb()
@@ -488,6 +489,13 @@ public class RobotContainer {
                         Rotation2d.fromDegrees(pivotAngleTunable.getDouble()),
                         isVoltageBasedTunable.getBoolean(),
                         false)));
+
+        // leftDriveController
+        //         .getBottomThumb()
+        //         .and(leftDriveController.getTrigger().negate())
+        //         .whileTrue(Commands.run(()-> {intakeSubsystem.setIntakeState(IntakeState.ADJUSTABLE);
+        //         intakeSubsystem.topSpeedAdjustable = topRollerSpeedTunable.getDouble();
+        //                 intakeSubsystem.bottomSpeedAdjustable = bottomRollerSpeedTunable.getDouble();}, intakeSubsystem));
 
         // Shoot for the Adjustable Shot
         leftDriveController
@@ -524,8 +532,7 @@ public class RobotContainer {
         operatorController
                 .getLeftBumper()
                 .and(operatorController.getRightBumper().negate())
-                .whileTrue(shooterSubsystem.shootCommand(new ShooterState(.1, .25
-                , Rotation2d.fromDegrees(60))));
+                .whileTrue(shooterSubsystem.shootCommand(ShooterSubsystem.ampShot));
 
         operatorController
                 .getLeftBumper()
@@ -611,7 +618,7 @@ public class RobotContainer {
         //                                 lightsSubsystem)
         //                         .withTimeout(.1)));
 
-        // feeder shot
+        // feeder shot (air feed)
         operatorController
                 .getLeftBumper()
                 .and(operatorController.getRightBumper())
@@ -619,26 +626,20 @@ public class RobotContainer {
                         parallel(
                                 swerveDriveSubsystem.cardinalCommand(
                                         new Rotation2d(-0.57), this::getDriveForwardAxis, this::getDriveStrafeAxis),
-                                shooterSubsystem.shootCommand(() -> new ShooterState(
-                                        .50,
-                                        .45,
-                                        Rotation2d.fromDegrees(55).plus(shooterSubsystem.getPitchCorrection())))),
+                                shooterSubsystem.shootCommand(() -> ShooterSubsystem.airFeed.plusRotation(shooterSubsystem.getPitchCorrection()))),
                         parallel(
                                 swerveDriveSubsystem.cardinalCommand(
                                         new Rotation2d(Math.PI + 0.57),
                                         this::getDriveForwardAxis,
                                         this::getDriveStrafeAxis),
-                                shooterSubsystem.shootCommand(() -> new ShooterState(
-                                        .50,
-                                        .45,
-                                        Rotation2d.fromDegrees(55).plus(shooterSubsystem.getPitchCorrection())))),
+                                shooterSubsystem.shootCommand(() -> ShooterSubsystem.airFeed.plusRotation(shooterSubsystem.getPitchCorrection()))),
                         FieldConstants::isBlue));
 
         // lowfeeder shot
         operatorController
                 .getLeftTrigger()
                 .and(operatorController.getRightTrigger())
-                .whileTrue(shooterSubsystem.shootCommand(new ShooterState(.7, .4, Rotation2d.fromDegrees(9))));
+                .whileTrue(shooterSubsystem.shootCommand(ShooterSubsystem.groundFeedShot));
 
         operatorController
                 .getLeftTrigger()

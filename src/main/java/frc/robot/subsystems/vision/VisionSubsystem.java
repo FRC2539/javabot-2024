@@ -111,29 +111,39 @@ public class VisionSubsystem extends SubsystemBase {
                 double xyStds;
                 double degStds;
                 // multiple targets detected
-                if (t.numberOfTags >= 2 && t.targetArea > 0.65) {
-                    xyStds = 1;
-                    degStds = 6;
-                }
+                // if (t.numberOfTags >= 2 && t.targetArea > 0.65) {
+                //     xyStds = 1;
+                //     degStds = 6;
+                // }
 
-                if (t.numberOfTags >= 2 && t.targetArea > 0.075) {
-                    xyStds = 2;
-                    degStds = 12;
-                }
-                // 1 target with large area and close to estimated pose
-                else if (t.targetArea > 0.8 && poseDifference < 0.5) {
-                    xyStds = 2;
-                    degStds = 12;
-                }
-                // 1 target farther away and estimated pose is close
-                else if (t.targetArea > 0.1 && poseDifference < 0.3) {
-                    xyStds = 4;
-                    degStds = 30;
-                }
-                // conditions don't match to add a vision measurement
-                else {
+                // if (t.numberOfTags >= 2 && t.targetArea > 0.075) {
+                //     xyStds = 2;
+                //     degStds = 12;
+                // }
+                // // 1 target with large area and close to estimated pose
+                // else if (t.targetArea > 0.8 && poseDifference < 0.5) {
+                //     xyStds = 2;
+                //     degStds = 12;
+                // }
+                // // 1 target farther away and estimated pose is close
+                // else if (t.targetArea > 0.1 && poseDifference < 0.3) {
+                //     xyStds = 4;
+                //     degStds = 30;
+                // }
+                // // conditions don't match to add a vision measurement
+                // else {
+                //     return;
+                // }
+                if (consumer.getFieldRelativeChassisSpeeds().omegaRadiansPerSecond > Math.PI * 4) {
                     return;
                 }
+
+                if (t.numberOfTags == 0) {
+                    return;
+                }
+
+                xyStds = 0.7;
+                degStds = Units.radiansToDegrees(9999999);
 
                 consumer.addVisionMeasurement(
                         t.poseEstimate3d.toPose2d(),
@@ -212,7 +222,14 @@ public class VisionSubsystem extends SubsystemBase {
     }
 
     public Optional<Rotation2d> getSpeakerAngleFromVision(Pose2d currentPose) {
-        return getSpeakerAngleFromVision(currentPose, true);
+        if (
+            VisionSubsystem.getTagInfo(leftTargets, FieldConstants.getSpeakerTag()).isPresent() || 
+            VisionSubsystem.getTagInfo(leftTargets, FieldConstants.getAltSpeakerTag()).isPresent()) {
+            return Optional.of(getSpeakerAngleFromPose(currentPose));
+        } else {
+            return Optional.empty();
+        }
+        //return getSpeakerAngleFromVision(currentPose, true);
     }
 
     public Optional<Rotation2d> getSpeakerAngleFromVision(Pose2d currentPose, boolean timestampAdjust) {
@@ -252,24 +269,31 @@ public class VisionSubsystem extends SubsystemBase {
     }
 
     public OptionalDouble getSpeakerDistanceFromVision(Pose2d currentPose) {
-        Optional<PhotonTrackedTarget> speakerTag =
-                VisionSubsystem.getTagInfo(leftTargets, FieldConstants.getSpeakerTag());
-        if (speakerTag.isPresent()) {
-            return OptionalDouble.of(PinholeModel3D.getTranslationToTarget(
-                            new Translation3d(
-                                    1,
-                                    Math.tan(Math.toRadians(-speakerTag.get().getYaw())),
-                                    Math.tan(Math.toRadians(speakerTag.get().getPitch()))),
-                            Constants.VisionConstants.robotToApriltagCamera,
-                            Units.inchesToMeters(57.75))
-                    .getNorm());
-            // return OptionalDouble.of(PhotonUtils.calculateDistanceToTargetMeters(
-            //         .56,
-            //         Units.inchesToMeters(57.75),
-            //         Units.degreesToRadians(34),
-            //         Units.degreesToRadians(speakerTag.get().getPitch())));
+        if (
+            VisionSubsystem.getTagInfo(leftTargets, FieldConstants.getSpeakerTag()).isPresent() || 
+            VisionSubsystem.getTagInfo(leftTargets, FieldConstants.getAltSpeakerTag()).isPresent()) {
+            return OptionalDouble.of(getSpeakerDistanceFromPose(currentPose));
         } else {
             return OptionalDouble.empty();
         }
+        // Optional<PhotonTrackedTarget> speakerTag =
+        //         VisionSubsystem.getTagInfo(leftTargets, FieldConstants.getSpeakerTag());
+        // if (speakerTag.isPresent()) {
+        //     return OptionalDouble.of(PinholeModel3D.getTranslationToTarget(
+        //                     new Translation3d(
+        //                             1,
+        //                             Math.tan(Math.toRadians(-speakerTag.get().getYaw())),
+        //                             Math.tan(Math.toRadians(speakerTag.get().getPitch()))),
+        //                     Constants.VisionConstants.robotToApriltagCamera,
+        //                     Units.inchesToMeters(57.75))
+        //             .getNorm());
+        //     // return OptionalDouble.of(PhotonUtils.calculateDistanceToTargetMeters(
+        //     //         .56,
+        //     //         Units.inchesToMeters(57.75),
+        //     //         Units.degreesToRadians(34),
+        //     //         Units.degreesToRadians(speakerTag.get().getPitch())));
+        // } else {
+        //     return OptionalDouble.empty();
+        // }
     }
 }

@@ -19,6 +19,9 @@ public class IntakeSubsystem extends SubsystemBase {
     private BooleanSupplier hasPieceHighDebounce;
     private BooleanSupplier hasPieceLowDebounce;
 
+    public double topSpeedAdjustable = 0;
+    public double bottomSpeedAdjustable = 0;
+
     public IntakeSubsystem(IntakeIO intakeIO) {
         this.intakeIO = intakeIO;
 
@@ -46,6 +49,7 @@ public class IntakeSubsystem extends SubsystemBase {
         SHOOTING,
         AMPING,
         EJECTING,
+        ADJUSTABLE
     }
 
     public void periodic() {
@@ -63,12 +67,12 @@ public class IntakeSubsystem extends SubsystemBase {
                 setRoller(-.25);
                 break;
             case SHOOTING:
-                setChamber(1 * 12.0 / 12.0);
-                setRoller(.25 * 12.0 / 12.0);
+                setChamber(1 * 12 / 12.0);
+                setRoller(.25 * 12 / 12.0);
                 break;
             case AMPING:
-                setChamber(1);
-                setRoller(.25);
+                setChamber(1 * 9/12.0);
+                setRoller(.25 * 9.0/12.0);
                 break;
             case MOVING:
                 setChamber(1.0 / 4);
@@ -85,6 +89,11 @@ public class IntakeSubsystem extends SubsystemBase {
             case INTAKING_REVERSE:
                 setChamber(-1.0 * .85);
                 setRoller(-.50 * .85);
+                break;
+            case ADJUSTABLE:
+                setRoller(topSpeedAdjustable);
+                setChamber(bottomSpeedAdjustable);
+                break;
         }
 
         logIntakeInformation();

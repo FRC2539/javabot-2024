@@ -46,4 +46,8 @@ public class ShooterState implements Interpolatable<ShooterState> {
                 MathUtil.interpolate(this.bottomRollerRPM, otherState.bottomRollerRPM, t),
                 Rotation2d.fromRotations(MathUtil.interpolate(this.pivotAngle.getRotations(), otherState.pivotAngle.getRotations(), t)));
     }
+
+    public ShooterState plusRotation(Rotation2d rotation) {
+        return new ShooterState(topRollerRPM, bottomRollerRPM, pivotAngle.plus(rotation));
+    }
 }

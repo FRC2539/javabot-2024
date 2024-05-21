@@ -323,6 +323,10 @@ public final class Constants {
             return isBlue() ? 7 : 4;
         }
 
+        public static int getAltSpeakerTag() {
+            return isBlue() ? 8 : 3;
+        }
+
         public static Pose2d getAmpPose() {
             return aprilTagFieldLayout.getTagPose(getAmpTag()).get().toPose2d();
         }

@@ -26,8 +26,8 @@ public class AprilTagIOLimelight3G implements AprilTagIO {
 
     public Pair<Optional<AprilTagIOInputs>, List<PhotonTrackedTarget>> updateInputs() {
         try {
-            var results = LimelightHelpers.getBotPoseEstimate_wpiBlue(camera);
-
+            LimelightHelpers.SetRobotOrientation(camera,gyro.get().getDegrees(),0,0,0,0,0);
+            var results = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(camera);
             var outputs = new AprilTagIOInputs();
 
             outputs.targets = new ArrayList<>();
