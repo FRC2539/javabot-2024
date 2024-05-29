@@ -61,6 +61,10 @@ public class TrapSubsystem extends SubsystemBase {
         }
     }
 
+    public double getTopRollerCurrent() {
+        return topRollerInputs.current;
+    }
+
     /** NOTE: This does not work with voltage requests as there is no "SPEED" */
     public boolean isTrapAtPosition() {
         return MathUtils.equalsWithinError(currentTrapState.topVoltage, topRollerInputs.speed, trapSpeedTolerance)
@@ -131,6 +135,9 @@ public class TrapSubsystem extends SubsystemBase {
         Logger.log("/TrapSubsystem/topRollerSpeed", topRollerInputs.speed);
         Logger.log("/TrapSubsystem/topRollerTemperature", topRollerInputs.motorTemperature);
         Logger.log("/TrapSubsystem/bottomRollerTemperature", bottomRollerInputs.motorTemperature);
+        Logger.log("/TrapSubsystem/topRollerCurrent", topRollerInputs.current);
+        Logger.log("/TrapSubsystem/bottomRollerCurrent", bottomRollerInputs.current);
+        Logger.log("/TrapSubsystem/rackCurrent", rackInputs.current);
         Logger.log("/TrapSubsystem/rackTemperature", rackInputs.temperature);
         Logger.log("/TrapSubsystem/bottomRollerSpeed", bottomRollerInputs.speed);
         Logger.log("/TrapSubsystem/trapPosition", rackInputs.position);

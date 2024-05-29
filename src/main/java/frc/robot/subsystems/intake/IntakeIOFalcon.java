@@ -2,6 +2,8 @@ package frc.robot.subsystems.intake;
 
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.hardware.TalonFX;
+
+import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.wpilibj.AnalogInput;
 import frc.robot.Constants.IntakeConstants;
 
@@ -21,6 +23,8 @@ public class IntakeIOFalcon implements IntakeIO {
 
     private AnalogInput rollerSensor = new AnalogInput(IntakeConstants.rollerSensorPort);
     private AnalogInput chamberSensor = new AnalogInput(IntakeConstants.chamberSensorPort);
+
+    private LinearFilter average = LinearFilter.movingAverage(10);
 
     public IntakeIOFalcon() {
         if (isThreading) {
@@ -56,6 +60,9 @@ public class IntakeIOFalcon implements IntakeIO {
             inputs.chamberSensor = hasChamberPiece();
             inputs.rollerSensor = hasRollerPiece();
         }
+
+        inputs.chamberCurrent = chamberMotor.getTorqueCurrent().getValueAsDouble();
+        inputs.rollerCurrent = rollerMotor.getTorqueCurrent().getValueAsDouble();
     }
 
     private boolean hasRollerPiece() {
