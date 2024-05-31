@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.controller.LogitechController;
 import frc.lib.controller.ThrustmasterJoystick;
 import frc.lib.logging.LoggedReceiver;
@@ -297,13 +298,7 @@ public class RobotContainer {
         // Podium Shot Spinup
         rightDriveController
                 .getBottomThumb()
-                // .and(leftDriveController.getBottomThumb().negate())
-                .onTrue(shooterSubsystem
-                        .shootCommand(() -> ShooterSubsystem.podiumShot)
-                        .until(rightDriveController
-                                .getBottomThumb()
-                                .or(leftDriveController.getBottomThumb())
-                                .negate()));
+                        .whileTrue(shooterSubsystem.shootCommand(ShooterSubsystem.ampShot));
 
         // rightDriveController
         //         .getBottomThumb()
@@ -381,27 +376,27 @@ public class RobotContainer {
         rightDriveController.getRightTopMiddle().whileTrue(mlIntakeStraightCommand());
 
         // Turn using gyro for the Podium Shot
-        rightDriveController
-                .getBottomThumb()
-                .whileTrue(Commands.either(
-                                swerveDriveSubsystem.cardinalCommand(
-                                        new Rotation2d(-0.301), this::getDriveForwardAxis, this::getDriveStrafeAxis),
-                                swerveDriveSubsystem.cardinalCommand(
-                                        new Rotation2d(Math.PI + 0.301),
-                                        this::getDriveForwardAxis,
-                                        this::getDriveStrafeAxis),
-                                // shooterSubsystem.shootCommand(new ShooterState(.05,.2,Rotation2d.fromDegrees(55)),
-                                FieldConstants::isBlue)
-                        .alongWith(Commands.either(
-                                run(
-                                                () -> {
-                                                    LightsSubsystemB.LEDSegment.MainStrip.setColor(
-                                                            LightsSubsystemB.green);
-                                                },
-                                                lightsSubsystem)
-                                        .asProxy(),
-                                run(() -> {}),
-                                () -> swerveDriveSubsystem.isAtDirectionCommand(0.1, 0.2))));
+        // rightDriveController
+        //         .getBottomThumb()
+        //         .whileTrue(Commands.either(
+        //                         swerveDriveSubsystem.cardinalCommand(
+        //                                 new Rotation2d(-0.301), this::getDriveForwardAxis, this::getDriveStrafeAxis),
+        //                         swerveDriveSubsystem.cardinalCommand(
+        //                                 new Rotation2d(Math.PI + 0.301),
+        //                                 this::getDriveForwardAxis,
+        //                                 this::getDriveStrafeAxis),
+        //                         // shooterSubsystem.shootCommand(new ShooterState(.05,.2,Rotation2d.fromDegrees(55)),
+        //                         FieldConstants::isBlue)
+        //                 .alongWith(Commands.either(
+        //                         run(
+        //                                         () -> {
+        //                                             LightsSubsystemB.LEDSegment.MainStrip.setColor(
+        //                                                     LightsSubsystemB.green);
+        //                                         },
+        //                                         lightsSubsystem)
+        //                                 .asProxy(),
+        //                         run(() -> {}),
+        //                         () -> swerveDriveSubsystem.isAtDirectionCommand(0.1, 0.2))));
 
         /*Set left joystic bindings */
 
@@ -548,8 +543,7 @@ public class RobotContainer {
         // Trap Source Command
         Command trappy = trapSubsystem.trapStateCommand(new TrapState(7, -6, 16.357));
         Command trappyDos = trapSubsystem.trapStateCommand(new TrapState(7, -6, 16.357));
-        operatorController.getB().whileTrue(trappy.withTimeout(0.2).andThen(trappyDos.until(() -> trapSubsystem.getTopRollerCurrent() > 8)).andThen(trapSubsystem.trapStateCommand(new TrapState(7, -6, 0)).withTimeout(.2)));
-
+        operatorController.getB().whileTrue(trappy.withTimeout(0.2).andThen(trappyDos.until(() -> trapSubsystem.getTopRollerCurrent() > 8)).andThen(trapSubsystem.trapStateCommand(new TrapState(7, -6, 16.357)).withTimeout(.2)));
         // Trap Bottom Command (this is not zero to reduce banging. it will slowly glide down if it is below 2.5 instead
         // of stalling)
         operatorController.getA().whileTrue(trapSubsystem.trapStateCommand(new TrapState(0, 0, 0)));
@@ -621,9 +615,8 @@ public class RobotContainer {
         //                         .withTimeout(.1)));
 
         // feeder shot (air feed)
-        operatorController
-                .getLeftBumper()
-                .and(operatorController.getRightBumper())
+        Trigger feedShotTrigger = leftDriveController.getTrigger().and(leftDriveController.getBottomThumb());
+        feedShotTrigger
                 .whileTrue(Commands.either(
                         parallel(
                                 swerveDriveSubsystem.cardinalCommand(

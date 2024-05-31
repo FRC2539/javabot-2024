@@ -26,7 +26,7 @@ public class IntakeSubsystem extends SubsystemBase {
         this.intakeIO = intakeIO;
 
         this.hasPieceHighDebounce = new Trigger(() -> hasPieceRaw()  || inputs.rollerCurrent > 90).debounce(1, DebounceType.kFalling);
-        this.hasPieceLowDebounce = new Trigger(() -> hasPieceRaw()  || inputs.rollerCurrent > 90).debounce(0.1, DebounceType.kFalling);
+        this.hasPieceLowDebounce = new Trigger(() -> hasPieceRaw()).debounce(0.1, DebounceType.kFalling);
 
         setDefaultCommand(Commands.either(
                 moveCommand()
