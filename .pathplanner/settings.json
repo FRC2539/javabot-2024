@@ -6,8 +6,9 @@
     "The Square Convention"
   ],
   "autoFolders": [
-    "WorldsAutos",
-    "The Square Autos"
+    "ChoreoAutos",
+    "The Square Autos",
+    "WorldsAutos"
   ],
   "defaultMaxVel": 4.5,
   "defaultMaxAccel": 4.0,

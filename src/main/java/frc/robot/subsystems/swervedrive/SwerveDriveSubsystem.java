@@ -145,7 +145,7 @@ public class SwerveDriveSubsystem extends SwerveDrivetrain implements Subsystem 
                 }, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
                 new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should likely live in your
                         // Constants class
-                        new PIDConstants(3, 0.0, 0.05), // Translation PID constants
+                        new PIDConstants(6, 0.0, 0.05), // Translation PID constants
                         new PIDConstants(2, 0.0, 0.05), // Rotation PID constants
                         Constants.SwerveConstants.maxSpeed, // Max module speed, in m/s
                         Constants.SwerveConstants.moduleTranslations[0]

@@ -69,7 +69,7 @@ public class Robot extends TimedRobot {
     @Override
     public void teleopInit() {
         robotContainer.getVisionSubsystem().updatingPoseUsingVision = true;
-        LightsSubsystemB.enableLEDs();
+        LightsSubsystemB.disableLEDs();
 
         // Prevent any autonomous code from overrunning into teleop
         if (autonomousCommand != null) autonomousCommand.cancel();

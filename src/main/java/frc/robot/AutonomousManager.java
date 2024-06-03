@@ -383,7 +383,15 @@ public class AutonomousManager {
                         "NewAmp5Sketch",
                         "Amp Side (Second)",
                         true,
-                        "Preload + First on Centerline + Second on Centerline.");
+                        "Preload + First on Centerline + Second on Centerline."),
+        TESTAUTO(
+                "Center",
+                0,
+                "TestAuto",
+                "Test Auto",
+                true,
+                ""
+        );
         // AMP5A(
         //         "Amp",
         //         5,
