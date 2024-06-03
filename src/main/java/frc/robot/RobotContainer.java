@@ -615,7 +615,7 @@ public class RobotContainer {
         //                         .withTimeout(.1)));
 
         // feeder shot (air feed)
-        Trigger feedShotTrigger = leftDriveController.getTrigger().and(leftDriveController.getBottomThumb());
+        Trigger feedShotTrigger = leftDriveController.getTrigger().and(leftDriveController.getBottomThumb()).or(operatorController.getLeftBumper().and(operatorController.getRightBumper()));
         feedShotTrigger
                 .whileTrue(Commands.either(
                         parallel(
@@ -629,6 +629,10 @@ public class RobotContainer {
                                         this::getDriveStrafeAxis),
                                 shooterSubsystem.shootCommand(() -> ShooterSubsystem.airFeed.plusRotation(shooterSubsystem.getPitchCorrection()))),
                         FieldConstants::isBlue));
+
+        feedShotTrigger
+                .and(rightDriveController.getTrigger())
+                .whileTrue(intakeSubsystem.shootCommand());
 
         // lowfeeder shot
         operatorController
