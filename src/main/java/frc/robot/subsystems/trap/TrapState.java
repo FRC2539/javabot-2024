@@ -23,6 +23,9 @@ public class TrapState implements Interpolatable<TrapState> {
         return new TrapState(topRollerVoltage, bottomRollerVoltage, rackVoltage, true);
     }
 
+    public TrapState clone() {
+        return new TrapState(this.topVoltage, this.bottomVoltage, this.rack, this.isVoltageBased);
+    }
 
     public TrapState() {
         this(0, 0, 0.0, true);
