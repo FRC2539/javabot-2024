@@ -26,8 +26,8 @@ public class TrapSubsystem extends SubsystemBase {
     private RollerIOInputs bottomRollerInputs = new RollerIOInputs();
     private RackIOInputs rackInputs = new RackIOInputs();
 
-    private final TrapState defaultState = new TrapState(0, 0, 0, true);
-    private final TrapState defaultStateHolding = new TrapState(0, 0, holdingVoltage, true);
+    public final TrapState defaultState = new TrapState(0, 0, 0, true);
+    public final TrapState defaultStateHolding = new TrapState(0, 0, holdingVoltage, true);
 
     private TrapState currentTrapState = defaultState;
 
@@ -118,6 +118,10 @@ public class TrapSubsystem extends SubsystemBase {
 
     public Command runIntakeCommand(double topVoltage, double bottomVoltage) {
         return trapStateCommand(TrapState.fromVoltages(topVoltage, bottomVoltage, holdingVoltage));
+    }
+
+    public double getRackPosition() {
+        return rackInputs.position;
     }
 
     public void logTrapInformation() {

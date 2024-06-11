@@ -539,48 +539,100 @@ public class RobotContainer {
                 .and(rightDriveController.getTrigger())
                 .whileTrue(intakeSubsystem.ampCommand());
 
-        // Trap Command
-        operatorController.getY().whileTrue(trapSubsystem.trapStateCommand(new TrapState(0, 0, 34)));
+        // // Trap Command
+        // operatorController.getY().whileTrue(trapSubsystem.trapStateCommand(new TrapState(0, 0, 34)));
 
-        // Trap Amp Command
-        operatorController.getX().whileTrue(trapSubsystem.trapStateCommand(new TrapState(0, 0, 16.357)));
+        // // Trap Amp Command
+        // operatorController.getX().whileTrue(trapSubsystem.trapStateCommand(new TrapState(0, 0, 16.357)));
 
-        // Trap Source Command
-        operatorController.getB().whileTrue(trapSubsystem.trapStateCommand(new TrapState(6, -6, 16.357)));
+        // // Trap Source Command
+        // operatorController.getB().whileTrue(trapSubsystem.trapStateCommand(new TrapState(6, -6, 16.357)));
 
-        // Trap Bottom Command (this is not zero to reduce banging. it will slowly glide down if it is below 2.5 instead
-        // of stalling)
-        operatorController.getA().whileTrue(trapSubsystem.trapStateCommand(new TrapState(0, 0, 0)));
+        // // Trap Bottom Command (this is not zero to reduce banging. it will slowly glide down if it is below 2.5 instead
+        // // of stalling)
+        // operatorController.getA().whileTrue(trapSubsystem.trapStateCommand(new TrapState(0, 0, 0)));
 
         LoggedReceiver traptopRollerSpeedTunable = Logger.tunable("/TrapSubsystem/topTunable", 2d);
         LoggedReceiver trapbottomRollerSpeedTunable = Logger.tunable("/TrapSubsystem/bottomTunable", -2d);
-        operatorController
-                .getDPadLeft()
-                .whileTrue(trapSubsystem.trapStateCommand(() -> TrapState.fromVoltages(
-                        traptopRollerSpeedTunable.getDouble(),
-                        trapbottomRollerSpeedTunable.getDouble(),
-                        trapSubsystem.holdingVoltage)));
+        // operatorController
+        //         .getDPadLeft()
+        //         .whileTrue(trapSubsystem.trapStateCommand(() -> TrapState.fromVoltages(
+        //                 traptopRollerSpeedTunable.getDouble(),
+        //                 trapbottomRollerSpeedTunable.getDouble(),
+        //                 trapSubsystem.holdingVoltage)));
 
-        // Trap Intake Command
-        operatorController.getDPadDown().whileTrue(trapSubsystem.runIntakeCommand(6.0, -6.0));
+        // // Trap Intake Command
+        // operatorController.getDPadDown().whileTrue(trapSubsystem.runIntakeCommand(6.0, -6.0));
 
-        // Trap Rotate Note Up
+        // // Trap Rotate Note Up
+        // operatorController
+        //         .getDPadUp()
+        //         .and(operatorController.getRightBumper().negate())
+        //         .whileTrue(trapSubsystem.runIntakeCommand(-3.5, 3.5));
+        
+        // giant *quirky* trap command for people who have *quirky* fingers and keep *quirkily* pressing multiple buttons at once
+        trapSubsystem.setDefaultCommand(trapSubsystem.trapStateCommand(() -> {
+                TrapState state = new TrapState();
+                if (trapSubsystem.getRackPosition() < 10) {
+                        state = new TrapState(0, 0, 0, true);
+                } else {
+                        state =new TrapState(0, 0, 0.5, true);
+                }
+
+                if (operatorController.getX().getAsBoolean()) {
+                        state.rack = 16.357;
+                        state.isVoltageBased = false;
+                }
+
+                if (operatorController.getY().getAsBoolean()) {
+                        state.rack = 34;
+                        state.isVoltageBased = false;
+                }
+
+                if (operatorController.getA().getAsBoolean()) {
+                        state.rack = 0;
+                        state.isVoltageBased = false;
+                }
+
+                if ((operatorController.getDPadUp().getAsBoolean()
+                || operatorController.getDPadUpRight().getAsBoolean()
+                || operatorController.getDPadUpLeft().getAsBoolean()) && !operatorController.getRightBumper().getAsBoolean()) {
+                        state.topVoltage = -3.5;
+                        state.bottomVoltage = 3.5;
+                }
+
+                if ((operatorController.getDPadDown().getAsBoolean() 
+                || operatorController.getDPadDownLeft().getAsBoolean() 
+                || operatorController.getDPadDownRight().getAsBoolean()) && !operatorController.getRightBumper().getAsBoolean()) {
+                        state.topVoltage = 6;
+                        state.bottomVoltage =  -6;
+                }
+
+                if (operatorController.getDPadLeft().getAsBoolean()) {
+                        state.topVoltage = traptopRollerSpeedTunable.getDouble();
+                        state.bottomVoltage = trapbottomRollerSpeedTunable.getDouble();
+                }
+
+                if (operatorController.getB().getAsBoolean()) {
+                        state.rack = 16.357;
+                        state.topVoltage = 6;
+                        state.bottomVoltage = -6;
+                        state.isVoltageBased = false;
+                }
+
+                return state;
+        }));
+        // Shooter Adjustment Down
         operatorController
-                .getDPadUp()
-                .and(operatorController.getRightBumper().negate())
-                .whileTrue(trapSubsystem.runIntakeCommand(-3.5, 3.5));
+                .getDPadDown()
+                .and(operatorController.getRightBumper())
+                .onTrue(shooterSubsystem.adjustPitchCorrectionCommand(Rotation2d.fromDegrees(-.25)));
 
         // Shooter Adjustment Up
         operatorController
                 .getDPadUp()
                 .and(operatorController.getRightBumper())
                 .onTrue(shooterSubsystem.adjustPitchCorrectionCommand(Rotation2d.fromDegrees(.25)));
-
-        // Shooter Adjustment Down
-        operatorController
-                .getDPadDown()
-                .and(operatorController.getRightBumper())
-                .onTrue(shooterSubsystem.adjustPitchCorrectionCommand(Rotation2d.fromDegrees(-.25)));
 
         // Ground Intaking Indicator (Strobe Purple)
         operatorController

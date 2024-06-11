@@ -30,6 +30,10 @@ public class LogitechController {
     private final Trigger dPadRight;
     private final Trigger dPadDown;
     private final Trigger dPadLeft;
+    private final Trigger dPadUpRight;
+    private final Trigger dPadUpLeft;
+    private final Trigger dPadDownRight;
+    private final Trigger dPadDownLeft;
 
     private final Axis leftXAxis;
     private final Axis leftYAxis;
@@ -64,6 +68,11 @@ public class LogitechController {
         dPadRight = new POVButton(joystick, 90);
         dPadDown = new POVButton(joystick, 180);
         dPadLeft = new POVButton(joystick, 270);
+        dPadUpRight = new POVButton(joystick, 45);
+        dPadUpLeft = new POVButton(joystick, 315);
+        dPadDownRight = new POVButton(joystick, 135);
+        dPadDownLeft = new POVButton(joystick, 225);
+
 
         leftXAxis = new JoystickAxis(joystick, 0);
         leftYAxis = new JoystickAxis(joystick, 1);
@@ -140,6 +149,22 @@ public class LogitechController {
 
     public Trigger getDPadLeft() {
         return dPadLeft;
+    }
+
+    public Trigger getDPadUpRight() {
+        return dPadUpRight;
+    }
+
+    public Trigger getDPadUpLeft() {
+        return dPadUpLeft;
+    }
+
+    public Trigger getDPadDownRight() {
+        return dPadDownRight;
+    }
+
+    public Trigger getDPadDownLeft() {
+        return dPadDownLeft;
     }
 
     public Axis getLeftXAxis() {
