@@ -37,6 +37,10 @@ public final class Constants {
         public static final double DRIVETRAIN_PERIOD = 0.0025;
     }
 
+    public static final class ShamperConstants {
+        public static final int shamperMotorPort = 10;
+    }
+
     public static final class TrapConstants {
         public static final int rackMotorPort = 19;
         public static final int topRollerPort = 17;
