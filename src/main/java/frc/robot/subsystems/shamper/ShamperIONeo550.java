@@ -46,7 +46,7 @@ public class ShamperIONeo550 implements ShamperIO {
         neo550.burnFlash();
     }
 
-    public void updateInputs(RackIOInputs inputs) {
+    public void updateInputs(ShamperIOInputs inputs) {
         inputs.position = neo550.getEncoder().getPosition();
         //inputs.currentAngle = Rotation2d.fromRotations(getGripperEncoderAngle() / Constants.ShooterConstants.gearRatioPivot); //pivotMotor.getPosition().getValueAsDouble());
         inputs.atTarget = MathUtils.equalsWithinError(goalPosition, inputs.position, errorThreshold);
