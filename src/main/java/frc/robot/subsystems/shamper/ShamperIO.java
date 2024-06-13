@@ -3,9 +3,9 @@ package frc.robot.subsystems.shamper;
 
 public interface ShamperIO {
 
-    public void updateInputs(RackIOInputs inputs);
+    public void updateInputs(ShamperIOInputs inputs);
 
-    public class RackIOInputs {
+    public class ShamperIOInputs {
         public double position = 0;
         public boolean atTarget = false;
         public double temperature = 0;

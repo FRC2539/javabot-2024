@@ -4,7 +4,7 @@ package frc.robot.subsystems.shamper;
 public class ShamperIOSim implements ShamperIO {
     private double position = 0;
 
-    public void updateInputs(RackIOInputs inputs) {
+    public void updateInputs(ShamperIOInputs inputs) {
         inputs.atTarget = true;
         inputs.position = position;
     }
