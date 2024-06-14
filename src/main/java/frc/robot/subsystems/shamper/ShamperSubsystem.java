@@ -37,7 +37,7 @@ public class ShamperSubsystem extends SubsystemBase {
     }
 
     public void periodic() {
-        logTrapInformation();
+        logShamperInformation();
 
         shamperIO.updateInputs(shamperInputs);
 
@@ -82,6 +82,18 @@ public class ShamperSubsystem extends SubsystemBase {
         });
     }
 
+    public Command extendShamperCommand() {
+        return run(() -> {
+            shamperIO.setPosition(-3.690);
+        });
+    }
+
+    public Command retractShamperCommand() {
+        return run(() -> {
+            shamperIO.setPosition(0);
+        });
+    }
+
     public Command zeroShamperPositionCommand() {
         return runOnce(() -> {
             shamperIO.zeroPosition();
@@ -99,7 +111,7 @@ public class ShamperSubsystem extends SubsystemBase {
     //     return trapStateCommand(TrapState.fromVoltages(topVoltage, bottomVoltage, holdingVoltage));
     // }
 
-    public void logTrapInformation() {
+    public void logShamperInformation() {
         shamper.setLength(Units.inchesToMeters(22.5) + shamperInputs.position / 34 * Units.inchesToMeters(19));
 
         // Logger.log("/TrapSubsystem/topRollerSpeedSetpoint", currentTrapState.topVoltage);
@@ -111,7 +123,7 @@ public class ShamperSubsystem extends SubsystemBase {
         // Logger.log("/TrapSubsystem/topRollerTemperature", topRollerInputs.motorTemperature);
         // Logger.log("/TrapSubsystem/bottomRollerTemperature", bottomRollerInputs.motorTemperature);
         // Logger.log("/TrapSubsystem/topRollerCurrent", topRollerInputs.current);
-        // Logger.log("/TrapSubsystem/bottomRollerCurrent", bottomRollerInputs.current);
+        // Logger.log("/TrapSubsystem/bottomRollerCurrent", bottomRoller+Inputs.current);
         Logger.log("/ShamperSubsystem/shamperCurrent", shamperInputs.current);
         Logger.log("/ShamperSubsystem/shamperTemperature", shamperInputs.temperature);
         // Logger.log("/TrapSubsystem/bottomRollerSpeed", bottomRollerInputs.speed);
