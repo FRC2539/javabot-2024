@@ -23,12 +23,12 @@ public class ShamperIONeo550 implements ShamperIO {
     public ShamperIONeo550() {
         neo550 = new CANSparkMax(Constants.ShamperConstants.shamperMotorPort, MotorType.kBrushless);
 
-        neo550.setSmartCurrentLimit(30);
-        neo550.setSecondaryCurrentLimit(35);
+        neo550.setSmartCurrentLimit(25);
+        neo550.setSecondaryCurrentLimit(30);
 
         neo550.getEncoder().setPosition(0);
         neo550.setSoftLimit(SoftLimitDirection.kReverse, 0.0f);
-        neo550.setSoftLimit(SoftLimitDirection.kForward, 16.0f);
+        neo550.setSoftLimit(SoftLimitDirection.kForward, -1.845f);
 
         pidController = neo550.getPIDController();
 

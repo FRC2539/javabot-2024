@@ -29,6 +29,7 @@ import frc.lib.logging.Logger;
 import frc.lib.vision.LimelightRawAngles;
 import frc.robot.Constants.ControllerConstants;
 import frc.robot.Constants.FieldConstants;
+import frc.robot.Constants.ShamperConstants;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.Constants.TrapConstants;
 import frc.robot.Constants.VisionConstants;
@@ -43,6 +44,9 @@ import frc.robot.subsystems.intake.IntakeIOSim;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem.IntakeState;
 import frc.robot.subsystems.lights.LightsSubsystemB;
+import frc.robot.subsystems.shamper.ShamperIO;
+import frc.robot.subsystems.shamper.ShamperIONeo550;
+import frc.robot.subsystems.shamper.ShamperSubsystem;
 import frc.robot.subsystems.shooter.PivotIOFalcon;
 import frc.robot.subsystems.shooter.PivotIOSim;
 import frc.robot.subsystems.shooter.RollerIOFalcon;
@@ -50,6 +54,7 @@ import frc.robot.subsystems.shooter.RollerIOSim;
 import frc.robot.subsystems.shooter.ShooterState;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveDriveSubsystem;
+import frc.robot.subsystems.shamper.ShamperSubsystem;
 import frc.robot.subsystems.trap.RackIONeo550;
 import frc.robot.subsystems.trap.RackIOSim;
 import frc.robot.subsystems.trap.TrapRollerIONeo550;
@@ -94,6 +99,7 @@ public class RobotContainer {
     private ShooterSubsystem shooterSubsystem;
     private IntakeSubsystem intakeSubsystem;
     private TrapSubsystem trapSubsystem;
+    private ShamperSubsystem shamperSubsystem;
     private ClimberSubsystem climberSubsystem;
 
     public AutonomousManager autonomousManager;
@@ -115,6 +121,11 @@ public class RobotContainer {
                 climberMechRoot.append(new MechanismLigament2d("climber", 0.0, 90, 4, new Color8Bit(Color.kOrange)));
         MechanismLigament2d trapMech =
                 trapMechRoot.append(new MechanismLigament2d("trap", 0.4, 70, 4, new Color8Bit(Color.kBlue)));
+        
+        //fake
+        MechanismLigament2d shamperMech =
+                trapMechRoot.append(new MechanismLigament2d("shamper", 0.4, 70, 4, new Color8Bit(Color.kBeige)));
+        
 
         if (Robot.isReal()) {
             swerveDriveSubsystem = TunerConstants.DriveTrain;
@@ -132,6 +143,7 @@ public class RobotContainer {
                     new TrapRollerIONeo550(TrapConstants.bottomRollerPort),
                     new RackIONeo550(),
                     trapMech);
+            shamperSubsystem = new ShamperSubsystem(new ShamperIONeo550(), shamperMech);
             climberSubsystem = new ClimberSubsystem(new ClimberIOFalcon(), climberMech);
 
             AprilTagIO limelightAprilTag;
@@ -532,7 +544,12 @@ public class RobotContainer {
         operatorController
                 .getLeftBumper()
                 .and(operatorController.getRightBumper().negate())
-                .whileTrue(shooterSubsystem.shootCommand(ShooterSubsystem.ampShot));
+                .whileTrue(parallel(shooterSubsystem.shootCommand(ShooterSubsystem.ampShot), shamperSubsystem.extendShamperCommand()));
+
+        operatorController
+                .getLeftBumper()
+                .and(operatorController.getRightBumper().negate())
+                .whileFalse(shamperSubsystem.retractShamperCommand());
 
         operatorController
                 .getLeftBumper()
