@@ -17,7 +17,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.lib.logging.LoggedReceiver;
 import frc.lib.logging.Logger;
-import frc.lib.math.MathUtils;
 import frc.lib.vision.LimelightRawAngles;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.commands.AimAndSpinupCommand;
@@ -75,6 +74,7 @@ public class AutonomousManager {
                     true,
                     true,
                     true,
+                    true,
                     true);
             autoShootingCommand = Commands.deadline(
                     Commands.waitSeconds(0.5)
@@ -86,37 +86,38 @@ public class AutonomousManager {
                     run(() -> {}, shooterSubsystem).asProxy());
         }
         NamedCommands.registerCommand("shoot", autoShootingCommand);
-        Command aimedShootCommand;
-        {
-            AimAndSpinupCommand aimAndSpinupCommand = new AimAndSpinupCommand(
-                    swerveDriveSubsystem,
-                    shooterSubsystem,
-                    lightsSubsystem,
-                    visionSubsystem,
-                    () -> 0,
-                    () -> 0,
-                    () -> 0,
-                    false,
-                    0,
-                    0,
-                    true,
-                    true,
-                    true,
-                    true);
-            aimedShootCommand = Commands.deadline(
-                            Commands.waitSeconds(0.5)
-                                    .andThen(waitUntil(() -> aimAndSpinupCommand.isAtAngleAndSpunUpAndTarget())
-                                            .withTimeout(2.0))
-                                    .andThen(intakeSubsystem
-                                            .shootCommand()
-                                            .withTimeout(0.4)
-                                            .asProxy()),
-                            aimAndSpinupCommand,
-                            run(() -> {}, swerveDriveSubsystem),
-                            run(() -> {}, shooterSubsystem).asProxy())
-                    .finallyDo(() -> visionSubsystem.updatingPoseUsingVision = false)
-                    .beforeStarting(() -> visionSubsystem.updatingPoseUsingVision = false);
-        }
+        // Command aimedShootCommand;
+        // {
+        //     AimAndSpinupCommand aimAndSpinupCommand = new AimAndSpinupCommand(
+        //             swerveDriveSubsystem,
+        //             shooterSubsystem,
+        //             lightsSubsystem,
+        //             visionSubsystem,
+        //             () -> 0,
+        //             () -> 0,
+        //             () -> 0,
+        //             false,
+        //             0,
+        //             0,
+        //             true,
+        //             true,
+        //             true,
+        //             true,
+        //             true);
+        //     aimedShootCommand = Commands.deadline(
+        //                     Commands.waitSeconds(0.5)
+        //                             .andThen(waitUntil(() -> aimAndSpinupCommand.isAtAngleAndSpunUpAndTarget())
+        //                                     .withTimeout(2.0))
+        //                             .andThen(intakeSubsystem
+        //                                     .shootCommand()
+        //                                     .withTimeout(0.4)
+        //                                     .asProxy()),
+        //                     aimAndSpinupCommand,
+        //                     run(() -> {}, swerveDriveSubsystem),
+        //                     run(() -> {}, shooterSubsystem).asProxy())
+        //             .finallyDo(() -> visionSubsystem.updatingPoseUsingVision = false)
+        //             .beforeStarting(() -> visionSubsystem.updatingPoseUsingVision = false);
+        // }
         NamedCommands.registerCommand("aimedshoot", autoShootingCommand); // .onlyIf(() -> intakeSubsystem.hasPiece()));
         NamedCommands.registerCommand(
                 "subshoot",
@@ -185,7 +186,8 @@ public class AutonomousManager {
                     true,
                     true,
                     true,
-                    false);
+                    false,
+                    true);
             autoAimCommand = aimAndSpinupCommand.asProxy();
         }
         NamedCommands.registerCommand("search", Commands.run(() -> swerveDriveSubsystem.setControl(swerveDriveSubsystem
@@ -308,7 +310,7 @@ public class AutonomousManager {
         CENTER5B(
                 "Center",
                 5,
-                "NewCenterCenter5",
+                "NewCenterCenter5Loopy",
                 "Center (Center Note)",
                 true,
                 "Preload + Newarline + Center Note on Centerline"),

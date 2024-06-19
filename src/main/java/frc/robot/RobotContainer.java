@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.lib.controller.LogitechController;
 import frc.lib.controller.ThrustmasterJoystick;
 import frc.lib.logging.LoggedReceiver;
@@ -29,7 +30,6 @@ import frc.lib.logging.Logger;
 import frc.lib.vision.LimelightRawAngles;
 import frc.robot.Constants.ControllerConstants;
 import frc.robot.Constants.FieldConstants;
-import frc.robot.Constants.ShamperConstants;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.Constants.TrapConstants;
 import frc.robot.Constants.VisionConstants;
@@ -42,9 +42,7 @@ import frc.robot.subsystems.climber.ClimberSubsystem;
 import frc.robot.subsystems.intake.IntakeIOFalcon;
 import frc.robot.subsystems.intake.IntakeIOSim;
 import frc.robot.subsystems.intake.IntakeSubsystem;
-import frc.robot.subsystems.intake.IntakeSubsystem.IntakeState;
 import frc.robot.subsystems.lights.LightsSubsystemB;
-import frc.robot.subsystems.shamper.ShamperIO;
 import frc.robot.subsystems.shamper.ShamperIONeo550;
 import frc.robot.subsystems.shamper.ShamperSubsystem;
 import frc.robot.subsystems.shooter.PivotIOFalcon;
@@ -54,7 +52,6 @@ import frc.robot.subsystems.shooter.RollerIOSim;
 import frc.robot.subsystems.shooter.ShooterState;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveDriveSubsystem;
-import frc.robot.subsystems.shamper.ShamperSubsystem;
 import frc.robot.subsystems.trap.RackIONeo550;
 import frc.robot.subsystems.trap.RackIOSim;
 import frc.robot.subsystems.trap.TrapRollerIONeo550;
@@ -432,6 +429,7 @@ public class RobotContainer {
                 true,
                 true,
                 true,
+                false,
                 false);
 
         AimAndSpinupCommand movingShootAimAndSpinup = new AimAndSpinupCommand(
@@ -447,6 +445,7 @@ public class RobotContainer {
                 0.25,
                 true,
                 true,
+                false,
                 false,
                 false);
 
@@ -544,7 +543,7 @@ public class RobotContainer {
         operatorController
                 .getLeftBumper()
                 .and(operatorController.getRightBumper().negate())
-                .whileTrue(parallel(shooterSubsystem.shootCommand(ShooterSubsystem.ampShot), shamperSubsystem.extendShamperCommand()));
+                .whileTrue(parallel(shooterSubsystem.shootCommand(ShooterSubsystem.ampShot), new WaitCommand(0.5).andThen(shamperSubsystem.extendShamperCommand())));
 
         operatorController
                 .getLeftBumper()
@@ -931,6 +930,7 @@ public class RobotContainer {
                 true,
                 false,
                 true,
+                false,
                 false);
     }
 
@@ -947,6 +947,7 @@ public class RobotContainer {
                 2.0 / 16,
                 0,
                 true,
+                false,
                 false,
                 false,
                 false);
