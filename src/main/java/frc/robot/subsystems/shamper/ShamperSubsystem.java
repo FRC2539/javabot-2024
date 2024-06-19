@@ -41,11 +41,11 @@ public class ShamperSubsystem extends SubsystemBase {
 
         shamperIO.updateInputs(shamperInputs);
 
-        if (false) {
-            shamperIO.setVoltage(currentShamperState);
-        } else {
-            shamperIO.setPosition(MathUtils.ensureRange(currentShamperState, 0.0, 1.0));
-        }
+        // if (false) {
+        //     shamperIO.setVoltage(currentShamperState);
+        // } else {
+        //     shamperIO.setPosition(MathUtils.ensureRange(currentShamperState, 0.0, 1.0));
+        // }
     }
 
 
@@ -55,13 +55,14 @@ public class ShamperSubsystem extends SubsystemBase {
     }
 
     public Command disabledCommand() {
-        return run(() -> {
-            if (shamperInputs.position < 10) {
-                currentShamperState = defaultState;
-            } else {
-                currentShamperState = defaultStateHolding;
-            }
-        });
+        return retractShamperCommand();
+        // run(() -> {
+        //     if (shamperInputs.position < 1) {
+        //         shamperIO.setVoltage(-1);
+        //     } else {
+        //         shamperIO.setVoltage(-1);
+        //     }
+        // });
     }
 
     public Command trapStateCommand(double trapAngle) {
@@ -84,7 +85,7 @@ public class ShamperSubsystem extends SubsystemBase {
 
     public Command extendShamperCommand() {
         return run(() -> {
-            shamperIO.setPosition(-3.690);
+            shamperIO.setPosition(3.690);
         });
     }
 

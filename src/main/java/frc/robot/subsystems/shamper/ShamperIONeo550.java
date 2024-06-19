@@ -28,7 +28,7 @@ public class ShamperIONeo550 implements ShamperIO {
 
         neo550.getEncoder().setPosition(0);
         neo550.setSoftLimit(SoftLimitDirection.kReverse, 0.0f);
-        neo550.setSoftLimit(SoftLimitDirection.kForward, -1.845f);
+        neo550.setSoftLimit(SoftLimitDirection.kForward, 3.695f);
 
         pidController = neo550.getPIDController();
 
@@ -39,9 +39,9 @@ public class ShamperIONeo550 implements ShamperIO {
 
         neo550.setIdleMode(IdleMode.kBrake);
 
-        neo550.setInverted(true);
+        neo550.setInverted(false);
 
-        pidController.setOutputRange(-.35,1);
+        pidController.setOutputRange(-.10,.18);
 
         neo550.burnFlash();
     }

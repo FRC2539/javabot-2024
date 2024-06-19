@@ -137,6 +137,7 @@ public class LightsSubsystemB extends SubsystemBase {
             setAnimation(
                     new SingleFadeAnimation(color.red, color.green, color.blue, 0, speed, segmentSize, startIndex));
         }
+        
 
         public void setBandAnimation(Color color, double speed) {
             setAnimation(new LarsonAnimation(

@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib.logging.Logger;
 import frc.lib.math.MathUtils;
 import frc.robot.subsystems.lights.LightsSubsystemB;
+import frc.robot.subsystems.shooter.ShooterState;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveDriveSubsystem;
 import frc.robot.subsystems.vision.VisionSubsystem;
@@ -19,14 +20,14 @@ import java.util.function.DoubleSupplier;
 
 public class AimAndSpinupCommand extends Command {
     private final double toleranceMeters = .305;
-    private final double toleranceVelocity = Math.toRadians(20);
-    private final double pivotToleranceMeters = Math.toRadians(2); // degrees
+    private final double toleranceVelocity = Math.toRadians(5);
+    private final double pivotToleranceMeters = Math.toRadians(.5); // degrees
     private final double pivotToleranceMin = Math.toRadians(.5);
-    private final double timeSeenTagMinimum = 0.25;
-    private final double maxSpeedPID = 4;
+    private final double timeSeenTagMinimum = 0.03;
+    private final double maxSpeedPID = 6;
     private final double rollerSpeedTolerance = 20;
 
-    private final PIDController visionPIDController = new PIDController(4, 0, .2);
+    private final PIDController visionPIDController = new PIDController(25, 0, .6);
     // private final ProfiledPIDController nonVisionPIDController = new ProfiledPIDController(1, 0, .1, new
     // TrapezoidProfile.Constraints(4, 8));
 
@@ -41,6 +42,7 @@ public class AimAndSpinupCommand extends Command {
     private double motionForwardCompensationBase;
     private boolean usingTarget;
     private boolean doAiming;
+    private boolean shootDownImmediately;
 
     // Subsystems
     private SwerveDriveSubsystem swerveDriveSubsystem;
@@ -92,7 +94,8 @@ public class AimAndSpinupCommand extends Command {
             boolean doSpinup,
             boolean doAiming,
             boolean usingTarget,
-            boolean dropRequirements) {
+            boolean dropRequirements,
+            boolean shootDownImmediately) {
         super();
 
         // Assign Configs
@@ -102,6 +105,7 @@ public class AimAndSpinupCommand extends Command {
         this.motionForwardCompensationBase = motionForwardCompensationBase;
         this.usingTarget = usingTarget;
         this.doAiming = doAiming;
+        this.shootDownImmediately = shootDownImmediately;
 
         // Assign Subsystems
         this.swerveDriveSubsystem = swerveDriveSubsystem;
@@ -247,7 +251,15 @@ public class AimAndSpinupCommand extends Command {
 
     private void spinupShooter() {
         if (doSpinup) {
-            shooterSubsystem.setShooterState(shooterSubsystem.updateShooterStateForDistance(calculatedDistance));
+            if (hasSeenTarget) {
+                shooterSubsystem.setShooterState(shooterSubsystem.updateShooterStateForDistance(calculatedDistance));
+            } else {
+                ShooterState tempy = shooterSubsystem.updateShooterStateForDistance(calculatedDistance);
+                if (shootDownImmediately) {
+                    tempy.pivotAngle = Rotation2d.fromDegrees(42);
+                }
+                shooterSubsystem.setShooterState(tempy);
+            }
 
             double topRollerError = shooterSubsystem.topRollerError();
             double bottomRollerError = shooterSubsystem.bottomRollerError();

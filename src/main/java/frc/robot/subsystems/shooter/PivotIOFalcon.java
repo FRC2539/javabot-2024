@@ -31,7 +31,8 @@ public class PivotIOFalcon implements PivotIO {
         pivotMotor.getConfigurator().apply(feedbackConfigs);
         Slot0Configs slot0Configs = new Slot0Configs();
         slot0Configs.kP = 240;
-        slot0Configs.kS = 0.3;
+        slot0Configs.kS = 0.4;
+        slot0Configs.kD = 50;
         pivotMotor.getConfigurator().apply(slot0Configs);
         CurrentLimitsConfigs currentLimitsConfigs = new CurrentLimitsConfigs();
         pivotMotor.getConfigurator().refresh(currentLimitsConfigs);
