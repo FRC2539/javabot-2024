@@ -17,4 +17,8 @@ public interface PivotIO {
     public void setVoltage(double voltage);
 
     public void updateAngle(Rotation2d targetAngle);
+
+    default public Rotation2d getGripperEncoderAngle() {
+        return new Rotation2d();
+    }
 }

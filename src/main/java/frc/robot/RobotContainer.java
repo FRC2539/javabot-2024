@@ -532,6 +532,10 @@ public class RobotContainer {
                 .getLeftTopMiddle()
                 .whileTrue(trapSubsystem.trapStateCommand(TrapState.fromVoltages(0, 0, 2.4)));
 
+        leftDriveController
+                .getLeftTopRight()
+                .onTrue(shooterSubsystem.reengShooterAngleCommand());
+
         leftDriveController.getLeftBottomRight().onTrue(trapSubsystem.zeroRackPositionCommand());
 
         leftDriveController.getRightTopMiddle().onTrue(runOnce(() -> visionSubsystem.updatingPoseUsingVision = false));

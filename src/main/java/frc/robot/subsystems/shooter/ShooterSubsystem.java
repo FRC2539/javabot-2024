@@ -52,7 +52,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private static final DCMotor exampleMotor = DCMotor.getFalcon500(1).withReduction(ShooterConstants.gearRatioRoller);
 
     private final ShooterState defaultState = new ShooterState(
-            0, 0, new Rotation2d(), true, true); // new ShooterState(0,0, Rotation2d.fromDegrees(58), true, false);
+            0, 0, Rotation2d.fromDegrees(56.5), true, false); // new ShooterState(0,0, Rotation2d.fromDegrees(58), true, false);
 
     private ShooterState currentShooterState = defaultState;
 
@@ -152,6 +152,10 @@ public class ShooterSubsystem extends SubsystemBase {
         return runOnce(() -> pivotIO.updateAngle(pivotInputs.currentAngle));
     }
 
+    public Command reengShooterAngleCommand() {
+        return runOnce(() -> pivotIO.updateAngle(pivotIO.getGripperEncoderAngle()));
+    }
+
     public boolean isEncoderConnected() {
         return pivotInputs.isEncoderConnected;
     }
@@ -203,7 +207,8 @@ public class ShooterSubsystem extends SubsystemBase {
     public Command disabledCommand() {
         return Commands.waitSeconds(0.2).andThen(run(() -> {
             currentShooterState = defaultState;
-        }));
+            pivotIO.updateAngle(pivotIO.getGripperEncoderAngle());
+        })).ignoringDisable(true);
     }
 
     public Command shootCommand(double topRollerRPM, double bottomRollerRPM, Rotation2d shooterAngle) {
