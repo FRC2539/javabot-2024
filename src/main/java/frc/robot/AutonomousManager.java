@@ -387,7 +387,7 @@ public class AutonomousManager {
         TESTAUTO(
                 "Center",
                 0,
-                "TestAuto",
+                "testAuto",
                 "Test Auto",
                 true,
                 ""

@@ -5,7 +5,7 @@
       "x": 1.3711199760437012,
       "y": 5.508615016937256
     },
-    "rotation": -3.1639401723068774e-20
+    "rotation": -3.1379533776746717e-26
   },
   "command": {
     "type": "sequential",
@@ -14,18 +14,66 @@
         {
           "type": "path",
           "data": {
-            "pathName": "TestPath"
+            "pathName": "TestPath (1) (1) (1).1"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "shoot"
+            "name": "spinupshoot"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "TestPath (1) (1) (1).2"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "spinupshoot"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "TestPath (1) (1) (1).3"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "spinupshoot"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "TestPath (1) (1) (1).4"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "TestPath (1) (1) (1).5"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "TestPath (1) (1) (1).6"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "TestPath (1) (1) (1).7"
           }
         }
       ]
     }
   },
-  "folder": "ChoreoAutos",
+  "folder": null,
   "choreoAuto": true
 }
