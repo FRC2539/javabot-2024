@@ -22,12 +22,12 @@ public class AimAndSpinupCommand extends Command {
     private final double toleranceMeters = .305;
     private final double toleranceVelocity = Math.toRadians(5);
     private final double pivotToleranceMeters = Math.toRadians(.5); // degrees
-    private final double pivotToleranceMin = Math.toRadians(.5);
+    private final double pivotToleranceMin = Math.toRadians(.25);
     private final double timeSeenTagMinimum = 0.03;
     private final double maxSpeedPID = 6;
     private final double rollerSpeedTolerance = 20;
 
-    private final PIDController visionPIDController = new PIDController(25, 0, .6);
+    private final PIDController visionPIDController = new PIDController(10, 0, 1);
     // private final ProfiledPIDController nonVisionPIDController = new ProfiledPIDController(1, 0, .1, new
     // TrapezoidProfile.Constraints(4, 8));
 

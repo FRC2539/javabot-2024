@@ -30,8 +30,8 @@ public class PivotIOFalcon implements PivotIO {
         feedbackConfigs.SensorToMechanismRatio = Constants.ShooterConstants.gearRatioPivot * 16;
         pivotMotor.getConfigurator().apply(feedbackConfigs);
         Slot0Configs slot0Configs = new Slot0Configs();
-        slot0Configs.kP = 240;
-        //slot0Configs.kS = 0.4;
+        slot0Configs.kP = 400;
+        slot0Configs.kS = 0.2;
         //slot0Configs.kD = 50;
         pivotMotor.getConfigurator().apply(slot0Configs);
         CurrentLimitsConfigs currentLimitsConfigs = new CurrentLimitsConfigs();
@@ -61,7 +61,7 @@ public class PivotIOFalcon implements PivotIO {
     public void updateAngle(Rotation2d angle) {
         encoder.getAbsolutePosition();
         pivotMotor.setPosition(getGripperEncoderAngle().getRotations());
-        System.out.println(encoder.getAbsolutePosition());
+        //System.out.println(encoder.getAbsolutePosition());
     }
 
     public Rotation2d getGripperEncoderAngle() {

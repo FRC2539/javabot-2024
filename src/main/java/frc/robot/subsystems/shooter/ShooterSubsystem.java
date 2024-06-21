@@ -5,6 +5,7 @@ import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -51,8 +52,14 @@ public class ShooterSubsystem extends SubsystemBase {
 
     private static final DCMotor exampleMotor = DCMotor.getFalcon500(1).withReduction(ShooterConstants.gearRatioRoller);
 
-    private final ShooterState defaultState = new ShooterState(
+    public static final ShooterState defaultStateHolding = new ShooterState(
+            0, 0, Rotation2d.fromDegrees(0), true, true); // new ShooterState(0,0, Rotation2d.fromDegrees(58), true, false);s
+
+    public static final ShooterState defaultState = new ShooterState(
             0, 0, Rotation2d.fromDegrees(56.5), true, false); // new ShooterState(0,0, Rotation2d.fromDegrees(58), true, false);
+
+    public static final ShooterState defaultZeroState = new ShooterState(
+            0, 0, Rotation2d.fromDegrees(62), true, false);
 
     private ShooterState currentShooterState = defaultState;
 
@@ -61,6 +68,8 @@ public class ShooterSubsystem extends SubsystemBase {
     private boolean isShooterAtPosition = false;
 
     public boolean inPositionDisableMode = false;
+
+    private boolean hasZeroedYet = false;
 
     public ShooterSubsystem(
             RollerIO topRollerIO,
@@ -205,10 +214,33 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public Command disabledCommand() {
-        return Commands.waitSeconds(0.2).andThen(run(() -> {
+        // return Commands.waitSeconds(0.2).andThen(run(() -> {
+        //     currentShooterState = defaultZeroState;
+        //     if (59 > pivotIO.getGripperEncoderAngle().getDegrees() || DriverStation.isDisabled()) {
+        //         pivotIO.updateAngle(pivotIO.getGripperEncoderAngle());
+        //     }
+        // }).withTimeout(0.5).andThen(run(() -> {
+        //     currentShooterState = defaultState;
+        //     pivotIO.updateAngle(Rotation2d.fromDegrees(61.5));
+        // }))).ignoringDisable(inPositionDisableMode);
+        return Commands.either(Commands.waitSeconds(0.2).andThen(
+            run (
+                () -> {
+                    currentShooterState = defaultZeroState;
+                }
+            ).withTimeout(0.8)
+        ).andThen(run (
+            () -> {
+                currentShooterState = defaultState;
+            }
+        ).beforeStarting(() -> pivotIO.updateAngle(Rotation2d.fromDegrees(61.5)))),
+        run(() -> {
             currentShooterState = defaultState;
             pivotIO.updateAngle(pivotIO.getGripperEncoderAngle());
-        })).ignoringDisable(true);
+            }).until((
+                () -> 1 > Math.abs(defaultState.pivotAngle.getDegrees() - pivotIO.getGripperEncoderAngle().getDegrees())
+                )).andThen(runOnce(() -> hasZeroedYet = true)),
+        () -> hasZeroedYet);
     }
 
     public Command shootCommand(double topRollerRPM, double bottomRollerRPM, Rotation2d shooterAngle) {

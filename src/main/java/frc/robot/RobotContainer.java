@@ -44,6 +44,7 @@ import frc.robot.subsystems.intake.IntakeIOSim;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.lights.LightsSubsystemB;
 import frc.robot.subsystems.shamper.ShamperIONeo550;
+import frc.robot.subsystems.shamper.ShamperIOSim;
 import frc.robot.subsystems.shamper.ShamperSubsystem;
 import frc.robot.subsystems.shooter.PivotIOFalcon;
 import frc.robot.subsystems.shooter.PivotIOSim;
@@ -140,7 +141,7 @@ public class RobotContainer {
                     new TrapRollerIONeo550(TrapConstants.bottomRollerPort),
                     new RackIONeo550(),
                     trapMech);
-            shamperSubsystem = new ShamperSubsystem(new ShamperIONeo550(), shamperMech);
+            shamperSubsystem = new ShamperSubsystem(new ShamperIOSim(), shamperMech);
             climberSubsystem = new ClimberSubsystem(new ClimberIOFalcon(), climberMech);
 
             AprilTagIO limelightAprilTag;
@@ -312,7 +313,7 @@ public class RobotContainer {
                         .until(rightDriveController
                                 .getBottomThumb()
                                 .or(leftDriveController.getBottomThumb())
-                                .negate()));
+                                .negate()).andThen(shooterSubsystem.shootCommand(ShooterSubsystem.defaultStateHolding)));
 
         // rightDriveController
         //         .getBottomThumb()

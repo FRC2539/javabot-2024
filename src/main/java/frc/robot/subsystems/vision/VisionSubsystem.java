@@ -14,6 +14,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.logging.Logger;
 import frc.lib.math.MathUtils;
+import frc.lib.vision.LimelightHelpers;
 import frc.lib.vision.LimelightRawAngles;
 import frc.lib.vision.PinholeModel3D;
 import frc.robot.Constants;
@@ -142,7 +143,7 @@ public class VisionSubsystem extends SubsystemBase {
                     return;
                 }
 
-                xyStds = 0.7;
+                xyStds = 0.3;
                 degStds = Units.radiansToDegrees(9999999);
 
                 consumer.addVisionMeasurement(
@@ -239,23 +240,24 @@ public class VisionSubsystem extends SubsystemBase {
 
         Optional<PhotonTrackedTarget> speakerTag =
                 VisionSubsystem.getTagInfo(leftTargets, FieldConstants.getSpeakerTag());
-        if (speakerTag.isPresent()) {
-            return Optional.of(currentPose
-                    .getRotation()
-                    .plus(PinholeModel3D.getTranslationToTarget(
-                                    new Translation3d(
-                                            1,
-                                            Math.tan(Math.toRadians(
-                                                    -speakerTag.get().getYaw())),
-                                            Math.tan(Math.toRadians(
-                                                    speakerTag.get().getPitch()))),
-                                    Constants.VisionConstants.robotToApriltagCamera,
-                                    Units.inchesToMeters(57.75))
-                            .getAngle()));
-            // System.out.println(speakerTag.get().getYaw());
+        if (speakerTag_isPresent()) {
             // return Optional.of(currentPose
-            //         .getRotation() // this is 182 not 180 because the camera is off by 2 ish degrees
-            //         .plus(Rotation2d.fromDegrees(-speakerTag.get().getYaw()).plus(Rotation2d.fromDegrees(182))));
+            //         .getRotation()
+            //         .plus(PinholeModel3D.getTranslationToTarget(
+            //                         new Translation3d(
+            //                                 1,
+            //                                 Math.tan(Math.toRadians(
+            //                                         -speakerTag.get().getYaw())),
+            //                                 Math.tan(Math.toRadians(
+            //                                         speakerTag.get().getPitch()))),
+            //                         Constants.VisionConstants.robotToApriltagCamera,
+            //                         Units.inchesToMeters(57.75))
+            //                 .getAngle()));
+            // System.out.println(speakerTag.get().getYaw());
+            var results = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-april");
+            return Optional.of(results.pose
+                    .getRotation() // this is 182 not 180 because the camera is off by 2 ish degrees
+                    .plus(Rotation2d.fromDegrees(-speakerTag.get().getYaw()).plus(Rotation2d.fromDegrees(182))));
         } else {
             return Optional.empty();
         }
@@ -268,11 +270,16 @@ public class VisionSubsystem extends SubsystemBase {
                 .getNorm();
     }
 
+    public boolean speakerTag_isPresent() {
+        return VisionSubsystem.getTagInfo(leftTargets, FieldConstants.getSpeakerTag()).isPresent() || 
+            VisionSubsystem.getTagInfo(leftTargets, FieldConstants.getAltSpeakerTag()).isPresent();
+    }
+
     public OptionalDouble getSpeakerDistanceFromVision(Pose2d currentPose) {
         if (
-            VisionSubsystem.getTagInfo(leftTargets, FieldConstants.getSpeakerTag()).isPresent() || 
-            VisionSubsystem.getTagInfo(leftTargets, FieldConstants.getAltSpeakerTag()).isPresent()) {
-            return OptionalDouble.of(getSpeakerDistanceFromPose(currentPose));
+            speakerTag_isPresent()) {
+            var results = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-april");
+            return OptionalDouble.of(getSpeakerDistanceFromPose(results.pose));
         } else {
             return OptionalDouble.empty();
         }

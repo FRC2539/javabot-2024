@@ -229,13 +229,6 @@
               "Layout/Number of rows": 2,
               "Layout/Label position": "TOP",
               "_children": {
-                "1,0": {
-                  "_type": "Text View",
-                  "_source0": "network_table:///ShooterSubsystem/pivotTunable",
-                  "_title": "Pivot Angle",
-                  "_glyph": 148,
-                  "_showGlyph": false
-                },
                 "0,1": {
                   "_type": "Text View",
                   "_source0": "network_table:///ShooterSubsystem/bottomTunable",
@@ -254,6 +247,13 @@
                   "_type": "Text View",
                   "_source0": "network_table:///ShooterSubsystem/topTunable",
                   "_title": "Top Speed",
+                  "_glyph": 148,
+                  "_showGlyph": false
+                },
+                "1,0": {
+                  "_type": "Text View",
+                  "_source0": "network_table:///ShooterSubsystem/pivotTunable",
+                  "_title": "Pivot Angle",
                   "_glyph": 148,
                   "_showGlyph": false
                 }
@@ -312,8 +312,8 @@
     }
   ],
   "windowGeometry": {
-    "x": -5.599999904632568,
-    "y": 53.599998474121094,
+    "x": -4.0,
+    "y": 25.600000381469727,
     "width": 1540.800048828125,
     "height": 572.0
   }
