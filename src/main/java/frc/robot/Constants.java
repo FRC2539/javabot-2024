@@ -145,7 +145,7 @@ public final class Constants {
             map.put(5.541, new InterpolatableDouble(23.25));
             map.put(5.9, new InterpolatableDouble(22.5));
             map.put(1000, new InterpolatableDouble(21.5));
-;
+            
             return map;
         }
         // public static final InterpolatingMap<InterpolatableDouble> topRollerMap() {

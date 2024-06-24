@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.69214487146923,
-        "y": 3.1223392361314644
+        "x": 0.8093860062363999,
+        "y": 4.677661776975976
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.8711024005122674,
-        "y": 3.053450411409717
+        "x": 0.9883435352794372,
+        "y": 4.6087729522542284
       },
       "isLocked": false,
       "linkedName": "3s"
@@ -32,12 +32,12 @@
     },
     {
       "anchor": {
-        "x": 8.691246100440917,
-        "y": 2.865067838397785
+        "x": 8.3638097760526,
+        "y": 2.537631514009468
       },
       "prevControl": {
-        "x": 7.299641721790566,
-        "y": 1.4383809964201122
+        "x": 6.972205397402249,
+        "y": 1.1109446720317955
       },
       "nextControl": null,
       "isLocked": false,
@@ -103,7 +103,7 @@
   "reversed": false,
   "folder": "The Square Convention",
   "previewStartingState": {
-    "rotation": -46.909152432996414,
+    "rotation": -51.842773412630926,
     "velocity": 0
   },
   "useDefaultConstraints": true
