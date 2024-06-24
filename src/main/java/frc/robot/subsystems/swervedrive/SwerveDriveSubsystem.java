@@ -35,6 +35,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.lib.logging.Logger;
 import frc.lib.math.MathUtils;
 import frc.lib.math.MathUtils.AnyContainer;
@@ -81,6 +82,10 @@ public class SwerveDriveSubsystem extends SwerveDrivetrain implements Subsystem 
     public final SwerveRequest.ApplyChassisSpeeds stopped = new SwerveRequest.ApplyChassisSpeeds()
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
             .withSteerRequestType(SteerRequestType.MotionMagicExpo);
+
+    public final SwerveRequest.SysIdSwerveRotation sysIdSwerveRotation = new SwerveRequest.SysIdSwerveRotation();
+    public final SwerveRequest.SysIdSwerveTranslation sysIdSwerveTranslation = new SwerveRequest.SysIdSwerveTranslation();
+    public final SwerveRequest.SysIdSwerveSteerGains sysIdSwerveSteerGains = new SwerveRequest.SysIdSwerveSteerGains();
 
     public SwerveDriveSubsystem(
             SwerveDrivetrainConstants driveTrainConstants,
@@ -203,6 +208,13 @@ public class SwerveDriveSubsystem extends SwerveDrivetrain implements Subsystem 
             driveMotor.getConfigurator().apply(closedLoopRampsConfigs);
             driveMotor.getConfigurator().apply(openLoopRampsConfigs);
         }
+
+        SysIdRoutine sysIdSwerveTranslationRoutine = new SysIdRoutine(
+            new SysIdRoutine.Config(),
+            new SysIdRoutine.Mechanism((volts) -> setControl(sysIdSwerveTranslation.withVolts(volts)),
+                null,
+                this)
+        );
     }
 
     public Optional<Rotation2d> getRotationOverride() {

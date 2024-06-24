@@ -123,9 +123,9 @@ public class RobotContainer {
         //fake
         MechanismLigament2d shamperMech =
                 trapMechRoot.append(new MechanismLigament2d("shamper", 0.4, 70, 4, new Color8Bit(Color.kBeige)));
-        
 
         if (Robot.isReal()) {
+            shamperSubsystem = new ShamperSubsystem(new ShamperIOSim(), shamperMech);
             swerveDriveSubsystem = TunerConstants.DriveTrain;
             lightsSubsystem = new LightsSubsystemB(); // new LightsSubsystem(new LightsIOBlinkin(0));
             shooterSubsystem = new ShooterSubsystem(
@@ -178,6 +178,7 @@ public class RobotContainer {
             intakeSubsystem = new IntakeSubsystem(new IntakeIOFalcon());
 
         } else {
+            shamperSubsystem = new ShamperSubsystem(new ShamperIOSim(), shamperMech);
             visionSim = new VisionSystemSim("main");
             // If the robot is in simulation it uses these.
             swerveDriveSubsystem = TunerConstants.DriveTrain;
