@@ -37,6 +37,10 @@ public final class Constants {
         public static final double DRIVETRAIN_PERIOD = 0.0025;
     }
 
+    public static final class ShamperConstants {
+        public static final int shamperMotorPort = 10;
+    }
+
     public static final class TrapConstants {
         public static final int rackMotorPort = 19;
         public static final int topRollerPort = 17;
@@ -73,13 +77,13 @@ public final class Constants {
             map.put(2.458, new InterpolatableDouble(0.6));
             map.put(2.9, new InterpolatableDouble(0.6));
             map.put(3.376, new InterpolatableDouble(0.6));
-            map.put(3.651, new InterpolatableDouble(0.625));
-            map.put(3.98, new InterpolatableDouble(0.625));
-            map.put(4.417, new InterpolatableDouble(0.625));
-            map.put(4.862, new InterpolatableDouble(0.675));
-            map.put(5.158, new InterpolatableDouble(0.675));
-            map.put(5.406, new InterpolatableDouble(0.675));
-            map.put(5.541, new InterpolatableDouble(0.8));
+            map.put(3.651, new InterpolatableDouble(0.6));
+            map.put(3.98, new InterpolatableDouble(0.6));
+            map.put(4.417, new InterpolatableDouble(0.6));
+            map.put(4.862, new InterpolatableDouble(0.65));
+            map.put(5.158, new InterpolatableDouble(0.65));
+            map.put(5.406, new InterpolatableDouble(0.65));
+            map.put(5.541, new InterpolatableDouble(0.7));
             map.put(5.9, new InterpolatableDouble(0.725));
             map.put(1000, new InterpolatableDouble(0.725));
 
@@ -128,19 +132,19 @@ public final class Constants {
             var map = new InterpolatingMap<InterpolatableDouble>();
             map.put(0, new InterpolatableDouble(62));
             map.put(1.539, new InterpolatableDouble(62));
-            map.put(2.095, new InterpolatableDouble(48 + .5 - 2 + 2));
-            map.put(2.458, new InterpolatableDouble(44 + .5 - 2 + 2));
-            map.put(2.9, new InterpolatableDouble(39 + .5 - 1 + 2));
-            map.put(3.376, new InterpolatableDouble(34 + .5 - 1 + 2));
-            map.put(3.651, new InterpolatableDouble(32.5 + 2));
-            map.put(3.98, new InterpolatableDouble(31.5 - 0.5 + 2));
-            map.put(4.417, new InterpolatableDouble(29 - 0.75 + 2));
-            map.put(4.862, new InterpolatableDouble(29 - 1 - 1 + 2));
-            map.put(5.158, new InterpolatableDouble(29 - 2 - 1 + 2));
-            map.put(5.406, new InterpolatableDouble(26.25 - 2 - 1 + 2));
-            map.put(5.541, new InterpolatableDouble(27.25 - 2 - 1 + 2));
-            map.put(5.9, new InterpolatableDouble(23.5 - 2 - 1 + 2));
-            map.put(1000, new InterpolatableDouble(23.5 - 2 - 1 + 2));
+            map.put(2.095, new InterpolatableDouble(50));
+            map.put(2.458, new InterpolatableDouble(45));
+            map.put(2.9, new InterpolatableDouble(39.5));
+            map.put(3.376, new InterpolatableDouble(36));
+            map.put(3.651, new InterpolatableDouble(32.5));
+            map.put(3.98, new InterpolatableDouble(31)); 
+            map.put(4.417, new InterpolatableDouble(30));
+            map.put(4.862, new InterpolatableDouble(29.5));
+            map.put(5.158, new InterpolatableDouble(29));
+            map.put(5.406, new InterpolatableDouble(24.25));
+            map.put(5.541, new InterpolatableDouble(23.25));
+            map.put(5.9, new InterpolatableDouble(22.5));
+            map.put(1000, new InterpolatableDouble(21.5));
 ;
             return map;
         }

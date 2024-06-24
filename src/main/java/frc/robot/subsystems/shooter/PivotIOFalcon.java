@@ -30,21 +30,23 @@ public class PivotIOFalcon implements PivotIO {
         feedbackConfigs.SensorToMechanismRatio = Constants.ShooterConstants.gearRatioPivot * 16;
         pivotMotor.getConfigurator().apply(feedbackConfigs);
         Slot0Configs slot0Configs = new Slot0Configs();
-        slot0Configs.kP = 240;
-        slot0Configs.kS = 0.3;
+        slot0Configs.kP = 400;
+        slot0Configs.kS = 0.2;
+        //slot0Configs.kD = 50;
         pivotMotor.getConfigurator().apply(slot0Configs);
         CurrentLimitsConfigs currentLimitsConfigs = new CurrentLimitsConfigs();
         pivotMotor.getConfigurator().refresh(currentLimitsConfigs);
         currentLimitsConfigs.StatorCurrentLimit = 80;
         currentLimitsConfigs.SupplyCurrentLimit = 90;
         pivotMotor.getConfigurator().apply(currentLimitsConfigs);
+        pivotMotor.setPosition(Rotation2d.fromDegrees(56.5).getRotations());
     }
 
     public void updateInputs(PivotIOInputs inputs) {
-        inputs.currentAngle = getGripperEncoderAngle();
+        inputs.currentAngle = Rotation2d.fromRotations(pivotMotor.getPosition().getValue());
         inputs.atTarget =
                 MathUtils.equalsWithinError(control.Position, inputs.currentAngle.getRotations(), errorThreshold);
-        pivotMotor.setPosition(inputs.currentAngle.getRotations());
+        //pivotMotor.setPosition(getGripperEncoderAngle().getRotations());
         inputs.isEncoderConnected = encoder.isConnected();
     }
 
@@ -58,10 +60,11 @@ public class PivotIOFalcon implements PivotIO {
 
     public void updateAngle(Rotation2d angle) {
         encoder.getAbsolutePosition();
-        System.out.println(encoder.getAbsolutePosition());
+        pivotMotor.setPosition(getGripperEncoderAngle().getRotations());
+        //System.out.println(encoder.getAbsolutePosition());
     }
 
-    private Rotation2d getGripperEncoderAngle() {
+    public Rotation2d getGripperEncoderAngle() {
         double currentEncoderAngle = encoder.getAbsolutePosition() * 1.16 - 0.575628;
         return Rotation2d.fromRotations(currentEncoderAngle);
     }

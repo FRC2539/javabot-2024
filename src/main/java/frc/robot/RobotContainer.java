@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.lib.controller.LogitechController;
 import frc.lib.controller.ThrustmasterJoystick;
 import frc.lib.logging.LoggedReceiver;
@@ -41,8 +42,10 @@ import frc.robot.subsystems.climber.ClimberSubsystem;
 import frc.robot.subsystems.intake.IntakeIOFalcon;
 import frc.robot.subsystems.intake.IntakeIOSim;
 import frc.robot.subsystems.intake.IntakeSubsystem;
-import frc.robot.subsystems.intake.IntakeSubsystem.IntakeState;
 import frc.robot.subsystems.lights.LightsSubsystemB;
+import frc.robot.subsystems.shamper.ShamperIONeo550;
+import frc.robot.subsystems.shamper.ShamperIOSim;
+import frc.robot.subsystems.shamper.ShamperSubsystem;
 import frc.robot.subsystems.shooter.PivotIOFalcon;
 import frc.robot.subsystems.shooter.PivotIOSim;
 import frc.robot.subsystems.shooter.RollerIOFalcon;
@@ -94,6 +97,7 @@ public class RobotContainer {
     private ShooterSubsystem shooterSubsystem;
     private IntakeSubsystem intakeSubsystem;
     private TrapSubsystem trapSubsystem;
+    private ShamperSubsystem shamperSubsystem;
     private ClimberSubsystem climberSubsystem;
 
     public AutonomousManager autonomousManager;
@@ -115,6 +119,11 @@ public class RobotContainer {
                 climberMechRoot.append(new MechanismLigament2d("climber", 0.0, 90, 4, new Color8Bit(Color.kOrange)));
         MechanismLigament2d trapMech =
                 trapMechRoot.append(new MechanismLigament2d("trap", 0.4, 70, 4, new Color8Bit(Color.kBlue)));
+        
+        //fake
+        MechanismLigament2d shamperMech =
+                trapMechRoot.append(new MechanismLigament2d("shamper", 0.4, 70, 4, new Color8Bit(Color.kBeige)));
+        
 
         if (Robot.isReal()) {
             swerveDriveSubsystem = TunerConstants.DriveTrain;
@@ -132,6 +141,7 @@ public class RobotContainer {
                     new TrapRollerIONeo550(TrapConstants.bottomRollerPort),
                     new RackIONeo550(),
                     trapMech);
+            shamperSubsystem = new ShamperSubsystem(new ShamperIOSim(), shamperMech);
             climberSubsystem = new ClimberSubsystem(new ClimberIOFalcon(), climberMech);
 
             AprilTagIO limelightAprilTag;
@@ -303,7 +313,7 @@ public class RobotContainer {
                         .until(rightDriveController
                                 .getBottomThumb()
                                 .or(leftDriveController.getBottomThumb())
-                                .negate()));
+                                .negate()).andThen(shooterSubsystem.shootCommand(ShooterSubsystem.defaultStateHolding)));
 
         // rightDriveController
         //         .getBottomThumb()
@@ -420,6 +430,7 @@ public class RobotContainer {
                 true,
                 true,
                 true,
+                false,
                 false);
 
         AimAndSpinupCommand movingShootAimAndSpinup = new AimAndSpinupCommand(
@@ -435,6 +446,7 @@ public class RobotContainer {
                 0.25,
                 true,
                 true,
+                false,
                 false,
                 false);
 
@@ -521,6 +533,10 @@ public class RobotContainer {
                 .getLeftTopMiddle()
                 .whileTrue(trapSubsystem.trapStateCommand(TrapState.fromVoltages(0, 0, 2.4)));
 
+        leftDriveController
+                .getLeftTopRight()
+                .onTrue(shooterSubsystem.reengShooterAngleCommand());
+
         leftDriveController.getLeftBottomRight().onTrue(trapSubsystem.zeroRackPositionCommand());
 
         leftDriveController.getRightTopMiddle().onTrue(runOnce(() -> visionSubsystem.updatingPoseUsingVision = false));
@@ -532,7 +548,12 @@ public class RobotContainer {
         operatorController
                 .getLeftBumper()
                 .and(operatorController.getRightBumper().negate())
-                .whileTrue(shooterSubsystem.shootCommand(ShooterSubsystem.ampShot));
+                .whileTrue(parallel(shooterSubsystem.shootCommand(ShooterSubsystem.ampShot), new WaitCommand(0.5).andThen(shamperSubsystem.extendShamperCommand())));
+
+        operatorController
+                .getLeftBumper()
+                .and(operatorController.getRightBumper().negate())
+                .whileFalse(shamperSubsystem.retractShamperCommand());
 
         operatorController
                 .getLeftBumper()
@@ -914,6 +935,7 @@ public class RobotContainer {
                 true,
                 false,
                 true,
+                false,
                 false);
     }
 
@@ -930,6 +952,7 @@ public class RobotContainer {
                 2.0 / 16,
                 0,
                 true,
+                false,
                 false,
                 false,
                 false);

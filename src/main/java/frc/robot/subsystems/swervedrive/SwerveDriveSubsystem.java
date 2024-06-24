@@ -236,7 +236,7 @@ public class SwerveDriveSubsystem extends SwerveDrivetrain implements Subsystem 
                         .getAngle(),
                 forward,
                 strafes,
-                new ProfiledPIDController(5, 0, 1, new TrapezoidProfile.Constraints(3.0, 8)));
+                new ProfiledPIDController(3, 0,.5, new TrapezoidProfile.Constraints(3.0, 8)));
     }
 
     public Command cardinalCommand(Rotation2d targetAngle, DoubleSupplier forward, DoubleSupplier strafe) {
