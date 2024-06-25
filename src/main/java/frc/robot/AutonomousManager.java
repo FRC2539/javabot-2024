@@ -10,6 +10,7 @@ import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.PathPlannerLogging;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.LinearFilter;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -28,6 +29,7 @@ import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveDriveSubsystem;
 import frc.robot.subsystems.vision.VisionSubsystem;
 import java.util.Optional;
+import java.util.function.Function;
 
 public class AutonomousManager {
 
@@ -255,6 +257,21 @@ public class AutonomousManager {
             // Do whatever you want with the poses here
             // Logger.log("/SwerveDriveSubsystem/path", (Pose2d[]) poses.toArray());
         });
+    }
+
+    private void registerChoreoCommands() {
+        Function<Double, Pose2d> posePredictor = (time) -> new Pose2d();
+        NamedCommands.registerCommand("c_shoot_0.5", predictiveSpinupCommand(0.5, posePredictor));
+        NamedCommands.registerCommand("c_shoot_1.0", predictiveSpinupCommand(1.0, posePredictor));
+        NamedCommands.registerCommand("c_shoot_1.5", predictiveSpinupCommand(1.5, posePredictor));
+
+        NamedCommands.registerCommand("c_intake", new Command() {});
+        NamedCommands.registerCommand("c_note_strafe", new Command() {});
+    }
+
+    private Command predictiveSpinupCommand(double predictionTimeSeconds, Function<Double, Pose2d> posePredictor) {
+        // TODO: Add spinup code
+        return new Command() {};
     }
 
     private Command pathFromFile(String name) {

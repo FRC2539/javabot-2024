@@ -12230,7 +12230,21 @@
             "defaultControlIntervalCount": 40,
             "usesDefaultFieldObstacles": true,
             "circleObstacles": [],
-            "eventMarkers": [],
+            "eventMarkers": [
+                {
+                    "name": "c_shoot_0.5",
+                    "target": 2,
+                    "trajTargetIndex": 2,
+                    "targetTimestamp": 0.8653665574922227,
+                    "offset": -0.5,
+                    "command": {
+                        "type": "named",
+                        "data": {
+                            "name": "c_shoot_0.5"
+                        }
+                    }
+                }
+            ],
             "isTrajectoryStale": false
         },
         "FourPiece": {

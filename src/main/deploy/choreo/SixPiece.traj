@@ -11782,5 +11782,15 @@
       "timestamp": 10.471253486988676
     }
   ],
-  "eventMarkers": []
+  "eventMarkers": [
+    {
+      "timestamp": 0.3653665574922227,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "c_shoot_0.5"
+        }
+      }
+    }
+  ]
 }
