@@ -35,11 +35,14 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.lib.logging.Logger;
 import frc.lib.math.MathUtils;
 import frc.lib.math.MathUtils.AnyContainer;
 import frc.robot.Constants;
+import frc.robot.TunerConstants;
 import frc.robot.commands.DriveToPositionCommand;
 import java.util.Optional;
 import java.util.function.DoubleSupplier;
@@ -84,8 +87,13 @@ public class SwerveDriveSubsystem extends SwerveDrivetrain implements Subsystem 
             .withSteerRequestType(SteerRequestType.MotionMagicExpo);
 
     public final SwerveRequest.SysIdSwerveRotation sysIdSwerveRotation = new SwerveRequest.SysIdSwerveRotation();
-    public final SwerveRequest.SysIdSwerveTranslation sysIdSwerveTranslation = new SwerveRequest.SysIdSwerveTranslation();
+    public final SwerveRequest.SysIdSwerveTranslation sysIdSwerveTranslation =
+            new SwerveRequest.SysIdSwerveTranslation();
     public final SwerveRequest.SysIdSwerveSteerGains sysIdSwerveSteerGains = new SwerveRequest.SysIdSwerveSteerGains();
+
+    public SysIdRoutine sysIdSwerveTranslationRoutine;
+    public SysIdRoutine sysIdSwerveRotationRoutine;
+    public SysIdRoutine sysIdSwerveSteerGainsRoutine;
 
     public SwerveDriveSubsystem(
             SwerveDrivetrainConstants driveTrainConstants,
@@ -152,7 +160,7 @@ public class SwerveDriveSubsystem extends SwerveDrivetrain implements Subsystem 
                         // Constants class
                         new PIDConstants(6, 0.0, 0.05), // Translation PID constants
                         new PIDConstants(2, 0.0, 0.05), // Rotation PID constants
-                        Constants.SwerveConstants.maxSpeed, // Max module speed, in m/s
+                        TunerConstants.kSpeedAt12VoltsMps, // Max module speed, in m/s
                         Constants.SwerveConstants.moduleTranslations[0]
                                 .getNorm(), // Drive base radius in meters. Distance from robot center to furthest
                         // module.
@@ -209,12 +217,17 @@ public class SwerveDriveSubsystem extends SwerveDrivetrain implements Subsystem 
             driveMotor.getConfigurator().apply(openLoopRampsConfigs);
         }
 
-        SysIdRoutine sysIdSwerveTranslationRoutine = new SysIdRoutine(
-            new SysIdRoutine.Config(),
-            new SysIdRoutine.Mechanism((volts) -> setControl(sysIdSwerveTranslation.withVolts(volts)),
-                null,
-                this)
-        );
+        sysIdSwerveTranslationRoutine = new SysIdRoutine(
+                new SysIdRoutine.Config(),
+                new SysIdRoutine.Mechanism((volts) -> setControl(sysIdSwerveTranslation.withVolts(volts)), null, this));
+
+        sysIdSwerveRotationRoutine = new SysIdRoutine(
+                new SysIdRoutine.Config(),
+                new SysIdRoutine.Mechanism((volts) -> setControl(sysIdSwerveRotation.withVolts(volts)), null, this));
+
+        sysIdSwerveSteerGainsRoutine = new SysIdRoutine(
+                new SysIdRoutine.Config(),
+                new SysIdRoutine.Mechanism((volts) -> setControl(sysIdSwerveSteerGains.withVolts(volts)), null, this));
     }
 
     public Optional<Rotation2d> getRotationOverride() {
@@ -248,7 +261,7 @@ public class SwerveDriveSubsystem extends SwerveDrivetrain implements Subsystem 
                         .getAngle(),
                 forward,
                 strafes,
-                new ProfiledPIDController(3, 0,.5, new TrapezoidProfile.Constraints(3.0, 8)));
+                new ProfiledPIDController(3, 0, .5, new TrapezoidProfile.Constraints(3.0, 8)));
     }
 
     public Command cardinalCommand(Rotation2d targetAngle, DoubleSupplier forward, DoubleSupplier strafe) {
@@ -394,6 +407,14 @@ public class SwerveDriveSubsystem extends SwerveDrivetrain implements Subsystem 
                     directionCommandIsRunning = false;
                     autoRotationOverride = Optional.empty();
                 });
+    }
+
+    public Command sysIdRoutineCommand(SysIdRoutine routine) {
+        return Commands.sequence(
+                routine.quasistatic(Direction.kForward), new WaitCommand(3),
+                routine.quasistatic(Direction.kReverse), new WaitCommand(3),
+                routine.dynamic(Direction.kForward), new WaitCommand(3),
+                routine.dynamic(Direction.kReverse), new WaitCommand(3));
     }
 
     public void setAutoRotationOverride(Rotation2d override) {

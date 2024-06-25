@@ -43,7 +43,6 @@ import frc.robot.subsystems.intake.IntakeIOFalcon;
 import frc.robot.subsystems.intake.IntakeIOSim;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.lights.LightsSubsystemB;
-import frc.robot.subsystems.shamper.ShamperIONeo550;
 import frc.robot.subsystems.shamper.ShamperIOSim;
 import frc.robot.subsystems.shamper.ShamperSubsystem;
 import frc.robot.subsystems.shooter.PivotIOFalcon;
@@ -119,8 +118,8 @@ public class RobotContainer {
                 climberMechRoot.append(new MechanismLigament2d("climber", 0.0, 90, 4, new Color8Bit(Color.kOrange)));
         MechanismLigament2d trapMech =
                 trapMechRoot.append(new MechanismLigament2d("trap", 0.4, 70, 4, new Color8Bit(Color.kBlue)));
-        
-        //fake
+
+        // fake
         MechanismLigament2d shamperMech =
                 trapMechRoot.append(new MechanismLigament2d("shamper", 0.4, 70, 4, new Color8Bit(Color.kBeige)));
 
@@ -314,7 +313,8 @@ public class RobotContainer {
                         .until(rightDriveController
                                 .getBottomThumb()
                                 .or(leftDriveController.getBottomThumb())
-                                .negate()).andThen(shooterSubsystem.shootCommand(ShooterSubsystem.defaultStateHolding)));
+                                .negate())
+                        .andThen(shooterSubsystem.shootCommand(ShooterSubsystem.defaultStateHolding)));
 
         // rightDriveController
         //         .getBottomThumb()
@@ -487,10 +487,14 @@ public class RobotContainer {
         leftDriveController.getRightThumb().whileTrue(climberSubsystem.setVoltage(12));
 
         // Adjustable Shot (by default, the subwoofer speaker shot)
-        LoggedReceiver topRollerSpeedTunable = Logger.tunable("/ShooterSubsystem/topTunable", ShooterSubsystem.subwooferShot.topRollerRPM);
-        LoggedReceiver bottomRollerSpeedTunable = Logger.tunable("/ShooterSubsystem/bottomTunable", ShooterSubsystem.subwooferShot.bottomRollerRPM);
-        LoggedReceiver pivotAngleTunable = Logger.tunable("/ShooterSubsystem/pivotTunable", ShooterSubsystem.subwooferShot.pivotAngle.getDegrees());
-        LoggedReceiver isVoltageBasedTunable = Logger.tunable("/ShooterSubsystem/voltageTunable", ShooterSubsystem.subwooferShot.isAngleVoltageBased);
+        LoggedReceiver topRollerSpeedTunable =
+                Logger.tunable("/ShooterSubsystem/topTunable", ShooterSubsystem.subwooferShot.topRollerRPM);
+        LoggedReceiver bottomRollerSpeedTunable =
+                Logger.tunable("/ShooterSubsystem/bottomTunable", ShooterSubsystem.subwooferShot.bottomRollerRPM);
+        LoggedReceiver pivotAngleTunable = Logger.tunable(
+                "/ShooterSubsystem/pivotTunable", ShooterSubsystem.subwooferShot.pivotAngle.getDegrees());
+        LoggedReceiver isVoltageBasedTunable =
+                Logger.tunable("/ShooterSubsystem/voltageTunable", ShooterSubsystem.subwooferShot.isAngleVoltageBased);
 
         leftDriveController
                 .getBottomThumb()
@@ -508,7 +512,8 @@ public class RobotContainer {
         //         .and(leftDriveController.getTrigger().negate())
         //         .whileTrue(Commands.run(()-> {intakeSubsystem.setIntakeState(IntakeState.ADJUSTABLE);
         //         intakeSubsystem.topSpeedAdjustable = topRollerSpeedTunable.getDouble();
-        //                 intakeSubsystem.bottomSpeedAdjustable = bottomRollerSpeedTunable.getDouble();}, intakeSubsystem));
+        //                 intakeSubsystem.bottomSpeedAdjustable = bottomRollerSpeedTunable.getDouble();},
+        // intakeSubsystem));
 
         // Shoot for the Adjustable Shot
         leftDriveController
@@ -534,9 +539,7 @@ public class RobotContainer {
                 .getLeftTopMiddle()
                 .whileTrue(trapSubsystem.trapStateCommand(TrapState.fromVoltages(0, 0, 2.4)));
 
-        leftDriveController
-                .getLeftTopRight()
-                .onTrue(shooterSubsystem.reengShooterAngleCommand());
+        leftDriveController.getLeftTopRight().onTrue(shooterSubsystem.reengShooterAngleCommand());
 
         leftDriveController.getLeftBottomRight().onTrue(trapSubsystem.zeroRackPositionCommand());
 
@@ -549,7 +552,9 @@ public class RobotContainer {
         operatorController
                 .getLeftBumper()
                 .and(operatorController.getRightBumper().negate())
-                .whileTrue(parallel(shooterSubsystem.shootCommand(ShooterSubsystem.ampShot), new WaitCommand(0.5).andThen(shamperSubsystem.extendShamperCommand())));
+                .whileTrue(parallel(
+                        shooterSubsystem.shootCommand(ShooterSubsystem.ampShot),
+                        new WaitCommand(0.5).andThen(shamperSubsystem.extendShamperCommand())));
 
         operatorController
                 .getLeftBumper()
@@ -570,7 +575,8 @@ public class RobotContainer {
         // // Trap Source Command
         // operatorController.getB().whileTrue(trapSubsystem.trapStateCommand(new TrapState(6, -6, 16.357)));
 
-        // // Trap Bottom Command (this is not zero to reduce banging. it will slowly glide down if it is below 2.5 instead
+        // // Trap Bottom Command (this is not zero to reduce banging. it will slowly glide down if it is below 2.5
+        // instead
         // // of stalling)
         // operatorController.getA().whileTrue(trapSubsystem.trapStateCommand(new TrapState(0, 0, 0)));
 
@@ -591,58 +597,61 @@ public class RobotContainer {
         //         .getDPadUp()
         //         .and(operatorController.getRightBumper().negate())
         //         .whileTrue(trapSubsystem.runIntakeCommand(-3.5, 3.5));
-        
-        // giant *quirky* trap command for people who have *quirky* fingers and keep *quirkily* pressing multiple buttons at once
+
+        // giant *quirky* trap command for people who have *quirky* fingers and keep *quirkily* pressing multiple
+        // buttons at once
         trapSubsystem.setDefaultCommand(trapSubsystem.trapStateCommand(() -> {
-                TrapState state = new TrapState();
-                if (trapSubsystem.getRackPosition() < 10) {
-                        state = new TrapState(0, 0, 0, true);
-                } else {
-                        state =new TrapState(0, 0, 0.5, true);
-                }
+            TrapState state = new TrapState();
+            if (trapSubsystem.getRackPosition() < 10) {
+                state = new TrapState(0, 0, 0, true);
+            } else {
+                state = new TrapState(0, 0, 0.5, true);
+            }
 
-                if (operatorController.getX().getAsBoolean()) {
-                        state.rack = 16.357;
-                        state.isVoltageBased = false;
-                }
+            if (operatorController.getX().getAsBoolean()) {
+                state.rack = 16.357;
+                state.isVoltageBased = false;
+            }
 
-                if (operatorController.getY().getAsBoolean()) {
-                        state.rack = 34;
-                        state.isVoltageBased = false;
-                }
+            if (operatorController.getY().getAsBoolean()) {
+                state.rack = 34;
+                state.isVoltageBased = false;
+            }
 
-                if (operatorController.getA().getAsBoolean()) {
-                        state.rack = 0;
-                        state.isVoltageBased = false;
-                }
+            if (operatorController.getA().getAsBoolean()) {
+                state.rack = 0;
+                state.isVoltageBased = false;
+            }
 
-                if ((operatorController.getDPadUp().getAsBoolean()
-                || operatorController.getDPadUpRight().getAsBoolean()
-                || operatorController.getDPadUpLeft().getAsBoolean()) && !operatorController.getRightBumper().getAsBoolean()) {
-                        state.topVoltage = -3.5;
-                        state.bottomVoltage = 3.5;
-                }
+            if ((operatorController.getDPadUp().getAsBoolean()
+                            || operatorController.getDPadUpRight().getAsBoolean()
+                            || operatorController.getDPadUpLeft().getAsBoolean())
+                    && !operatorController.getRightBumper().getAsBoolean()) {
+                state.topVoltage = -3.5;
+                state.bottomVoltage = 3.5;
+            }
 
-                if ((operatorController.getDPadDown().getAsBoolean() 
-                || operatorController.getDPadDownLeft().getAsBoolean() 
-                || operatorController.getDPadDownRight().getAsBoolean()) && !operatorController.getRightBumper().getAsBoolean()) {
-                        state.topVoltage = 6;
-                        state.bottomVoltage =  -6;
-                }
+            if ((operatorController.getDPadDown().getAsBoolean()
+                            || operatorController.getDPadDownLeft().getAsBoolean()
+                            || operatorController.getDPadDownRight().getAsBoolean())
+                    && !operatorController.getRightBumper().getAsBoolean()) {
+                state.topVoltage = 6;
+                state.bottomVoltage = -6;
+            }
 
-                if (operatorController.getDPadLeft().getAsBoolean()) {
-                        state.topVoltage = traptopRollerSpeedTunable.getDouble();
-                        state.bottomVoltage = trapbottomRollerSpeedTunable.getDouble();
-                }
+            if (operatorController.getDPadLeft().getAsBoolean()) {
+                state.topVoltage = traptopRollerSpeedTunable.getDouble();
+                state.bottomVoltage = trapbottomRollerSpeedTunable.getDouble();
+            }
 
-                if (operatorController.getB().getAsBoolean()) {
-                        state.rack = 16.357;
-                        state.topVoltage = 6;
-                        state.bottomVoltage = -6;
-                        state.isVoltageBased = false;
-                }
+            if (operatorController.getB().getAsBoolean()) {
+                state.rack = 16.357;
+                state.topVoltage = 6;
+                state.bottomVoltage = -6;
+                state.isVoltageBased = false;
+            }
 
-                return state;
+            return state;
         }));
         // Shooter Adjustment Down
         operatorController
@@ -700,13 +709,15 @@ public class RobotContainer {
                         parallel(
                                 swerveDriveSubsystem.cardinalCommand(
                                         new Rotation2d(-0.57), this::getDriveForwardAxis, this::getDriveStrafeAxis),
-                                shooterSubsystem.shootCommand(() -> ShooterSubsystem.airFeed.plusRotation(shooterSubsystem.getPitchCorrection()))),
+                                shooterSubsystem.shootCommand(() ->
+                                        ShooterSubsystem.airFeed.plusRotation(shooterSubsystem.getPitchCorrection()))),
                         parallel(
                                 swerveDriveSubsystem.cardinalCommand(
                                         new Rotation2d(Math.PI + 0.57),
                                         this::getDriveForwardAxis,
                                         this::getDriveStrafeAxis),
-                                shooterSubsystem.shootCommand(() -> ShooterSubsystem.airFeed.plusRotation(shooterSubsystem.getPitchCorrection()))),
+                                shooterSubsystem.shootCommand(() ->
+                                        ShooterSubsystem.airFeed.plusRotation(shooterSubsystem.getPitchCorrection()))),
                         FieldConstants::isBlue));
 
         // lowfeeder shot

@@ -190,11 +190,16 @@ public class AutonomousManager {
                     true);
             autoAimCommand = aimAndSpinupCommand.asProxy();
         }
-        NamedCommands.registerCommand("search", Commands.run(() -> swerveDriveSubsystem.setControl(swerveDriveSubsystem
-                        .openLoop
-                        .withVelocityX(0)
-                        .withVelocityY(0)
-                        .withRotationalRate(FieldConstants.isBlue() ? 2 : -2))).withTimeout(1.5).andThen(Commands.waitSeconds(10)).until(() -> visionSubsystem.getDetectorInfo().isPresent()));
+        NamedCommands.registerCommand(
+                "search",
+                Commands.run(() -> swerveDriveSubsystem.setControl(swerveDriveSubsystem
+                                .openLoop
+                                .withVelocityX(0)
+                                .withVelocityY(0)
+                                .withRotationalRate(FieldConstants.isBlue() ? 2 : -2)))
+                        .withTimeout(1.5)
+                        .andThen(Commands.waitSeconds(10))
+                        .until(() -> visionSubsystem.getDetectorInfo().isPresent()));
         NamedCommands.registerCommand("aim", autoAimCommand);
         NamedCommands.registerCommand("spinup", container.getSpinupCommand().asProxy());
         NamedCommands.registerCommand(
@@ -287,7 +292,20 @@ public class AutonomousManager {
     }
 
     public Command getAutonomousCommand() {
-        Command chosenPathCommand = new PathPlannerAuto(autoChooser.getSelected().pathName);
+        AutonomousOption option = autoChooser.getSelected();
+        Command chosenPathCommand;
+        if (option.pathName.equals("sysidtranslation")) {
+            chosenPathCommand =
+                    swerveDriveSubsystem.sysIdRoutineCommand(swerveDriveSubsystem.sysIdSwerveTranslationRoutine);
+        } else if (option.pathName.equals("sysidrotation")) {
+            chosenPathCommand =
+                    swerveDriveSubsystem.sysIdRoutineCommand(swerveDriveSubsystem.sysIdSwerveRotationRoutine);
+        } else if (option.pathName.equals("sysidsteergains")) {
+            chosenPathCommand =
+                    swerveDriveSubsystem.sysIdRoutineCommand(swerveDriveSubsystem.sysIdSwerveSteerGainsRoutine);
+        } else {
+            chosenPathCommand = new PathPlannerAuto(autoChooser.getSelected().pathName);
+        }
 
         double chosenWaitDuration = 0;
         try {
@@ -299,7 +317,7 @@ public class AutonomousManager {
     }
 
     private enum AutonomousOption {
-        // Does 
+        // Does
         CENTER5A(
                 "Center",
                 5,
@@ -372,35 +390,26 @@ public class AutonomousManager {
         //         false,
         //         "Shoots the starting piece and then shoots the three near the source on the centerline."),
 
-        AMP5(
+        AMP5("Amp", 5, "NewAmp5", "Amp Side", true, "Preload + First on Centerline + Second on Centerline."),
+        AMP5B(
                 "Amp",
                 5,
-                "NewAmp5",
-                "Amp Side",
+                "NewAmp5Sketch",
+                "Amp Side (Second)",
                 true,
                 "Preload + First on Centerline + Second on Centerline."),
-        AMP5B(
-                        "Amp",
-                        5,
-                        "NewAmp5Sketch",
-                        "Amp Side (Second)",
-                        true,
-                        "Preload + First on Centerline + Second on Centerline."),
-        TESTAUTO(
-                "Center",
-                0,
-                "testAuto",
-                "Test Auto",
-                true,
-                ""
-        );
+        TESTAUTO("Center", 0, "testAuto", "Test Auto", true, ""),
+        SYS_ID_TRANSLATION("Arbitrary", 0, "sysidtranslation", "sysidtranslation", true, ""),
+        SYS_ID_ROTATION("Arbitrary", 0, "sysidrotation", "sysidrotation", true, ""),
+        SYS_ID_STEER_GAINS("Arbitrary", 0, "sysidsteergains", "sysidsteergains", true, "");
         // AMP5A(
         //         "Amp",
         //         5,
         //         "Amp5A",
         //         "Amp Side Conditional",
         //         false,
-        //         "Scores the starting piece, the amp side near line piece, and the three pieces on the amp side centerline."),
+        //         "Scores the starting piece, the amp side near line piece, and the three pieces on the amp side
+        // centerline."),
 
         // MOBILITY1(
         //         "Source",
@@ -410,7 +419,7 @@ public class AutonomousManager {
         //         false,
         //         "Shoots the starting piece and goes off to the side to get mobility."),
 
-        //LINE0("Anywhere", 0, "straightLine", "Straight Line", false, "Slowly accelerates in a straight line.");
+        // LINE0("Anywhere", 0, "straightLine", "Straight Line", false, "Slowly accelerates in a straight line.");
 
         private String pathName;
         public String startPosition;

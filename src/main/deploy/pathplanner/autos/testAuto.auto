@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.3711199760437012,
-      "y": 5.508615016937256
+      "x": 1.3516291379928589,
+      "y": 5.567087650299072
     },
-    "rotation": -3.1379533776746717e-26
+    "rotation": -3.1571359953400435e-29
   },
   "command": {
     "type": "sequential",
@@ -14,7 +14,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "TestPath (1) (1) (1).1"
+            "pathName": "SixPiece.1"
           }
         },
         {
@@ -26,7 +26,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "TestPath (1) (1) (1).2"
+            "pathName": "SixPiece.2"
           }
         },
         {
@@ -38,7 +38,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "TestPath (1) (1) (1).3"
+            "pathName": "SixPiece.3"
           }
         },
         {
@@ -50,25 +50,25 @@
         {
           "type": "path",
           "data": {
-            "pathName": "TestPath (1) (1) (1).4"
+            "pathName": "SixPiece.4"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "TestPath (1) (1) (1).5"
+            "pathName": "SixPiece.5"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "TestPath (1) (1) (1).6"
+            "pathName": "SixPiece.6"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "TestPath (1) (1) (1).7"
+            "pathName": "SixPiece.7"
           }
         }
       ]

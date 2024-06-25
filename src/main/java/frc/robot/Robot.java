@@ -1,18 +1,18 @@
 package frc.robot;
 
-import java.util.Optional;
-
+import com.ctre.phoenix6.SignalLogger;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.lib.logging.Logger;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.subsystems.lights.LightsSubsystemB;
 import frc.robot.subsystems.lights.LightsSubsystemB.LEDSegment;
+import java.util.Optional;
 
 public class Robot extends TimedRobot {
     private RobotContainer robotContainer;
@@ -35,6 +35,8 @@ public class Robot extends TimedRobot {
 
         // Prevents the logging of many errors with our controllers
         DriverStation.silenceJoystickConnectionWarning(true);
+
+        SignalLogger.start();
     }
 
     @Override
@@ -98,7 +100,7 @@ public class Robot extends TimedRobot {
         if (robotContainer.getShooterSubsystem().isEncoderConnected()) {
             LEDSegment.PivotEncoderIndicator.setColor(LightsSubsystemB.white.dim(.25));
         } else {
-            LEDSegment.PivotEncoderIndicator.setFadeAnimation(LightsSubsystemB.white.dim(.25),1);
+            LEDSegment.PivotEncoderIndicator.setFadeAnimation(LightsSubsystemB.white.dim(.25), 1);
         }
 
         if (DriverStation.isDSAttached()) {
@@ -111,19 +113,17 @@ public class Robot extends TimedRobot {
 
         Optional<Alliance> alliance = DriverStation.getAlliance();
 
-        FieldConstants.isBlue =
-                alliance.orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Blue;
+        FieldConstants.isBlue = alliance.orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Blue;
 
         if (alliance.isPresent()) {
             if (FieldConstants.isBlue()) {
-            LEDSegment.AllianceIndicator.setColor(LightsSubsystemB.blue.dim(.25));
+                LEDSegment.AllianceIndicator.setColor(LightsSubsystemB.blue.dim(.25));
             } else {
                 LEDSegment.AllianceIndicator.setColor(LightsSubsystemB.red.dim(.25));
             }
         } else {
             LEDSegment.AllianceIndicator.fullClear();
         }
-        
     }
 
     @Override
