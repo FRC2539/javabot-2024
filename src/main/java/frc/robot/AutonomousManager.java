@@ -2,6 +2,8 @@ package frc.robot;
 
 import static edu.wpi.first.wpilibj2.command.Commands.*;
 
+import com.choreo.lib.Choreo;
+import com.choreo.lib.ChoreoTrajectory;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
@@ -12,6 +14,8 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -28,6 +32,8 @@ import frc.robot.subsystems.shooter.ShooterState;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveDriveSubsystem;
 import frc.robot.subsystems.vision.VisionSubsystem;
+
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -43,6 +49,10 @@ public class AutonomousManager {
     IntakeSubsystem intakeSubsystem;
     ShooterSubsystem shooterSubsystem;
     VisionSubsystem visionSubsystem;
+
+    public static int trajectoryNumber = 0;
+    public static ChoreoTrajectory currentChoreo = null;
+    public static Timer currentAutoTime = new Timer();
 
     public AutonomousManager(RobotContainer container) {
         swerveDriveSubsystem = container.getSwerveDriveSubsystem();
@@ -255,23 +265,97 @@ public class AutonomousManager {
         // Logging callback for the active path, this is sent as a list of poses
         PathPlannerLogging.setLogActivePathCallback((poses) -> {
             // Do whatever you want with the poses here
-            // Logger.log("/SwerveDriveSubsystem/path", (Pose2d[]) poses.toArray());
+            System.out.println("Path length: " + poses.size());
+            if (poses.size() > 0) {
+                trajectoryNumber += 1;
+                currentAutoTime.restart();
+            }
         });
     }
 
-    private void registerChoreoCommands() {
-        Function<Double, Pose2d> posePredictor = (time) -> new Pose2d();
-        NamedCommands.registerCommand("c_shoot_0.5", predictiveSpinupCommand(0.5, posePredictor));
-        NamedCommands.registerCommand("c_shoot_1.0", predictiveSpinupCommand(1.0, posePredictor));
-        NamedCommands.registerCommand("c_shoot_1.5", predictiveSpinupCommand(1.5, posePredictor));
+    private Command choreoTrajectoryPublisher(String name) {
+        return new Command() {
+            private List<ChoreoTrajectory> trajectories = Choreo.getTrajectoryGroup(name);
+            @Override
+            public void initialize() {
+            }
 
-        NamedCommands.registerCommand("c_intake", new Command() {});
-        NamedCommands.registerCommand("c_note_strafe", new Command() {});
+            @Override
+            public void execute() {
+                try {
+                        var cirCor = trajectories.get(trajectoryNumber);
+                        if (!FieldConstants.isBlue()) {
+                                cirCor = cirCor.flipped();
+                        }
+                        currentChoreo = cirCor;
+                } catch (IndexOutOfBoundsException e) {
+                        currentChoreo = null;
+                }
+                Logger.log("PathPlanner/trajectoryNumber", trajectoryNumber);
+                if (currentChoreo != null) {
+                        Logger.log("PathPlanner/trajectoryEndPose", currentChoreo.getFinalState().getPose());
+                }
+                Logger.log("PathPlanner/trajectoryTime", currentAutoTime.get());
+            }
+
+            @Override
+            public void end(boolean interrupted) {
+                currentChoreo = null;
+            }
+        };
     }
 
-    private Command predictiveSpinupCommand(double predictionTimeSeconds, Function<Double, Pose2d> posePredictor) {
-        // TODO: Add spinup code
-        return new Command() {};
+    private boolean spinningUp = false;
+
+    private void registerChoreoCommands() {
+        // docs detail on how these work
+        // Shooting is composed of three named commands.
+        // * a spinup command
+        // * an aim command
+        // * and a shoot command
+        // the spinup can be run at any time and runs continuously until you either try running another spinup command or you shoot
+        // the aim commands can only be run at a stop point and will run until you run a shoot command
+        // the shoot commands can be run at any time and shoots a piece and then shuts off all aim and spinup commands
+        // the wait for shoot command is an aim command that does nothing basically
+        NamedCommands.registerCommand("c_spinup_x", scheduleWrapper(predictiveSpinupCommand()));
+        NamedCommands.registerCommand("c_spinup_0.5", scheduleWrapper(predictiveSpinupCommand()));
+        NamedCommands.registerCommand("c_spinup_1.0", scheduleWrapper(predictiveSpinupCommand()));
+        NamedCommands.registerCommand("c_spinup_1.5", scheduleWrapper(predictiveSpinupCommand()));
+
+        NamedCommands.registerCommand("c_spinup_setpoint_1", scheduleWrapper(predictiveSpinupCommand()));
+
+        NamedCommands.registerCommand("c_spinup_vision", scheduleWrapper(predictiveSpinupCommand()));
+
+        NamedCommands.registerCommand("c_spinup_pose", scheduleWrapper(predictiveSpinupCommand()));
+
+        NamedCommands.registerCommand("c_aim_vision", predictiveSpinupCommand());
+        NamedCommands.registerCommand("c_aim_pose", predictiveSpinupCommand());
+        NamedCommands.registerCommand("c_aim_move", predictiveSpinupCommand());
+        NamedCommands.registerCommand("c_wait_for_shoot", waitUntil(() -> !spinningUp));
+
+        NamedCommands.registerCommand("c_shoot", scheduleWrapper(shootCommand()));
+
+
+        NamedCommands.registerCommand("c_intake", scheduleWrapper(new Command() {}));
+        NamedCommands.registerCommand("c_note_strafe", scheduleWrapper(new Command() {}));
+    }
+
+    private Command scheduleWrapper(Command command) {
+            return runOnce(() -> command.onlyWhile(DriverStation::isAutonomousEnabled).schedule());
+    }
+
+    private Command spinupWrapper(Command command) {
+        return command.onlyWhile(() -> spinningUp).beforeStarting(() -> spinningUp = true);
+    }
+
+    private Command predictiveSpinupCommand() {
+        // TODO: Predictive spinup
+        return spinupWrapper(new Command() {});
+    }
+
+    private Command shootCommand() {
+        // TODO: Predictive shoot
+        return waitSeconds(0.5).finallyDo(() -> spinningUp = false);
     }
 
     private Command pathFromFile(String name) {
@@ -321,7 +405,7 @@ public class AutonomousManager {
             chosenPathCommand =
                     swerveDriveSubsystem.sysIdRoutineCommand(swerveDriveSubsystem.sysIdSwerveSteerGainsRoutine);
         } else {
-            chosenPathCommand = new PathPlannerAuto(autoChooser.getSelected().pathName);
+            chosenPathCommand = new PathPlannerAuto(option.pathName);
         }
 
         double chosenWaitDuration = 0;
@@ -330,7 +414,12 @@ public class AutonomousManager {
         } catch (Exception e) {
         }
 
-        return chosenPathCommand.beforeStarting(waitSeconds(chosenWaitDuration));
+        if (option.isChoreo) {
+                return chosenPathCommand.beforeStarting(runOnce(() -> {trajectoryNumber = -1;})
+                .andThen(waitSeconds(chosenWaitDuration))).deadlineWith(choreoTrajectoryPublisher(option.pathName));
+        } else {
+                return chosenPathCommand.beforeStarting(waitSeconds(chosenWaitDuration));
+        }
     }
 
     private enum AutonomousOption {
@@ -415,7 +504,7 @@ public class AutonomousManager {
                 "Amp Side (Second)",
                 true,
                 "Preload + First on Centerline + Second on Centerline."),
-        TESTAUTO("Center", 0, "testAuto", "Test Auto", true, ""),
+        SIXPIECE("Center", 0, "SixPiece", "Test Auto", true, "", true),
         SYS_ID_TRANSLATION("Arbitrary", 0, "sysidtranslation", "sysidtranslation", true, ""),
         SYS_ID_ROTATION("Arbitrary", 0, "sysidrotation", "sysidrotation", true, ""),
         SYS_ID_STEER_GAINS("Arbitrary", 0, "sysidsteergains", "sysidsteergains", true, "");
@@ -444,6 +533,7 @@ public class AutonomousManager {
         public String displayName;
         public boolean display;
         public String description;
+        public boolean isChoreo;
 
         private AutonomousOption(
                 String startPosition,
@@ -451,18 +541,25 @@ public class AutonomousManager {
                 String pathName,
                 String displayName,
                 boolean display,
-                String description) {
+                String description, 
+                boolean isChoreo) {
             this.startPosition = startPosition;
             this.gamePieces = gamePieces;
             this.pathName = pathName;
             this.displayName = displayName;
             this.display = display;
             this.description = description;
+            this.isChoreo = isChoreo;
         }
 
         private AutonomousOption(
                 String startPosition, int gamePieces, String pathName, String displayName, boolean display) {
             this(startPosition, gamePieces, pathName, displayName, display, "");
+        }
+
+        private AutonomousOption(
+                String startPosition, int gamePieces, String pathName, String displayName, boolean display, String description) {
+            this(startPosition, gamePieces, pathName, displayName, display, description, false);
         }
     }
 }
