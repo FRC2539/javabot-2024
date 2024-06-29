@@ -223,24 +223,25 @@ public class ShooterSubsystem extends SubsystemBase {
         //     currentShooterState = defaultState;
         //     pivotIO.updateAngle(Rotation2d.fromDegrees(61.5));
         // }))).ignoringDisable(inPositionDisableMode);
-        return Commands.either(Commands.waitSeconds(0.2).andThen(
-            run (
-                () -> {
-                    currentShooterState = defaultZeroState;
-                }
-            ).withTimeout(0.8)
-        ).andThen(run (
-            () -> {
-                currentShooterState = defaultState;
-            }
-        ).beforeStarting(() -> pivotIO.updateAngle(Rotation2d.fromDegrees(61.5)))),
-        run(() -> {
-            currentShooterState = defaultState;
-            pivotIO.updateAngle(pivotIO.getGripperEncoderAngle());
-            }).until((
-                () -> 1 > Math.abs(defaultState.pivotAngle.getDegrees() - pivotIO.getGripperEncoderAngle().getDegrees())
-                )).andThen(runOnce(() -> hasZeroedYet = true)),
-        () -> hasZeroedYet);
+        return run(() -> currentShooterState = defaultStateHolding); 
+        // Commands.either(Commands.waitSeconds(0.2).andThen(
+        //     run (
+        //         () -> {
+        //             currentShooterState = defaultZeroState;
+        //         }
+        //     ).withTimeout(0.8)
+        // ).andThen(run (
+        //     () -> {
+        //         currentShooterState = defaultState;
+        //     }
+        // ).beforeStarting(() -> pivotIO.updateAngle(Rotation2d.fromDegrees(61.5)))),
+        // run(() -> {
+        //     currentShooterState = defaultState;
+        //     pivotIO.updateAngle(pivotIO.getGripperEncoderAngle());
+        //     }).until((
+        //         () -> 1 > Math.abs(defaultState.pivotAngle.getDegrees() - pivotIO.getGripperEncoderAngle().getDegrees())
+        //         )).andThen(runOnce(() -> hasZeroedYet = true)),
+        // () -> hasZeroedYet);
     }
 
     public Command shootCommand(double topRollerRPM, double bottomRollerRPM, Rotation2d shooterAngle) {

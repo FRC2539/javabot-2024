@@ -13,6 +13,7 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
@@ -246,6 +247,9 @@ public class RobotContainer {
         SmartDashboard.putData("Mech2d", mech);
 
         autonomousManager = new AutonomousManager(this);
+
+        DriverStation.getAlliance();
+        FieldConstants.isBlue();
 
         // Creates all bindings to controllers and other triggers
         configureBindings();

@@ -39,6 +39,7 @@ import frc.lib.logging.Logger;
 import frc.lib.math.MathUtils;
 import frc.lib.math.MathUtils.AnyContainer;
 import frc.robot.Constants;
+import frc.robot.TunerConstants;
 import frc.robot.commands.DriveToPositionCommand;
 import java.util.Optional;
 import java.util.function.DoubleSupplier;
@@ -147,7 +148,7 @@ public class SwerveDriveSubsystem extends SwerveDrivetrain implements Subsystem 
                         // Constants class
                         new PIDConstants(3, 0.0, 0.05), // Translation PID constants
                         new PIDConstants(2, 0.0, 0.05), // Rotation PID constants
-                        Constants.SwerveConstants.maxSpeed, // Max module speed, in m/s
+                        TunerConstants.kSpeedAt12VoltsMps, // Max module speed, in m/s
                         Constants.SwerveConstants.moduleTranslations[0]
                                 .getNorm(), // Drive base radius in meters. Distance from robot center to furthest
                         // module.
