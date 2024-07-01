@@ -317,7 +317,7 @@ public class RobotContainer {
                         .until(rightDriveController
                                 .getBottomThumb()
                                 .or(leftDriveController.getBottomThumb())
-                                .negate()).andThen(shooterSubsystem.shootCommand(ShooterSubsystem.defaultStateHolding)));
+                                .negate()).andThen(shooterSubsystem.shootCommand(ShooterSubsystem.defaultState)));
 
         // rightDriveController
         //         .getBottomThumb()

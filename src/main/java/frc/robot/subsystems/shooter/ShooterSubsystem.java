@@ -52,14 +52,14 @@ public class ShooterSubsystem extends SubsystemBase {
 
     private static final DCMotor exampleMotor = DCMotor.getFalcon500(1).withReduction(ShooterConstants.gearRatioRoller);
 
-    public static final ShooterState defaultStateHolding = new ShooterState(
+    public static final ShooterState defaultState = new ShooterState(
             0, 0, Rotation2d.fromDegrees(0), true, true); // new ShooterState(0,0, Rotation2d.fromDegrees(58), true, false);s
 
-    public static final ShooterState defaultState = new ShooterState(
-            0, 0, Rotation2d.fromDegrees(56.5), true, false); // new ShooterState(0,0, Rotation2d.fromDegrees(58), true, false);
+    public static final ShooterState zeroingStateA = new ShooterState(
+            0, 0, Rotation2d.fromDegrees(56), true, false); // new ShooterState(0,0, Rotation2d.fromDegrees(58), true, false);
 
-    public static final ShooterState defaultZeroState = new ShooterState(
-            0, 0, Rotation2d.fromDegrees(62), true, false);
+    public static final ShooterState zeroingStateB = new ShooterState(
+            0, 0, Rotation2d.fromDegrees(58), true, false);
 
     private ShooterState currentShooterState = defaultState;
 
@@ -165,6 +165,18 @@ public class ShooterSubsystem extends SubsystemBase {
         return runOnce(() -> pivotIO.updateAngle(pivotIO.getGripperEncoderAngle()));
     }
 
+    public Command zeroShooterAngleProcessCommand() {
+        return run(() -> {
+            pivotIO.updateAngle(pivotIO.getGripperEncoderAngle());
+            setShooterState(zeroingStateA);
+        }).withTimeout(0.4).andThen(
+            run(() -> {
+            pivotIO.updateAngle(pivotIO.getGripperEncoderAngle());
+            setShooterState(zeroingStateB);
+        }).withTimeout(0.5)
+        );
+    }
+
     public boolean isEncoderConnected() {
         return pivotInputs.isEncoderConnected;
     }
@@ -223,7 +235,7 @@ public class ShooterSubsystem extends SubsystemBase {
         //     currentShooterState = defaultState;
         //     pivotIO.updateAngle(Rotation2d.fromDegrees(61.5));
         // }))).ignoringDisable(inPositionDisableMode);
-        return run(() -> currentShooterState = defaultStateHolding); 
+        return Commands.either(run(() -> currentShooterState = defaultState), zeroShooterAngleProcessCommand().finallyDo(()-> hasZeroedYet = true), () -> hasZeroedYet); 
         // Commands.either(Commands.waitSeconds(0.2).andThen(
         //     run (
         //         () -> {
