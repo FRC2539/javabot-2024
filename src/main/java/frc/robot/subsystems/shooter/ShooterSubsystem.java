@@ -22,7 +22,7 @@ import java.util.function.Supplier;
 
 public class ShooterSubsystem extends SubsystemBase {
     public final static ShooterState podiumShot = new ShooterState(.60, .60, Rotation2d.fromDegrees(37.75));
-    public final static ShooterState subwooferShot = new ShooterState(.6,.6,Rotation2d.fromDegrees(62));
+    public final static ShooterState subwooferShot = new ShooterState(.6,.6,Rotation2d.fromDegrees(58));
     public final static ShooterState ampShot = new ShooterState(.16,.22,Rotation2d.fromDegrees(58));//new ShooterState(.1, .25, Rotation2d.fromDegrees(60));
     public final static ShooterState groundFeedShot = new ShooterState(.7, .4, Rotation2d.fromDegrees(9));
     public final static ShooterState airFeed = new ShooterState(.50,
@@ -59,11 +59,11 @@ public class ShooterSubsystem extends SubsystemBase {
             0, 0, Rotation2d.fromDegrees(56.5), true, false); // new ShooterState(0,0, Rotation2d.fromDegrees(58), true, false);
 
     public static final ShooterState defaultZeroState = new ShooterState(
-            0, 0, Rotation2d.fromDegrees(62), true, false);
+            0, 0, Rotation2d.fromDegrees(58), true, false);
 
     private ShooterState currentShooterState = defaultState;
 
-    private Rotation2d pitchCorrection = Rotation2d.fromDegrees(.35);
+    private Rotation2d pitchCorrection = Rotation2d.fromDegrees(-0.4);
 
     private boolean isShooterAtPosition = false;
 

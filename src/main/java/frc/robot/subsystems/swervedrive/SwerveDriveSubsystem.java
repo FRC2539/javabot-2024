@@ -177,9 +177,10 @@ public class SwerveDriveSubsystem extends SwerveDrivetrain implements Subsystem 
             TalonFX driveMotor = i.getDriveMotor();
             CurrentLimitsConfigs currentLimitsConfigs = new CurrentLimitsConfigs();
             steerMotor.getConfigurator().refresh(currentLimitsConfigs);
-            currentLimitsConfigs.StatorCurrentLimit = 80;
+            currentLimitsConfigs.StatorCurrentLimit = 100;
             currentLimitsConfigs.StatorCurrentLimitEnable = true;
             currentLimitsConfigs.SupplyCurrentLimit = 90;
+            currentLimitsConfigs.SupplyTimeThreshold = 0.4;
             currentLimitsConfigs.SupplyCurrentLimitEnable = true;
             steerMotor.getConfigurator().apply(currentLimitsConfigs);
             TorqueCurrentConfigs torqueCurrentConfigs = new TorqueCurrentConfigs();

@@ -84,8 +84,8 @@ public final class Constants {
             map.put(5.158, new InterpolatableDouble(0.65));
             map.put(5.406, new InterpolatableDouble(0.65));
             map.put(5.541, new InterpolatableDouble(0.7));
-            map.put(5.9, new InterpolatableDouble(0.725));
-            map.put(1000, new InterpolatableDouble(0.725));
+            map.put(5.9, new InterpolatableDouble(0.7));
+            map.put(1000, new InterpolatableDouble(0.7));
 
             return map;
         }
@@ -130,8 +130,8 @@ public final class Constants {
         // }
         public static final InterpolatingMap<InterpolatableDouble> shooterAngleMap() {
             var map = new InterpolatingMap<InterpolatableDouble>();
-            map.put(0, new InterpolatableDouble(62));
-            map.put(1.539, new InterpolatableDouble(62));
+            map.put(0, new InterpolatableDouble(58));
+            map.put(1.539, new InterpolatableDouble(58));
             map.put(2.095, new InterpolatableDouble(50));
             map.put(2.458, new InterpolatableDouble(45));
             map.put(2.9, new InterpolatableDouble(39.5));

@@ -39,7 +39,7 @@ public class PivotIOFalcon implements PivotIO {
         currentLimitsConfigs.StatorCurrentLimit = 80;
         currentLimitsConfigs.SupplyCurrentLimit = 90;
         pivotMotor.getConfigurator().apply(currentLimitsConfigs);
-        pivotMotor.setPosition(Rotation2d.fromDegrees(56.5).getRotations());
+        pivotMotor.setPosition(Rotation2d.fromDegrees(58).getRotations());
     }
 
     public void updateInputs(PivotIOInputs inputs) {
