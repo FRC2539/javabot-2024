@@ -75,12 +75,12 @@ public class AutonomousManager {
                     true,
                     true,
                     true,
-                    true);
+                    false);
             autoShootingCommand = Commands.deadline(
                     Commands.waitSeconds(0.5)
                             .andThen(waitUntil(() -> aimAndSpinupCommand.isAtAngleAndSpunUpAndTarget())
                                     .withTimeout(2.0))
-                            .andThen(intakeSubsystem.shootCommand().asProxy().withTimeout(0.4)),
+                            .andThen(intakeSubsystem.shootCommand().asProxy().withTimeout(0.5)),
                     aimAndSpinupCommand,
                     run(() -> {}, swerveDriveSubsystem),
                     run(() -> {}, shooterSubsystem).asProxy());
@@ -123,11 +123,11 @@ public class AutonomousManager {
                 "subshoot",
                 Commands.parallel(
                                 shooterSubsystem
-                                        .shootCommand(new ShooterState(.6, .6, Rotation2d.fromDegrees(62)))
+                                        .shootCommand(new ShooterState(.6, .6, Rotation2d.fromDegrees(58)))
                                         .asProxy(),
-                                Commands.waitSeconds(.5)
+                                Commands.waitSeconds(.2)
                                         .andThen(intakeSubsystem.shootCommand().asProxy()))
-                        .withTimeout(1.0));
+                        .withTimeout(.5));
         NamedCommands.registerCommand("intake", intakeSubsystem.intakeCommand().asProxy());
         LinearFilter lowPassIQR = LinearFilter.movingAverage(20);
         IntakeAssistCommandComplexAuto intakeAssistCommandComplex =

@@ -573,7 +573,7 @@ public class RobotContainer {
         // Trap Source Command
         Command trappy = trapSubsystem.trapStateCommand(new TrapState(7, -6, 16.357));
         Command trappyDos = trapSubsystem.trapStateCommand(new TrapState(7, -6, 16.357));
-        operatorController.getB().whileTrue(trappy.withTimeout(0.2).andThen(trappyDos.until(() -> trapSubsystem.getTopRollerCurrent() > 8)).andThen(trapSubsystem.trapStateCommand(new TrapState(7, -6, 0)).withTimeout(.2)));
+        operatorController.getB().whileTrue(trappy.withTimeout(0.2).andThen(trappyDos.until(() -> trapSubsystem.getTopRollerCurrent() > 8)).andThen(trapSubsystem.trapStateCommand(new TrapState(7, -6, 16.357)).withTimeout(.2)));
 
         // // Trap Bottom Command (this is not zero to reduce banging. it will slowly glide down if it is below 2.5 instead
         // // of stalling)
@@ -940,7 +940,7 @@ public class RobotContainer {
                 0,
                 true,
                 false,
-                true,
+                false,
                 false,
                 false);
     }

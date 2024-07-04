@@ -138,13 +138,13 @@ public final class Constants {
             map.put(3.376, new InterpolatableDouble(36));
             map.put(3.651, new InterpolatableDouble(32.5));
             map.put(3.98, new InterpolatableDouble(31)); 
-            map.put(4.417, new InterpolatableDouble(30));
-            map.put(4.862, new InterpolatableDouble(29.5));
-            map.put(5.158, new InterpolatableDouble(29));
-            map.put(5.406, new InterpolatableDouble(24.25));
-            map.put(5.541, new InterpolatableDouble(23.25));
-            map.put(5.9, new InterpolatableDouble(22.5));
-            map.put(1000, new InterpolatableDouble(21.5));
+            map.put(4.417, new InterpolatableDouble(29.5));
+            map.put(4.862, new InterpolatableDouble(28));
+            map.put(5.158, new InterpolatableDouble(27.5));
+            map.put(5.406, new InterpolatableDouble(26.0));
+            map.put(5.541, new InterpolatableDouble(25.25));
+            map.put(5.9, new InterpolatableDouble(24.5));
+            map.put(1000, new InterpolatableDouble(23.5));
             
             return map;
         }

@@ -226,7 +226,7 @@ public class VisionSubsystem extends SubsystemBase {
         if (
             VisionSubsystem.getTagInfo(leftTargets, FieldConstants.getSpeakerTag()).isPresent() || 
             VisionSubsystem.getTagInfo(leftTargets, FieldConstants.getAltSpeakerTag()).isPresent()) {
-            return Optional.of(getSpeakerAngleFromPose(currentPose));
+            return getSpeakerAngleFromVision(currentPose, true);
         } else {
             return Optional.empty();
         }
@@ -255,9 +255,7 @@ public class VisionSubsystem extends SubsystemBase {
             //                 .getAngle()));
             // System.out.println(speakerTag.get().getYaw());
             var results = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-april");
-            return Optional.of(results.pose
-                    .getRotation() // this is 182 not 180 because the camera is off by 2 ish degrees
-                    .plus(Rotation2d.fromDegrees(-speakerTag.get().getYaw()).plus(Rotation2d.fromDegrees(182))));
+            return Optional.of(getSpeakerAngleFromPose(results.pose)); // this is 182 not 180 because the camera is off by 2 ish degrees);
         } else {
             return Optional.empty();
         }
