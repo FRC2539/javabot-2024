@@ -344,7 +344,8 @@ public class AutonomousManager {
         //         "Shoots in the starting piece and then picks up and shoots the near row."),
         // EASYCENTER4(
         //         "Center",
-        //         4,
+        //         4,[]\
+        
         //         "EasyCenter4",
         //         "Near Line (Center)",
         //         false,

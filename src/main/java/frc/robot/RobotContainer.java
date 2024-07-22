@@ -867,18 +867,18 @@ public class RobotContainer {
 
     public double getDriveForwardAxis() {
         return (FieldConstants.isBlue() ? 1 : -1)
-                * -square(deadband(leftDriveController.getYAxis().getRaw(), .15))
+                * -square(deadband(leftDriveController.getYAxis().getRaw(), .15))//.15
                 * Constants.SwerveConstants.maxSpeed; // );
     }
 
     public double getDriveStrafeAxis() {
         return (FieldConstants.isBlue() ? 1 : -1)
-                * -square(deadband(leftDriveController.getXAxis().getRaw(), .15))
+                * -square(deadband(leftDriveController.getXAxis().getRaw(), .15))//.15
                 * Constants.SwerveConstants.maxSpeed; // );
     }
 
     public double getDriveRotationAxis() {
-        return -cube(deadband(rightDriveController.getXAxis().getRaw(), 0.05))
+        return -cube(deadband(rightDriveController.getXAxis().getRaw(), .05))//.05
                 * Constants.SwerveConstants.maxAngularVelocity
                 * 0.5;
     }

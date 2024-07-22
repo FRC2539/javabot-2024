@@ -57,7 +57,7 @@ public class TunerConstants {
             new CurrentLimitsConfigs()
                 // Swerve azimuth does not require much torque output, so we can set a relatively low
                 // stator current limit to help avoid brownouts without impacting performance.
-                .withStatorCurrentLimit(60)
+                .withStatorCurrentLimit(110)
                 .withStatorCurrentLimitEnable(true)
         );
     private static final CANcoderConfiguration cancoderInitialConfigs = new CANcoderConfiguration();
@@ -123,6 +123,7 @@ public class TunerConstants {
     private static final double kFrontLeftEncoderOffset = -0.300537109375;
     private static final boolean kFrontLeftSteerInvert = false;
 
+    
     private static final double kFrontLeftXPosInches = 10.75;
     private static final double kFrontLeftYPosInches = 10.75;
 
@@ -150,7 +151,7 @@ public class TunerConstants {
     private static final int kBackRightDriveMotorId = 3;
     private static final int kBackRightSteerMotorId = 7;
     private static final int kBackRightEncoderId = 27;
-    private static final double kBackRightEncoderOffset = -0.458740234375;
+    private static final double kBackRightEncoderOffset = -0.458740234375;//-0.274169921875;
     private static final boolean kBackRightSteerInvert = false;
 
     private static final double kBackRightXPosInches = -10.75;
