@@ -504,7 +504,7 @@ public class AutonomousManager {
                 "Amp Side (Second)",
                 true,
                 "Preload + First on Centerline + Second on Centerline."),
-        SIXPIECE("Center", 0, "SixPiece", "Test Auto", true, "", true),
+        SIXPIECE("Center", 6, "SixPiece", "Six Piece", true, "", true),
         SYS_ID_TRANSLATION("Arbitrary", 0, "sysidtranslation", "sysidtranslation", true, ""),
         SYS_ID_ROTATION("Arbitrary", 0, "sysidrotation", "sysidrotation", true, ""),
         SYS_ID_STEER_GAINS("Arbitrary", 0, "sysidsteergains", "sysidsteergains", true, "");
