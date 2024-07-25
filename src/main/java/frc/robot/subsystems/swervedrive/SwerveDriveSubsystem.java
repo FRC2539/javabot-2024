@@ -207,6 +207,18 @@ public class SwerveDriveSubsystem extends SwerveDrivetrain implements Subsystem 
         }
     }
 
+    public double[] calculateMaxModuleSpeeds(double forward, double strafe, double rotation)
+    {
+        double maxFreeSpeed = Math.max(Math.hypot(strafe, forward) + (Math.abs(rotation) * Math.hypot(10.75/39.37, 10.75/39.37)), TunerConstants.kSpeedAt12VoltsMps);
+        double factor = TunerConstants.kSpeedAt12VoltsMps / maxFreeSpeed;
+        double[] inputs = new double[3];
+        inputs[0] = forward * factor;
+        inputs[1] = strafe * factor;
+        inputs[2] = rotation * factor;
+
+        return inputs;
+    }
+
     public Optional<Rotation2d> getRotationOverride() {
         return autoRotationOverride;
     }
@@ -226,6 +238,21 @@ public class SwerveDriveSubsystem extends SwerveDrivetrain implements Subsystem 
                     .withVelocityX(forward.getAsDouble())
                     .withVelocityY(strafe.getAsDouble())
                     .withRotationalRate(rotation.getAsDouble());
+        });
+    }
+
+    public Command orbitDriveCommand(DoubleSupplier forward, DoubleSupplier strafe, DoubleSupplier rotation) {
+        // var correctedVelocity = ChassisSpeeds.fromFieldRelativeSpeeds(new
+        // ChassisSpeeds(forward.getAsDouble(),strafe.getAsDouble(),rotation.getAsDouble()), new
+        // Rotation2d(getRobotRelativeChassisSpeeds().omegaRadiansPerSecond *
+        // SwerveConstants.angularVelocityCoefficient));
+        return applyRequest(() -> {
+            double[] fwStRt = calculateMaxModuleSpeeds(forward.getAsDouble(), strafe.getAsDouble(), rotation.getAsDouble());
+            return openLoop.withDeadband(0.0)
+                    .withRotationalDeadband(0.0)
+                    .withVelocityX(fwStRt[0])
+                    .withVelocityY(fwStRt[1])
+                    .withRotationalRate(fwStRt[2]);
         });
     }
 
