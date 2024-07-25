@@ -4,6 +4,7 @@ import static edu.wpi.first.wpilibj2.command.Commands.*;
 
 import com.choreo.lib.Choreo;
 import com.choreo.lib.ChoreoTrajectory;
+import com.choreo.lib.ChoreoTrajectoryState;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
@@ -35,7 +36,8 @@ import frc.robot.subsystems.vision.VisionSubsystem;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
+import java.util.OptionalDouble;
+import java.util.function.DoubleSupplier;
 
 public class AutonomousManager {
 
@@ -141,12 +143,14 @@ public class AutonomousManager {
                                         .andThen(intakeSubsystem.shootCommand().asProxy()))
                         .withTimeout(1.0));
         NamedCommands.registerCommand("intake", intakeSubsystem.intakeCommand().asProxy());
+        @SuppressWarnings("unused")
         LinearFilter lowPassIQR = LinearFilter.movingAverage(20);
         IntakeAssistCommandComplexAuto intakeAssistCommandComplex =
                 new IntakeAssistCommandComplexAuto(swerveDriveSubsystem, visionSubsystem, lightsSubsystem);
 
         swerveDriveSubsystem.autoStrafeOverrideSupplier = (Double x) -> intakeAssistCommandComplex.transformStrafe(x);
 
+        @SuppressWarnings("unused")
         Command intakeAssistCommandTurn = swerveDriveSubsystem.directionCommandAutoVelocity(
                 () -> {
                     Optional<LimelightRawAngles> direction = visionSubsystem.getDetectorInfo();
@@ -233,6 +237,8 @@ public class AutonomousManager {
                 "eject", intakeSubsystem.ejectCommand().withTimeout(2).asProxy());
         NamedCommands.registerCommand("rainbow", parallel());
 
+        registerChoreoCommands();
+
         // Run sussy paths conditionally
         registerConditionalPaths();
 
@@ -317,20 +323,20 @@ public class AutonomousManager {
         // the aim commands can only be run at a stop point and will run until you run a shoot command
         // the shoot commands can be run at any time and shoots a piece and then shuts off all aim and spinup commands
         // the wait for shoot command is an aim command that does nothing basically
-        NamedCommands.registerCommand("c_spinup_x", scheduleWrapper(predictiveSpinupCommand()));
-        NamedCommands.registerCommand("c_spinup_0.5", scheduleWrapper(predictiveSpinupCommand()));
-        NamedCommands.registerCommand("c_spinup_1.0", scheduleWrapper(predictiveSpinupCommand()));
-        NamedCommands.registerCommand("c_spinup_1.5", scheduleWrapper(predictiveSpinupCommand()));
+        NamedCommands.registerCommand("c_spinup_x", scheduleWrapper(spinupPredictive()));
+        NamedCommands.registerCommand("c_spinup_0.5", scheduleWrapper(spinupPredictive(0.5)));
+        NamedCommands.registerCommand("c_spinup_1.0", scheduleWrapper(spinupPredictive(1.0)));
+        NamedCommands.registerCommand("c_spinup_1.5", scheduleWrapper(spinupPredictive(1.5)));
 
-        NamedCommands.registerCommand("c_spinup_setpoint_1", scheduleWrapper(predictiveSpinupCommand()));
+        NamedCommands.registerCommand("c_spinup_setpoint_1", scheduleWrapper(spinupSetpoint(new ShooterState(0.6,0.6, Rotation2d.fromDegrees(52)))));
 
-        NamedCommands.registerCommand("c_spinup_vision", scheduleWrapper(predictiveSpinupCommand()));
+        NamedCommands.registerCommand("c_spinup_vision", scheduleWrapper(spinupVision()));
 
-        NamedCommands.registerCommand("c_spinup_pose", scheduleWrapper(predictiveSpinupCommand()));
+        NamedCommands.registerCommand("c_spinup_pose", scheduleWrapper(spinupPose()));
 
-        NamedCommands.registerCommand("c_aim_vision", predictiveSpinupCommand());
-        NamedCommands.registerCommand("c_aim_pose", predictiveSpinupCommand());
-        NamedCommands.registerCommand("c_aim_move", predictiveSpinupCommand());
+        NamedCommands.registerCommand("c_aim_vision", new Command() {});
+        NamedCommands.registerCommand("c_aim_pose", new Command() {});
+        NamedCommands.registerCommand("c_aim_move", new Command() {});
         NamedCommands.registerCommand("c_wait_for_shoot", waitUntil(() -> !spinningUp));
 
         NamedCommands.registerCommand("c_shoot", scheduleWrapper(shootCommand()));
@@ -348,14 +354,49 @@ public class AutonomousManager {
         return command.onlyWhile(() -> spinningUp).beforeStarting(() -> spinningUp = true);
     }
 
-    private Command predictiveSpinupCommand() {
+    private Command spinupSupplier(DoubleSupplier distance) {
+        return spinupWrapper(shooterSubsystem.shootCommand(distance));
+    }
+
+    private Command spinupPredictive() {
+        ChoreoTrajectoryState future = currentChoreo.getFinalState();
+        Pose2d shootingPosition = future.getPose();
+        double distanceToSpeaker = shootingPosition.getTranslation().getDistance(FieldConstants.getSpeakerPose().getTranslation());
+        return spinupSupplier(() -> distanceToSpeaker);
+    }
+
+    private Command spinupPredictive(double timeInFuture) {
         // TODO: Predictive spinup
-        return spinupWrapper(new Command() {});
+        ChoreoTrajectoryState future = currentChoreo.sample(timeInFuture + currentAutoTime.get(), FieldConstants.isBlue());
+        Pose2d shootingPosition = future.getPose();
+        double distanceToSpeaker = shootingPosition.getTranslation().getDistance(FieldConstants.getSpeakerPose().getTranslation());
+        return spinupSupplier(() -> distanceToSpeaker);
+    }
+
+    private Command spinupSetpoint(ShooterState state) {
+        return spinupWrapper(shooterSubsystem.shootCommand(state));
+    }
+
+    private Command spinupVision() {
+        return spinupSupplier(() -> { 
+                OptionalDouble distance =  visionSubsystem.getSpeakerDistanceFromVision(swerveDriveSubsystem.getPose());
+                if (distance.isPresent()) {
+                        return distance.getAsDouble();
+                } else {
+                        return visionSubsystem.getSpeakerDistanceFromPose(swerveDriveSubsystem.getPose());
+                }
+        });
+    }
+
+    private Command spinupPose() {
+        return spinupSupplier(() -> { 
+                return visionSubsystem.getSpeakerDistanceFromPose(swerveDriveSubsystem.getPose());
+        });
     }
 
     private Command shootCommand() {
-        // TODO: Predictive shoot
-        return waitSeconds(0.5).finallyDo(() -> spinningUp = false);
+        // Runs the intake to shoot
+        return intakeSubsystem.shootCommand().withTimeout(0.5).finallyDo(() -> spinningUp = false);
     }
 
     private Command pathFromFile(String name) {
