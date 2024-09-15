@@ -181,7 +181,7 @@ public class RobotContainer {
             visionSim = new VisionSystemSim("main");
             // If the robot is in simulation it uses these.
             swerveDriveSubsystem = TunerConstants.DriveTrain;
-            lightsSubsystem = new LightsSubsystemB();
+            lightsSubsystem = new LightsSubsystemB(true);
             shooterSubsystem = new ShooterSubsystem(
                     new RollerIOSim(),
                     new RollerIOSim(),

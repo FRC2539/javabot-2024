@@ -166,12 +166,12 @@ public class AimAndSpinupCommand extends Command {
             ChassisSpeeds currentSpeed = swerveDriveSubsystem.getFieldRelativeChassisSpeeds();
             double distance = visionSubsystem.getSpeakerDistanceFromPose(swerveDriveSubsystem.getPose());
             predictedPose = new Pose2d(
-                    currentPose.getX() + currentSpeed.vxMetersPerSecond * motionForwardPrediction * distance,
-                    currentPose.getY() + currentSpeed.vyMetersPerSecond * motionForwardPrediction * distance,
+                    currentPose.getX() + currentSpeed.vxMetersPerSecond * (motionForwardPrediction * distance + motionForwardCompensationBase),
+                    currentPose.getY() + currentSpeed.vyMetersPerSecond * (motionForwardPrediction * distance + motionForwardCompensationBase),
                     new Rotation2d(currentPose.getRotation().getRadians()));
             futurePose = new Pose2d(
-                    currentPose.getX() + currentSpeed.vxMetersPerSecond * (motionForwardPrediction * distance + 0.20),
-                    currentPose.getY() + currentSpeed.vyMetersPerSecond * (motionForwardPrediction * distance  + 0.20),
+                    currentPose.getX() + currentSpeed.vxMetersPerSecond * ((motionForwardPrediction * distance + motionForwardCompensationBase) + 0.20),
+                    currentPose.getY() + currentSpeed.vyMetersPerSecond * ((motionForwardPrediction * distance + motionForwardCompensationBase)  + 0.20),
                     new Rotation2d(currentPose.getRotation().getRadians()));
         } else {
             predictedPose = swerveDriveSubsystem.getPose();

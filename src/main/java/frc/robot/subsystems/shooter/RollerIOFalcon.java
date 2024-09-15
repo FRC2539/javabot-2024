@@ -6,11 +6,10 @@ import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import edu.wpi.first.math.system.plant.DCMotor;
 
 public class RollerIOFalcon implements RollerIO {
     private TalonFX talonFX;
-    private final double gearRatio = 1;
+    // private final double gearRatio = 1;
 
     public RollerIOFalcon(int port) {
         talonFX = new TalonFX(port, "CANivore");
@@ -18,7 +17,7 @@ public class RollerIOFalcon implements RollerIO {
 
         Slot0Configs slot0Configs = new Slot0Configs();
 
-        DCMotor exampleMotor = DCMotor.getFalcon500(1).withReduction(gearRatio);
+        // DCMotor exampleMotor = DCMotor.getFalcon500(1).withReduction(gearRatio);
 
         slot0Configs.kS = 0;
         // converts rads/s / V to V/rps

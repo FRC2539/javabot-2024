@@ -1,7 +1,5 @@
 package frc.robot.subsystems.shamper;
 
-import static edu.wpi.first.wpilibj2.command.Commands.waitSeconds;
-
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -12,7 +10,7 @@ import frc.robot.subsystems.shamper.ShamperIO.ShamperIOInputs;
 import java.util.function.Supplier;
 
 public class ShamperSubsystem extends SubsystemBase {
-    private final double shamperSpeedTolerance = 0.1;
+    // private final double shamperSpeedTolerance = 0.1;
     private final double shamperAngleTolerance = 0.01;
 
     public final double holdingVoltage = 0.5;
@@ -22,7 +20,7 @@ public class ShamperSubsystem extends SubsystemBase {
     private ShamperIOInputs shamperInputs = new ShamperIOInputs();
 
     private final double defaultState = 0;
-    private final double defaultStateHolding = 0;
+    // private final double defaultStateHolding = 0;
 
     private double currentShamperState = defaultState;
 

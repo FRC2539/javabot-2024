@@ -7,7 +7,6 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
@@ -16,8 +15,6 @@ import frc.lib.logging.Logger;
 import frc.lib.math.MathUtils;
 import frc.lib.vision.LimelightHelpers;
 import frc.lib.vision.LimelightRawAngles;
-import frc.lib.vision.PinholeModel3D;
-import frc.robot.Constants;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.subsystems.swervedrive.SwerveDriveSubsystem;
 import frc.robot.subsystems.vision.AprilTagIO.AprilTagIOInputs;
@@ -104,6 +101,7 @@ public class VisionSubsystem extends SubsystemBase {
         inputs.ifPresent((t) -> {
 
             // distance from current pose to vision estimated pose
+            @SuppressWarnings("unused")
             double poseDifference = consumer.getPose()
                     .getTranslation()
                     .getDistance(t.poseEstimate3d.toPose2d().getTranslation());
@@ -170,6 +168,7 @@ public class VisionSubsystem extends SubsystemBase {
         consumer.addVisionMeasurement(estimate.toPose2d(), timestamp, calculateMultitagVisionStdDevs(distance));
     }
 
+    @SuppressWarnings("unused")
     private void addVisionPoseEstimateWithBackup(Pose3d estimate, Pose3d backup, double distance, double timestamp) {
         if (!isWithinField(estimate)) {
             addVisionPoseEstimate(backup, distance, timestamp);
@@ -178,6 +177,7 @@ public class VisionSubsystem extends SubsystemBase {
         }
     }
 
+    @SuppressWarnings("unused")
     private void addVisionPoseEstimateWithBackupMultitag(
             Pose3d estimate, Pose3d backup, double distance, double timestamp) {
         if (!isWithinField(estimate)) {
@@ -215,6 +215,7 @@ public class VisionSubsystem extends SubsystemBase {
         return VecBuilder.fill(translationStdDev, translationStdDev, rotationStdDev);
     }
 
+    @Deprecated
     public Rotation2d getSpeakerAngleFromPose(Pose2d currentPose) {
         return FieldConstants.getSpeakerPose()
                 .getTranslation()
@@ -222,6 +223,7 @@ public class VisionSubsystem extends SubsystemBase {
                 .getAngle();
     }
 
+    @Deprecated
     public Optional<Rotation2d> getSpeakerAngleFromVision(Pose2d currentPose) {
         if (
             VisionSubsystem.getTagInfo(leftTargets, FieldConstants.getSpeakerTag()).isPresent() || 
@@ -233,6 +235,7 @@ public class VisionSubsystem extends SubsystemBase {
         //return getSpeakerAngleFromVision(currentPose, true);
     }
 
+    @Deprecated
     public Optional<Rotation2d> getSpeakerAngleFromVision(Pose2d currentPose, boolean timestampAdjust) {
         if (timestampAdjust) {
             currentPose = consumer.getPoseAtTimestamp(leftInputsTimestamp);
@@ -240,7 +243,7 @@ public class VisionSubsystem extends SubsystemBase {
 
         Optional<PhotonTrackedTarget> speakerTag =
                 VisionSubsystem.getTagInfo(leftTargets, FieldConstants.getSpeakerTag());
-        if (speakerTag_isPresent()) {
+        if (speakerTagIsPresent()) {
             // return Optional.of(currentPose
             //         .getRotation()
             //         .plus(PinholeModel3D.getTranslationToTarget(
@@ -270,14 +273,15 @@ public class VisionSubsystem extends SubsystemBase {
                 .getNorm();
     }
 
-    public boolean speakerTag_isPresent() {
+    public boolean speakerTagIsPresent() {
         return VisionSubsystem.getTagInfo(leftTargets, FieldConstants.getSpeakerTag()).isPresent() || 
             VisionSubsystem.getTagInfo(leftTargets, FieldConstants.getAltSpeakerTag()).isPresent();
     }
 
+    @Deprecated
     public OptionalDouble getSpeakerDistanceFromVision(Pose2d currentPose) {
         if (
-            speakerTag_isPresent()) {
+            speakerTagIsPresent()) {
             var results = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-april");
             return OptionalDouble.of(getSpeakerDistanceFromPose(results.pose));
         } else {

@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.lib.logging.LoggedReceiver;
 import frc.lib.logging.Logger;
+import frc.lib.math.MathUtils.AnyContainer;
 import frc.lib.vision.LimelightRawAngles;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.commands.AimAndSpinupCommand;
@@ -179,9 +180,9 @@ public class AutonomousManager {
                                     false; // FieldConstants.isBlue() == (swerveDriveSubsystem.getPose().getX() >
                             // ((FieldConstants.fieldLength / 2) - 0));
                             Logger.log("Auto/pastLine", pastLine);
-                            System.out.println(
-                                    "" + swerveDriveSubsystem.getPose().getX() + " test "
-                                            + (FieldConstants.fieldLength / 2));
+                        //     System.out.println(
+                        //             "" + swerveDriveSubsystem.getPose().getX() + " test "
+                        //                     + (FieldConstants.fieldLength / 2));
                             return hasPiece || pastLine;
                         })
                         .alongWith(intakeSubsystem.intakeCommand().asProxy()));
@@ -271,7 +272,7 @@ public class AutonomousManager {
         // Logging callback for the active path, this is sent as a list of poses
         PathPlannerLogging.setLogActivePathCallback((poses) -> {
             // Do whatever you want with the poses here
-            System.out.println("Path length: " + poses.size());
+            // System.out.println("Path length: " + poses.size());
             if (poses.size() > 0) {
                 trajectoryNumber += 1;
                 currentAutoTime.restart();
@@ -302,6 +303,7 @@ public class AutonomousManager {
                         Logger.log("PathPlanner/trajectoryEndPose", currentChoreo.getFinalState().getPose());
                 }
                 Logger.log("PathPlanner/trajectoryTime", currentAutoTime.get());
+                Logger.log("PathPlanner/isSpinningUp", spinningUp);
             }
 
             @Override
@@ -344,14 +346,21 @@ public class AutonomousManager {
 
         NamedCommands.registerCommand("c_intake", scheduleWrapper(new Command() {}));
         NamedCommands.registerCommand("c_note_strafe", scheduleWrapper(new Command() {}));
+        NamedCommands.registerCommand("c_strafe_intake", scheduleWrapper(new Command() {})); // just does the above two together
     }
 
     private Command scheduleWrapper(Command command) {
-            return runOnce(() -> command.onlyWhile(DriverStation::isAutonomousEnabled).schedule());
+            return runOnce(() -> {
+                // System.out.println("starting schedule!!!!!!!!!!!!!!");
+                command.asProxy().onlyWhile(DriverStation::isAutonomousEnabled).schedule();
+                
+            });
     }
 
     private Command spinupWrapper(Command command) {
-        return command.onlyWhile(() -> spinningUp).beforeStarting(() -> spinningUp = true);
+        return (command.beforeStarting(() -> {
+                // System.out.println("starting spinup!!!!!!!!!!!!!!")
+        })).beforeStarting(() -> spinningUp = true).until(() -> !spinningUp);
     }
 
     private Command spinupSupplier(DoubleSupplier distance) {
@@ -359,18 +368,31 @@ public class AutonomousManager {
     }
 
     private Command spinupPredictive() {
-        ChoreoTrajectoryState future = currentChoreo.getFinalState();
-        Pose2d shootingPosition = future.getPose();
-        double distanceToSpeaker = shootingPosition.getTranslation().getDistance(FieldConstants.getSpeakerPose().getTranslation());
-        return spinupSupplier(() -> distanceToSpeaker);
+        AnyContainer<OptionalDouble> distanceToSupplier = new AnyContainer<>(OptionalDouble.empty());
+        return spinupSupplier(() -> {
+            if (distanceToSupplier.thing.isEmpty()) {
+                ChoreoTrajectoryState future = currentChoreo.getFinalState();
+                Pose2d shootingPosition = future.getPose();
+                double distanceToSpeaker = shootingPosition.getTranslation().getDistance(FieldConstants.getSpeakerPose().getTranslation());
+                distanceToSupplier.thing = OptionalDouble.of(distanceToSpeaker);
+            }
+            return distanceToSupplier.thing.getAsDouble();
+        });
     }
 
     private Command spinupPredictive(double timeInFuture) {
         // TODO: Predictive spinup
-        ChoreoTrajectoryState future = currentChoreo.sample(timeInFuture + currentAutoTime.get(), FieldConstants.isBlue());
-        Pose2d shootingPosition = future.getPose();
-        double distanceToSpeaker = shootingPosition.getTranslation().getDistance(FieldConstants.getSpeakerPose().getTranslation());
-        return spinupSupplier(() -> distanceToSpeaker);
+        AnyContainer<OptionalDouble> distanceToSupplier = new AnyContainer<>(OptionalDouble.empty());
+        
+        return spinupSupplier(() -> {
+                if (distanceToSupplier.thing.isEmpty()) {
+                ChoreoTrajectoryState future = currentChoreo.sample(timeInFuture + currentAutoTime.get(), FieldConstants.isBlue());
+                        Pose2d shootingPosition = future.getPose();
+                        double distanceToSpeaker = shootingPosition.getTranslation().getDistance(FieldConstants.getSpeakerPose().getTranslation());
+                        distanceToSupplier.thing = OptionalDouble.of(distanceToSpeaker);
+                }
+                return distanceToSupplier.thing.getAsDouble();
+        });
     }
 
     private Command spinupSetpoint(ShooterState state) {
@@ -396,7 +418,10 @@ public class AutonomousManager {
 
     private Command shootCommand() {
         // Runs the intake to shoot
-        return intakeSubsystem.shootCommand().withTimeout(0.5).finallyDo(() -> spinningUp = false);
+        return intakeSubsystem.shootCommand().withTimeout(0.5).finallyDo(() -> 
+        {spinningUp = false;
+        //System.out.println("finished shoot command?");
+        });
     }
 
     private Command pathFromFile(String name) {
@@ -469,28 +494,28 @@ public class AutonomousManager {
                 "Center",
                 5,
                 "NewCenter5",
-                "Center (Second Note)",
+                "Center (Second Note) DEPRECATED",
                 true,
                 "Preload + Nearline + Second Note on Centerline"),
         CENTER5B(
                 "Center",
                 5,
                 "NewCenterCenter5Loopy",
-                "Center (Center Note)",
+                "Center (Center Note) DEPRECATED",
                 true,
                 "Preload + Newarline + Center Note on Centerline"),
         CENTER5BS(
                 "Center",
                 5,
                 "NewCenterCenter5Search",
-                "Center (Center Note Search)",
+                "Center (Center Note Search) DEPRECATED",
                 true,
                 "Preload + Newarline + Center Note on Centerline"),
         CENTER5C(
                 "Center",
                 5,
                 "NewCenterPole5",
-                "Center (Pole First) (Second Note)",
+                "Center (Pole First) (Second Note) DEPRECATED",
                 true,
                 "Preload + Nearline + Second Note on Centerline"),
         // EASYAMP4(
@@ -518,14 +543,14 @@ public class AutonomousManager {
                 "Source",
                 4,
                 "NewSource4",
-                "Source Side",
+                "Source Side DEPRECATED",
                 true,
                 "Preload + First on Centerline + Second on Centerline + Grab Third on Centerline."),
         SOURCE4B(
                 "Source",
                 4,
                 "NewSourceCenter4",
-                "Source Side (Second Piece)",
+                "Source Side (Second Piece) DEPRECATED",
                 true,
                 "Preload + Second on Centerline + Third on Centerline."),
 
@@ -537,18 +562,18 @@ public class AutonomousManager {
         //         false,
         //         "Shoots the starting piece and then shoots the three near the source on the centerline."),
 
-        AMP5("Amp", 5, "NewAmp5", "Amp Side", true, "Preload + First on Centerline + Second on Centerline."),
+        AMP5("Amp", 5, "NewAmp5", "Amp Side DEPRECATED", true, "Preload + First on Centerline + Second on Centerline."),
         AMP5B(
                 "Amp",
                 5,
                 "NewAmp5Sketch",
-                "Amp Side (Second)",
+                "Amp Side (Second) DEPRECATED",
                 true,
                 "Preload + First on Centerline + Second on Centerline."),
         SIXPIECE("Center", 6, "SixPiece", "Six Piece", true, "", true),
-        SYS_ID_TRANSLATION("Arbitrary", 0, "sysidtranslation", "sysidtranslation", true, ""),
-        SYS_ID_ROTATION("Arbitrary", 0, "sysidrotation", "sysidrotation", true, ""),
-        SYS_ID_STEER_GAINS("Arbitrary", 0, "sysidsteergains", "sysidsteergains", true, "");
+        SYS_ID_TRANSLATION("Arbitrary", 0, "sysidtranslation", "sysid translation", true, ""),
+        SYS_ID_ROTATION("Arbitrary", 0, "sysidrotation", "sysid rotation", true, ""),
+        SYS_ID_STEER_GAINS("Arbitrary", 0, "sysidsteergains", "sysid steer gains", true, "");
         // AMP5A(
         //         "Amp",
         //         5,

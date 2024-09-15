@@ -5,12 +5,50 @@
       "x": 1.3516291379928589,
       "y": 5.567087650299072
     },
-    "rotation": -3.1571359953400435e-29
+    "rotation": 1.8511083046254262e-26
   },
   "command": {
     "type": "sequential",
     "data": {
       "commands": [
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "c_spinup_setpoint_1"
+                }
+              },
+              {
+                "type": "sequential",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 0.3
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "c_shoot"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "c_wait_for_shoot"
+                }
+              }
+            ]
+          }
+        },
         {
           "type": "path",
           "data": {
@@ -18,9 +56,22 @@
           }
         },
         {
-          "type": "named",
+          "type": "parallel",
           "data": {
-            "name": "spinupshoot"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "c_shoot"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "c_wait_for_shoot"
+                }
+              }
+            ]
           }
         },
         {
@@ -30,9 +81,22 @@
           }
         },
         {
-          "type": "named",
+          "type": "parallel",
           "data": {
-            "name": "spinupshoot"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "c_shoot"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "c_wait_for_shoot"
+                }
+              }
+            ]
           }
         },
         {
@@ -42,9 +106,22 @@
           }
         },
         {
-          "type": "named",
+          "type": "parallel",
           "data": {
-            "name": "spinupshoot"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "c_shoot"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "c_wait_for_shoot"
+                }
+              }
+            ]
           }
         },
         {
@@ -60,6 +137,25 @@
           }
         },
         {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "c_shoot"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "c_wait_for_shoot"
+                }
+              }
+            ]
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "SixPiece.6"
@@ -69,6 +165,25 @@
           "type": "path",
           "data": {
             "pathName": "SixPiece.7"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "c_shoot"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "c_wait_for_shoot"
+                }
+              }
+            ]
           }
         }
       ]

@@ -20,6 +20,9 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.math.MathUtils;
 
 public class LightsSubsystemB extends SubsystemBase {
+
+    private static boolean isSim = false;
+
     public static final class LightsConstants {
         public static final int CANDLE_PORT = 12;
         
@@ -44,7 +47,10 @@ public class LightsSubsystemB extends SubsystemBase {
     public static final Color blue = new Color(8, 32, 255);
     public static final Color red = new Color(255, 0, 0);
 
-    public LightsSubsystemB() {
+    public LightsSubsystemB(boolean isSim) {
+        this.isSim = isSim;
+        if (isSim) return;
+        
         CANdleConfiguration candleConfiguration = new CANdleConfiguration();
         candleConfiguration.statusLedOffWhenActive = true;
         candleConfiguration.disableWhenLOS = false;
@@ -52,16 +58,21 @@ public class LightsSubsystemB extends SubsystemBase {
         candleConfiguration.brightnessScalar = 1.0;
         candleConfiguration.vBatOutputMode = VBatOutputMode.Modulated;
         candle.configAllSettings(candleConfiguration, 100);
-
         setDefaultCommand(defaultCommand());
     }
 
+    public LightsSubsystemB() {
+        this(false);
+    }
+
     public static void setBrightness(double percent) {
+        if (isSim) return;
         candle.configBrightnessScalar(percent, 100);
     }
 
     public Command defaultCommand() {
         return run(() -> {
+            if (isSim) return;
             LEDSegment.BatteryIndicator.fullClear();
             LEDSegment.DriverstationIndicator.fullClear();
             LEDSegment.ExtraAIndicator.fullClear();
@@ -82,6 +93,7 @@ public class LightsSubsystemB extends SubsystemBase {
 
     public Command clearSegmentCommand(LEDSegment segment) {
         return runOnce(() -> {
+            if (isSim) return;
             segment.clearAnimation();
             segment.disableLEDs();
         });
@@ -107,11 +119,13 @@ public class LightsSubsystemB extends SubsystemBase {
         }
 
         public void setColor(Color color) {
+            if (isSim) return;
             clearAnimation();
             candle.setLEDs(color.red, color.green, color.blue, 0, startIndex, segmentSize);
         }
 
         private void setAnimation(Animation animation) {
+            if (isSim) return;
             candle.animate(animation, animationSlot);
         }
 
@@ -121,6 +135,7 @@ public class LightsSubsystemB extends SubsystemBase {
         }
 
         public void clearAnimation() {
+            if (isSim) return;
             candle.clearAnimation(animationSlot);
         }
 
