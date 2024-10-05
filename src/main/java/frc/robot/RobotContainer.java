@@ -35,6 +35,7 @@ import frc.robot.Constants.ShooterConstants;
 import frc.robot.Constants.TrapConstants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.commands.AimAndSpinupCommand;
+import frc.robot.commands.AmpintakeCommand;
 import frc.robot.commands.DriveToPositionCommand;
 import frc.robot.commands.IntakeAssistCommandComplex;
 import frc.robot.subsystems.climber.ClimberIOFalcon;
@@ -79,6 +80,9 @@ import org.photonvision.simulation.PhotonCameraSim;
 import org.photonvision.simulation.SimCameraProperties;
 import org.photonvision.simulation.VisionSystemSim;
 import org.photonvision.simulation.VisionTargetSim;
+import frc.robot.subsystems.amptransport.AmpTransportSubsystem;
+
+
 
 public class RobotContainer {
 
@@ -97,6 +101,7 @@ public class RobotContainer {
     private VisionSubsystem visionSubsystem;
     private ShooterSubsystem shooterSubsystem;
     private IntakeSubsystem intakeSubsystem;
+    private AmpTransportSubsystem  ampTransportSubsystem;
     private TrapSubsystem trapSubsystem;
     private ShamperSubsystem shamperSubsystem;
     private ClimberSubsystem climberSubsystem;
@@ -306,7 +311,14 @@ public class RobotContainer {
                         Rotation2d.fromDegrees(-90), this::getDriveForwardAxis, this::getDriveStrafeAxis));
 
         // Eject note from intake
-        rightDriveController.getRightThumb().whileTrue(intakeSubsystem.ejectCommand());
+        //rightDriveController.getRightThumb().whileTrue(intakeSubsystem.curlCommand());
+        
+
+        rightDriveController.getRightThumb().whileTrue(parallel(
+                intakeSubsystem.curlCommand(), ampTransportSubsystem.ampTransportCommand(50),trapSubsystem.runIntakeCommand(-3.5,3.5)
+        ));
+
+        //(intakeSubsystem.curlCommand());
 
         // Podium Shot Spinup
         rightDriveController
@@ -336,6 +348,7 @@ public class RobotContainer {
                 .and(rightDriveController.getTrigger().negate())
                 .whileTrue(intakeSubsystem.intakeCommand());
 
+        
         // Run Shooter Intake
         rightDriveController
                 .getRightThumb()
@@ -344,6 +357,7 @@ public class RobotContainer {
                         intakeSubsystem.shooterIntakeCommand(),
                         shooterSubsystem.shootCommand(
                                 ShooterState.fromVoltages(-.25, -.25, Rotation2d.fromDegrees(55)))));
+
 
         // Intake Assist Command
         (rightDriveController.getLeftThumb().and(rightDriveController.getTrigger()))
@@ -880,7 +894,7 @@ public class RobotContainer {
     public double getDriveRotationAxis() {
         return -cube(deadband(rightDriveController.getXAxis().getRaw(), .05))//.05
                 * Constants.SwerveConstants.maxAngularVelocity
-                * 0.5;
+                ;
     }
 
     private static double deadband(double value, double tolerance) {

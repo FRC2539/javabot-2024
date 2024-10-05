@@ -49,7 +49,8 @@ public class IntakeSubsystem extends SubsystemBase {
         SHOOTING,
         AMPING,
         EJECTING,
-        ADJUSTABLE
+        ADJUSTABLE,
+        CURLING
     }
 
     public void periodic() {
@@ -65,6 +66,10 @@ public class IntakeSubsystem extends SubsystemBase {
             case EJECTING:
                 setChamber(-1);
                 setRoller(-.25);
+                break;
+            case CURLING:
+                setChamber(-1);
+                setRoller(-.75);
                 break;
             case SHOOTING:
                 setChamber(1 * 12 / 12.0);
@@ -90,6 +95,7 @@ public class IntakeSubsystem extends SubsystemBase {
                 setChamber(-1.0 * .85);
                 setRoller(-.50 * .85);
                 break;
+
             case ADJUSTABLE:
                 setRoller(topSpeedAdjustable);
                 setChamber(bottomSpeedAdjustable);
@@ -111,6 +117,14 @@ public class IntakeSubsystem extends SubsystemBase {
         return runEnd(
                 () -> {
                     setIntakeState(IntakeState.EJECTING);
+                },
+                () -> {});
+    }
+
+    public Command curlCommand() {
+        return runEnd(
+                () -> {
+                    setIntakeState(IntakeState.CURLING);
                 },
                 () -> {});
     }
