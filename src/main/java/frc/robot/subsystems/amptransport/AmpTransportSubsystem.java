@@ -1,6 +1,7 @@
 package frc.robot.subsystems.amptransport;
 
 import com.ctre.phoenix6.hardware.TalonFX;
+import frc.robot.Constants;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -9,7 +10,7 @@ public class AmpTransportSubsystem extends SubsystemBase{
     private TalonFX transportMotor;
 
     public AmpTransportSubsystem() {
-        transportMotor = new TalonFX(10, "CANivore");
+        transportMotor = new TalonFX(Constants.AmpTransportConstants.ampTransportMotorPort, "CANivore");
         setDefaultCommand(disabledCommand());
     }
     

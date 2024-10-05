@@ -315,7 +315,7 @@ public class RobotContainer {
         
 
         rightDriveController.getRightThumb().whileTrue(parallel(
-                intakeSubsystem.curlCommand(), ampTransportSubsystem.ampTransportCommand(50),trapSubsystem.runIntakeCommand(-3.5,3.5)
+                intakeSubsystem.curlCommand(), ampTransportSubsystem.ampTransportCommand(.5),trapSubsystem.runIntakeCommand(-3.5,3.5)
         ));
 
         //(intakeSubsystem.curlCommand());

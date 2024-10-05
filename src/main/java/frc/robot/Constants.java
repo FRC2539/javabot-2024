@@ -41,6 +41,10 @@ public final class Constants {
         public static final int shamperMotorPort = 10;
     }
 
+    public static final class AmpTransportConstants {
+        public static final int ampTransportMotorPort = 10;
+    }
+
     public static final class TrapConstants {
         public static final int rackMotorPort = 19;
         public static final int topRollerPort = 17;
