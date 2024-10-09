@@ -12362,7 +12362,7 @@
                     }
                 }
             ],
-            "isTrajectoryStale": false
+            "isTrajectoryStale": true
         },
         "FourPiece": {
             "waypoints": [

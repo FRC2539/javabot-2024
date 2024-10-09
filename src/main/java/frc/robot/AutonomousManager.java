@@ -26,7 +26,7 @@ import frc.lib.logging.Logger;
 import frc.lib.math.MathUtils.AnyContainer;
 import frc.lib.vision.LimelightRawAngles;
 import frc.robot.Constants.FieldConstants;
-import frc.robot.commands.AimAndSpinupCommand;
+import frc.robot.commands.AimAndFeedCommand;
 import frc.robot.commands.IntakeAssistCommandComplexAuto;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.lights.LightsSubsystemB;
@@ -34,7 +34,6 @@ import frc.robot.subsystems.shooter.ShooterState;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveDriveSubsystem;
 import frc.robot.subsystems.vision.VisionSubsystem;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalDouble;
@@ -75,7 +74,7 @@ public class AutonomousManager {
 
         Command autoShootingCommand;
         {
-            AimAndSpinupCommand aimAndSpinupCommand = new AimAndSpinupCommand(
+            AimAndFeedCommand aimAndSpinupCommand = new AimAndFeedCommand(
                     swerveDriveSubsystem,
                     shooterSubsystem,
                     lightsSubsystem,
@@ -180,16 +179,16 @@ public class AutonomousManager {
                                     false; // FieldConstants.isBlue() == (swerveDriveSubsystem.getPose().getX() >
                             // ((FieldConstants.fieldLength / 2) - 0));
                             Logger.log("Auto/pastLine", pastLine);
-                        //     System.out.println(
-                        //             "" + swerveDriveSubsystem.getPose().getX() + " test "
-                        //                     + (FieldConstants.fieldLength / 2));
+                            //     System.out.println(
+                            //             "" + swerveDriveSubsystem.getPose().getX() + " test "
+                            //                     + (FieldConstants.fieldLength / 2));
                             return hasPiece || pastLine;
                         })
                         .alongWith(intakeSubsystem.intakeCommand().asProxy()));
         NamedCommands.registerCommand("amp", parallel());
         Command autoAimCommand;
         {
-            AimAndSpinupCommand aimAndSpinupCommand = new AimAndSpinupCommand(
+            AimAndFeedCommand aimAndSpinupCommand = new AimAndFeedCommand(
                     swerveDriveSubsystem,
                     shooterSubsystem,
                     lightsSubsystem,
@@ -283,24 +282,26 @@ public class AutonomousManager {
     private Command choreoTrajectoryPublisher(String name) {
         return new Command() {
             private List<ChoreoTrajectory> trajectories = Choreo.getTrajectoryGroup(name);
+
             @Override
-            public void initialize() {
-            }
+            public void initialize() {}
 
             @Override
             public void execute() {
                 try {
-                        var cirCor = trajectories.get(trajectoryNumber);
-                        if (!FieldConstants.isBlue()) {
-                                cirCor = cirCor.flipped();
-                        }
-                        currentChoreo = cirCor;
+                    var cirCor = trajectories.get(trajectoryNumber);
+                    if (!FieldConstants.isBlue()) {
+                        cirCor = cirCor.flipped();
+                    }
+                    currentChoreo = cirCor;
                 } catch (IndexOutOfBoundsException e) {
-                        currentChoreo = null;
+                    currentChoreo = null;
                 }
                 Logger.log("PathPlanner/trajectoryNumber", trajectoryNumber);
                 if (currentChoreo != null) {
-                        Logger.log("PathPlanner/trajectoryEndPose", currentChoreo.getFinalState().getPose());
+                    Logger.log(
+                            "PathPlanner/trajectoryEndPose",
+                            currentChoreo.getFinalState().getPose());
                 }
                 Logger.log("PathPlanner/trajectoryTime", currentAutoTime.get());
                 Logger.log("PathPlanner/isSpinningUp", spinningUp);
@@ -321,7 +322,8 @@ public class AutonomousManager {
         // * a spinup command
         // * an aim command
         // * and a shoot command
-        // the spinup can be run at any time and runs continuously until you either try running another spinup command or you shoot
+        // the spinup can be run at any time and runs continuously until you either try running another spinup command
+        // or you shoot
         // the aim commands can only be run at a stop point and will run until you run a shoot command
         // the shoot commands can be run at any time and shoots a piece and then shuts off all aim and spinup commands
         // the wait for shoot command is an aim command that does nothing basically
@@ -330,7 +332,9 @@ public class AutonomousManager {
         NamedCommands.registerCommand("c_spinup_1.0", scheduleWrapper(spinupPredictive(1.0)));
         NamedCommands.registerCommand("c_spinup_1.5", scheduleWrapper(spinupPredictive(1.5)));
 
-        NamedCommands.registerCommand("c_spinup_setpoint_1", scheduleWrapper(spinupSetpoint(new ShooterState(0.6,0.6, Rotation2d.fromDegrees(52)))));
+        NamedCommands.registerCommand(
+                "c_spinup_setpoint_1",
+                scheduleWrapper(spinupSetpoint(new ShooterState(0.6, 0.6, Rotation2d.fromDegrees(52)))));
 
         NamedCommands.registerCommand("c_spinup_vision", scheduleWrapper(spinupVision()));
 
@@ -343,24 +347,25 @@ public class AutonomousManager {
 
         NamedCommands.registerCommand("c_shoot", scheduleWrapper(shootCommand()));
 
-
         NamedCommands.registerCommand("c_intake", scheduleWrapper(new Command() {}));
         NamedCommands.registerCommand("c_note_strafe", scheduleWrapper(new Command() {}));
-        NamedCommands.registerCommand("c_strafe_intake", scheduleWrapper(new Command() {})); // just does the above two together
+        NamedCommands.registerCommand(
+                "c_strafe_intake", scheduleWrapper(new Command() {})); // just does the above two together
     }
 
     private Command scheduleWrapper(Command command) {
-            return runOnce(() -> {
-                // System.out.println("starting schedule!!!!!!!!!!!!!!");
-                command.asProxy().onlyWhile(DriverStation::isAutonomousEnabled).schedule();
-                
-            });
+        return runOnce(() -> {
+            // System.out.println("starting schedule!!!!!!!!!!!!!!");
+            command.asProxy().onlyWhile(DriverStation::isAutonomousEnabled).schedule();
+        });
     }
 
     private Command spinupWrapper(Command command) {
         return (command.beforeStarting(() -> {
-                // System.out.println("starting spinup!!!!!!!!!!!!!!")
-        })).beforeStarting(() -> spinningUp = true).until(() -> !spinningUp);
+                    // System.out.println("starting spinup!!!!!!!!!!!!!!")
+                }))
+                .beforeStarting(() -> spinningUp = true)
+                .until(() -> !spinningUp);
     }
 
     private Command spinupSupplier(DoubleSupplier distance) {
@@ -373,7 +378,9 @@ public class AutonomousManager {
             if (distanceToSupplier.thing.isEmpty()) {
                 ChoreoTrajectoryState future = currentChoreo.getFinalState();
                 Pose2d shootingPosition = future.getPose();
-                double distanceToSpeaker = shootingPosition.getTranslation().getDistance(FieldConstants.getSpeakerPose().getTranslation());
+                double distanceToSpeaker = shootingPosition
+                        .getTranslation()
+                        .getDistance(FieldConstants.getSpeakerPose().getTranslation());
                 distanceToSupplier.thing = OptionalDouble.of(distanceToSpeaker);
             }
             return distanceToSupplier.thing.getAsDouble();
@@ -383,15 +390,18 @@ public class AutonomousManager {
     private Command spinupPredictive(double timeInFuture) {
         // TODO: Predictive spinup
         AnyContainer<OptionalDouble> distanceToSupplier = new AnyContainer<>(OptionalDouble.empty());
-        
+
         return spinupSupplier(() -> {
-                if (distanceToSupplier.thing.isEmpty()) {
-                ChoreoTrajectoryState future = currentChoreo.sample(timeInFuture + currentAutoTime.get(), FieldConstants.isBlue());
-                        Pose2d shootingPosition = future.getPose();
-                        double distanceToSpeaker = shootingPosition.getTranslation().getDistance(FieldConstants.getSpeakerPose().getTranslation());
-                        distanceToSupplier.thing = OptionalDouble.of(distanceToSpeaker);
-                }
-                return distanceToSupplier.thing.getAsDouble();
+            if (distanceToSupplier.thing.isEmpty()) {
+                ChoreoTrajectoryState future =
+                        currentChoreo.sample(timeInFuture + currentAutoTime.get(), FieldConstants.isBlue());
+                Pose2d shootingPosition = future.getPose();
+                double distanceToSpeaker = shootingPosition
+                        .getTranslation()
+                        .getDistance(FieldConstants.getSpeakerPose().getTranslation());
+                distanceToSupplier.thing = OptionalDouble.of(distanceToSpeaker);
+            }
+            return distanceToSupplier.thing.getAsDouble();
         });
     }
 
@@ -400,27 +410,27 @@ public class AutonomousManager {
     }
 
     private Command spinupVision() {
-        return spinupSupplier(() -> { 
-                OptionalDouble distance =  visionSubsystem.getSpeakerDistanceFromVision(swerveDriveSubsystem.getPose());
-                if (distance.isPresent()) {
-                        return distance.getAsDouble();
-                } else {
-                        return visionSubsystem.getSpeakerDistanceFromPose(swerveDriveSubsystem.getPose());
-                }
+        return spinupSupplier(() -> {
+            OptionalDouble distance = visionSubsystem.getSpeakerDistanceFromVision(swerveDriveSubsystem.getPose());
+            if (distance.isPresent()) {
+                return distance.getAsDouble();
+            } else {
+                return visionSubsystem.getSpeakerDistanceFromPose(swerveDriveSubsystem.getPose());
+            }
         });
     }
 
     private Command spinupPose() {
-        return spinupSupplier(() -> { 
-                return visionSubsystem.getSpeakerDistanceFromPose(swerveDriveSubsystem.getPose());
+        return spinupSupplier(() -> {
+            return visionSubsystem.getSpeakerDistanceFromPose(swerveDriveSubsystem.getPose());
         });
     }
 
     private Command shootCommand() {
         // Runs the intake to shoot
-        return intakeSubsystem.shootCommand().withTimeout(0.5).finallyDo(() -> 
-        {spinningUp = false;
-        //System.out.println("finished shoot command?");
+        return intakeSubsystem.shootCommand().withTimeout(0.5).finallyDo(() -> {
+            spinningUp = false;
+            // System.out.println("finished shoot command?");
         });
     }
 
@@ -481,10 +491,14 @@ public class AutonomousManager {
         }
 
         if (option.isChoreo) {
-                return chosenPathCommand.beforeStarting(runOnce(() -> {trajectoryNumber = -1;})
-                .andThen(waitSeconds(chosenWaitDuration))).deadlineWith(choreoTrajectoryPublisher(option.pathName));
+            return chosenPathCommand
+                    .beforeStarting(runOnce(() -> {
+                                trajectoryNumber = -1;
+                            })
+                            .andThen(waitSeconds(chosenWaitDuration)))
+                    .deadlineWith(choreoTrajectoryPublisher(option.pathName));
         } else {
-                return chosenPathCommand.beforeStarting(waitSeconds(chosenWaitDuration));
+            return chosenPathCommand.beforeStarting(waitSeconds(chosenWaitDuration));
         }
     }
 
@@ -607,7 +621,7 @@ public class AutonomousManager {
                 String pathName,
                 String displayName,
                 boolean display,
-                String description, 
+                String description,
                 boolean isChoreo) {
             this.startPosition = startPosition;
             this.gamePieces = gamePieces;
@@ -624,7 +638,12 @@ public class AutonomousManager {
         }
 
         private AutonomousOption(
-                String startPosition, int gamePieces, String pathName, String displayName, boolean display, String description) {
+                String startPosition,
+                int gamePieces,
+                String pathName,
+                String displayName,
+                boolean display,
+                String description) {
             this(startPosition, gamePieces, pathName, displayName, display, description, false);
         }
     }

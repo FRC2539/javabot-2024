@@ -20,13 +20,12 @@ import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
 public class ShooterSubsystem extends SubsystemBase {
-    public final static ShooterState podiumShot = new ShooterState(.60, .60, Rotation2d.fromDegrees(37.75));
-    public final static ShooterState subwooferShot = new ShooterState(.6,.6,Rotation2d.fromDegrees(62));
-    public final static ShooterState ampShot = new ShooterState(.16,.22,Rotation2d.fromDegrees(58));//new ShooterState(.1, .25, Rotation2d.fromDegrees(60));
-    public final static ShooterState groundFeedShot = new ShooterState(.7, .4, Rotation2d.fromDegrees(9));
-    public final static ShooterState airFeed = new ShooterState(.50,
-    .45,
-    Rotation2d.fromDegrees(55));
+    public static final ShooterState podiumShot = new ShooterState(.60, .60, Rotation2d.fromDegrees(37.75));
+    public static final ShooterState subwooferShot = new ShooterState(.6, .6, Rotation2d.fromDegrees(62));
+    public static final ShooterState ampShot = new ShooterState(
+            .16, .22, Rotation2d.fromDegrees(58)); // new ShooterState(.1, .25, Rotation2d.fromDegrees(60));
+    public static final ShooterState groundFeedShot = new ShooterState(.7, .4, Rotation2d.fromDegrees(9));
+    public static final ShooterState airFeed = new ShooterState(.50, .45, Rotation2d.fromDegrees(55));
 
     private final double shooterSpeedTolerance = 0.02;
     private final Rotation2d shooterAngleTolerance = Rotation2d.fromDegrees(0.5);
@@ -52,13 +51,20 @@ public class ShooterSubsystem extends SubsystemBase {
     private static final DCMotor exampleMotor = DCMotor.getFalcon500(1).withReduction(ShooterConstants.gearRatioRoller);
 
     public static final ShooterState defaultStateHolding = new ShooterState(
-            0, 0, Rotation2d.fromDegrees(0), true, true); // new ShooterState(0,0, Rotation2d.fromDegrees(58), true, false);s
+            0,
+            0,
+            Rotation2d.fromDegrees(0),
+            true,
+            true); // new ShooterState(0,0, Rotation2d.fromDegrees(58), true, false);s
 
     public static final ShooterState defaultState = new ShooterState(
-            0, 0, Rotation2d.fromDegrees(56.5), true, false); // new ShooterState(0,0, Rotation2d.fromDegrees(58), true, false);
+            0,
+            0,
+            Rotation2d.fromDegrees(56.5),
+            true,
+            false); // new ShooterState(0,0, Rotation2d.fromDegrees(58), true, false);
 
-    public static final ShooterState defaultZeroState = new ShooterState(
-            0, 0, Rotation2d.fromDegrees(62), true, false);
+    public static final ShooterState defaultZeroState = new ShooterState(0, 0, Rotation2d.fromDegrees(62), true, false);
 
     private ShooterState currentShooterState = defaultState;
 
@@ -222,24 +228,25 @@ public class ShooterSubsystem extends SubsystemBase {
         //     currentShooterState = defaultState;
         //     pivotIO.updateAngle(Rotation2d.fromDegrees(61.5));
         // }))).ignoringDisable(inPositionDisableMode);
-        return Commands.either(Commands.waitSeconds(0.2).andThen(
-            run (
-                () -> {
-                    currentShooterState = defaultZeroState;
-                }
-            ).withTimeout(0.8)
-        ).andThen(run (
-            () -> {
-                currentShooterState = defaultState;
-            }
-        ).beforeStarting(() -> pivotIO.updateAngle(Rotation2d.fromDegrees(61.5)))),
-        run(() -> {
-            currentShooterState = defaultState;
-            pivotIO.updateAngle(pivotIO.getGripperEncoderAngle());
-            }).until((
-                () -> 1 > Math.abs(defaultState.pivotAngle.getDegrees() - pivotIO.getGripperEncoderAngle().getDegrees())
-                )).andThen(runOnce(() -> hasZeroedYet = true)),
-        () -> hasZeroedYet);
+        return Commands.either(
+                Commands.waitSeconds(0.2)
+                        .andThen(run(() -> {
+                                    currentShooterState = defaultZeroState;
+                                })
+                                .withTimeout(0.8))
+                        .andThen(run(() -> {
+                                    currentShooterState = defaultState;
+                                })
+                                .beforeStarting(() -> pivotIO.updateAngle(Rotation2d.fromDegrees(61.5)))),
+                run(() -> {
+                            currentShooterState = defaultState;
+                            pivotIO.updateAngle(pivotIO.getGripperEncoderAngle());
+                        })
+                        .until((() -> 1
+                                > Math.abs(defaultState.pivotAngle.getDegrees()
+                                        - pivotIO.getGripperEncoderAngle().getDegrees())))
+                        .andThen(runOnce(() -> hasZeroedYet = true)),
+                () -> hasZeroedYet);
     }
 
     public Command shootCommand(double topRollerRPM, double bottomRollerRPM, Rotation2d shooterAngle) {

@@ -133,7 +133,5 @@ public class Robot extends TimedRobot {
     public void testPeriodic() {}
 
     @Override
-    public void simulationPeriodic() {
-        
-    }
+    public void simulationPeriodic() {}
 }

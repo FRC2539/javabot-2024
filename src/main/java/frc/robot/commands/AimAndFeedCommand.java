@@ -9,16 +9,15 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib.logging.Logger;
 import frc.lib.math.MathUtils;
+import frc.robot.Constants.FieldConstants;
 import frc.robot.subsystems.lights.LightsSubsystemB;
 import frc.robot.subsystems.shooter.ShooterState;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveDriveSubsystem;
 import frc.robot.subsystems.vision.VisionSubsystem;
-import java.util.Optional;
-import java.util.OptionalDouble;
 import java.util.function.DoubleSupplier;
 
-public class AimAndSpinupCommand extends Command {
+public class AimAndFeedCommand extends Command {
     private final double toleranceMeters = .305;
     private final double toleranceVelocity = Math.toRadians(5);
     private final double pivotToleranceMeters = Math.toRadians(.5); // degrees
@@ -80,7 +79,7 @@ public class AimAndSpinupCommand extends Command {
      * @param doSpinup If this is true, the command will spinup the shooter, else, it will not.
      * @param usingTarget If this is true, the command will switch to directly using the tag from the camera when it sees it for long enough.
      */
-    public AimAndSpinupCommand(
+    public AimAndFeedCommand(
             SwerveDriveSubsystem swerveDriveSubsystem,
             ShooterSubsystem shooterSubsystem,
             LightsSubsystemB lightsSubsystem,
@@ -144,24 +143,24 @@ public class AimAndSpinupCommand extends Command {
 
     @Override
     public void execute() {
-        calculateShootingRotationAndDistance();
+        calculateFeedingRotationAndDistance();
         commandSwerveDrive();
         spinupShooter();
         updateLights();
-        Logger.log("/ShootingCommand/hasSeenTarget", hasSeenTarget);
-        Logger.log("/ShootingCommand/hasTarget", hasTarget);
-        Logger.log("/ShootingCommand/isAtAngle", isAtAngle);
-        Logger.log("/ShootingCommand/isSpunUp", isSpunUp);
-        Logger.log("/ShootingCommand/rotation", calculatedRotation.getRadians());
-        Logger.log("/ShootingCommand/distance", calculatedDistance);
+        Logger.log("/FeedingCommand/hasSeenTarget", hasSeenTarget);
+        Logger.log("/FeedingCommand/hasTarget", hasTarget);
+        Logger.log("/FeedingCommand/isAtAngle", isAtAngle);
+        Logger.log("/FeedingCommand/isSpunUp", isSpunUp);
+        Logger.log("/FeedingCommand/rotation", calculatedRotation.getRadians());
+        Logger.log("/FeedingCommand/distance", calculatedDistance);
     }
 
-    private void calculateShootingRotationAndDistance() {
+    private void calculateFeedingRotationAndDistance() {
         Pose2d predictedPose;
         Pose2d futurePose;
         Pose2d currentPose = swerveDriveSubsystem.getPose();
 
-        // if the motion Forward Prediction is 0, skip the step (no moving while shooting)
+        // if the motion Forward Prediction is 0, skip the step (no moving while Feeding)
         if (motionForwardPrediction != 0) {
             ChassisSpeeds currentSpeed = swerveDriveSubsystem.getFieldRelativeChassisSpeeds();
             double distance = visionSubsystem.getSpeakerDistanceFromPose(swerveDriveSubsystem.getPose());
@@ -189,31 +188,17 @@ public class AimAndSpinupCommand extends Command {
         goalCalculatedRotationSpeed = 0;
 
         // Supply the default distance and rotations
-        if (!hasSeenTarget) {
-            calculatedRotation = visionSubsystem.getSpeakerAngleFromPose(predictedPose);
-            calculatedDistance = visionSubsystem.getSpeakerDistanceFromPose(predictedPose);
-            if (motionForwardPrediction != 0) {
-                Rotation2d futureCalculatedRotation = visionSubsystem.getSpeakerAngleFromPose(futurePose);
-                goalCalculatedRotationSpeed =
-                        futureCalculatedRotation.minus(calculatedRotation).getRadians() / 0.20;
-            }
-        }
+        calculatedRotation = FieldConstants.getFeedingPose()
+                .getTranslation()
+                .minus(predictedPose.getTranslation())
+                .getAngle();
+        calculatedDistance = FieldConstants.getFeedingPose()
+                .getTranslation()
+                .minus(predictedPose.getTranslation())
+                .getNorm();
 
         // keeps track of wether this cycle we used a target
         boolean usedATarget = false;
-
-        // if we are using the target and see the target, fill in the info
-        if (usingTarget) {
-            Optional<Rotation2d> calculatedRotationOptional = visionSubsystem.getSpeakerAngleFromVision(currentPose);
-            OptionalDouble calculatedDistanceOptional = visionSubsystem.getSpeakerDistanceFromVision(currentPose);
-            if (calculatedRotationOptional.isPresent() && calculatedDistanceOptional.isPresent()) {
-                calculatedRotation = calculatedRotationOptional.get();
-                calculatedDistance = calculatedDistanceOptional.getAsDouble();
-                usedATarget = true;
-            }
-        }
-
-        hasTarget = usedATarget;
 
         // if we used a target for at least the debounce length, hasSeenTarget becomes true for the rest of the command
         hasSeenTarget |= hasSeenTargetDebouncer.calculate(usedATarget);
@@ -251,11 +236,11 @@ public class AimAndSpinupCommand extends Command {
             isAtAngle = false;
         }
 
-        Logger.log("/ShootingCommand/rotationError", visionPIDController.getPositionError());
-        Logger.log("/ShootingCommand/rotationTolerance", currentTolerance);
+        Logger.log("/FeedingCommand/rotationError", visionPIDController.getPositionError());
+        Logger.log("/FeedingCommand/rotationTolerance", currentTolerance);
 
-        Logger.log("/ShootingCommand/velocityError", visionPIDController.getVelocityError());
-        Logger.log("/ShootingCommand/velocityTolerance", toleranceVelocity);
+        Logger.log("/FeedingCommand/velocityError", visionPIDController.getVelocityError());
+        Logger.log("/FeedingCommand/velocityTolerance", toleranceVelocity);
     }
 
     private void spinupShooter() {
@@ -279,10 +264,10 @@ public class AimAndSpinupCommand extends Command {
                     && Math.abs(bottomRollerError) < rollerSpeedTolerance
                     && Math.abs(pivotAngleErrorRadians) < pivotAngleToleranceRadians);
 
-            Logger.log("/ShootingCommand/topRollerError", topRollerError);
-            Logger.log("/ShootingCommand/bottomRollerError", bottomRollerError);
-            Logger.log("/ShootingCommand/pivotAngleError", pivotAngleErrorRadians);
-            Logger.log("/ShootingCommand/pivotTolerance", pivotAngleToleranceRadians);
+            Logger.log("/FeedingCommand/topRollerError", topRollerError);
+            Logger.log("/FeedingCommand/bottomRollerError", bottomRollerError);
+            Logger.log("/FeedingCommand/pivotAngleError", pivotAngleErrorRadians);
+            Logger.log("/FeedingCommand/pivotTolerance", pivotAngleToleranceRadians);
         } else {
             isSpunUp = false;
         }

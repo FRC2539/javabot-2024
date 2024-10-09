@@ -1,7 +1,5 @@
 package frc.robot.subsystems.lights;
 
-import java.util.function.BooleanSupplier;
-
 import com.ctre.phoenix.led.Animation;
 import com.ctre.phoenix.led.CANdle;
 import com.ctre.phoenix.led.CANdle.LEDStripType;
@@ -14,10 +12,10 @@ import com.ctre.phoenix.led.LarsonAnimation.BounceMode;
 import com.ctre.phoenix.led.RainbowAnimation;
 import com.ctre.phoenix.led.SingleFadeAnimation;
 import com.ctre.phoenix.led.StrobeAnimation;
-
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.math.MathUtils;
+import java.util.function.BooleanSupplier;
 
 public class LightsSubsystemB extends SubsystemBase {
 
@@ -25,7 +23,7 @@ public class LightsSubsystemB extends SubsystemBase {
 
     public static final class LightsConstants {
         public static final int CANDLE_PORT = 12;
-        
+
         public static final int SENSOR_PORT = 0;
     }
 
@@ -50,7 +48,7 @@ public class LightsSubsystemB extends SubsystemBase {
     public LightsSubsystemB(boolean isSim) {
         this.isSim = isSim;
         if (isSim) return;
-        
+
         CANdleConfiguration candleConfiguration = new CANdleConfiguration();
         candleConfiguration.statusLedOffWhenActive = true;
         candleConfiguration.disableWhenLOS = false;
@@ -152,7 +150,6 @@ public class LightsSubsystemB extends SubsystemBase {
             setAnimation(
                     new SingleFadeAnimation(color.red, color.green, color.blue, 0, speed, segmentSize, startIndex));
         }
-        
 
         public void setBandAnimation(Color color, double speed) {
             setAnimation(new LarsonAnimation(
@@ -199,7 +196,7 @@ public class LightsSubsystemB extends SubsystemBase {
         setBrightness(0);
     }
 
-     public static void enableLEDs() {
+    public static void enableLEDs() {
         setBrightness(1);
     }
 }

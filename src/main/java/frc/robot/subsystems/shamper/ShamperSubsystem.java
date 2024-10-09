@@ -46,7 +46,6 @@ public class ShamperSubsystem extends SubsystemBase {
         // }
     }
 
-
     /** NOTE: This does not work with voltage requests as there is no "SPEED" */
     public boolean isShamperAtPosition() {
         return MathUtils.equalsWithinError(currentShamperState, shamperInputs.position, shamperAngleTolerance);

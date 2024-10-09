@@ -225,14 +225,15 @@ public class VisionSubsystem extends SubsystemBase {
 
     @Deprecated
     public Optional<Rotation2d> getSpeakerAngleFromVision(Pose2d currentPose) {
-        if (
-            VisionSubsystem.getTagInfo(leftTargets, FieldConstants.getSpeakerTag()).isPresent() || 
-            VisionSubsystem.getTagInfo(leftTargets, FieldConstants.getAltSpeakerTag()).isPresent()) {
+        if (VisionSubsystem.getTagInfo(leftTargets, FieldConstants.getSpeakerTag())
+                        .isPresent()
+                || VisionSubsystem.getTagInfo(leftTargets, FieldConstants.getAltSpeakerTag())
+                        .isPresent()) {
             return Optional.of(getSpeakerAngleFromPose(currentPose));
         } else {
             return Optional.empty();
         }
-        //return getSpeakerAngleFromVision(currentPose, true);
+        // return getSpeakerAngleFromVision(currentPose, true);
     }
 
     @Deprecated
@@ -274,14 +275,15 @@ public class VisionSubsystem extends SubsystemBase {
     }
 
     public boolean speakerTagIsPresent() {
-        return VisionSubsystem.getTagInfo(leftTargets, FieldConstants.getSpeakerTag()).isPresent() || 
-            VisionSubsystem.getTagInfo(leftTargets, FieldConstants.getAltSpeakerTag()).isPresent();
+        return VisionSubsystem.getTagInfo(leftTargets, FieldConstants.getSpeakerTag())
+                        .isPresent()
+                || VisionSubsystem.getTagInfo(leftTargets, FieldConstants.getAltSpeakerTag())
+                        .isPresent();
     }
 
     @Deprecated
     public OptionalDouble getSpeakerDistanceFromVision(Pose2d currentPose) {
-        if (
-            speakerTagIsPresent()) {
+        if (speakerTagIsPresent()) {
             var results = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-april");
             return OptionalDouble.of(getSpeakerDistanceFromPose(results.pose));
         } else {

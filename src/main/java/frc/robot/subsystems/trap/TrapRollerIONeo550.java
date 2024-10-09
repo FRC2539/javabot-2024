@@ -1,7 +1,7 @@
 package frc.robot.subsystems.trap;
 
-import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkLowLevel.MotorType;
+import com.revrobotics.CANSparkMax;
 
 public class TrapRollerIONeo550 implements TrapRollerIO {
     private CANSparkMax neo550;
@@ -9,7 +9,7 @@ public class TrapRollerIONeo550 implements TrapRollerIO {
 
     public TrapRollerIONeo550(int port) {
         neo550 = new CANSparkMax(port, MotorType.kBrushless);
-        
+
         neo550.setSmartCurrentLimit(20);
         neo550.setSecondaryCurrentLimit(25);
 
@@ -28,7 +28,6 @@ public class TrapRollerIONeo550 implements TrapRollerIO {
         } else if (inputs.motorTemperature < 58) {
             shutdown = false;
         }
-
     }
 
     public void setVoltage(double voltage) {
