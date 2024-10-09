@@ -246,9 +246,10 @@ public class AimAndFeedCommand extends Command {
     private void spinupShooter() {
         if (doSpinup) {
             if (hasSeenTarget) {
-                shooterSubsystem.setShooterState(shooterSubsystem.updateShooterStateForDistance(calculatedDistance));
+                shooterSubsystem.setShooterState(
+                        shooterSubsystem.updateShooterStateForDistanceFeed(calculatedDistance));
             } else {
-                ShooterState tempy = shooterSubsystem.updateShooterStateForDistance(calculatedDistance);
+                ShooterState tempy = shooterSubsystem.updateShooterStateForDistanceFeed(calculatedDistance);
                 if (shootDownImmediately) {
                     tempy.pivotAngle = Rotation2d.fromDegrees(42);
                 }

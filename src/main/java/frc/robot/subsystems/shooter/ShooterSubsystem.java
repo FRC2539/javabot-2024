@@ -44,6 +44,11 @@ public class ShooterSubsystem extends SubsystemBase {
     private final InterpolatingMap<InterpolatableDouble> topRollerMap;
     private final InterpolatingMap<InterpolatableDouble> bottomRollerMap;
     private final InterpolatingMap<InterpolatableDouble> pivotAngleMap;
+
+    private final InterpolatingMap<InterpolatableDouble> topRollerMapFeed;
+    private final InterpolatingMap<InterpolatableDouble> bottomRollerMapFeed;
+    private final InterpolatingMap<InterpolatableDouble> pivotAngleMapFeed;
+
     private RollerIOInputs topRollerInputs = new RollerIOInputs();
     private RollerIOInputs bottomRollerInputs = new RollerIOInputs();
     private PivotIOInputs pivotInputs = new PivotIOInputs();
@@ -83,6 +88,9 @@ public class ShooterSubsystem extends SubsystemBase {
             InterpolatingMap<InterpolatableDouble> topRollerMap,
             InterpolatingMap<InterpolatableDouble> bottomRollerMap,
             InterpolatingMap<InterpolatableDouble> pivotAngleMap,
+            InterpolatingMap<InterpolatableDouble> topRollerMapFeed,
+            InterpolatingMap<InterpolatableDouble> bottomRollerMapFeed,
+            InterpolatingMap<InterpolatableDouble> pivotAngleMapFeed,
             MechanismLigament2d shooter) {
         this.topRollerIO = topRollerIO;
         this.bottomRollerIO = bottomRollerIO;
@@ -91,6 +99,10 @@ public class ShooterSubsystem extends SubsystemBase {
         this.topRollerMap = topRollerMap;
         this.bottomRollerMap = bottomRollerMap;
         this.pivotAngleMap = pivotAngleMap;
+
+        this.topRollerMapFeed = topRollerMapFeed;
+        this.bottomRollerMapFeed = bottomRollerMapFeed;
+        this.pivotAngleMapFeed = pivotAngleMapFeed;
 
         this.shooter = shooter;
 
@@ -102,6 +114,15 @@ public class ShooterSubsystem extends SubsystemBase {
                 topRollerMap.getInterpolated(distance).get().value,
                 bottomRollerMap.getInterpolated(distance).get().value,
                 Rotation2d.fromDegrees(pivotAngleMap.getInterpolated(distance).get().value)
+                        .plus(getPitchCorrection()));
+    }
+
+    public ShooterState updateShooterStateForDistanceFeed(double distance) {
+        return new ShooterState(
+                topRollerMapFeed.getInterpolated(distance).get().value,
+                bottomRollerMapFeed.getInterpolated(distance).get().value,
+                Rotation2d.fromDegrees(
+                                pivotAngleMapFeed.getInterpolated(distance).get().value)
                         .plus(getPitchCorrection()));
     }
 

@@ -135,6 +135,9 @@ public class RobotContainer {
                     Constants.ShooterConstants.topRollerMap(),
                     Constants.ShooterConstants.bottomRollerMap(),
                     Constants.ShooterConstants.shooterAngleMap(),
+                    Constants.ShooterConstants.topRollerMapFeed(),
+                    Constants.ShooterConstants.bottomRollerMapFeed(),
+                    Constants.ShooterConstants.shooterAngleMapFeed(),
                     shooterMech);
             trapSubsystem = new TrapSubsystem(
                     new TrapRollerIONeo550(TrapConstants.topRollerPort),
@@ -190,6 +193,9 @@ public class RobotContainer {
                     Constants.ShooterConstants.topRollerMap(),
                     Constants.ShooterConstants.bottomRollerMap(),
                     Constants.ShooterConstants.shooterAngleMap(),
+                    Constants.ShooterConstants.topRollerMapFeed(),
+                    Constants.ShooterConstants.bottomRollerMapFeed(),
+                    Constants.ShooterConstants.shooterAngleMapFeed(),
                     shooterMech);
 
             // Setup vision subsystem simulations
