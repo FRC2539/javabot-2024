@@ -36,7 +36,6 @@ import frc.robot.Constants.TrapConstants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.commands.AimAndFeedCommand;
 import frc.robot.commands.AimAndSpinupCommand;
-import frc.robot.commands.AmpintakeCommand;
 import frc.robot.commands.DriveToPositionCommand;
 import frc.robot.commands.IntakeAssistCommandComplex;
 import frc.robot.subsystems.climber.ClimberIOFalcon;
@@ -46,9 +45,6 @@ import frc.robot.subsystems.intake.IntakeIOFalcon;
 import frc.robot.subsystems.intake.IntakeIOSim;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.lights.LightsSubsystemB;
-import frc.robot.subsystems.shamper.ShamperIONeo550;
-import frc.robot.subsystems.shamper.ShamperIOSim;
-import frc.robot.subsystems.shamper.ShamperSubsystem;
 import frc.robot.subsystems.shooter.PivotIOFalcon;
 import frc.robot.subsystems.shooter.PivotIOSim;
 import frc.robot.subsystems.shooter.RollerIOFalcon;
@@ -104,7 +100,7 @@ public class RobotContainer {
     private IntakeSubsystem intakeSubsystem;
     private AmpTransportSubsystem  ampTransportSubsystem;
     private TrapSubsystem trapSubsystem;
-    private ShamperSubsystem shamperSubsystem;
+//     private ShamperSubsystem shamperSubsystem;
     private ClimberSubsystem climberSubsystem;
 
     public AutonomousManager autonomousManager;
@@ -128,8 +124,8 @@ public class RobotContainer {
                 trapMechRoot.append(new MechanismLigament2d("trap", 0.4, 70, 4, new Color8Bit(Color.kBlue)));
         
         //fake
-        MechanismLigament2d shamperMech =
-                trapMechRoot.append(new MechanismLigament2d("shamper", 0.4, 70, 4, new Color8Bit(Color.kBeige)));
+        // MechanismLigament2d shamperMech =
+        //         trapMechRoot.append(new MechanismLigament2d("shamper", 0.4, 70, 4, new Color8Bit(Color.kBeige)));
         
 
         if (Robot.isReal()) {
@@ -151,7 +147,7 @@ public class RobotContainer {
                     new TrapRollerIONeo550(TrapConstants.bottomRollerPort),
                     new RackIONeo550(),
                     trapMech);
-            shamperSubsystem = new ShamperSubsystem(new ShamperIOSim(), shamperMech);
+        //     shamperSubsystem = new ShamperSubsystem(new ShamperIOSim(), shamperMech);
             climberSubsystem = new ClimberSubsystem(new ClimberIOFalcon(), climberMech);
 
             AprilTagIO limelightAprilTag;
@@ -186,6 +182,7 @@ public class RobotContainer {
 
             visionSubsystem = new VisionSubsystem(swerveDriveSubsystem, limelightAprilTag, limelightIntake);
             intakeSubsystem = new IntakeSubsystem(new IntakeIOFalcon());
+            ampTransportSubsystem = new AmpTransportSubsystem();
 
         } else {
             visionSim = new VisionSystemSim("main");
@@ -318,12 +315,15 @@ public class RobotContainer {
                         Rotation2d.fromDegrees(-90), this::getDriveForwardAxis, this::getDriveStrafeAxis));
 
         // Eject note from intake
+
         //rightDriveController.getRightThumb().whileTrue(intakeSubsystem.curlCommand());
         
 
-        rightDriveController.getRightThumb().whileTrue(parallel(
-                intakeSubsystem.curlCommand(), ampTransportSubsystem.ampTransportCommand(.5),trapSubsystem.runIntakeCommand(-3.5,3.5)
-        ));
+        //rightDriveController.getRightThumb().whileTrue(parallel(
+          //      intakeSubsystem.curlCommand(), ampTransportSubsystem.ampTransportCommand(.20),trapSubsystem.runIntakeCommand(-9,9)
+        //));
+
+        operatorController.getDPadRight().and(operatorController.getRightBumper().negate()).whileTrue(ampTransportSubsystem.ampTransportCommand(-.30));
 
         //(intakeSubsystem.curlCommand());
 
@@ -441,7 +441,7 @@ public class RobotContainer {
         /*Set left joystic bindings */
 
         // Aim and Spinup Using Vision
-        AimAndSpinupCommand stoppedShootAimAndSpinup = new AimAndSpinupCommand(
+        Command stoppedShootAimAndSpinup = new AimAndSpinupCommand(
                 swerveDriveSubsystem,
                 shooterSubsystem,
                 lightsSubsystem,
@@ -475,34 +475,65 @@ public class RobotContainer {
                 false,
                 false);
 
+                Command autoShootingCommand;
+                {
+                    AimAndSpinupCommand aimAndSpinupCommand = new AimAndSpinupCommand(
+                            swerveDriveSubsystem,
+                            shooterSubsystem,
+                            lightsSubsystem,
+                            visionSubsystem,
+                            () -> 0,
+                            () -> 0,
+                            () -> 0,
+                            false,
+                            0,
+                            0,
+                            true,
+                            true,
+                            true,
+                            true,
+                            false);
+                    autoShootingCommand = Commands.deadline(
+                            Commands.waitSeconds(0.5)
+                                    .andThen(waitUntil(() -> aimAndSpinupCommand.isAtAngleAndSpunUpAndTarget())
+                                            .withTimeout(2.0))
+                                    .andThen(intakeSubsystem.shootCommand().asProxy().withTimeout(0.5)),
+                            aimAndSpinupCommand,
+                            run(() -> {}, swerveDriveSubsystem),
+                            run(() -> {}, shooterSubsystem).asProxy());
+                }
+        
+        
+
         // Shoot for Vision Based Spinup and Aim
-        leftDriveController
-                .getTrigger()
-                .and(leftDriveController.getBottomThumb().negate())
-                .and(rightDriveController.getTrigger())
-                .whileTrue(Commands.waitUntil(() -> stoppedShootAimAndSpinup.isAtAngleAndSpunUpAndTarget())
-                        .andThen(intakeSubsystem.shootCommand()));
+        // leftDriveController
+        //         .getTrigger()
+        //         .and(leftDriveController.getBottomThumb().negate())
+        //         .and(rightDriveController.getTrigger())
+        //         .whileTrue(Commands.waitUntil(() -> stoppedShootAimAndSpinup.isAtAngleAndSpunUpAndTarget())
+        //                 .andThen(intakeSubsystem.shootCommand()));
+
 
         leftDriveController
                 .getTrigger()
                 .and(leftDriveController.getBottomThumb().negate())
                 .whileTrue(deadline(
-                        stoppedShootAimAndSpinup, run(() -> {}, lightsSubsystem).asProxy()));
+                        autoShootingCommand, run(() -> {}, lightsSubsystem).asProxy()));
 
         // Aim and Spinup Using Vision
-        leftDriveController
-                .getTrigger()
-                .and(leftDriveController.getBottomThumb())
-                .whileTrue(deadline(
-                        movingShootAimAndSpinup, run(() -> {}, lightsSubsystem).asProxy()));
+        // leftDriveController
+        //         .getTrigger()
+        //         .and(leftDriveController.getBottomThumb())
+        //         .whileTrue(deadline(
+        //                 movingShootAimAndSpinup, run(() -> {}, lightsSubsystem).asProxy()));
 
         // Shoot for Vision Based Spinup and Aim
-        leftDriveController
-                .getTrigger()
-                .and(leftDriveController.getBottomThumb())
-                .and(rightDriveController.getTrigger())
-                .whileTrue(Commands.waitUntil(() -> movingShootAimAndSpinup.isAtAngleAndSpunUp())
-                        .andThen(intakeSubsystem.shootCommand()));
+        // leftDriveController
+        //         .getTrigger()
+        //         .and(leftDriveController.getBottomThumb())
+        //         .and(rightDriveController.getTrigger())
+        //         .whileTrue(Commands.waitUntil(() -> movingShootAimAndSpinup.isAtAngleAndSpunUp())
+        //                 .andThen(intakeSubsystem.shootCommand()));
 
         // Climber Down
         leftDriveController.getLeftThumb().whileTrue(climberSubsystem.setVoltage(-12));
@@ -570,15 +601,15 @@ public class RobotContainer {
         leftDriveController.getRightBottomMiddle().onTrue(runOnce(() -> shooterSubsystem.inPositionDisableMode = true));
         leftDriveController.getRightBottomRight().onTrue(runOnce(() -> shooterSubsystem.inPositionDisableMode = false));
 
-        operatorController
-                .getLeftBumper()
-                .and(operatorController.getRightBumper().negate())
-                .whileTrue(parallel(shooterSubsystem.shootCommand(ShooterSubsystem.ampShot), new WaitCommand(0.5).andThen(shamperSubsystem.extendShamperCommand())));
+        // operatorController
+        //         .getLeftBumper()
+        //         .and(operatorController.getRightBumper().negate())
+        //         .whileTrue(parallel(shooterSubsystem.shootCommand(ShooterSubsystem.ampShot), new WaitCommand(0.5).andThen(shamperSubsystem.extendShamperCommand())));
 
-        operatorController
-                .getLeftBumper()
-                .and(operatorController.getRightBumper().negate())
-                .whileFalse(shamperSubsystem.retractShamperCommand());
+        // operatorController
+        //         .getLeftBumper()
+        //         .and(operatorController.getRightBumper().negate())
+        //         .whileFalse(shamperSubsystem.retractShamperCommand());
 
         operatorController
                 .getLeftBumper()
@@ -592,9 +623,36 @@ public class RobotContainer {
         // operatorController.getX().whileTrue(trapSubsystem.trapStateCommand(new TrapState(0, 0, 16.357)));
 
         // Trap Source Command
+        //Command trappy = trapSubsystem.trapStateCommand(new TrapState(7, -6, 16.357));
+        //Command trappyDos = trapSubsystem.trapStateCommand(new TrapState(7, -6, 16.357));
+        //operatorController.getB().whileTrue(trappy.withTimeout(0.15).andThen(trappyDos.until(() -> trapSubsystem.getTopRollerCurrent() > 8)).andThen(trapSubsystem.trapStateCommand(new TrapState(7, -6, 16.357)).withTimeout(.02)));
+
         Command trappy = trapSubsystem.trapStateCommand(new TrapState(7, -6, 16.357));
         Command trappyDos = trapSubsystem.trapStateCommand(new TrapState(7, -6, 16.357));
-        operatorController.getB().whileTrue(trappy.withTimeout(0.2).andThen(trappyDos.until(() -> trapSubsystem.getTopRollerCurrent() > 8)).andThen(trapSubsystem.trapStateCommand(new TrapState(7, -6, 16.357)).withTimeout(.2)));
+        operatorController.getB().whileTrue(trappy.withTimeout(0.15).andThen(trappyDos.until(() -> trapSubsystem.getTopRollerCurrent() > 8)).andThen(trapSubsystem.trapStateCommand(new TrapState(7, -6, 16.357)).withTimeout(.02)));
+
+        //rightDriveController.getRightThumb().whileTrue(parallel(
+                //intakeSubsystem.curlCommand(), ampTransportSubsystem.ampTransportCommand(.20),trapSubsystem.runIntakeCommand(-9,9)
+        //));
+
+        Command curlingDos = trapSubsystem.trapStateCommand(new TrapState(-7, 7, 0));
+        Command curling = trapSubsystem.trapStateCommand(new TrapState(-7, 7, 0));
+
+        // rightDriveController.getRightThumb().whileTrue(parallel(curling.withTimeout(0.2).andThen(curlingDos.until(() -> trapSubsystem.getTopRollerCurrent() > 8)).andThen(trapSubsystem.trapStateCommand(new TrapState(-7, 7, 0)).withTimeout(.2)),ampTransportSubsystem.ampTransportCommand(.20),trapSubsystem.runIntakeCommand(-9,9)
+        // ));
+
+        rightDriveController.getRightThumb()
+                .or(
+                        operatorController.getDPadRight().and(operatorController.getRightBumper().negate())
+                ).whileTrue(deadline(
+                trapSubsystem.runIntakeCommand(-9,9).withTimeout(.2).andThen(curlingDos.until(() -> ampTransportSubsystem.hasPiece())).andThen(trapSubsystem.trapStateCommand(new TrapState(-7, 7, 0)).withTimeout(0)).asProxy(),
+                intakeSubsystem.curlCommand(), 
+                ampTransportSubsystem.ampTransportCommand(.20)
+        )
+        );
+
+        //        intakeSubsystem.curlCommand(), ampTransportSubsystem.ampTransportCommand(.20),trapSubsystem.runIntakeCommand(-7.5,7.5)
+        //));
 
         // // Trap Bottom Command (this is not zero to reduce banging. it will slowly glide down if it is below 2.5 instead
         // // of stalling)

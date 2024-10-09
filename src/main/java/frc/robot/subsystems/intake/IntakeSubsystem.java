@@ -69,7 +69,7 @@ public class IntakeSubsystem extends SubsystemBase {
                 break;
             case CURLING:
                 setChamber(-1);
-                setRoller(-.75);
+                setRoller(-1);
                 break;
             case SHOOTING:
                 setChamber(1 * 12 / 12.0);

@@ -65,6 +65,10 @@ public class TrapSubsystem extends SubsystemBase {
         return topRollerInputs.current;
     }
 
+    public double getBottomRollerCurrent() {
+        return bottomRollerInputs.current;
+    }
+
     /** NOTE: This does not work with voltage requests as there is no "SPEED" */
     public boolean isTrapAtPosition() {
         return MathUtils.equalsWithinError(currentTrapState.topVoltage, topRollerInputs.speed, trapSpeedTolerance)
