@@ -75,7 +75,7 @@ public class AutonomousManager {
                     true,
                     true,
                     true,
-                    false);
+                    false,false);
             autoShootingCommand = Commands.deadline(
                     Commands.waitSeconds(0.5)
                             .andThen(waitUntil(() -> aimAndSpinupCommand.isAtAngleAndSpunUpAndTarget())
@@ -187,7 +187,7 @@ public class AutonomousManager {
                     true,
                     true,
                     false,
-                    true);
+                    true,false);
             autoAimCommand = aimAndSpinupCommand.asProxy();
         }
         NamedCommands.registerCommand("search", Commands.run(() -> swerveDriveSubsystem.setControl(swerveDriveSubsystem
