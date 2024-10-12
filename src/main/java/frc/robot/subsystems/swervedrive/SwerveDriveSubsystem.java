@@ -82,6 +82,8 @@ public class SwerveDriveSubsystem extends SwerveDrivetrain implements Subsystem 
     public final SwerveRequest.ApplyChassisSpeeds stopped = new SwerveRequest.ApplyChassisSpeeds()
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
             .withSteerRequestType(SteerRequestType.MotionMagicExpo);
+            
+    public final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
 
     public SwerveDriveSubsystem(
             SwerveDrivetrainConstants driveTrainConstants,

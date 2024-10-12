@@ -449,7 +449,7 @@ public class RobotContainer {
                 true,
                 true,
                 false,
-                false);
+                false,false);
 
         AimAndSpinupCommand movingShootAimAndSpinup = new AimAndSpinupCommand(
                 swerveDriveSubsystem,
@@ -466,7 +466,7 @@ public class RobotContainer {
                 true,
                 false,
                 false,
-                false);
+                false,false);
 
                 Command autoShootingCommand;
                 {
@@ -485,7 +485,8 @@ public class RobotContainer {
                             true,
                             true,
                             true,
-                            false);
+                            false,
+                            true);
                     autoShootingCommand = Commands.deadline(
                             Commands.waitSeconds(0.5)
                                     .andThen(waitUntil(() -> aimAndSpinupCommand.isAtAngleAndSpunUpAndTarget())
@@ -511,7 +512,7 @@ public class RobotContainer {
                 .getTrigger()
                 .and(leftDriveController.getBottomThumb().negate())
                 .whileTrue(deadline(
-                        autoShootingCommand, run(() -> {}, lightsSubsystem).asProxy()));
+                        stoppedShootAimAndSpinup, run(() -> {}, lightsSubsystem).asProxy()));
 
         // Aim and Spinup Using Vision
         // leftDriveController
@@ -1014,7 +1015,7 @@ public class RobotContainer {
                 false,
                 false,
                 false,
-                false);
+                false,false);
     }
 
     public Command getSpinupMoveCommand() {
@@ -1033,6 +1034,6 @@ public class RobotContainer {
                 false,
                 false,
                 false,
-                false);
+                false,false);
     }
 }

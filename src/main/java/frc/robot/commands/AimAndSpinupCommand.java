@@ -63,6 +63,8 @@ public class AimAndSpinupCommand extends Command {
     private boolean isSpunUp;
     private boolean hasTarget;
 
+    private boolean lockWheelsFinally;
+
     private DoubleSupplier forward;
     private DoubleSupplier strafe;
 
@@ -95,7 +97,8 @@ public class AimAndSpinupCommand extends Command {
             boolean doAiming,
             boolean usingTarget,
             boolean dropRequirements,
-            boolean shootDownImmediately) {
+            boolean shootDownImmediately,
+            boolean lockwheelsAfter) {
         super();
 
         // Assign Configs
@@ -132,6 +135,8 @@ public class AimAndSpinupCommand extends Command {
                 addRequirements(shooterSubsystem);
             }
         }
+
+        this.lockWheelsFinally = lockwheelsAfter;
     }
 
     @Override
@@ -232,11 +237,15 @@ public class AimAndSpinupCommand extends Command {
             if (useAutoMode) {
                 swerveDriveSubsystem.setAutoRotationOverride(calculatedRotation);
             } else {
+                if (isAtAngleAndSpunUpAndTarget() && lockWheelsFinally) {
+                    swerveDriveSubsystem.setControl(swerveDriveSubsystem.brake);
+                } else {
                 swerveDriveSubsystem.setControl(swerveDriveSubsystem
                         .openLoop
                         .withVelocityX(forward.getAsDouble())
                         .withVelocityY(strafe.getAsDouble())
                         .withRotationalRate(goalCalculatedRotationSpeed + MathUtils.ensureRange(rotationCorrection, -maxSpeedPID, maxSpeedPID)));
+                }
             }
         } else {
             isAtAngle = false;
