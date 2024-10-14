@@ -330,7 +330,7 @@ public class RobotContainer {
                         .until(rightDriveController
                                 .getBottomThumb()
                                 .or(leftDriveController.getBottomThumb())
-                                .negate()).andThen(shooterSubsystem.shootCommand(ShooterSubsystem.defaultStateHolding)));
+                                .negate()));
 
         // rightDriveController
         //         .getBottomThumb()
@@ -414,9 +414,9 @@ public class RobotContainer {
                 .getBottomThumb()
                 .whileTrue(Commands.either(
                                 swerveDriveSubsystem.cardinalCommand(
-                                        () -> visionSubsystem.getSpeakerAngleFromPose(swerveDriveSubsystem.getPose()), this::getDriveForwardAxis, this::getDriveStrafeAxis),
+                                        () -> new Rotation2d( - 0.31), this::getDriveForwardAxis, this::getDriveStrafeAxis),
                                 swerveDriveSubsystem.cardinalCommand(
-                                        () -> visionSubsystem.getSpeakerAngleFromPose(swerveDriveSubsystem.getPose()),
+                                        () -> new Rotation2d(Math.PI + 0.31),
                                         this::getDriveForwardAxis,
                                         this::getDriveStrafeAxis),
                                 // shooterSubsystem.shootCommand(new ShooterState(.05,.2,Rotation2d.fromDegrees(55)),
@@ -487,7 +487,7 @@ public class RobotContainer {
                             true,
                             true,
                             false,
-                            true);
+                            false);
                     autoShootingCommand = Commands.deadline(
                             Commands.waitSeconds(0.5)
                                     .andThen(waitUntil(() -> aimAndSpinupCommand.isAtAngleAndSpunUpAndTarget())
@@ -495,6 +495,31 @@ public class RobotContainer {
                                     .andThen(intakeSubsystem.shootCommand().asProxy().withTimeout(0.5)),
                             aimAndSpinupCommand,
                             run(() -> {}, swerveDriveSubsystem),
+                            run(() -> {}, shooterSubsystem).asProxy());
+                }
+
+        Command autoShootingCommandSpinup;
+                {
+                    AimAndSpinupCommand aimAndSpinupCommand = new AimAndSpinupCommand(
+                            swerveDriveSubsystem,
+                            shooterSubsystem,
+                            lightsSubsystem,
+                            visionSubsystem,
+                            this::getDriveForwardAxis,
+                            this::getDriveStrafeAxis,
+                            this::getDriveRotationAxis,
+                            false,
+                            0,
+                            0,
+                            true,
+                            false,
+                            true,
+                            true,
+                            false,
+                            false);
+                    autoShootingCommandSpinup = Commands.deadline(
+                            aimAndSpinupCommand,
+                        //     run(() -> {}, swerveDriveSubsystem),
                             run(() -> {}, shooterSubsystem).asProxy());
                 }
         
@@ -513,7 +538,7 @@ public class RobotContainer {
                 .getTrigger()
                 .and(leftDriveController.getBottomThumb().negate())
                 .whileTrue(deadline(
-                        stoppedShootAimAndSpinup, run(() -> {}, lightsSubsystem).asProxy()));
+                        autoShootingCommandSpinup, run(() -> {}, lightsSubsystem).asProxy()));
 
         // Aim and Spinup Using Vision
         // leftDriveController
@@ -523,12 +548,11 @@ public class RobotContainer {
         //                 movingShootAimAndSpinup, run(() -> {}, lightsSubsystem).asProxy()));
 
         // Shoot for Vision Based Spinup and Aim
-        // leftDriveController
-        //         .getTrigger()
-        //         .and(leftDriveController.getBottomThumb())
-        //         .and(rightDriveController.getTrigger())
-        //         .whileTrue(Commands.waitUntil(() -> movingShootAimAndSpinup.isAtAngleAndSpunUp())
-        //                 .andThen(intakeSubsystem.shootCommand()));
+        leftDriveController
+                .getTrigger()
+                .and(rightDriveController.getTrigger())
+                .whileTrue(deadline(
+                        autoShootingCommand, run(() -> {}, lightsSubsystem).asProxy()));
 
         // Climber Down
         leftDriveController.getLeftThumb().whileTrue(climberSubsystem.setVoltage(-12));
