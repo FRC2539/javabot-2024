@@ -237,7 +237,7 @@ public class AimAndSpinupCommand extends Command {
             if (useAutoMode) {
                 swerveDriveSubsystem.setAutoRotationOverride(calculatedRotation);
             } else {
-                if (isAtAngleAndSpunUpAndTarget() && lockWheelsFinally) {
+                if (isAtAngle() && lockWheelsFinally) {
                     swerveDriveSubsystem.setControl(swerveDriveSubsystem.brake);
                 } else {
                 swerveDriveSubsystem.setControl(swerveDriveSubsystem

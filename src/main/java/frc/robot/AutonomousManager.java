@@ -123,11 +123,11 @@ public class AutonomousManager {
                 "subshoot",
                 Commands.parallel(
                                 shooterSubsystem
-                                        .shootCommand(new ShooterState(.6, .6, Rotation2d.fromDegrees(58)))
+                                        .shootCommand(new ShooterState(.6, .65, Rotation2d.fromDegrees(59)))
                                         .asProxy(),
-                                Commands.waitSeconds(.2)
+                                Commands.waitSeconds(.4)
                                         .andThen(intakeSubsystem.shootCommand().asProxy()))
-                        .withTimeout(.5));
+                        .withTimeout(0.7));
         NamedCommands.registerCommand("intake", intakeSubsystem.intakeCommand().asProxy());
         LinearFilter lowPassIQR = LinearFilter.movingAverage(20);
         IntakeAssistCommandComplexAuto intakeAssistCommandComplex =

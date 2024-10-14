@@ -24,10 +24,12 @@ import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.controller.LogitechController;
 import frc.lib.controller.ThrustmasterJoystick;
 import frc.lib.logging.LoggedReceiver;
 import frc.lib.logging.Logger;
+import frc.lib.math.MathUtils.AnyContainer;
 import frc.lib.vision.LimelightRawAngles;
 import frc.robot.Constants.ControllerConstants;
 import frc.robot.Constants.FieldConstants;
@@ -274,7 +276,7 @@ public class RobotContainer {
         // the negates are in place so it debounces falling edges only. the .debounce decorator only debonces rising
         // edges by default
         // (the oppositie of what we want if it keeps randomly flickering off)
-        lightsSubsystem.setHasPieceSupplier(() -> intakeSubsystem.hasPieceSmoothed());
+        lightsSubsystem.setHasPieceSupplier(() -> intakeSubsystem.hasPieceSmoothed() || ampTransportSubsystem.hasPiece());
 
         /* Set right joystick bindings */
 
@@ -315,15 +317,14 @@ public class RobotContainer {
                         Rotation2d.fromDegrees(-90), this::getDriveForwardAxis, this::getDriveStrafeAxis));
 
         // Eject note from intake
-
-        //rightDriveController.getRightThumb().whileTrue(intakeSubsystem.curlCommand());
+        //rightDriveController.getRightThumb().whileTrue(intakeSubsystem.ejectCommand());
         
 
         //rightDriveController.getRightThumb().whileTrue(parallel(
           //      intakeSubsystem.curlCommand(), ampTransportSubsystem.ampTransportCommand(.20),trapSubsystem.runIntakeCommand(-9,9)
         //));
 
-        operatorController.getDPadRight().and(operatorController.getRightBumper().negate()).whileTrue(ampTransportSubsystem.ampTransportCommand(-.30));
+        operatorController.getDPadRight().and(operatorController.getRightBumper()).whileTrue(ampTransportSubsystem.ampTransportCommand(-.30));
 
         //(intakeSubsystem.curlCommand());
 
@@ -336,7 +337,7 @@ public class RobotContainer {
                         .until(rightDriveController
                                 .getBottomThumb()
                                 .or(leftDriveController.getBottomThumb())
-                                .negate()).andThen(shooterSubsystem.shootCommand(ShooterSubsystem.defaultStateHolding)));
+                                .negate()));
 
         // rightDriveController
         //         .getBottomThumb()
@@ -420,9 +421,9 @@ public class RobotContainer {
                 .getBottomThumb()
                 .whileTrue(Commands.either(
                                 swerveDriveSubsystem.cardinalCommand(
-                                        () -> visionSubsystem.getSpeakerAngleFromPose(swerveDriveSubsystem.getPose()), this::getDriveForwardAxis, this::getDriveStrafeAxis),
+                                        () -> new Rotation2d( - 0.31), this::getDriveForwardAxis, this::getDriveStrafeAxis),
                                 swerveDriveSubsystem.cardinalCommand(
-                                        () -> visionSubsystem.getSpeakerAngleFromPose(swerveDriveSubsystem.getPose()),
+                                        () -> new Rotation2d(Math.PI + 0.31),
                                         this::getDriveForwardAxis,
                                         this::getDriveStrafeAxis),
                                 // shooterSubsystem.shootCommand(new ShooterState(.05,.2,Rotation2d.fromDegrees(55)),
@@ -493,7 +494,7 @@ public class RobotContainer {
                             true,
                             true,
                             false,
-                            true);
+                            false);
                     autoShootingCommand = Commands.deadline(
                             Commands.waitSeconds(0.5)
                                     .andThen(waitUntil(() -> aimAndSpinupCommand.isAtAngleAndSpunUpAndTarget())
@@ -501,6 +502,31 @@ public class RobotContainer {
                                     .andThen(intakeSubsystem.shootCommand().asProxy().withTimeout(0.5)),
                             aimAndSpinupCommand,
                             run(() -> {}, swerveDriveSubsystem),
+                            run(() -> {}, shooterSubsystem).asProxy());
+                }
+
+        Command autoShootingCommandSpinup;
+                {
+                    AimAndSpinupCommand aimAndSpinupCommand = new AimAndSpinupCommand(
+                            swerveDriveSubsystem,
+                            shooterSubsystem,
+                            lightsSubsystem,
+                            visionSubsystem,
+                            this::getDriveForwardAxis,
+                            this::getDriveStrafeAxis,
+                            this::getDriveRotationAxis,
+                            false,
+                            0,
+                            0,
+                            true,
+                            false,
+                            true,
+                            true,
+                            false,
+                            false);
+                    autoShootingCommandSpinup = Commands.deadline(
+                            aimAndSpinupCommand,
+                        //     run(() -> {}, swerveDriveSubsystem),
                             run(() -> {}, shooterSubsystem).asProxy());
                 }
         
@@ -519,7 +545,7 @@ public class RobotContainer {
                 .getTrigger()
                 .and(leftDriveController.getBottomThumb().negate())
                 .whileTrue(deadline(
-                        stoppedShootAimAndSpinup, run(() -> {}, lightsSubsystem).asProxy()));
+                        autoShootingCommandSpinup, run(() -> {}, lightsSubsystem).asProxy()));
 
         // Aim and Spinup Using Vision
         // leftDriveController
@@ -529,12 +555,11 @@ public class RobotContainer {
         //                 movingShootAimAndSpinup, run(() -> {}, lightsSubsystem).asProxy()));
 
         // Shoot for Vision Based Spinup and Aim
-        // leftDriveController
-        //         .getTrigger()
-        //         .and(leftDriveController.getBottomThumb())
-        //         .and(rightDriveController.getTrigger())
-        //         .whileTrue(Commands.waitUntil(() -> movingShootAimAndSpinup.isAtAngleAndSpunUp())
-        //                 .andThen(intakeSubsystem.shootCommand()));
+        leftDriveController
+                .getTrigger()
+                .and(rightDriveController.getTrigger())
+                .whileTrue(deadline(
+                        autoShootingCommand, run(() -> {}, lightsSubsystem).asProxy()));
 
         // Climber Down
         leftDriveController.getLeftThumb().whileTrue(climberSubsystem.setVoltage(-12));
@@ -636,21 +661,30 @@ public class RobotContainer {
                 //intakeSubsystem.curlCommand(), ampTransportSubsystem.ampTransportCommand(.20),trapSubsystem.runIntakeCommand(-9,9)
         //));
 
-        Command curlingDos = trapSubsystem.trapStateCommand(new TrapState(-7, 7, 0));
-        Command curling = trapSubsystem.trapStateCommand(new TrapState(-7, 7, 0));
+        
 
         // rightDriveController.getRightThumb().whileTrue(parallel(curling.withTimeout(0.2).andThen(curlingDos.until(() -> trapSubsystem.getTopRollerCurrent() > 8)).andThen(trapSubsystem.trapStateCommand(new TrapState(-7, 7, 0)).withTimeout(.2)),ampTransportSubsystem.ampTransportCommand(.20),trapSubsystem.runIntakeCommand(-9,9)
         // ));
 
-        rightDriveController.getRightThumb()
+        AnyContainer<Boolean> runCurler = new AnyContainer<Boolean>(false);
+        Trigger runStuff = new Trigger(() -> runCurler.thing);
+
+        
+
+        Trigger runCurlingSetup = (rightDriveController.getRightThumb()
                 .or(
                         operatorController.getDPadRight().and(operatorController.getRightBumper().negate())
-                ).whileTrue(deadline(
-                trapSubsystem.runIntakeCommand(-9,9).withTimeout(.2).andThen(curlingDos.until(() -> ampTransportSubsystem.hasPiece())).andThen(trapSubsystem.trapStateCommand(new TrapState(-7, 7, 0)).withTimeout(0)).asProxy(),
-                intakeSubsystem.curlCommand(), 
-                ampTransportSubsystem.ampTransportCommand(.20)
-        )
-        );
+                )).and(operatorController.getDPadRight().and(operatorController.getRightBumper()).negate());
+                
+        runCurlingSetup.whileTrue(
+                        run(() -> runCurler.thing = true).until(() -> ampTransportSubsystem.hasPiece())
+                        .andThen(run(() -> runCurler.thing=false).withTimeout(0.0))
+                        .andThen(run(() -> runCurler.thing=true).withTimeout(0.2)))
+                        .onFalse(run(() -> runCurler.thing = false));
+
+        runStuff.whileTrue(trapSubsystem.trapStateCommand(new TrapState(-9, 9, 0)));
+        runStuff.whileTrue(intakeSubsystem.curlCommand());
+        runStuff.whileTrue(ampTransportSubsystem.ampTransportCommand(.20));
 
         //        intakeSubsystem.curlCommand(), ampTransportSubsystem.ampTransportCommand(.20),trapSubsystem.runIntakeCommand(-7.5,7.5)
         //));
