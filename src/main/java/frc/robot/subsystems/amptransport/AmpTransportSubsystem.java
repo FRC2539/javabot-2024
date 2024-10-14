@@ -34,7 +34,7 @@ public class AmpTransportSubsystem extends SubsystemBase{
     }
 
     public boolean hasPiece() {
-        return transportSensor.get();
+        return ! transportSensor.get();
     }
 
     @Override

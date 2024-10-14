@@ -22,7 +22,7 @@ import java.util.function.Supplier;
 
 public class ShooterSubsystem extends SubsystemBase {
     public final static ShooterState podiumShot = new ShooterState(.60, .60, Rotation2d.fromDegrees(37.75));
-    public final static ShooterState subwooferShot = new ShooterState(.6,.6,Rotation2d.fromDegrees(58));
+    public final static ShooterState subwooferShot = new ShooterState(.6,.65,Rotation2d.fromDegrees(59));
     public final static ShooterState ampShot = new ShooterState(.05, .125, Rotation2d.fromDegrees(58));
     public final static ShooterState groundFeedShot = new ShooterState(.7, .4, Rotation2d.fromDegrees(9));
     public final static ShooterState airFeed = new ShooterState(.50,
