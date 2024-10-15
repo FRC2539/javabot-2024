@@ -36,6 +36,7 @@ import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.Constants.TrapConstants;
 import frc.robot.Constants.VisionConstants;
+import frc.robot.commands.AimAndFeedCommand;
 import frc.robot.commands.AimAndSpinupCommand;
 import frc.robot.commands.DriveToPositionCommand;
 import frc.robot.commands.IntakeAssistCommandComplex;
@@ -139,6 +140,9 @@ public class RobotContainer {
                     Constants.ShooterConstants.topRollerMap(),
                     Constants.ShooterConstants.bottomRollerMap(),
                     Constants.ShooterConstants.shooterAngleMap(),
+                    Constants.ShooterConstants.topRollerMapFeed(),
+                    Constants.ShooterConstants.bottomRollerMapFeed(),
+                    Constants.ShooterConstants.shooterAngleMapFeed(),
                     shooterMech);
             trapSubsystem = new TrapSubsystem(
                     new TrapRollerIONeo550(TrapConstants.topRollerPort),
@@ -194,6 +198,9 @@ public class RobotContainer {
                     Constants.ShooterConstants.topRollerMap(),
                     Constants.ShooterConstants.bottomRollerMap(),
                     Constants.ShooterConstants.shooterAngleMap(),
+                    Constants.ShooterConstants.topRollerMapFeed(),
+                    Constants.ShooterConstants.bottomRollerMapFeed(),
+                    Constants.ShooterConstants.shooterAngleMapFeed(),
                     shooterMech);
 
             // Setup vision subsystem simulations
@@ -630,11 +637,6 @@ public class RobotContainer {
         //         .and(operatorController.getRightBumper().negate())
         //         .whileFalse(shamperSubsystem.retractShamperCommand());
 
-        operatorController
-                .getLeftBumper()
-                .and(rightDriveController.getTrigger())
-                .whileTrue(intakeSubsystem.ampCommand());
-
         // // Trap Command
         // operatorController.getY().whileTrue(trapSubsystem.trapStateCommand(new TrapState(0, 0, 34)));
 
@@ -805,21 +807,49 @@ public class RobotContainer {
         //                         .withTimeout(.1)));
 
         // feeder shot (air feed)
+        // operatorController
+        //         .getLeftBumper()
+        //         .and(operatorController.getRightBumper())
+        //         .whileTrue(Commands.either(
+        //                 parallel(
+        //                         swerveDriveSubsystem.cardinalCommand(
+        //                                 new Rotation2d(-0.57), this::getDriveForwardAxis, this::getDriveStrafeAxis),
+        //                         shooterSubsystem.shootCommand(() -> ShooterSubsystem.airFeed.plusRotation(shooterSubsystem.getPitchCorrection()))),
+        //                 parallel(
+        //                         swerveDriveSubsystem.cardinalCommand(
+        //                                 new Rotation2d(Math.PI + 0.57),
+        //                                 this::getDriveForwardAxis,
+        //                                 this::getDriveStrafeAxis),
+        //                         shooterSubsystem.shootCommand(() -> ShooterSubsystem.airFeed.plusRotation(shooterSubsystem.getPitchCorrection()))),
+        //                 FieldConstants::isBlue));
+
+        // feeder shot (air feed)
+        AimAndFeedCommand airFeed = new AimAndFeedCommand(
+                swerveDriveSubsystem,
+                shooterSubsystem,
+                lightsSubsystem,
+                visionSubsystem,
+                () -> 0,
+                () -> 0,
+                () -> 0,
+                false,
+                0,
+                0,
+                true,
+                true,
+                false,
+                false,
+                false);
+
         operatorController
                 .getLeftBumper()
                 .and(operatorController.getRightBumper())
-                .whileTrue(Commands.either(
-                        parallel(
-                                swerveDriveSubsystem.cardinalCommand(
-                                        new Rotation2d(-0.57), this::getDriveForwardAxis, this::getDriveStrafeAxis),
-                                shooterSubsystem.shootCommand(() -> ShooterSubsystem.airFeed.plusRotation(shooterSubsystem.getPitchCorrection()))),
-                        parallel(
-                                swerveDriveSubsystem.cardinalCommand(
-                                        new Rotation2d(Math.PI + 0.57),
-                                        this::getDriveForwardAxis,
-                                        this::getDriveStrafeAxis),
-                                shooterSubsystem.shootCommand(() -> ShooterSubsystem.airFeed.plusRotation(shooterSubsystem.getPitchCorrection()))),
-                        FieldConstants::isBlue));
+                .whileTrue(airFeed);
+
+        operatorController
+                .getLeftBumper()
+                .and(rightDriveController.getTrigger()).and(airFeed::isAtAngle)
+                .whileTrue(intakeSubsystem.ampCommand());
 
         // lowfeeder shot
         operatorController

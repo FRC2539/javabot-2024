@@ -200,6 +200,40 @@ public final class Constants {
 
         //     return map;
         // }
+
+        public static final InterpolatingMap<InterpolatableDouble> topRollerMapFeed() {
+            var map = new InterpolatingMap<InterpolatableDouble>();
+            map.put(0, new InterpolatableDouble(0.2));
+            map.put(1.8, new InterpolatableDouble(0.2));
+            map.put(4.15, new InterpolatableDouble(0.33));
+            map.put(10.622, new InterpolatableDouble(0.50));
+            map.put(1000, new InterpolatableDouble(0.50));
+
+            return map;
+        }
+
+        public static final InterpolatingMap<InterpolatableDouble> bottomRollerMapFeed() {
+            var map = new InterpolatingMap<InterpolatableDouble>();
+
+            var otherMap = topRollerMapFeed();
+
+            for (var i : otherMap.entrySet()) {
+                map.put(i.getKey(), new InterpolatableDouble(i.getValue().value - 0.05));
+            }
+            
+            return map;
+        }
+
+        public static final InterpolatingMap<InterpolatableDouble> shooterAngleMapFeed() {
+            var map = new InterpolatingMap<InterpolatableDouble>();
+            map.put(0, new InterpolatableDouble(55));
+            map.put(1.8, new InterpolatableDouble(55));
+            map.put(4.15, new InterpolatableDouble(55));
+            map.put(10.622, new InterpolatableDouble(40));
+            map.put(1000, new InterpolatableDouble(40));
+
+            return map;
+        }
     }
 
     public static class SwerveConstants {
@@ -325,6 +359,14 @@ public final class Constants {
 
         public static Pose2d getSpeakerPose() {
             return aprilTagFieldLayout.getTagPose(getSpeakerTag()).get().toPose2d();
+        }
+
+        public static Pose2d getFeedingPose() {
+            return aprilTagFieldLayout
+                    .getTagPose(getAmpTag())
+                    .get()
+                    .plus(new Transform3d(2, 0, 0, new Rotation3d()))
+                    .toPose2d();
         }
 
         public static int getSpeakerTag() {
