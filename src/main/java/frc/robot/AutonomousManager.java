@@ -314,6 +314,7 @@ public class AutonomousManager {
     }
 
     private boolean spinningUp = false;
+    private boolean isIntaking = false;
 
     private void registerChoreoCommands() {
         // docs detail on how these work
@@ -344,9 +345,9 @@ public class AutonomousManager {
         NamedCommands.registerCommand("c_shoot", scheduleWrapper(shootCommand()));
 
 
-        NamedCommands.registerCommand("c_intake", scheduleWrapper(new Command() {}));
-        NamedCommands.registerCommand("c_note_strafe", scheduleWrapper(new Command() {}));
-        NamedCommands.registerCommand("c_strafe_intake", scheduleWrapper(new Command() {})); // just does the above two together
+        NamedCommands.registerCommand("c_intake", scheduleWrapper(intakeCommand()));
+        NamedCommands.registerCommand("c_note_strafe", scheduleWrapper(intakeCommand().alongWith(noteStrafeCommand())));
+        NamedCommands.registerCommand("c_strafe_intake", scheduleWrapper(noteStrafeCommand())); // just does the above two together
     }
 
     private Command scheduleWrapper(Command command) {
@@ -361,6 +362,12 @@ public class AutonomousManager {
         return (command.beforeStarting(() -> {
                 // System.out.println("starting spinup!!!!!!!!!!!!!!")
         })).beforeStarting(() -> spinningUp = true).until(() -> !spinningUp);
+    }
+
+    private Command intakeWrapper(Command command) {
+        return (command.beforeStarting(() -> {
+                //test
+        })).beforeStarting(() -> isIntaking = true).until(()-> !isIntaking);
     }
 
     private Command spinupSupplier(DoubleSupplier distance) {
@@ -422,6 +429,21 @@ public class AutonomousManager {
         {spinningUp = false;
         //System.out.println("finished shoot command?");
         });
+    }
+
+    private Command intakeCommand() {
+        return intakeWrapper(intakeSubsystem.intakeCommand().andThen(() -> isIntaking = false));
+    }
+
+    private Command noteStrafeCommand() {
+        IntakeAssistCommandComplexAuto intakeAssistCommandComplex =
+                new IntakeAssistCommandComplexAuto(swerveDriveSubsystem, visionSubsystem, lightsSubsystem);
+        
+        return intakeWrapper(intakeAssistCommandComplex);
+    }
+
+    private Command stopIntakingCommand() {
+        return runOnce(() -> isIntaking = false);
     }
 
     private Command pathFromFile(String name) {
