@@ -201,65 +201,36 @@ public final class Constants {
         //     return map;
         // }
 
-        public static final InterpolatingMap<InterpolatableDouble> bottomRollerMapFeed() {
+        public static final InterpolatingMap<InterpolatableDouble> topRollerMapFeed() {
             var map = new InterpolatingMap<InterpolatableDouble>();
-            map.put(0, new InterpolatableDouble(0.6));
-            map.put(1.539, new InterpolatableDouble(0.6));
-            map.put(2.095, new InterpolatableDouble(0.6));
-            map.put(2.458, new InterpolatableDouble(0.6));
-            map.put(2.9, new InterpolatableDouble(0.6));
-            map.put(3.376, new InterpolatableDouble(0.6));
-            map.put(3.651, new InterpolatableDouble(0.6));
-            map.put(3.98, new InterpolatableDouble(0.6));
-            map.put(4.417, new InterpolatableDouble(0.6));
-            map.put(4.862, new InterpolatableDouble(0.65));
-            map.put(5.158, new InterpolatableDouble(0.65));
-            map.put(5.406, new InterpolatableDouble(0.65));
-            map.put(5.541, new InterpolatableDouble(0.7));
-            map.put(5.9, new InterpolatableDouble(0.7));
-            map.put(1000, new InterpolatableDouble(0.7));
+            map.put(0, new InterpolatableDouble(0.2));
+            map.put(1.8, new InterpolatableDouble(0.2));
+            map.put(4.15, new InterpolatableDouble(0.33));
+            map.put(10.622, new InterpolatableDouble(0.50));
+            map.put(1000, new InterpolatableDouble(0.50));
 
             return map;
         }
 
-        public static final InterpolatingMap<InterpolatableDouble> topRollerMapFeed() {
+        public static final InterpolatingMap<InterpolatableDouble> bottomRollerMapFeed() {
             var map = new InterpolatingMap<InterpolatableDouble>();
-            map.put(0, new InterpolatableDouble(0.6));
-            map.put(1.539, new InterpolatableDouble(0.6));
-            map.put(2.095, new InterpolatableDouble(0.6));
-            map.put(2.458, new InterpolatableDouble(0.6));
-            map.put(2.9, new InterpolatableDouble(0.6));
-            map.put(3.376, new InterpolatableDouble(0.6));
-            map.put(3.651, new InterpolatableDouble(0.6));
-            map.put(3.98, new InterpolatableDouble(0.6));
-            map.put(4.417, new InterpolatableDouble(0.6));
-            map.put(4.862, new InterpolatableDouble(0.65));
-            map.put(5.158, new InterpolatableDouble(0.65));
-            map.put(5.406, new InterpolatableDouble(0.65));
-            map.put(5.541, new InterpolatableDouble(0.7));
-            map.put(5.9, new InterpolatableDouble(0.7));
-            map.put(1000, new InterpolatableDouble(0.7));
 
+            var otherMap = topRollerMapFeed();
+
+            for (var i : otherMap.entrySet()) {
+                map.put(i.getKey(), new InterpolatableDouble(i.getValue().value - 0.05));
+            }
+            
             return map;
         }
 
         public static final InterpolatingMap<InterpolatableDouble> shooterAngleMapFeed() {
             var map = new InterpolatingMap<InterpolatableDouble>();
-            map.put(0, new InterpolatableDouble(62));
-            map.put(1.539, new InterpolatableDouble(62));
-            map.put(2.095, new InterpolatableDouble(50));
-            map.put(2.458, new InterpolatableDouble(45));
-            map.put(2.9, new InterpolatableDouble(39.5));
-            map.put(3.376, new InterpolatableDouble(36));
-            map.put(3.651, new InterpolatableDouble(32.5));
-            map.put(3.98, new InterpolatableDouble(31));
-            map.put(4.417, new InterpolatableDouble(30));
-            map.put(4.862, new InterpolatableDouble(29.5));
-            map.put(5.158, new InterpolatableDouble(29));
-            map.put(5.406, new InterpolatableDouble(24.25));
-            map.put(5.541, new InterpolatableDouble(23.25));
-            map.put(5.9, new InterpolatableDouble(22.5));
-            map.put(1000, new InterpolatableDouble(21.5));
+            map.put(0, new InterpolatableDouble(55));
+            map.put(1.8, new InterpolatableDouble(55));
+            map.put(4.15, new InterpolatableDouble(55));
+            map.put(10.622, new InterpolatableDouble(40));
+            map.put(1000, new InterpolatableDouble(40));
 
             return map;
         }
@@ -394,7 +365,7 @@ public final class Constants {
             return aprilTagFieldLayout
                     .getTagPose(getAmpTag())
                     .get()
-                    .plus(new Transform3d(1, 0, 0, new Rotation3d()))
+                    .plus(new Transform3d(2, 0, 0, new Rotation3d()))
                     .toPose2d();
         }
 

@@ -637,11 +637,6 @@ public class RobotContainer {
         //         .and(operatorController.getRightBumper().negate())
         //         .whileFalse(shamperSubsystem.retractShamperCommand());
 
-        operatorController
-                .getLeftBumper()
-                .and(rightDriveController.getTrigger())
-                .whileTrue(intakeSubsystem.ampCommand());
-
         // // Trap Command
         // operatorController.getY().whileTrue(trapSubsystem.trapStateCommand(new TrapState(0, 0, 34)));
 
@@ -829,7 +824,7 @@ public class RobotContainer {
         //                 FieldConstants::isBlue));
 
         // feeder shot (air feed)
-        Command airFeed = new AimAndFeedCommand(
+        AimAndFeedCommand airFeed = new AimAndFeedCommand(
                 swerveDriveSubsystem,
                 shooterSubsystem,
                 lightsSubsystem,
@@ -850,6 +845,11 @@ public class RobotContainer {
                 .getLeftBumper()
                 .and(operatorController.getRightBumper())
                 .whileTrue(airFeed);
+
+        operatorController
+                .getLeftBumper()
+                .and(rightDriveController.getTrigger()).and(airFeed::isAtAngle)
+                .whileTrue(intakeSubsystem.ampCommand());
 
         // lowfeeder shot
         operatorController
