@@ -6,6 +6,7 @@ import com.pathplanner.lib.util.GeometryUtil;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -378,6 +379,20 @@ public final class Constants {
             } else {
                 return aprilTagFieldLayout.getTagPose(getTrap1Tag()).get().toPose2d();
             }
+        }
+
+        public static double getSpeakerDistanceFromPose(Pose2d currentPose) {
+            return FieldConstants.getSpeakerPose()
+                    .getTranslation()
+                    .minus(currentPose.getTranslation())
+                    .getNorm();
+        }
+
+        public static Rotation2d getSpeakerAngleFromPose(Pose2d currentPose) {
+            return FieldConstants.getSpeakerPose()
+                    .getTranslation()
+                    .minus(currentPose.getTranslation())
+                    .getAngle();
         }
 
         public static int getTrap1Tag() {

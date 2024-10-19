@@ -7,6 +7,8 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
@@ -15,7 +17,9 @@ import frc.lib.logging.Logger;
 import frc.lib.math.MathUtils;
 import frc.lib.vision.LimelightHelpers;
 import frc.lib.vision.LimelightRawAngles;
+import frc.lib.vision.PinholeModel3D;
 import frc.robot.Constants.FieldConstants;
+import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.swervedrive.SwerveDriveSubsystem;
 import frc.robot.subsystems.vision.AprilTagIO.AprilTagIOInputs;
 import frc.robot.subsystems.vision.PositionTargetIO.PositionTargetIOInputs;
@@ -235,6 +239,59 @@ public class VisionSubsystem extends SubsystemBase {
         //return getSpeakerAngleFromVision(currentPose, true);
     }
 
+    public Optional<Pose2d> getPoseFromLimelight(boolean compensateForLatency) {
+        var results = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-april");
+        boolean hasTags = results.tagCount > 0;
+
+        if (hasTags) {
+            if (compensateForLatency) {
+                return Optional.of(compensateForLatency(results.pose, results.timestampSeconds));
+            } else {
+                return Optional.of(results.pose);
+            }
+        }
+        
+        return Optional.empty();
+    }
+
+    public Optional<Pose2d> getPoseFromPinhole(boolean compensateForLatency) {
+        Optional<PhotonTrackedTarget> speakerTag =
+            VisionSubsystem.getTagInfo(leftTargets, FieldConstants.getSpeakerTag());
+
+        return speakerTag.map((target) -> {
+            Translation2d robotToTarget = PinholeModel3D.getTranslationToTarget(
+                                new Translation3d(
+                                        1,
+                                        Math.tan(Math.toRadians(
+                                                -target.getYaw())),
+                                        Math.tan(Math.toRadians(
+                                                target.getPitch()))),
+                                VisionConstants.robotToApriltagCamera,
+                                Units.inchesToMeters(57.75));
+            Rotation2d originToRobotRotation = consumer.getPose().getRotation();
+
+            Translation2d originToRobot = FieldConstants.getSpeakerPose().getTranslation().minus(robotToTarget.rotateBy(originToRobotRotation));
+
+            Pose2d calulatedPose = new Pose2d(originToRobot, originToRobotRotation);
+
+            if (compensateForLatency) {
+                return compensateForLatency(calulatedPose, leftInputsTimestamp);
+            } else {
+                return calulatedPose;
+            }
+        });
+    }
+
+    public Pose2d compensateForLatency(Pose2d measuredPose, double timestamp) {
+        return measuredPose.plus(consumer.getPose().minus(consumer.getPoseAtTimestamp(timestamp)));
+    }
+
+    // return Optional.of(currentPose
+            //         .getRotation()
+            //         
+            //                 .getAngle()));
+            // System.out.println(speakerTag.get().getYaw());
+
     @Deprecated
     public Optional<Rotation2d> getSpeakerAngleFromVision(Pose2d currentPose, boolean timestampAdjust) {
         if (timestampAdjust) {
@@ -242,7 +299,8 @@ public class VisionSubsystem extends SubsystemBase {
         }
 
         Optional<PhotonTrackedTarget> speakerTag =
-                VisionSubsystem.getTagInfo(leftTargets, FieldConstants.getSpeakerTag());
+            VisionSubsystem.getTagInfo(leftTargets, FieldConstants.getSpeakerTag());
+
         if (speakerTagIsPresent()) {
             // return Optional.of(currentPose
             //         .getRotation()
@@ -266,6 +324,13 @@ public class VisionSubsystem extends SubsystemBase {
         }
     }
 
+    /**
+     * Deprecated function to calculate the distance between the speaker pose and the current pose.
+     * @deprecated Use {@link FieldConstants#getSpeakerDistanceFromPose(Pose2d)}
+     * @param  currentPose    the current pose for which the distance is calculated
+     * @return                the distance between the speaker pose and the current pose
+     */
+    @Deprecated
     public double getSpeakerDistanceFromPose(Pose2d currentPose) {
         return FieldConstants.getSpeakerPose()
                 .getTranslation()

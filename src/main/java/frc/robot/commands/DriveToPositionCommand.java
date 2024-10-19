@@ -26,6 +26,12 @@ public class DriveToPositionCommand extends Command {
 
     private final boolean finishes;
 
+    private boolean lockRotation = false;
+
+    private boolean lockTranslation = false;
+
+    private final Supplier<Pose2d> currentPoseSupplier;
+
     /**
      * Drives directly to the given pose on the field automatically.
      *
@@ -34,16 +40,22 @@ public class DriveToPositionCommand extends Command {
      * @param swerveDriveSubsystem
      * @param targetPoseSupplier
      */
-    public DriveToPositionCommand(SwerveDriveSubsystem swerveDriveSubsystem, Supplier<Pose2d> targetPoseSupplier, boolean finishes) {
+    public DriveToPositionCommand(SwerveDriveSubsystem swerveDriveSubsystem, Supplier<Pose2d> targetPoseSupplier, Supplier<Pose2d> currentPoseSupplier, boolean finishes) {
         this.swerveDriveSubsystem = swerveDriveSubsystem;
         this.targetPoseSupplier = targetPoseSupplier;
         this.finishes = finishes;
+
+        this.currentPoseSupplier = currentPoseSupplier;
 
         driveController.setTolerance(0.02);
         omegaController.setTolerance(Units.degreesToRadians(1));
         omegaController.enableContinuousInput(-Math.PI, Math.PI);
 
         addRequirements(swerveDriveSubsystem);
+    }
+
+    public DriveToPositionCommand(SwerveDriveSubsystem swerveDriveSubsystem, Supplier<Pose2d> targetPoseSupplier, boolean finishes) {
+        this(swerveDriveSubsystem, targetPoseSupplier, swerveDriveSubsystem::getPose, finishes);
     }
 
     /**
@@ -60,9 +72,19 @@ public class DriveToPositionCommand extends Command {
         this(swerveDriveSubsystem, targetPose, true);
     }
 
+    public DriveToPositionCommand withLockRotation() {
+        lockRotation = true;
+        return this;
+    }
+
+    public DriveToPositionCommand withLockTranslation() {
+        lockTranslation = true;
+        return this;
+    }
+
     @Override
     public void initialize() {
-        var robotPose = swerveDriveSubsystem.getPose();
+        var robotPose = getRobotPose();
         var robotVelocity = swerveDriveSubsystem.getFieldRelativeChassisSpeeds();
 
         var targetPose = targetPoseSupplier.get();
@@ -83,9 +105,13 @@ public class DriveToPositionCommand extends Command {
         omegaController.reset(robotPose.getRotation().getRadians(), robotVelocity.omegaRadiansPerSecond);
     }
 
+    private Pose2d getRobotPose() {
+        return currentPoseSupplier.get();
+    }
+
     @Override
     public void execute() {
-        var robotPose = swerveDriveSubsystem.getPose();
+        var robotPose = getRobotPose();
 
         var targetPose = targetPoseSupplier.get();
 
@@ -101,11 +127,19 @@ public class DriveToPositionCommand extends Command {
         if (driveController.atGoal()) driveSpeed = 0;
         if (omegaController.atGoal()) omegaSpeed = 0;
 
-        swerveDriveSubsystem.setControl(
-                swerveDriveSubsystem.closedLoop
-                .withVelocityX(-driveSpeed * goalTranslation.getX() / goalTranslation.getNorm())
-                .withVelocityY(-driveSpeed * goalTranslation.getY() / goalTranslation.getNorm())
-                .withRotationalRate(omegaSpeed));
+        var control = swerveDriveSubsystem.closedLoop;
+
+        if (!lockTranslation) {
+            control = control
+            .withVelocityX(-driveSpeed * goalTranslation.getX() / goalTranslation.getNorm())
+                .withVelocityY(-driveSpeed * goalTranslation.getY() / goalTranslation.getNorm());
+        }
+
+        if (!lockRotation) {
+            control = control.withRotationalRate(omegaSpeed);
+        }
+
+        swerveDriveSubsystem.setControl(control);
     }
 
     @Override

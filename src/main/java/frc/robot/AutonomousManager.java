@@ -27,6 +27,7 @@ import frc.lib.math.MathUtils.AnyContainer;
 import frc.lib.vision.LimelightRawAngles;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.commands.AimAndSpinupCommand;
+import frc.robot.commands.DriveToPositionCommand;
 import frc.robot.commands.IntakeAssistCommandComplexAuto;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.lights.LightsSubsystemB;
@@ -337,9 +338,14 @@ public class AutonomousManager {
 
         NamedCommands.registerCommand("c_spinup_pose", scheduleWrapper(spinupPose()));
 
-        NamedCommands.registerCommand("c_aim_vision", new Command() {});
-        NamedCommands.registerCommand("c_aim_pose", new Command() {});
-        NamedCommands.registerCommand("c_aim_move", new Command() {});
+        // aim vision uses the vision explicitly to aim based on where it is
+        NamedCommands.registerCommand("c_aim_vision", aimVisionCommand());
+        
+        // aim pose uses the pose of the robot to aim based on where it is right now
+        NamedCommands.registerCommand("c_aim_pose", aimPoseCommand());
+
+         // aim move moves to where it should be based on pathplanner
+        NamedCommands.registerCommand("c_aim_move", aimMoveCommand());
         NamedCommands.registerCommand("c_wait_for_shoot", waitUntil(() -> !spinningUp));
 
         NamedCommands.registerCommand("c_shoot", scheduleWrapper(shootCommand()));
@@ -348,6 +354,7 @@ public class AutonomousManager {
         NamedCommands.registerCommand("c_intake", scheduleWrapper(intakeCommand()));
         NamedCommands.registerCommand("c_note_strafe", scheduleWrapper(intakeCommand().alongWith(noteStrafeCommand())));
         NamedCommands.registerCommand("c_strafe_intake", scheduleWrapper(noteStrafeCommand())); // just does the above two together
+        NamedCommands.registerCommand("c_stop_intake", scheduleWrapper(stopIntakingCommand()));
     }
 
     private Command scheduleWrapper(Command command) {
@@ -394,9 +401,9 @@ public class AutonomousManager {
         return spinupSupplier(() -> {
                 if (distanceToSupplier.thing.isEmpty()) {
                 ChoreoTrajectoryState future = currentChoreo.sample(timeInFuture + currentAutoTime.get(), FieldConstants.isBlue());
-                        Pose2d shootingPosition = future.getPose();
-                        double distanceToSpeaker = shootingPosition.getTranslation().getDistance(FieldConstants.getSpeakerPose().getTranslation());
-                        distanceToSupplier.thing = OptionalDouble.of(distanceToSpeaker);
+                Pose2d shootingPosition = future.getPose();
+                double distanceToSpeaker = shootingPosition.getTranslation().getDistance(FieldConstants.getSpeakerPose().getTranslation());
+                distanceToSupplier.thing = OptionalDouble.of(distanceToSpeaker);
                 }
                 return distanceToSupplier.thing.getAsDouble();
         });
@@ -407,20 +414,18 @@ public class AutonomousManager {
     }
 
     private Command spinupVision() {
-        return spinupSupplier(() -> { 
-                OptionalDouble distance =  visionSubsystem.getSpeakerDistanceFromVision(swerveDriveSubsystem.getPose());
-                if (distance.isPresent()) {
-                        return distance.getAsDouble();
-                } else {
-                        return visionSubsystem.getSpeakerDistanceFromPose(swerveDriveSubsystem.getPose());
-                }
-        });
+        return spinupSupplier(() -> 
+                FieldConstants.getSpeakerDistanceFromPose(
+                        visionSubsystem.getPoseFromPinhole(true).
+                        orElseGet(swerveDriveSubsystem::getPose)
+                )
+        );
     }
 
     private Command spinupPose() {
-        return spinupSupplier(() -> { 
-                return visionSubsystem.getSpeakerDistanceFromPose(swerveDriveSubsystem.getPose());
-        });
+        return spinupSupplier(() -> 
+                FieldConstants.getSpeakerDistanceFromPose(swerveDriveSubsystem.getPose())
+        );
     }
 
     private Command shootCommand() {
@@ -444,6 +449,39 @@ public class AutonomousManager {
 
     private Command stopIntakingCommand() {
         return runOnce(() -> isIntaking = false);
+    }
+
+    private Command aimPoseCommand() {
+        return spinupWrapper(new DriveToPositionCommand(swerveDriveSubsystem, () -> {
+            Pose2d currentPose = swerveDriveSubsystem.getPose();
+
+            Rotation2d angleToSpeaker = FieldConstants.getSpeakerAngleFromPose(currentPose);
+
+            Pose2d goalPose = new Pose2d(currentPose.getTranslation(), angleToSpeaker.plus(Rotation2d.fromDegrees(180)));
+
+            return goalPose;
+        }, false).withLockTranslation());
+    }
+
+    private Command aimVisionCommand() {
+        return spinupWrapper(new DriveToPositionCommand(swerveDriveSubsystem, () -> {
+            Pose2d currentPose = visionSubsystem.getPoseFromPinhole(false).orElseGet(swerveDriveSubsystem::getPose);
+
+            Rotation2d angleToSpeaker = FieldConstants.getSpeakerAngleFromPose(currentPose);
+
+            Pose2d goalPose = new Pose2d(swerveDriveSubsystem.getPose().getTranslation(), angleToSpeaker.plus(Rotation2d.fromDegrees(180)));
+
+            return goalPose;
+        }, false).withLockTranslation());
+    }
+
+    private Command aimMoveCommand() {
+        return spinupWrapper(new DriveToPositionCommand(swerveDriveSubsystem, () -> {
+            ChoreoTrajectoryState future = currentChoreo.getFinalState();
+            Pose2d shootingPosition = future.getPose();
+            Pose2d goalPose = shootingPosition;
+            return goalPose;
+        }, false));
     }
 
     private Command pathFromFile(String name) {

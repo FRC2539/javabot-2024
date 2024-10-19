@@ -265,6 +265,7 @@ public class SwerveDriveSubsystem extends SwerveDrivetrain implements Subsystem 
     }
 
     public Command cardinalCommand(Rotation2d targetAngle, DoubleSupplier forward, DoubleSupplier strafe) {
+        @SuppressWarnings("unused")
         final ProfiledPIDController omegaController =
                 new ProfiledPIDController(5, 0, 0, new TrapezoidProfile.Constraints(3.0, 8));
 
