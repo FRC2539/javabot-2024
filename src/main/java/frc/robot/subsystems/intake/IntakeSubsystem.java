@@ -5,176 +5,104 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.lib.logging.Logger;
+import static frc.lib.logging.Logger.log;
 import frc.robot.subsystems.intake.IntakeIO.IntakeIOInputs;
-import java.util.function.BooleanSupplier;
 
 public class IntakeSubsystem extends SubsystemBase {
+    // IO
     private IntakeIO intakeIO;
-
     private IntakeIOInputs inputs = new IntakeIOInputs();
 
-    private IntakeState state = IntakeState.DISABLED;
-
-    private BooleanSupplier hasPieceHighDebounce;
-    private BooleanSupplier hasPieceLowDebounce;
-
+    // Tunables
     public double topSpeedAdjustable = 0;
     public double bottomSpeedAdjustable = 0;
 
+    // Non-command State
+    private boolean needsToZero = false;
+    private boolean intaking = false;
+    private String stateName = "disabled";
+
+    // Constructor(s)
     public IntakeSubsystem(IntakeIO intakeIO) {
         this.intakeIO = intakeIO;
 
-        this.hasPieceHighDebounce = new Trigger(() -> hasPieceRaw()).debounce(1, DebounceType.kFalling);
-        this.hasPieceLowDebounce = new Trigger(() -> hasPieceRaw()).debounce(0.1, DebounceType.kFalling);
-
         setDefaultCommand(Commands.either(
-                moveCommand()
+                move()
                         .withTimeout(0.2)
-                        .andThen(reverseMoveCommand().withTimeout(0.04))
+                        .andThen(reverseMove().withTimeout(0.04))
                         // .andThen(reverseMoveCommand().until(() -> getRollerSensor()).withTimeout(2)),
-                        .andThen(reverseMoveCommand().until(() -> hasPieceRaw()))
-                        .withTimeout(2),
+                        .andThen(reverseMove().until(hasPieceRaw))
+                        .withTimeout(2).andThen(() -> needsToZero = false),
                 // .andThen(moveCommand().withTimeout(0.0))),
-                disabledCommand(),
-                () -> state == IntakeState.INTAKING || state == IntakeState.INTAKING_REVERSE));
+                disabled(),
+                () -> needsToZero));
     }
 
-    public enum IntakeState {
-        DISABLED,
-        MOVING,
-        MOVING_REVERSE,
-        INTAKING,
-        INTAKING_REVERSE,
-        SHOOTING,
-        AMPING,
-        EJECTING,
-        ADJUSTABLE
-    }
-
+    // Periodic
+    @Override
     public void periodic() {
         intakeIO.updateInputs(inputs);
-
-        // Roller moves 4 times as fast as chamber
-
-        switch (state) {
-            case DISABLED:
-                setChamber(0);
-                setRoller(0);
-                break;
-            case EJECTING:
-                setChamber(-1);
-                setRoller(-.25);
-                break;
-            case SHOOTING:
-                setChamber(1 * 12 / 12.0);
-                setRoller(.25 * 12 / 12.0);
-                break;
-            case AMPING:
-                setChamber(1 * 9/12.0);
-                setRoller(.25 * 9.0/12.0);
-                break;
-            case MOVING:
-                setChamber(1.0 / 4);
-                setRoller(.25 / 4);
-                break;
-            case MOVING_REVERSE:
-                setChamber(-.20);
-                setRoller(-.05);
-                break;
-            case INTAKING:
-                setChamber(1.0 * .85); // .85
-                setRoller(.50 * .85); // .85
-                break;
-            case INTAKING_REVERSE:
-                setChamber(-1.0 * .85);
-                setRoller(-.50 * .85);
-                break;
-            case ADJUSTABLE:
-                setRoller(topSpeedAdjustable);
-                setChamber(bottomSpeedAdjustable);
-                break;
-        }
-
         logIntakeInformation();
     }
 
-    public Command disabledCommand() {
-        return runEnd(
-                () -> {
-                    setIntakeState(IntakeState.DISABLED);
-                },
-                () -> {});
+    // Main (Stateful) Commands
+    public Command disabled() {
+        return nameCommand(runIntakeAtVoltages(0,0),"disabled");
     }
 
-    public Command ejectCommand() {
-        return runEnd(
-                () -> {
-                    setIntakeState(IntakeState.EJECTING);
-                },
-                () -> {});
+    public Command eject() {
+        return nameCommand(runIntakeAtVoltages(-1,-.25),"eject");
     }
 
-    public Command reverseMoveCommand() {
-        return runEnd(
-                () -> {
-                    setIntakeState(IntakeState.MOVING_REVERSE);
-                },
-                () -> {});
+    public Command reverseMove() {
+        return nameCommand(runIntakeAtVoltages(-.20,-.05),"reverseMove");
     }
 
-    public Command shootCommand() {
-        return runEnd(
-                () -> {
-                    setIntakeState(IntakeState.SHOOTING);
-                },
-                () -> {});
+    public Command shoot() {
+        return nameCommand(runIntakeAtVoltages(1 * 12 / 12.0,.25 * 12 / 12.0),"shoot");
     }
 
-    public Command ampCommand() {
-        return runEnd(
-                () -> {
-                    setIntakeState(IntakeState.AMPING);
-                },
-                () -> {});
+    public Command amp() { 
+        return nameCommand(runIntakeAtVoltages(1 * 9/12.0,.25 * 9.0/12.0),"amp");
+    };
+
+    public Command intake() {
+        return nameCommand(intakingCommand(runIntakeAtVoltages(1.0 * .85,.50 * .85)
+                .until(hasPieceRaw).finallyDo(() -> needsToZero = true)),"intake");
     }
 
-    public Command intakeCommand() {
-        Command intakeCommand = runEnd(
-                        () -> {
-                            setIntakeState(IntakeState.INTAKING);
-                        },
-                        () -> {})
-                .until(() -> hasPieceRaw());
-
-        return intakeCommand;
+    public Command shooterIntake() {
+        return nameCommand(intakingCommand(runIntakeAtVoltages(-1.0 * .85,-.50 * .85)
+                .until(hasPieceRaw).finallyDo(() -> needsToZero = true)),"shooterIntake");
     }
 
-    public Command shooterIntakeCommand() {
-        return runEnd(
-                        () -> {
-                            setIntakeState(IntakeState.INTAKING_REVERSE);
-                        },
-                        () -> {})
-                .until(() -> hasPieceRaw());
+    public Command move() {
+        return nameCommand(intakingCommand(runIntakeAtVoltages(1.0 / 4,.25 / 4)),"move");
     }
 
-    public Command moveCommand() {
-        return runEnd(
-                () -> {
-                    setIntakeState(IntakeState.MOVING);
-                },
-                () -> {});
+    public Command manualMove() {
+        return nameCommand(intakingCommand(runIntakeAtVoltages(1.0 / 4,.25 / 4)),"manualMove");
     }
 
-    public Command manualMoveCommand() {
-        return runEnd(
-                () -> {
-                    setIntakeState(IntakeState.MOVING);
-                },
-                () -> {});
+    // Command Helpers
+    public Command runIntakeAtVoltages(double chamberVoltage, double rollerVoltage) {
+        return run(
+            () -> {
+                setChamber(chamberVoltage);
+                setRoller(rollerVoltage);
+            }
+        );
     }
 
+    private Command intakingCommand(Command command) {
+        return command.beforeStarting(() -> intaking = true).finallyDo(() -> intaking = false);
+    }
+
+    public Command nameCommand(Command command, String name) {
+        return command.beforeStarting(() -> stateName = name).withName(name);
+    }
+
+    // Setter/Getter Helpers
     private void setChamber(double speed) {
         intakeIO.setChamberSpeed(speed);
     }
@@ -183,50 +111,41 @@ public class IntakeSubsystem extends SubsystemBase {
         intakeIO.setRollerSpeed(speed);
     }
 
-    public boolean getRollerSensor() {
-        return inputs.rollerSensor;
-    }
+    /** Replace ALL BOOLEAN MEHTODS WITH TRIGGERS HAHAHAHAHA???? im actually kinda confused on this one */
+    public final Trigger getRollerSensor = new Trigger(() -> inputs.rollerSensor);
+    public final Trigger getChamberSensor = new Trigger(() -> inputs.chamberSensor);
 
-    public boolean getChamberSensor() {
-        return inputs.chamberSensor;
-    }
+    public final Trigger hasPieceRaw = getRollerSensor.or(getChamberSensor);
 
-    public boolean hasPieceRaw() {
-        return getRollerSensor() || getChamberSensor();
-    }
 
-    public boolean hasPieceSmoothed() {
-        if (state == IntakeState.INTAKING
-                || state == IntakeState.MOVING
-                || state == IntakeState.INTAKING_REVERSE
-                || state == IntakeState.MOVING_REVERSE) {
+    private final Trigger hasPieceHighDebounce = hasPieceRaw.debounce(1, DebounceType.kFalling);
+    private final Trigger hasPieceLowDebounce = hasPieceRaw.debounce(0.1, DebounceType.kFalling);
+ 
+    public final Trigger hasPieceSmoothed = new Trigger(() -> {
+        if (intaking) {
             return hasPieceHighDebounce.getAsBoolean();
         } else {
             return hasPieceLowDebounce.getAsBoolean();
         }
-    }
-
-    public void setIntakeState(IntakeState state) {
-        this.state = state;
-    }
-
+    });
+    
     public void logIntakeInformation() {
-        Logger.log("/IntakeSubsystem/State", state.name());
-        Logger.log("/IntakeSubsystem/RollerSpeed", inputs.rollerSpeed);
-        Logger.log("/IntakeSubsystem/BelSpeed", inputs.chamberSpeed);
-        Logger.log("/IntakeSubsystem/RollerHasPiece", inputs.rollerSensor);
-        Logger.log("/IntakeSubsystem/BeltHasPiece", inputs.chamberSensor);
+        log("/IntakeSubsystem/State", stateName);
+        log("/IntakeSubsystem/RollerSpeed", inputs.rollerSpeed);
+        log("/IntakeSubsystem/BelSpeed", inputs.chamberSpeed);
+        log("/IntakeSubsystem/RollerHasPiece", inputs.rollerSensor);
+        log("/IntakeSubsystem/BeltHasPiece", inputs.chamberSensor);
 
-        Logger.log("/IntakeSubsystem/HasPieceRaw", hasPieceRaw());
-        Logger.log("/IntakeSubsystem/HasPieceSmoothed", hasPieceSmoothed());
+        log("/IntakeSubsystem/HasPieceRaw", hasPieceRaw.getAsBoolean());
+        log("/IntakeSubsystem/HasPieceSmoothed", hasPieceSmoothed.getAsBoolean());
 
-        Logger.log("/IntakeSubsystem/RollerVoltage", inputs.rollerVoltage);
-        Logger.log("/IntakeSubsystem/RollerCurrent", inputs.rollerCurrent);
+        log("/IntakeSubsystem/RollerVoltage", inputs.rollerVoltage);
+        log("/IntakeSubsystem/RollerCurrent", inputs.rollerCurrent);
 
-        Logger.log("/IntakeSubsystem/BeltVoltage", inputs.chamberVoltage);
-        Logger.log("/IntakeSubsystem/BeltCurrent", inputs.chamberCurrent);
+        log("/IntakeSubsystem/BeltVoltage", inputs.chamberVoltage);
+        log("/IntakeSubsystem/BeltCurrent", inputs.chamberCurrent);
 
-        Logger.log("/IntakeSubsystem/RollerTemperature", inputs.rollerTemperature);
-        Logger.log("/IntakeSubsystem/BeltTemperature", inputs.chamberTemperature);
+        log("/IntakeSubsystem/RollerTemperature", inputs.rollerTemperature);
+        log("/IntakeSubsystem/BeltTemperature", inputs.chamberTemperature);
     }
 }

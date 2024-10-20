@@ -96,7 +96,7 @@ public class AutonomousManager {
                     Commands.waitSeconds(0.5)
                             .andThen(waitUntil(() -> aimAndSpinupCommand.isAtAngleAndSpunUpAndTarget())
                                     .withTimeout(2.0))
-                            .andThen(intakeSubsystem.shootCommand().asProxy().withTimeout(0.4)),
+                            .andThen(intakeSubsystem.shoot().asProxy().withTimeout(0.4)),
                     aimAndSpinupCommand,
                     run(() -> {}, swerveDriveSubsystem),
                     run(() -> {}, shooterSubsystem).asProxy());
@@ -142,9 +142,9 @@ public class AutonomousManager {
                                         .shootCommand(new ShooterState(.6, .6, Rotation2d.fromDegrees(62)))
                                         .asProxy(),
                                 Commands.waitSeconds(.5)
-                                        .andThen(intakeSubsystem.shootCommand().asProxy()))
+                                        .andThen(intakeSubsystem.shoot().asProxy()))
                         .withTimeout(1.0));
-        NamedCommands.registerCommand("intake", intakeSubsystem.intakeCommand().asProxy());
+        NamedCommands.registerCommand("intake", intakeSubsystem.intake().asProxy());
         @SuppressWarnings("unused")
         LinearFilter lowPassIQR = LinearFilter.movingAverage(20);
         IntakeAssistCommandComplexAuto intakeAssistCommandComplex =
@@ -169,14 +169,14 @@ public class AutonomousManager {
                 new PIDController(5, 0, 0.1));
 
         NamedCommands.registerCommand(
-                "mlintake", intakeAssistCommandComplex.until(() -> intakeSubsystem.hasPieceSmoothed()));
+                "mlintake", intakeAssistCommandComplex.until(intakeSubsystem.hasPieceSmoothed));
 
         NamedCommands.registerCommand(
                 "mlintakedrive",
                 container
                         .mlIntakeStraightCommand()
                         .until(() -> {
-                            boolean hasPiece = intakeSubsystem.hasPieceSmoothed();
+                            boolean hasPiece = intakeSubsystem.hasPieceSmoothed.getAsBoolean();
                             boolean pastLine =
                                     false; // FieldConstants.isBlue() == (swerveDriveSubsystem.getPose().getX() >
                             // ((FieldConstants.fieldLength / 2) - 0));
@@ -186,7 +186,7 @@ public class AutonomousManager {
                         //                     + (FieldConstants.fieldLength / 2));
                             return hasPiece || pastLine;
                         })
-                        .alongWith(intakeSubsystem.intakeCommand().asProxy()));
+                        .alongWith(intakeSubsystem.intake().asProxy()));
         NamedCommands.registerCommand("amp", parallel());
         Command autoAimCommand;
         {
@@ -224,7 +224,7 @@ public class AutonomousManager {
                 "spinupshoot",
                 parallel(
                                 container.getSpinupCommand().asProxy(),
-                                intakeSubsystem.shootCommand().asProxy())
+                                intakeSubsystem.shoot().asProxy())
                         .withTimeout(.5));
         NamedCommands.registerCommand(
                 "spinupmov", container.getSpinupMoveCommand().asProxy());
@@ -232,11 +232,11 @@ public class AutonomousManager {
                 "spinupshootmov",
                 parallel(
                                 container.getSpinupMoveCommand().asProxy(),
-                                intakeSubsystem.shootCommand().asProxy())
+                                intakeSubsystem.shoot().asProxy())
                         .withTimeout(.5));
         NamedCommands.registerCommand("coast", parallel());
         NamedCommands.registerCommand(
-                "eject", intakeSubsystem.ejectCommand().withTimeout(2).asProxy());
+                "eject", intakeSubsystem.eject().withTimeout(2).asProxy());
         NamedCommands.registerCommand("rainbow", parallel());
 
         registerChoreoCommands();
@@ -430,14 +430,14 @@ public class AutonomousManager {
 
     private Command shootCommand() {
         // Runs the intake to shoot
-        return intakeSubsystem.shootCommand().withTimeout(0.5).finallyDo(() -> 
+        return intakeSubsystem.shoot().withTimeout(0.5).finallyDo(() -> 
         {spinningUp = false;
         //System.out.println("finished shoot command?");
         });
     }
 
     private Command intakeCommand() {
-        return intakeWrapper(intakeSubsystem.intakeCommand().andThen(() -> isIntaking = false));
+        return intakeWrapper(intakeSubsystem.intake().andThen(() -> isIntaking = false));
     }
 
     private Command noteStrafeCommand() {
@@ -498,7 +498,7 @@ public class AutonomousManager {
                         Commands.sequence(
                                 pathFromFile("3b-2s"), NamedCommands.getCommand("shoot"), pathFromFile("2s-3b")),
                         Commands.runOnce(() -> {}),
-                        () -> intakeSubsystem.hasPieceSmoothed()));
+                        intakeSubsystem.hasPieceSmoothed));
 
         registerShootConditionalPath("5b-3s-4b", "-3s", "-4b", "5b-4b");
         registerShootConditionalPath("4b-3s-3b", "-3s", "3s-3b", "4b-3b");
@@ -515,7 +515,7 @@ public class AutonomousManager {
                                 pathFromFile(path2),
                                 NamedCommands.getCommand("mlintakedrive")),
                         Commands.sequence(pathFromFile(altPath), NamedCommands.getCommand("mlintakedrive")),
-                        () -> intakeSubsystem.hasPieceSmoothed()));
+                        intakeSubsystem.hasPieceSmoothed));
     }
 
     public Command getAutonomousCommand() {

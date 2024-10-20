@@ -261,7 +261,7 @@ public class RobotContainer {
         // the negates are in place so it debounces falling edges only. the .debounce decorator only debonces rising
         // edges by default
         // (the oppositie of what we want if it keeps randomly flickering off)
-        lightsSubsystem.setHasPieceSupplier(() -> intakeSubsystem.hasPieceSmoothed());
+        lightsSubsystem.setHasPieceSupplier(intakeSubsystem.hasPieceSmoothed);
 
         /* Set right joystick bindings */
 
@@ -302,7 +302,7 @@ public class RobotContainer {
                         Rotation2d.fromDegrees(-90), this::getDriveForwardAxis, this::getDriveStrafeAxis));
 
         // Eject note from intake
-        rightDriveController.getRightThumb().whileTrue(intakeSubsystem.ejectCommand());
+        rightDriveController.getRightThumb().whileTrue(intakeSubsystem.eject());
 
         // Podium Shot Spinup
         rightDriveController
@@ -325,20 +325,20 @@ public class RobotContainer {
         rightDriveController
                 .getBottomThumb()
                 .and(rightDriveController.getTrigger())
-                .whileTrue(intakeSubsystem.shootCommand());
+                .whileTrue(intakeSubsystem.shoot());
 
         // Run Intake
         rightDriveController
                 .getLeftThumb()
                 .and(rightDriveController.getTrigger().negate())
-                .whileTrue(intakeSubsystem.intakeCommand());
+                .whileTrue(intakeSubsystem.intake());
 
         // Run Shooter Intake
         rightDriveController
                 .getRightThumb()
                 .and(rightDriveController.getTrigger())
                 .whileTrue(parallel(
-                        intakeSubsystem.shooterIntakeCommand(),
+                        intakeSubsystem.shooterIntake(),
                         shooterSubsystem.shootCommand(
                                 ShooterState.fromVoltages(-.25, -.25, Rotation2d.fromDegrees(55)))));
 
@@ -351,8 +351,8 @@ public class RobotContainer {
                                 this::getDriveForwardAxis,
                                 this::getDriveStrafeAxis,
                                 this::getDriveRotationAxis)
-                        .until(() -> intakeSubsystem.hasPieceRaw()))
-                .whileTrue(intakeSubsystem.intakeCommand());
+                        .until(intakeSubsystem.hasPieceRaw))
+                .whileTrue(intakeSubsystem.intake());
 
         // Score In Amp (Shooter)
 
@@ -457,7 +457,7 @@ public class RobotContainer {
                 .and(leftDriveController.getBottomThumb().negate())
                 .and(rightDriveController.getTrigger())
                 .whileTrue(Commands.waitUntil(() -> stoppedShootAimAndSpinup.isAtAngleAndSpunUpAndTarget())
-                        .andThen(intakeSubsystem.shootCommand()));
+                        .andThen(intakeSubsystem.shoot()));
 
         leftDriveController
                 .getTrigger()
@@ -478,7 +478,7 @@ public class RobotContainer {
                 .and(leftDriveController.getBottomThumb())
                 .and(rightDriveController.getTrigger())
                 .whileTrue(Commands.waitUntil(() -> movingShootAimAndSpinup.isAtAngleAndSpunUp())
-                        .andThen(intakeSubsystem.shootCommand()));
+                        .andThen(intakeSubsystem.shoot()));
 
         // Climber Down
         leftDriveController.getLeftThumb().whileTrue(climberSubsystem.setVoltage(-12));
@@ -520,7 +520,7 @@ public class RobotContainer {
                 .getBottomThumb()
                 .and(leftDriveController.getTrigger().negate())
                 .and(rightDriveController.getTrigger())
-                .whileTrue(intakeSubsystem.shootCommand());
+                .whileTrue(intakeSubsystem.shoot());
 
         leftDriveController
                 .getLeftTopLeft()
@@ -564,7 +564,7 @@ public class RobotContainer {
         operatorController
                 .getLeftBumper()
                 .and(rightDriveController.getTrigger())
-                .whileTrue(intakeSubsystem.ampCommand());
+                .whileTrue(intakeSubsystem.amp());
 
         // // Trap Command
         // operatorController.getY().whileTrue(trapSubsystem.trapStateCommand(new TrapState(0, 0, 34)));
@@ -669,7 +669,7 @@ public class RobotContainer {
         operatorController
                 .getRightTrigger()
                 .and(operatorController.getLeftTrigger().negate())
-                .and(() -> !intakeSubsystem.hasPieceSmoothed())
+                .and(intakeSubsystem.hasPieceSmoothed.negate())
                 .whileTrue(run(
                         () -> LightsSubsystemB.LEDSegment.MainStrip.setStrobeAnimation(LightsSubsystemB.purple, 0.3),
                         lightsSubsystem));
@@ -730,7 +730,7 @@ public class RobotContainer {
                 .getLeftTrigger()
                 .and(operatorController.getRightTrigger())
                 .and(rightDriveController.getTrigger())
-                .whileTrue(intakeSubsystem.shootCommand());
+                .whileTrue(intakeSubsystem.shoot());
 
         operatorController.getBack().whileTrue(climberSubsystem.moveClimberUpOperator());
 
@@ -837,14 +837,14 @@ public class RobotContainer {
                         return swerveDriveSubsystem.getRotation();
                     }
                 })
-                .until(() -> intakeSubsystem.hasPieceSmoothed());
+                .until(intakeSubsystem.hasPieceSmoothed);
     }
 
     public Command mlIntakeStraightCommand() {
         SlewRateLimiter forwardSlewer = new SlewRateLimiter(8);
         SlewRateLimiter strafeSlewer = new SlewRateLimiter(8);
         final double aimingFactor = 0.8; // up to 1 the pose converges. reduces overshoot chance if less than 1;
-        DoubleSupplier speed = () -> intakeSubsystem.hasPieceSmoothed() ? 0 : 1.5;
+        DoubleSupplier speed = () -> intakeSubsystem.hasPieceSmoothed.getAsBoolean() ? 0 : 1.5;
         final LinearFilter myFilter = LinearFilter.singlePoleIIR(0.1, 0.02);
         Supplier<Rotation2d> angleOfGamepiece = () -> {
             if (visionSubsystem.getDetectorInfo().isPresent())
