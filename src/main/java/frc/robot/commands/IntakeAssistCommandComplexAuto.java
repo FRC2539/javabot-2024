@@ -12,7 +12,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib.logging.Logger;
 import frc.lib.vision.PinholeModel3D;
 import frc.robot.Constants.VisionConstants;
-import frc.robot.subsystems.lights.LightsSubsystemB;
+import frc.robot.subsystems.lights.LightsSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveDriveSubsystem;
 import frc.robot.subsystems.vision.VisionSubsystem;
 
@@ -34,7 +34,7 @@ public class IntakeAssistCommandComplexAuto extends Command {
     public IntakeAssistCommandComplexAuto(
             SwerveDriveSubsystem swerveDriveSubsystem,
             VisionSubsystem visionSubsystem,
-            LightsSubsystemB lights) {
+            LightsSubsystem lights) {
         this.swerveDriveSubsystem = swerveDriveSubsystem;
         this.visionSubsystem = visionSubsystem;
         strafeingAmount = OptionalDouble.empty();
@@ -89,7 +89,7 @@ public class IntakeAssistCommandComplexAuto extends Command {
             Logger.log("/AutoIntakeCommand/strafeAmount", strafeAmount);
 
             strafeingAmount = OptionalDouble.of(-intakingController.calculate(strafeAmount));
-            LightsSubsystemB.LEDSegment.MainStrip.setColor(LightsSubsystemB.green);
+            LightsSubsystem.LEDSegment.MainStrip.setColor(LightsSubsystem.green);
         }
     }
 

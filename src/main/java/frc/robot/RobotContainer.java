@@ -32,7 +32,6 @@ import frc.robot.Constants.ControllerConstants;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.Constants.TrapConstants;
-import frc.robot.Constants.VisionConstants;
 import frc.robot.commands.AimAndSpinupCommand;
 import frc.robot.commands.DriveToPositionCommand;
 import frc.robot.commands.IntakeAssistCommandComplex;
@@ -42,7 +41,7 @@ import frc.robot.subsystems.climber.ClimberSubsystem;
 import frc.robot.subsystems.intake.IntakeIOFalcon;
 import frc.robot.subsystems.intake.IntakeIOSim;
 import frc.robot.subsystems.intake.IntakeSubsystem;
-import frc.robot.subsystems.lights.LightsSubsystemB;
+import frc.robot.subsystems.lights.LightsSubsystem;
 import frc.robot.subsystems.shamper.ShamperIOSim;
 import frc.robot.subsystems.shamper.ShamperSubsystem;
 import frc.robot.subsystems.shooter.PivotIOFalcon;
@@ -58,14 +57,6 @@ import frc.robot.subsystems.trap.TrapRollerIONeo550;
 import frc.robot.subsystems.trap.TrapRollerIOSim;
 import frc.robot.subsystems.trap.TrapState;
 import frc.robot.subsystems.trap.TrapSubsystem;
-import frc.robot.subsystems.vision.AprilTagIO;
-import frc.robot.subsystems.vision.AprilTagIOLimelight3G;
-import frc.robot.subsystems.vision.AprilTagIOPhotonVision;
-import frc.robot.subsystems.vision.AprilTagIOSim;
-import frc.robot.subsystems.vision.PositionTargetIO;
-import frc.robot.subsystems.vision.PositionTargetIOLimelight;
-import frc.robot.subsystems.vision.PositionTargetIOPhotonVision;
-import frc.robot.subsystems.vision.PositionTargetIOSim;
 import frc.robot.subsystems.vision.VisionSubsystem;
 import java.util.ArrayList;
 import java.util.Optional;
@@ -91,7 +82,7 @@ public class RobotContainer {
     public static SlewRateLimiter strafeRateLimiter = new SlewRateLimiter(35, -35, 0);
 
     private SwerveDriveSubsystem swerveDriveSubsystem;
-    private LightsSubsystemB lightsSubsystem;
+    private LightsSubsystem lightsSubsystem;
     private VisionSubsystem visionSubsystem;
     private ShooterSubsystem shooterSubsystem;
     private IntakeSubsystem intakeSubsystem;
@@ -126,7 +117,7 @@ public class RobotContainer {
         if (Robot.isReal()) {
             shamperSubsystem = new ShamperSubsystem(new ShamperIOSim(), shamperMech);
             swerveDriveSubsystem = TunerConstants.DriveTrain;
-            lightsSubsystem = new LightsSubsystemB(); // new LightsSubsystem(new LightsIOBlinkin(0));
+            lightsSubsystem = new LightsSubsystem(); // new LightsSubsystem(new LightsIOBlinkin(0));
             shooterSubsystem = new ShooterSubsystem(
                     new RollerIOFalcon(ShooterConstants.topShooterPort),
                     new RollerIOFalcon(ShooterConstants.bottomShooterPort),
@@ -143,37 +134,7 @@ public class RobotContainer {
             shamperSubsystem = new ShamperSubsystem(new ShamperIOSim(), shamperMech);
             climberSubsystem = new ClimberSubsystem(new ClimberIOFalcon(), climberMech);
 
-            AprilTagIO limelightAprilTag;
-
-            PositionTargetIO limelightIntake;
-
-            // This silly thing is so that if a camera doesn't connect, the robot still runs. It
-            // basically tries to connect and if it cant, creates a simulation camera.
-            try {
-                if (VisionConstants.usingPinholeModel) {
-                    limelightAprilTag = new AprilTagIOLimelight3G(
-                            "limelight-april",
-                            Constants.VisionConstants.robotToApriltagCamera,
-                            () -> swerveDriveSubsystem.getRotation());
-                } else {
-                    limelightAprilTag = new AprilTagIOLimelight3G(
-                            "limelight-april",
-                            Constants.VisionConstants.robotToApriltagCamera,
-                            () -> swerveDriveSubsystem.getRotation());
-                }
-            } catch (Exception e) {
-                System.err.print(e);
-                limelightAprilTag = new AprilTagIOSim();
-            }
-
-            try {
-                limelightIntake = new PositionTargetIOLimelight("limelight-intake");
-            } catch (Exception e) {
-                System.err.print(e);
-                limelightIntake = new PositionTargetIOSim();
-            }
-
-            visionSubsystem = new VisionSubsystem(swerveDriveSubsystem, limelightAprilTag, limelightIntake);
+            visionSubsystem = new VisionSubsystem(swerveDriveSubsystem);
             intakeSubsystem = new IntakeSubsystem(new IntakeIOFalcon());
 
         } else {
@@ -181,7 +142,7 @@ public class RobotContainer {
             visionSim = new VisionSystemSim("main");
             // If the robot is in simulation it uses these.
             swerveDriveSubsystem = TunerConstants.DriveTrain;
-            lightsSubsystem = new LightsSubsystemB(true);
+            lightsSubsystem = new LightsSubsystem(true);
             shooterSubsystem = new ShooterSubsystem(
                     new RollerIOSim(),
                     new RollerIOSim(),
@@ -234,9 +195,7 @@ public class RobotContainer {
             camera_intakeSim.enableDrawWireframe(true);
 
             visionSubsystem = new VisionSubsystem(
-                    swerveDriveSubsystem,
-                    new AprilTagIOPhotonVision(camera_april, Constants.VisionConstants.robotToApriltagCamera, true),
-                    new PositionTargetIOPhotonVision(camera_intake, true));
+                    swerveDriveSubsystem);
 
             intakeSubsystem = new IntakeSubsystem(new IntakeIOSim());
             trapSubsystem = new TrapSubsystem(new TrapRollerIOSim(), new TrapRollerIOSim(), new RackIOSim(), trapMech);
@@ -406,8 +365,8 @@ public class RobotContainer {
                         .alongWith(Commands.either(
                                 run(
                                                 () -> {
-                                                    LightsSubsystemB.LEDSegment.MainStrip.setColor(
-                                                            LightsSubsystemB.green);
+                                                    LightsSubsystem.LEDSegment.MainStrip.setColor(
+                                                            LightsSubsystem.green);
                                                 },
                                                 lightsSubsystem)
                                         .asProxy(),
@@ -671,7 +630,7 @@ public class RobotContainer {
                 .and(operatorController.getLeftTrigger().negate())
                 .and(intakeSubsystem.hasPieceSmoothed.negate())
                 .whileTrue(run(
-                        () -> LightsSubsystemB.LEDSegment.MainStrip.setStrobeAnimation(LightsSubsystemB.purple, 0.3),
+                        () -> LightsSubsystem.LEDSegment.MainStrip.setStrobeAnimation(LightsSubsystem.purple, 0.3),
                         lightsSubsystem));
 
         // Trap Intaking Indicator (Flash Red and Green)
@@ -679,10 +638,10 @@ public class RobotContainer {
                 .getLeftTrigger()
                 .and(operatorController.getRightTrigger().negate())
                 .whileTrue(repeatingSequence(
-                        run(() -> LightsSubsystemB.LEDSegment.MainStrip.setColor(LightsSubsystemB.red), lightsSubsystem)
+                        run(() -> LightsSubsystem.LEDSegment.MainStrip.setColor(LightsSubsystem.red), lightsSubsystem)
                                 .withTimeout(.1),
                         run(
-                                        () -> LightsSubsystemB.LEDSegment.MainStrip.setColor(LightsSubsystemB.green),
+                                        () -> LightsSubsystem.LEDSegment.MainStrip.setColor(LightsSubsystem.green),
                                         lightsSubsystem)
                                 .withTimeout(.1)));
 
@@ -736,7 +695,7 @@ public class RobotContainer {
 
         operatorController
                 .getStart()
-                .toggleOnTrue(run(() -> LightsSubsystemB.LEDSegment.MainStrip.setRainbowAnimation(1), lightsSubsystem));
+                .toggleOnTrue(run(() -> LightsSubsystem.LEDSegment.MainStrip.setRainbowAnimation(1), lightsSubsystem));
 
         rightDriveController.sendButtonNamesToNT();
         leftDriveController.sendButtonNamesToNT();
@@ -907,7 +866,7 @@ public class RobotContainer {
         return swerveDriveSubsystem;
     }
 
-    public LightsSubsystemB getLightsSubsystem() {
+    public LightsSubsystem getLightsSubsystem() {
         return lightsSubsystem;
     }
 

@@ -4,7 +4,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.lights.LightsSubsystemB;
+import frc.robot.subsystems.lights.LightsSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveDriveSubsystem;
 import frc.robot.subsystems.vision.VisionSubsystem;
 import java.util.function.DoubleSupplier;
@@ -24,7 +24,7 @@ public class IntakeAssistCommand extends Command {
     public IntakeAssistCommand(
             SwerveDriveSubsystem swerveDriveSubsystem,
             VisionSubsystem visionSubsystem,
-            LightsSubsystemB lights,
+            LightsSubsystem lights,
             DoubleSupplier forward,
             DoubleSupplier strafe,
             DoubleSupplier rotation) {
@@ -73,7 +73,7 @@ public class IntakeAssistCommand extends Command {
                     .withVelocityX(forwardRobotRelative.getAsDouble())
                     .withVelocityY(slewwweerrr.calculate(strafeRobotRelative))
                     .withRotationalRate(rotationJoystick.getAsDouble()));
-            LightsSubsystemB.LEDSegment.MainStrip.setColor(LightsSubsystemB.green);
+            LightsSubsystem.LEDSegment.MainStrip.setColor(LightsSubsystem.green);
         } else {
             swerveDriveSubsystem.setControl(swerveDriveSubsystem
                     .openLoop

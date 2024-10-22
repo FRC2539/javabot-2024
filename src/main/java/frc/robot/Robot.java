@@ -10,8 +10,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.lib.logging.Logger;
 import frc.robot.Constants.FieldConstants;
-import frc.robot.subsystems.lights.LightsSubsystemB;
-import frc.robot.subsystems.lights.LightsSubsystemB.LEDSegment;
+import frc.robot.subsystems.lights.LightsSubsystem;
+import frc.robot.subsystems.lights.LightsSubsystem.LEDSegment;
 import java.util.Optional;
 
 public class Robot extends TimedRobot {
@@ -58,7 +58,7 @@ public class Robot extends TimedRobot {
 
         autonomousCommand = robotContainer.getAutonomousCommand();
 
-        LightsSubsystemB.disableLEDs();
+        LightsSubsystem.disableLEDs();
         robotContainer.getVisionSubsystem().updatingPoseUsingVision = false;
 
         // Schedule the chosen autonomous command
@@ -71,7 +71,7 @@ public class Robot extends TimedRobot {
     @Override
     public void teleopInit() {
         robotContainer.getVisionSubsystem().updatingPoseUsingVision = true;
-        LightsSubsystemB.enableLEDs();
+        LightsSubsystem.enableLEDs();
 
         // Prevent any autonomous code from overrunning into teleop
         if (autonomousCommand != null) autonomousCommand.cancel();
@@ -83,7 +83,7 @@ public class Robot extends TimedRobot {
     @Override
     public void disabledInit() {
         robotContainer.getVisionSubsystem().updatingPoseUsingVision = true;
-        LightsSubsystemB.enableLEDs();
+        LightsSubsystem.enableLEDs();
     }
 
     @Override
@@ -92,24 +92,24 @@ public class Robot extends TimedRobot {
         // robotContainer.autonomousManager.update();
 
         if (RobotController.getBatteryVoltage() > 12.3) {
-            LEDSegment.BatteryIndicator.setColor(LightsSubsystemB.green.dim(.25));
+            LEDSegment.BatteryIndicator.setColor(LightsSubsystem.green.dim(.25));
         } else {
-            LEDSegment.BatteryIndicator.setFadeAnimation(LightsSubsystemB.green.dim(.25), 1);
+            LEDSegment.BatteryIndicator.setFadeAnimation(LightsSubsystem.green.dim(.25), 1);
         }
 
         if (robotContainer.getShooterSubsystem().isEncoderConnected()) {
-            LEDSegment.PivotEncoderIndicator.setColor(LightsSubsystemB.white.dim(.25));
+            LEDSegment.PivotEncoderIndicator.setColor(LightsSubsystem.white.dim(.25));
         } else {
-            LEDSegment.PivotEncoderIndicator.setFadeAnimation(LightsSubsystemB.white.dim(.25), 1);
+            LEDSegment.PivotEncoderIndicator.setFadeAnimation(LightsSubsystem.white.dim(.25), 1);
         }
 
         if (DriverStation.isDSAttached()) {
-            LEDSegment.DriverstationIndicator.setColor(LightsSubsystemB.orange.dim(.25));
+            LEDSegment.DriverstationIndicator.setColor(LightsSubsystem.orange.dim(.25));
         } else {
             LEDSegment.DriverstationIndicator.fullClear();
         }
 
-        LEDSegment.MainStrip.setFadeAnimation(LightsSubsystemB.orange, .5);
+        LEDSegment.MainStrip.setFadeAnimation(LightsSubsystem.orange, .5);
 
         Optional<Alliance> alliance = DriverStation.getAlliance();
 
@@ -117,9 +117,9 @@ public class Robot extends TimedRobot {
 
         if (alliance.isPresent()) {
             if (FieldConstants.isBlue()) {
-                LEDSegment.AllianceIndicator.setColor(LightsSubsystemB.blue.dim(.25));
+                LEDSegment.AllianceIndicator.setColor(LightsSubsystem.blue.dim(.25));
             } else {
-                LEDSegment.AllianceIndicator.setColor(LightsSubsystemB.red.dim(.25));
+                LEDSegment.AllianceIndicator.setColor(LightsSubsystem.red.dim(.25));
             }
         } else {
             LEDSegment.AllianceIndicator.fullClear();

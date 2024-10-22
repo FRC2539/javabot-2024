@@ -10,7 +10,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib.logging.Logger;
 import frc.lib.math.MathUtils;
 import frc.robot.Constants.FieldConstants;
-import frc.robot.subsystems.lights.LightsSubsystemB;
+import frc.robot.subsystems.lights.LightsSubsystem;
 import frc.robot.subsystems.shooter.ShooterState;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveDriveSubsystem;
@@ -49,7 +49,7 @@ public class AimAndSpinupCommand extends Command {
     private ShooterSubsystem shooterSubsystem;
 
     @SuppressWarnings("unused")
-    private LightsSubsystemB lightsSubsystem;
+    private LightsSubsystem lightsSubsystem;
 
     private VisionSubsystem visionSubsystem;
 
@@ -83,7 +83,7 @@ public class AimAndSpinupCommand extends Command {
     public AimAndSpinupCommand(
             SwerveDriveSubsystem swerveDriveSubsystem,
             ShooterSubsystem shooterSubsystem,
-            LightsSubsystemB lightsSubsystem,
+            LightsSubsystem lightsSubsystem,
             VisionSubsystem visionSubsystem,
             DoubleSupplier forward,
             DoubleSupplier strafe,
@@ -281,16 +281,16 @@ public class AimAndSpinupCommand extends Command {
 
     private void updateLights() {
         if (!hasTarget() && usingTarget) {
-            LightsSubsystemB.LEDSegment.MainStrip.setStrobeAnimation(LightsSubsystemB.red, 0.3);
+            LightsSubsystem.LEDSegment.MainStrip.setStrobeAnimation(LightsSubsystem.red, 0.3);
         } else {
             if (isAtAngle()) {
                 if (isSpunUp()) {
-                    LightsSubsystemB.LEDSegment.MainStrip.setColor(LightsSubsystemB.blue);
+                    LightsSubsystem.LEDSegment.MainStrip.setColor(LightsSubsystem.blue);
                 } else {
-                    LightsSubsystemB.LEDSegment.MainStrip.setStrobeAnimation(LightsSubsystemB.green, 0.3);
+                    LightsSubsystem.LEDSegment.MainStrip.setStrobeAnimation(LightsSubsystem.green, 0.3);
                 }
             } else {
-                LightsSubsystemB.LEDSegment.MainStrip.setStrobeAnimation(LightsSubsystemB.yellow, 0.3);
+                LightsSubsystem.LEDSegment.MainStrip.setStrobeAnimation(LightsSubsystem.yellow, 0.3);
             }
         }
     }

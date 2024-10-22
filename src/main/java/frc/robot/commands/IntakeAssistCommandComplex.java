@@ -12,7 +12,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib.logging.Logger;
 import frc.lib.vision.PinholeModel3D;
 import frc.robot.Constants.VisionConstants;
-import frc.robot.subsystems.lights.LightsSubsystemB;
+import frc.robot.subsystems.lights.LightsSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveDriveSubsystem;
 import frc.robot.subsystems.vision.VisionSubsystem;
 import java.util.function.DoubleSupplier;
@@ -34,7 +34,7 @@ public class IntakeAssistCommandComplex extends Command {
     public IntakeAssistCommandComplex(
             SwerveDriveSubsystem swerveDriveSubsystem,
             VisionSubsystem visionSubsystem,
-            LightsSubsystemB lights,
+            LightsSubsystem lights,
             DoubleSupplier forward,
             DoubleSupplier strafe,
             DoubleSupplier rotation) {
@@ -107,7 +107,7 @@ public class IntakeAssistCommandComplex extends Command {
                     .withVelocityX(forwardRobotRelative.getAsDouble())
                     .withVelocityY(-intakingController.calculate(strafeAmount))
                     .withRotationalRate(rotationJoystick.getAsDouble()));
-            LightsSubsystemB.LEDSegment.MainStrip.setColor(LightsSubsystemB.green);
+            LightsSubsystem.LEDSegment.MainStrip.setColor(LightsSubsystem.green);
         } else {
             swerveDriveSubsystem.setControl(swerveDriveSubsystem
                     .openLoop
