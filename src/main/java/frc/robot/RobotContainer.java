@@ -5,6 +5,7 @@ import static edu.wpi.first.wpilibj2.command.Commands.*;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -674,7 +675,7 @@ public class RobotContainer {
         runCurlingSetup.whileTrue(
                         run(() -> runCurler.thing = true).until(() -> ampTransportSubsystem.hasPiece())
                         .andThen(run(() -> runCurler.thing=false).withTimeout(0.0))
-                        .andThen(run(() -> runCurler.thing=true).withTimeout(0.2)))
+                        .andThen(run(() -> runCurler.thing=true).withTimeout(0.1)))
                         .onFalse(run(() -> runCurler.thing = false));
 
         runStuff.whileTrue(trapSubsystem.trapStateCommand(new TrapState(-9, 9, 0)));
@@ -847,8 +848,8 @@ public class RobotContainer {
                 .whileTrue(airFeed);
 
         operatorController
-                .getLeftBumper()
-                .and(rightDriveController.getTrigger()).and(airFeed::isAtAngle)
+                .getLeftBumper().and(airFeed::isAtAngle).or(operatorController.getLeftBumper().debounce(0.75, DebounceType.kRising))
+                .and(rightDriveController.getTrigger())
                 .whileTrue(intakeSubsystem.ampCommand());
 
         // lowfeeder shot
