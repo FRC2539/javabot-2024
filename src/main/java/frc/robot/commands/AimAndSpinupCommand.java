@@ -9,13 +9,13 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib.logging.Logger;
 import frc.lib.math.MathUtils;
+import frc.robot.Constants.FieldConstants;
 import frc.robot.subsystems.lights.LightsSubsystemB;
 import frc.robot.subsystems.shooter.ShooterState;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveDriveSubsystem;
 import frc.robot.subsystems.vision.VisionSubsystem;
 import java.util.Optional;
-import java.util.OptionalDouble;
 import java.util.function.DoubleSupplier;
 
 public class AimAndSpinupCommand extends Command {
@@ -164,7 +164,7 @@ public class AimAndSpinupCommand extends Command {
         // if the motion Forward Prediction is 0, skip the step (no moving while shooting)
         if (motionForwardPrediction != 0) {
             ChassisSpeeds currentSpeed = swerveDriveSubsystem.getFieldRelativeChassisSpeeds();
-            double distance = visionSubsystem.getSpeakerDistanceFromPose(swerveDriveSubsystem.getPose());
+            double distance = FieldConstants.getSpeakerDistanceFromPose(swerveDriveSubsystem.getPose());
             predictedPose = new Pose2d(
                     currentPose.getX() + currentSpeed.vxMetersPerSecond * (motionForwardPrediction * distance + motionForwardCompensationBase),
                     currentPose.getY() + currentSpeed.vyMetersPerSecond * (motionForwardPrediction * distance + motionForwardCompensationBase),
@@ -182,10 +182,10 @@ public class AimAndSpinupCommand extends Command {
 
         // Supply the default distance and rotations
         if (!hasSeenTarget) {
-            calculatedRotation = visionSubsystem.getSpeakerAngleFromPose(predictedPose);
-            calculatedDistance = visionSubsystem.getSpeakerDistanceFromPose(predictedPose);
+            calculatedRotation = FieldConstants.getSpeakerAngleFromPose(predictedPose);
+            calculatedDistance = FieldConstants.getSpeakerDistanceFromPose(predictedPose);
             if (motionForwardPrediction != 0) {
-                Rotation2d futureCalculatedRotation = visionSubsystem.getSpeakerAngleFromPose(futurePose);
+                Rotation2d futureCalculatedRotation = FieldConstants.getSpeakerAngleFromPose(futurePose);
                 goalCalculatedRotationSpeed = futureCalculatedRotation.minus(calculatedRotation).getRadians() / 0.20;
             }
         }
@@ -195,11 +195,11 @@ public class AimAndSpinupCommand extends Command {
 
         // if we are using the target and see the target, fill in the info
         if (usingTarget) {
-            Optional<Rotation2d> calculatedRotationOptional = visionSubsystem.getSpeakerAngleFromVision(currentPose);
-            OptionalDouble calculatedDistanceOptional = visionSubsystem.getSpeakerDistanceFromVision(currentPose);
+            Optional<Rotation2d> calculatedRotationOptional = visionSubsystem.getPoseFromLimelight(true).map(FieldConstants::getSpeakerAngleFromPose);
+            Optional<Double> calculatedDistanceOptional = visionSubsystem.getPoseFromLimelight(true).map(FieldConstants::getSpeakerDistanceFromPose);
             if (calculatedRotationOptional.isPresent() && calculatedDistanceOptional.isPresent()) {
                 calculatedRotation = calculatedRotationOptional.get();
-                calculatedDistance = calculatedDistanceOptional.getAsDouble();
+                calculatedDistance = calculatedDistanceOptional.get();
                 usedATarget = true;
             }
         }
