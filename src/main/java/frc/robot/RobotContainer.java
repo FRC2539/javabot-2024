@@ -672,7 +672,7 @@ public class RobotContainer {
                 )).and(operatorController.getDPadRight().and(operatorController.getRightBumper()).negate());
                 
         runCurlingSetup.whileTrue(
-                        run(runStuff::setTrue)
+                        runOnce(runStuff::setTrue)
                         .andThen(Commands.waitUntil(ampTransportSubsystem::hasPiece))
                         .andThen(Commands.waitSeconds(0.1))
                         .finallyDo(runStuff::setFalse));
