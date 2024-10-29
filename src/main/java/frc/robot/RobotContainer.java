@@ -673,10 +673,10 @@ public class RobotContainer {
                 )).and(operatorController.getDPadRight().and(operatorController.getRightBumper()).negate());
                 
         runCurlingSetup.whileTrue(
-                        run(() -> runCurler.thing = true).until(() -> ampTransportSubsystem.hasPiece())
-                        .andThen(run(() -> runCurler.thing=false).withTimeout(0.0))
-                        .andThen(run(() -> runCurler.thing=true).withTimeout(0.1)))
-                        .onFalse(run(() -> runCurler.thing = false));
+                        run(() -> runCurler.thing = true)
+                        .andThen(Commands.waitUntil(ampTransportSubsystem::hasPiece))
+                        .andThen(Commands.waitSeconds(0.1))
+                        .finallyDo(() -> runCurler.thing = false));
 
         runStuff.whileTrue(trapSubsystem.trapStateCommand(new TrapState(-9, 9, 0)));
         runStuff.whileTrue(intakeSubsystem.curlCommand());
