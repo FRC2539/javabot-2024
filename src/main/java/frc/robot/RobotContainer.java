@@ -848,7 +848,7 @@ public class RobotContainer {
                 .whileTrue(airFeed);
 
         operatorController
-                .getLeftBumper().and(airFeed::isAtAngle).or(operatorController.getLeftBumper().debounce(0.75, DebounceType.kRising))
+                .getLeftBumper().and(airFeed::isAtAngle).or(operatorController.getLeftBumper().debounce(0.3, DebounceType.kRising))
                 .and(rightDriveController.getTrigger())
                 .whileTrue(intakeSubsystem.ampCommand());
 
