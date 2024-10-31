@@ -5,6 +5,7 @@ import java.util.Optional;
 import edu.wpi.first.wpilibj.Timer;
 import frc.lib.logging.LoggedReceiver;
 import frc.lib.logging.Logger;
+import frc.lib.vision.LimelightHelpers;
 
 public class PositionTargetIOLimelight implements PositionTargetIO {
     LoggedReceiver tx;;
@@ -17,6 +18,7 @@ public class PositionTargetIOLimelight implements PositionTargetIO {
         ty = Logger.receive("/" + limelightName + "/ty", 0.0d);
         tl = Logger.receive("/" +limelightName + "/cl", 0.0d);
         tv = Logger.receive("/" +limelightName + "/tv", 0);
+        LimelightHelpers.setPipelineIndex(limelightName, 1);
     }
 
     public Optional<PositionTargetIOInputs> updateInputs() {

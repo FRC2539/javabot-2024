@@ -76,7 +76,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     private ShooterState currentShooterState = defaultState;
 
-    private Rotation2d pitchCorrection = Rotation2d.fromDegrees(-0.4);
+    private Rotation2d pitchCorrection = Rotation2d.fromDegrees(-0.05);
 
     private boolean isShooterAtPosition = false;
 
