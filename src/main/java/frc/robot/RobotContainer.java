@@ -31,6 +31,8 @@ import frc.lib.controller.ThrustmasterJoystick;
 import frc.lib.logging.LoggedReceiver;
 import frc.lib.logging.Logger;
 import frc.lib.math.MathUtils.AnyContainer;
+import frc.lib.math.MathUtils.Pipe;
+import frc.lib.math.MathUtils.TriggerPipe;
 import frc.lib.vision.LimelightRawAngles;
 import frc.robot.Constants.ControllerConstants;
 import frc.robot.Constants.FieldConstants;
@@ -662,10 +664,7 @@ public class RobotContainer {
         // rightDriveController.getRightThumb().whileTrue(parallel(curling.withTimeout(0.2).andThen(curlingDos.until(() -> trapSubsystem.getTopRollerCurrent() > 8)).andThen(trapSubsystem.trapStateCommand(new TrapState(-7, 7, 0)).withTimeout(.2)),ampTransportSubsystem.ampTransportCommand(.20),trapSubsystem.runIntakeCommand(-9,9)
         // ));
 
-        AnyContainer<Boolean> runCurler = new AnyContainer<Boolean>(false);
-        Trigger runStuff = new Trigger(() -> runCurler.thing);
-
-        
+        TriggerPipe runStuff = TriggerPipe.of(false);
 
         Trigger runCurlingSetup = (rightDriveController.getRightThumb()
                 .or(
@@ -673,10 +672,10 @@ public class RobotContainer {
                 )).and(operatorController.getDPadRight().and(operatorController.getRightBumper()).negate());
                 
         runCurlingSetup.whileTrue(
-                        run(() -> runCurler.thing = true).until(() -> ampTransportSubsystem.hasPiece())
-                        .andThen(run(() -> runCurler.thing=false).withTimeout(0.0))
-                        .andThen(run(() -> runCurler.thing=true).withTimeout(0.1)))
-                        .onFalse(run(() -> runCurler.thing = false));
+                        runOnce(runStuff::setTrue)
+                        .andThen(Commands.waitUntil(ampTransportSubsystem::hasPiece))
+                        .andThen(Commands.waitSeconds(0.1))
+                        .finallyDo(runStuff::setFalse));
 
         runStuff.whileTrue(trapSubsystem.trapStateCommand(new TrapState(-9, 9, 0)));
         runStuff.whileTrue(intakeSubsystem.curlCommand());
