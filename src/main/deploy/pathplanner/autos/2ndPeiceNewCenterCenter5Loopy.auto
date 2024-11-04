@@ -1,0 +1,79 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 1.325730468864645,
+      "y": 5.539225686154654
+    },
+    "rotation": -0.939190945735608
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "subshoot"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "C-1a"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "spinupshoot"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "1a-2a"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "spinupshoot"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "2a-3a"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "spinupshoot"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Copy of 3a-3b"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Copy of 3b-2s"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "aimedshoot"
+          }
+        }
+      ]
+    }
+  },
+  "folder": "WorldsAutos",
+  "choreoAuto": false
+}

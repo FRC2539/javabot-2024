@@ -314,6 +314,16 @@ public class AutonomousManager {
                 "Center (Center Note)",
                 true,
                 "Preload + Newarline + Center Note on Centerline"),
+
+
+        CENTER52(
+                "Center",
+                5,
+                "2ndPeiceNewCenterCenter5Loopy",
+                "Center5(Second Note)",
+                true,
+                "Preload + Newarline + Center Note on Centerline"),
+
         CENTER5BS(
                 "Center",
                 5,
@@ -364,6 +374,15 @@ public class AutonomousManager {
                 "Source Side (Second Piece)",
                 true,
                 "Preload + Second on Centerline + Third on Centerline."),
+
+        
+        SOURCERED(
+                "Source",
+                3,
+                "RedNewSource4",
+                "Source Side(Red)",
+                true,
+                "Source for the red side"),
 
         // SOURCE4A(
         //         "Source",

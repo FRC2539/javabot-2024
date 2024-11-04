@@ -674,7 +674,7 @@ public class RobotContainer {
         runCurlingSetup.whileTrue(
                         runOnce(runStuff::setTrue)
                         .andThen(Commands.waitUntil(ampTransportSubsystem::hasPiece))
-                        .andThen(Commands.waitSeconds(0.1))
+                        .andThen(Commands.waitSeconds(0.2))
                         .finallyDo(runStuff::setFalse));
 
         runStuff.whileTrue(trapSubsystem.trapStateCommand(new TrapState(-9, 9, 0)));

@@ -3,41 +3,41 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 8.25075702407937,
-        "y": 4.046149659995282
+        "x": 8.56261040157408,
+        "y": 0.7133434209888375
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.8942351087563365,
-        "y": 3.8239607255889227
+        "x": 6.504439219704649,
+        "y": 0.9472265098376368
       },
       "isLocked": false,
-      "linkedName": "centercenter3b"
+      "linkedName": "5bred"
     },
     {
       "anchor": {
-        "x": 4.9608108333025775,
-        "y": 4.303448834817898
+        "x": 4.902340061090378,
+        "y": 2.0347828729845507
       },
       "prevControl": {
-        "x": 5.66949741136723,
-        "y": 3.874506958620871
+        "x": 5.683730536868775,
+        "y": 1.3650196080316397
       },
       "nextControl": {
-        "x": 4.51643296448986,
-        "y": 4.572414386994017
+        "x": 4.411185574507901,
+        "y": 2.4557724329123873
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 4.2240791034288625,
-        "y": 5.180510418000893
+        "x": 4.001890169022504,
+        "y": 3.1340333905739044
       },
       "prevControl": {
-        "x": 4.478967083558052,
-        "y": 4.940651881388869
+        "x": 4.352714802295702,
+        "y": 2.467466587354827
       },
       "nextControl": null,
       "isLocked": false,
@@ -48,35 +48,17 @@
   "constraintZones": [
     {
       "name": "New Constraints Zone",
-      "minWaypointRelativePos": 0.0,
-      "maxWaypointRelativePos": 1.8,
+      "minWaypointRelativePos": 0,
+      "maxWaypointRelativePos": 1.0,
       "constraints": {
         "maxVelocity": 4.5,
-        "maxAcceleration": 6.0,
+        "maxAcceleration": 5.5,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0
       }
     }
   ],
-  "eventMarkers": [
-    {
-      "name": "New Event Marker",
-      "waypointRelativePos": 0.5,
-      "command": {
-        "type": "parallel",
-        "data": {
-          "commands": [
-            {
-              "type": "named",
-              "data": {
-                "name": "spinup"
-              }
-            }
-          ]
-        }
-      }
-    }
-  ],
+  "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 4.5,
     "maxAcceleration": 4.0,
@@ -85,13 +67,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -4.513988458001355,
-    "rotateFast": false
+    "rotation": -37.56859202882746,
+    "rotateFast": true
   },
   "reversed": false,
   "folder": "The Square Convention",
   "previewStartingState": {
-    "rotation": 0,
+    "rotation": -8.673174047879641,
     "velocity": 0
   },
   "useDefaultConstraints": true
