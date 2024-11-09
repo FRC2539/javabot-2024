@@ -469,7 +469,7 @@ public final class Constants {
         // -2.819)).inverse()));
 
         public static final Transform3d limelightRobotToCamera = new Transform3d(
-                new Translation3d(0, 0, .25), new Rotation3d(Math.toRadians(180), Math.toRadians(36), 0));
+                new Translation3d(0.23, 0, .44), new Rotation3d(Math.toRadians(180), Math.toRadians(27), 0));
 
         public static final Transform3d limelightCameraToRobot = limelightRobotToCamera.inverse();
     }

@@ -25,6 +25,7 @@ import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.button.InternalButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.controller.LogitechController;
 import frc.lib.controller.ThrustmasterJoystick;
@@ -33,6 +34,7 @@ import frc.lib.logging.Logger;
 import frc.lib.math.MathUtils.AnyContainer;
 import frc.lib.math.MathUtils.Pipe;
 import frc.lib.math.MathUtils.TriggerPipe;
+import frc.lib.vision.LimelightHelpers;
 import frc.lib.vision.LimelightRawAngles;
 import frc.robot.Constants.ControllerConstants;
 import frc.robot.Constants.FieldConstants;
@@ -72,6 +74,8 @@ import frc.robot.subsystems.vision.PositionTargetIOLimelight;
 import frc.robot.subsystems.vision.PositionTargetIOPhotonVision;
 import frc.robot.subsystems.vision.PositionTargetIOSim;
 import frc.robot.subsystems.vision.VisionSubsystem;
+
+import java.beans.PersistenceDelegate;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.function.DoubleSupplier;
@@ -111,6 +115,8 @@ public class RobotContainer {
     public AutonomousManager autonomousManager;
 
     public VisionSystemSim visionSim;
+
+    public InternalButton shouldRunCurlerAutpoButton = new InternalButton();
 
     public RobotContainer(TimedRobot robot) {
         // This is where all the robot subsystems are initialized.
@@ -164,12 +170,12 @@ public class RobotContainer {
             try {
                 if (VisionConstants.usingPinholeModel) {
                     limelightAprilTag = new AprilTagIOLimelight3G(
-                            "limelight-april",
+                            "limelight-intake",
                             Constants.VisionConstants.robotToApriltagCamera,
                             () -> swerveDriveSubsystem.getRotation());
                 } else {
                     limelightAprilTag = new AprilTagIOLimelight3G(
-                            "limelight-april",
+                            "limelight-intake",
                             Constants.VisionConstants.robotToApriltagCamera,
                             () -> swerveDriveSubsystem.getRotation());
                 }
@@ -601,9 +607,10 @@ public class RobotContainer {
                 .and(rightDriveController.getTrigger())
                 .whileTrue(intakeSubsystem.shootCommand());
 
-        leftDriveController
-                .getLeftTopLeft()
-                .whileTrue(shooterSubsystem.shootCommand(ShooterState.fromVoltages(0, 0, .6)));
+        // leftDriveController
+        //         .getLeftTopLeft()
+        //         .whileTrue(shooterSubsystem.shootCommand(ShooterState.fromVoltages(0, 0, .6)));
+        leftDriveController.getLeftTopLeft().toggleOnTrue(demoAmpCageCommand());
         leftDriveController
                 .getLeftBottomLeft()
                 .whileTrue(shooterSubsystem.shootCommand(ShooterState.fromVoltages(0, 0, -.6)));
@@ -666,16 +673,16 @@ public class RobotContainer {
 
         TriggerPipe runStuff = TriggerPipe.of(false);
 
-        Trigger runCurlingSetup = (rightDriveController.getRightThumb()
+        Trigger runCurlingSetup = ((rightDriveController.getRightThumb()
                 .or(
                         operatorController.getDPadRight().and(operatorController.getRightBumper().negate())
-                )).and(operatorController.getDPadRight().and(operatorController.getRightBumper()).negate());
+                )).and(operatorController.getDPadRight().and(operatorController.getRightBumper()).negate())).or(shouldRunCurlerAutpoButton);
                 
         runCurlingSetup.whileTrue(
                         runOnce(runStuff::setTrue)
                         .andThen(Commands.waitUntil(ampTransportSubsystem::hasPiece))
-                        .andThen(Commands.waitSeconds(0.2))
-                        .finallyDo(runStuff::setFalse));
+                        .andThen(Commands.waitSeconds(0.3))
+                        .finallyDo(runStuff::setFalse).finallyDo(() -> shouldRunCurlerAutpoButton.setPressed(false)));
 
         runStuff.whileTrue(trapSubsystem.trapStateCommand(new TrapState(-9, 9, 0)));
         runStuff.whileTrue(intakeSubsystem.curlCommand());
@@ -874,6 +881,57 @@ public class RobotContainer {
         operatorController.sendButtonNamesToNT();
     }
 
+    public Command demoAmpCageCommand() {
+        final double rotationSpeedLimit = 1.2;
+
+        Command search = Commands.run(() -> swerveDriveSubsystem.setControl(
+                swerveDriveSubsystem.openLoop
+                        .withVelocityX(0)
+                        .withVelocityY(0)
+                        .withRotationalRate(rotationSpeedLimit)
+                ))
+        .until(new Trigger(() -> {
+                var picePosition = visionSubsystem.getDetectorInfo();
+
+                if (picePosition.isPresent()) {
+                        if (picePosition.get().tx() > -5) {
+                                return true;
+                        }
+                }
+                return false;
+        }).debounce(0.4));
+
+        Command driveAndIntakePiece = mlIntakeStraightCommand().until(ampTransportSubsystem::hasPiece)
+        .beforeStarting(() -> shouldRunCurlerAutpoButton.setPressed(true));
+
+        Command findPieceCommand = search.andThen(driveAndIntakePiece);
+        Command autoScoreAmpCommand = (
+                trapSubsystem.trapStateCommand
+                (new TrapState(0, 0, 16.357)
+        ).withTimeout(0.5)
+        .andThen(trapSubsystem.trapStateCommand(new TrapState(7,-6, 16.357)))
+        .withTimeout(1)
+        .andThen(trapSubsystem.trapStateCommand
+                (new TrapState(0, 0, 0)).withTimeout(0.5))).asProxy();
+        
+        // autoScoreAmpCommand = waitSeconds(5);
+
+        final Pose2d centerPose = new Pose2d(1.082 + 1, 2.311, new Rotation2d(Math.PI));
+        final Pose2d ampPose = new Pose2d(1.082, 2.311, new Rotation2d(Math.PI));
+        return sequence(
+                runOnce(() -> LimelightHelpers.setPipelineIndex("limelight-intake", 2)),
+                swerveDriveSubsystem.driveToPoseCommand(centerPose),
+                runOnce(() -> LimelightHelpers.setPipelineIndex("limelight-intake", 1)),
+                waitSeconds(1),
+                findPieceCommand,
+                runOnce(() -> LimelightHelpers.setPipelineIndex("limelight-intake", 2)),
+                swerveDriveSubsystem.driveToPoseCommand(centerPose),
+                swerveDriveSubsystem.driveToPoseCommand(ampPose),
+                autoScoreAmpCommand,
+                swerveDriveSubsystem.driveToPoseCommand(centerPose)
+        ).finallyDo(() -> {shouldRunCurlerAutpoButton.setPressed(false); LimelightHelpers.setPipelineIndex("limelight-intake", 2);}).repeatedly();
+    }
+
     public Command ampScoreCommand() {
         DriveToPositionCommand driveToPosition = new DriveToPositionCommand(
                 swerveDriveSubsystem,
@@ -975,19 +1033,19 @@ public class RobotContainer {
         SlewRateLimiter forwardSlewer = new SlewRateLimiter(8);
         SlewRateLimiter strafeSlewer = new SlewRateLimiter(8);
         final double aimingFactor = 0.8; // up to 1 the pose converges. reduces overshoot chance if less than 1;
-        DoubleSupplier speed = () -> intakeSubsystem.hasPieceSmoothed() ? 0 : 1.5;
+        DoubleSupplier speed = () -> intakeSubsystem.hasPieceSmoothed() ? 0 : 0.8;
         final LinearFilter myFilter = LinearFilter.singlePoleIIR(0.1, 0.02);
         Supplier<Rotation2d> angleOfGamepiece = () -> {
             if (visionSubsystem.getDetectorInfo().isPresent())
                 return Rotation2d.fromDegrees(
-                        -visionSubsystem.getDetectorInfo().get().ty() * aimingFactor);
+                        visionSubsystem.getDetectorInfo().get().tx() * aimingFactor);
             else return new Rotation2d();
         };
 
         Supplier<Rotation2d> absoluteTargetAngle = () -> Rotation2d.fromRotations(myFilter.calculate(
                 angleOfGamepiece.get().plus(swerveDriveSubsystem.getRotation()).getRotations()));
         ProfiledPIDController omegaController =
-                new ProfiledPIDController(4, 0, 1, new TrapezoidProfile.Constraints(6, 6));
+                new ProfiledPIDController(4, 0, 1, new TrapezoidProfile.Constraints(2, 2));
         DoubleSupplier forward =
                 () -> forwardSlewer.calculate(swerveDriveSubsystem.getRotation().getCos() * speed.getAsDouble());
         DoubleSupplier strafe =

@@ -11,6 +11,8 @@ import java.util.Optional;
 import java.util.function.Supplier;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
+import frc.lib.logging.Logger;
+
 public class AprilTagIOLimelight3G implements AprilTagIO {
     Transform3d fromRobotToCamera;
 
@@ -27,7 +29,8 @@ public class AprilTagIOLimelight3G implements AprilTagIO {
     public Pair<Optional<AprilTagIOInputs>, List<PhotonTrackedTarget>> updateInputs() {
         try {
             LimelightHelpers.SetRobotOrientation(camera,gyro.get().getDegrees(),0,0,0,0,0);
-            var results = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(camera);
+            var results = LimelightHelpers.getBotPoseEstimate_wpiBlue(camera);
+            Logger.log("Demo/SeesTags", results.pose);
             var outputs = new AprilTagIOInputs();
 
             outputs.targets = new ArrayList<>();

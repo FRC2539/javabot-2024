@@ -144,7 +144,7 @@ public class VisionSubsystem extends SubsystemBase {
                 }
 
                 xyStds = 0.3;
-                degStds = Units.radiansToDegrees(9999999);
+                degStds = Units.radiansToDegrees(0.1);
 
                 consumer.addVisionMeasurement(
                         t.poseEstimate3d.toPose2d(),

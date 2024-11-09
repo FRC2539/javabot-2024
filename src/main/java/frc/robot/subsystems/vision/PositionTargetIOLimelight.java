@@ -18,7 +18,7 @@ public class PositionTargetIOLimelight implements PositionTargetIO {
         ty = Logger.receive("/" + limelightName + "/ty", 0.0d);
         tl = Logger.receive("/" +limelightName + "/cl", 0.0d);
         tv = Logger.receive("/" +limelightName + "/tv", 0);
-        LimelightHelpers.setPipelineIndex(limelightName, 1);
+        LimelightHelpers.setPipelineIndex(limelightName, 2);
     }
 
     public Optional<PositionTargetIOInputs> updateInputs() {

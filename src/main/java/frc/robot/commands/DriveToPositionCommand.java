@@ -11,15 +11,15 @@ import frc.robot.subsystems.swervedrive.SwerveDriveSubsystem;
 import java.util.function.Supplier;
 
 public class DriveToPositionCommand extends Command {
-    private static final TrapezoidProfile.Constraints driveConstraints = new TrapezoidProfile.Constraints(3, 3);
-    private static final TrapezoidProfile.Constraints omegaConstraints = new TrapezoidProfile.Constraints(Math.PI * 3, Math.PI * 4);
+    private static final TrapezoidProfile.Constraints driveConstraints = new TrapezoidProfile.Constraints(0.5, 1);
+    private static final TrapezoidProfile.Constraints omegaConstraints = new TrapezoidProfile.Constraints(Math.PI, Math.PI);
 
     private final SwerveDriveSubsystem swerveDriveSubsystem;
 
     private Supplier<Pose2d> targetPoseSupplier;
 
-    private final ProfiledPIDController driveController = new ProfiledPIDController(5.5, 0, 0, driveConstraints);
-    private final ProfiledPIDController omegaController = new ProfiledPIDController(6, 0, 0, omegaConstraints);
+    private final ProfiledPIDController driveController = new ProfiledPIDController(1, 0, 0, driveConstraints);
+    private final ProfiledPIDController omegaController = new ProfiledPIDController(1, 0, 0, omegaConstraints);
 
     private final SlewRateLimiter xSlewRater = new SlewRateLimiter(3);
     private final SlewRateLimiter ySlewRater = new SlewRateLimiter(3);
@@ -39,7 +39,7 @@ public class DriveToPositionCommand extends Command {
         this.targetPoseSupplier = targetPoseSupplier;
         this.finishes = finishes;
 
-        driveController.setTolerance(0.02);
+        driveController.setTolerance(0.2);
         omegaController.setTolerance(Units.degreesToRadians(1));
         omegaController.enableContinuousInput(-Math.PI, Math.PI);
 
