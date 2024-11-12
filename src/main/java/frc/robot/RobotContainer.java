@@ -11,6 +11,8 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
@@ -36,6 +38,7 @@ import frc.lib.math.MathUtils.Pipe;
 import frc.lib.math.MathUtils.TriggerPipe;
 import frc.lib.vision.LimelightHelpers;
 import frc.lib.vision.LimelightRawAngles;
+import frc.lib.vision.PinholeModel3D;
 import frc.robot.Constants.ControllerConstants;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.ShooterConstants;
@@ -930,6 +933,33 @@ public class RobotContainer {
                 autoScoreAmpCommand,
                 swerveDriveSubsystem.driveToPoseCommand(centerPose)
         ).finallyDo(() -> {shouldRunCurlerAutpoButton.setPressed(false); LimelightHelpers.setPipelineIndex("limelight-intake", 2);}).repeatedly();
+    }
+
+    public Command logVisionInfoLol() {
+        return run(() -> {
+                if (visionSubsystem.getDetectorInfo().isPresent()) {
+            Translation2d lastPieceTranslation = PinholeModel3D.getTranslationToTarget(
+                    new Translation3d(
+                            1,
+                            Math.tan(Math.toRadians(
+                                    -visionSubsystem.getDetectorInfo().get().tx())),
+                            Math.tan(Math.toRadians(
+                                    visionSubsystem.getDetectorInfo().get().ty()))),
+                    VisionConstants.limelightRobotToCamera,
+                    0);
+            Pose2d poseAtTime = swerveDriveSubsystem.getPoseAtTimestamp(
+                    visionSubsystem.getDetectorInfo().get().timestamp());
+
+            Pose2d newPiecePose = poseAtTime.plus(new Transform2d(lastPieceTranslation, new Rotation2d()));
+
+
+            Logger.log("/DemoLogging/piecePose", FieldConstants.transformPoseToDemoSpace(new Pose3d(newPiecePose)), true);
+        
+            Logger.log("/DemoLogging/piecePoseLine", FieldConstants.transformPoseToDemoSpace(new Pose3d(newPiecePose)), true);
+            
+        }
+        }).finallyDo(() -> {Logger.log("/DemoLogging/piecePose", new Pose3d(1,1,-10, new Rotation3d()), true); 
+Logger.log("/DemoLogging/piecePoseLine",  new double[]{});});
     }
 
     public Command ampScoreCommand() {

@@ -6,6 +6,7 @@ import com.pathplanner.lib.util.GeometryUtil;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -13,6 +14,8 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import frc.lib.interpolation.InterpolatableDouble;
 import frc.lib.interpolation.InterpolatingMap;
+import frc.lib.logging.Logger;
+
 import java.util.Arrays;
 
 public final class Constants {
@@ -446,6 +449,17 @@ public final class Constants {
 
         public static Pose2d conditionallyFlipPose(Pose2d pose) {
             return isBlue() ? pose : GeometryUtil.flipFieldPose(pose);
+        }
+
+        public final static Pose3d badAprilTagPose = new Pose3d(-7.87625 + (FieldConstants.fieldLength / 2),
+        -1.7039 + (FieldConstants.fieldWidth / 2),
+        0.1101, new Rotation3d());
+        public static Pose3d transformPoseToDemoSpace(Pose3d pose) {
+            Pose3d midPose = aprilTagFieldLayout.getTagPose(6).get();
+            Pose3d betterAprilTagPose = new Pose3d(midPose.getX(), midPose.getY(), 0, midPose.getRotation());
+
+            Transform3d poseRelativeToStuff = pose.minus(badAprilTagPose);
+            return betterAprilTagPose.plus(poseRelativeToStuff);
         }
     }
 
