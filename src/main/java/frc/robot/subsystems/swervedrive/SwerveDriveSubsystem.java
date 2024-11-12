@@ -22,6 +22,7 @@ import com.pathplanner.lib.util.ReplanningConfig;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -39,6 +40,7 @@ import frc.lib.logging.Logger;
 import frc.lib.math.MathUtils;
 import frc.lib.math.MathUtils.AnyContainer;
 import frc.robot.Constants;
+import frc.robot.Constants.FieldConstants;
 import frc.robot.TunerConstants;
 import frc.robot.commands.DriveToPositionCommand;
 import java.util.Optional;
@@ -513,6 +515,7 @@ public class SwerveDriveSubsystem extends SwerveDrivetrain implements Subsystem 
     private void logTelemetry(SwerveDriveState state) {
         try {
             Logger.log("/SwerveDriveSubsystem/Pose", state.Pose);
+            Logger.log("/DemoLogging/robotPose", FieldConstants.transformPoseToDemoSpace(new Pose3d(state.Pose)), true);
             Logger.log("/SwerveDriveSubsystem/DelayedPose", getPoseAtTimestamp(Timer.getFPGATimestamp() - .5));
             Logger.log("/SwerveDriveSubsystem/DelayedTimestamp", previousSwervePosesTimestamps.getLast());
             Logger.log("/SwerveDriveSubsystem/Timestamp", Timer.getFPGATimestamp());

@@ -74,6 +74,12 @@ public class VisionSubsystem extends SubsystemBase {
         logVisionPoseEstimateInfo(leftInputs);
 
         Logger.log("/VisionSubsystem/isUsingVision", updatingPoseUsingVision);
+
+        if (VisionSubsystem.getTagInfo(leftTargets, 7).isPresent()) {
+            Logger.log("/DemoLogging/apriltagPose", FieldConstants.transformPoseToDemoSpace(FieldConstants.badAprilTagPose), true);
+        } else {
+            Logger.log("/DemoLogging/apriltagPose", new double[] {});
+        }
     }
 
     public static Optional<PhotonTrackedTarget> getTagInfo(List<PhotonTrackedTarget> targets, int tagID) {
