@@ -515,7 +515,8 @@ public class SwerveDriveSubsystem extends SwerveDrivetrain implements Subsystem 
     private void logTelemetry(SwerveDriveState state) {
         try {
             Logger.log("/SwerveDriveSubsystem/Pose", state.Pose);
-            Logger.log("/DemoLogging/robotPose", FieldConstants.transformPoseToDemoSpace(new Pose3d(state.Pose)), true);
+            Pose3d sussyPsoe = FieldConstants.transformPoseToDemoSpace(new Pose3d(state.Pose));
+            Logger.log("/DemoLogging/robotPose", new Pose2d(sussyPsoe.getX(), sussyPsoe.getY(), new Rotation2d(sussyPsoe.getRotation().getZ())));
             Logger.log("/SwerveDriveSubsystem/DelayedPose", getPoseAtTimestamp(Timer.getFPGATimestamp() - .5));
             Logger.log("/SwerveDriveSubsystem/DelayedTimestamp", previousSwervePosesTimestamps.getLast());
             Logger.log("/SwerveDriveSubsystem/Timestamp", Timer.getFPGATimestamp());

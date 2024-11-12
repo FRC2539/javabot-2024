@@ -131,11 +131,11 @@ public class RobotContainer {
         MechanismRoot2d trapMechRoot = mech.getRoot("trapRoot", Units.inchesToMeters(8), Units.inchesToMeters(5));
 
         MechanismLigament2d shooterMech =
-                shooterMechRoot.append(new MechanismLigament2d("shooter", 0.4, 180, 15, new Color8Bit(Color.kBlack)));
+                shooterMechRoot.append(new MechanismLigament2d("shooter", 0.4, 180, 15, new Color8Bit(Color.kBlue)));
         MechanismLigament2d climberMech =
                 climberMechRoot.append(new MechanismLigament2d("climber", 0.0, 90, 4, new Color8Bit(Color.kOrange)));
         MechanismLigament2d trapMech =
-                trapMechRoot.append(new MechanismLigament2d("trap", 0.4, 70, 4, new Color8Bit(Color.kBlue)));
+                trapMechRoot.append(new MechanismLigament2d("trap", 0.4, 70, 8, new Color8Bit(Color.kBlack)));
         
         //fake
         // MechanismLigament2d shamperMech =
@@ -932,7 +932,7 @@ public class RobotContainer {
                 swerveDriveSubsystem.driveToPoseCommand(centerPose),
                 runOnce(() -> LimelightHelpers.setPipelineIndex("limelight-intake", 1)),
                 waitSeconds(0.5),
-                findPieceCommand,
+                findPieceCommand.deadlineWith(logVisionInfoLol()),
                 runOnce(() -> LightsSubsystemB.LEDSegment.MainStrip.setColor(LightsSubsystemB.orange)),
                 runOnce(() -> LimelightHelpers.setPipelineIndex("limelight-intake", 2)),
                 swerveDriveSubsystem.driveToPoseCommand(centerPose),
@@ -961,7 +961,7 @@ public class RobotContainer {
             Pose2d newPiecePose = poseAtTime.plus(new Transform2d(lastPieceTranslation, new Rotation2d()));
 
 
-            Logger.log("/DemoLogging/piecePose", FieldConstants.transformPoseToDemoSpace(new Pose3d(newPiecePose)), true);
+            Logger.log("/DemoLogging/piecePose", FieldConstants.transformPoseToDemoSpace(new Pose3d(newPiecePose.getX(), newPiecePose.getY(), 0.15, new Rotation3d())), true);
         
             Logger.log("/DemoLogging/piecePoseLine", FieldConstants.transformPoseToDemoSpace(new Pose3d(newPiecePose)), true);
             

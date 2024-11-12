@@ -7,6 +7,7 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
@@ -76,7 +77,8 @@ public class VisionSubsystem extends SubsystemBase {
         Logger.log("/VisionSubsystem/isUsingVision", updatingPoseUsingVision);
 
         if (VisionSubsystem.getTagInfo(leftTargets, 7).isPresent()) {
-            Logger.log("/DemoLogging/apriltagPose", FieldConstants.transformPoseToDemoSpace(FieldConstants.badAprilTagPose), true);
+            Pose3d bobby = FieldConstants.badAprilTagPose;
+            Logger.log("/DemoLogging/apriltagPose", FieldConstants.transformPoseToDemoSpace(new Pose3d(bobby.getX(), bobby.getY(), 0.3, new Rotation3d())), true);
         } else {
             Logger.log("/DemoLogging/apriltagPose", new double[] {});
         }
