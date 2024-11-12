@@ -890,6 +890,9 @@ public class RobotContainer {
                         .withVelocityY(0)
                         .withRotationalRate(rotationSpeedLimit)
                 ))
+        .alongWith(run(
+                        () -> LightsSubsystemB.LEDSegment.MainStrip.setStrobeAnimation(LightsSubsystemB.purple, 0.3),
+                        lightsSubsystem))
         .until(new Trigger(() -> {
                 var picePosition = visionSubsystem.getDetectorInfo();
 
@@ -901,35 +904,40 @@ public class RobotContainer {
                 return false;
         }).debounce(0.4));
 
-        Command driveAndIntakePiece = mlIntakeStraightCommand().until(ampTransportSubsystem::hasPiece)
+
+        Command driveAndIntakePiece = mlIntakeStraightCommand().alongWith(run(
+                        () -> LightsSubsystemB.LEDSegment.MainStrip.setColor(LightsSubsystemB.green),
+                        lightsSubsystem)).until(ampTransportSubsystem::hasPiece)
         .beforeStarting(() -> shouldRunCurlerAutpoButton.setPressed(true));
 
         Command findPieceCommand = search.andThen(driveAndIntakePiece);
         Command autoScoreAmpCommand = (
                 trapSubsystem.trapStateCommand
-                (new TrapState(0, 0, 16.357)
+                (new TrapState(0, 0, 18.9)
         ).withTimeout(0.5)
-        .andThen(trapSubsystem.trapStateCommand(new TrapState(7,-6, 16.357)))
+        .andThen(trapSubsystem.trapStateCommand(new TrapState(7,-6, 18.9)))
         .withTimeout(1)
         .andThen(trapSubsystem.trapStateCommand
                 (new TrapState(0, 0, 0)).withTimeout(0.5))).asProxy();
         
         // autoScoreAmpCommand = waitSeconds(5);
 
-        final Pose2d centerPose = new Pose2d(1.082 + 1, 2.311, new Rotation2d(Math.PI));
-        final Pose2d ampPose = new Pose2d(1.082, 2.311, new Rotation2d(Math.PI));
+        final Pose2d centerPose = new Pose2d(0.843 + 1, 2.311, new Rotation2d(Math.PI));
+        final Pose2d ampPose = new Pose2d(0.843, 2.311, new Rotation2d(Math.PI));
         return sequence(
                 runOnce(() -> LimelightHelpers.setPipelineIndex("limelight-intake", 2)),
                 swerveDriveSubsystem.driveToPoseCommand(centerPose),
                 runOnce(() -> LimelightHelpers.setPipelineIndex("limelight-intake", 1)),
-                waitSeconds(1),
+                waitSeconds(0.5),
                 findPieceCommand,
+                runOnce(() -> LightsSubsystemB.LEDSegment.MainStrip.setColor(LightsSubsystemB.orange)),
                 runOnce(() -> LimelightHelpers.setPipelineIndex("limelight-intake", 2)),
                 swerveDriveSubsystem.driveToPoseCommand(centerPose),
                 swerveDriveSubsystem.driveToPoseCommand(ampPose),
                 autoScoreAmpCommand,
+                run(() -> LightsSubsystemB.LEDSegment.MainStrip.setRainbowAnimation(1)).withTimeout(1),
                 swerveDriveSubsystem.driveToPoseCommand(centerPose)
-        ).finallyDo(() -> {shouldRunCurlerAutpoButton.setPressed(false); LimelightHelpers.setPipelineIndex("limelight-intake", 2);}).repeatedly();
+        ).finallyDo(() -> {shouldRunCurlerAutpoButton.setPressed(false); LimelightHelpers.setPipelineIndex("limelight-intake", 2);});
     }
 
     public Command ampScoreCommand() {
