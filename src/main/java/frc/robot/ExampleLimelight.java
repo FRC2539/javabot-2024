@@ -104,16 +104,19 @@ public class ExampleLimelight {
     public void updateVisionMegaTag1() {
         LimelightHelpers.PoseEstimate mt1 = LimelightHelpers.getBotPoseEstimate_wpiBlue(LIMELIGHT_NAME);
       
-        if(mt1.tagCount == 1 && mt1.rawFiducials.length == 1)
-        {
+        // if there are no tags, reject vision updates
+        if(mt1.tagCount == 0) return;
+
+        // if there is only one tag, reject vision updates if it is...
+        if(mt1.tagCount == 1 && mt1.rawFiducials.length == 1) {
+            // ...ambiguous...
             if(mt1.rawFiducials[0].ambiguity > .7) return;
 
+            // ...or too far away...
             if(mt1.rawFiducials[0].distToCamera > 3) return;
         }
 
-        if(mt1.tagCount == 0) return;
-
-        m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(.5,.5,9999999));
+        m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(.5,.5, 1));
         m_poseEstimator.addVisionMeasurement(
             mt1.pose,
             mt1.timestampSeconds);
