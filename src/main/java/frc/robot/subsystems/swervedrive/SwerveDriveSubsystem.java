@@ -43,7 +43,10 @@ import frc.lib.math.MathUtils;
 import frc.lib.math.MathUtils.AnyContainer;
 import frc.robot.Constants;
 import frc.robot.TunerConstants;
+import frc.robot.Constants.FieldConstants;
 import frc.robot.commands.DriveToPositionCommand;
+import frc.robot.subsystems.vision.VisionSubsystem;
+
 import java.util.Optional;
 import java.util.function.DoubleSupplier;
 import java.util.function.Function;
@@ -529,7 +532,27 @@ public class SwerveDriveSubsystem extends SwerveDrivetrain implements Subsystem 
     public void periodic() {
         previousSwervePoses.addFirst(currentState.Pose);
         previousSwervePosesTimestamps.addFirst(Timer.getFPGATimestamp());
+        forwardDemonstration();
         logTelemetry(currentState);
+    }
+
+    private void forwardDemonstration() {
+        Translation2d currentPose = getPose().getTranslation();
+        Translation2d runningPose = currentPose;
+        ChassisSpeeds speeds = getFieldRelativeChassisSpeeds();;
+        Translation2d transSpeeds = new Translation2d(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond);
+        double[] poses = new double[10*3];
+        for (int i = 0; i < 10; i++) {
+            double distance = FieldConstants.getSpeakerDistanceFromPose(new Pose2d(runningPose, new Rotation2d()));
+            double time = distance * 0.1;
+            runningPose = currentPose.plus(transSpeeds.times(time));
+            poses[i*3] = runningPose.getX();
+            poses[i*3+1] = runningPose.getY();
+            poses[i*3+2] = 0;
+        }
+        Logger.log("/SwerveDriveSubsystem/FieldRelativePoses", poses);
+        Logger.log("/SwerveDriveSubsystem/FutureRelativePose", runningPose);
+        Logger.log("/SwerveDriveSubsystem/PredictedDirection", FieldConstants.getSpeakerAngleFromPose(new Pose2d(runningPose, new Rotation2d())).plus(Rotation2d.fromDegrees(180)).getDegrees());
     }
 
     private void logTelemetry(SwerveDriveState state) {

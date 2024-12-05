@@ -48,7 +48,7 @@ public class VisionSubsystem extends SubsystemBase {
 
     private SwerveDriveSubsystem consumer;
 
-    public boolean updatingPoseUsingVision = true;
+    public boolean updatingPoseUsingVision = false;
 
     public VisionSubsystem(SwerveDriveSubsystem consumer, AprilTagIO left, PositionTargetIO limelight) {
         this.left = left;
